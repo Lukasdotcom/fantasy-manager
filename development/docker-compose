@@ -1,0 +1,31 @@
+version: "2.1"
+services:
+  bundesliga:
+    image: lukasdotcom/bundesliga:development
+    container_name: bundesliga
+    links:
+      - db
+    environment:
+      - NEXTAUTH_URL=http//localhost # The url of the server
+      - MYSQL_PASSWORD=password
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=bundesliga
+      # Uncomment the 2 below if you want to enable sign in with google for a valid list of users
+      #- GOOGLE_ID=none
+      #- GOOGLE_SECRET=none
+    ports:
+      - 80:3000
+    restart: always
+    volumes:
+      - /locationToWhereThisGithubIsDownloaded:/var/www/bundesliga
+  db:
+    image: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=bundesliga
+    restart: always
+    volumes:
+      - bundesliga:/var/lib/mysql
+volumes:
+  bundesliga:
+    external: true
