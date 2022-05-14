@@ -11,3 +11,7 @@ Edit the docker-compose file in the development folder folowing the steps indica
 ```
 docker-compose up
 ```
+When you are done editing run this command and fix all the errors
+```
+npm run lint
+```

@@ -3,15 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm install; next dev",
+    "dev": "npm install; nodejs entrypoint.js & next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "12.1.6",
-    "react": "18.1.0",
-    "react-dom": "18.1.0"
+    "mysql": "^2.18.1",
+    "next": "^12.1.6",
+    "next-auth": "^4.3.4",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
   },
   "devDependencies": {
     "eslint": "8.15.0",

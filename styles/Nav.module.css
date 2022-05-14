@@ -1,0 +1,14 @@
+.nav {
+    height: 50px;
+    background: #0000bb;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    display: flex;
+    justify-content: flex-start;
+}
+  
+.nav a {
+    margin: 5px 20px;
+    font-size: 30px
+}
