@@ -15,3 +15,8 @@ When you are done editing run this command and fix all the errors
 ```
 npm run lint
 ```
+# How to get Bundesliga Api
+Make an account on fantasy.bundesliga.com and make an account and then look at your cookies and one of the cookies is called acess_token and that is the api key for bundesliga
+
+# Production
+This is currently in active development and not meant to be used in production yet(It is also pretty useless right now because the bundeslia season has not started yet)
