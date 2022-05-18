@@ -3,14 +3,21 @@ import Link from 'next/link'
 import navStyles from '../styles/Nav.module.css'
 import Login from './Login'
 // Used to create a menu
-const Layout = ({session}) => {
+const Layout = ({session, league}) => {
     return (
-        <nav className={navStyles.nav}>
-            <Link href='/'>Home</Link>
-            <SessionProvider session={session}>
-            <Login />
-            </SessionProvider>
-        </nav>
+    <nav className={navStyles.nav}>
+        <Link href='/'>Home</Link>
+        { league &&
+        <>
+            <Link href={`/${league}/squad`}>Squad</Link>
+            <Link href={`/${league}/transfer`}>Transfer</Link>
+            <Link href={`/${league}/standings`}>Standings</Link>
+        </>
+        }
+        <SessionProvider session={session}>
+        <Login />
+        </SessionProvider>
+    </nav>
     )
 }
 
