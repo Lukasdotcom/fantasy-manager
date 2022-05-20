@@ -20,7 +20,7 @@ export default async function handler(req, res) {
                     resolve(results)
                 })}).then((results) => {
                     if (results.length == 0) {
-                        connection.query("INSERT INTO leagues VALUES(?, ?, ?, 0)", [req.body.name, id, session.user.email])
+                        connection.query("INSERT INTO leagues VALUES(?, ?, ?)", [req.body.name, id, session.user.email])
                         res.status(200).end("Created League")
                     } else {
                         throw "Could not create league"
@@ -51,6 +51,7 @@ export async function leagueList(player) {
         database : process.env.MYSQL_DATABASE
         })
     return new Promise((resolve) => {connection.query("SELECT leagueName, leagueID FROM leagues WHERE player=?", [player], function(error, results, fields) {
+        connection.end()
         resolve(results)
     })})
 }

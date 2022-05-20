@@ -1,57 +1,80 @@
-import { getSession } from "next-auth/react"
 import Menu from "../../components/Menu"
+import redirect from "../../Modules/league"
+import Head from "next/head"
+import { useState } from "react"
 
-export default function Home({session, league}) {
+// Shows some simple 
+function Player({name, matchdayPoints, points}) {
+    return <tr><td>{name}</td><td>{matchdayPoints}</td><td>{points}</td></tr>
+}
+export default function Home({session, league, standings, historicalPoints}) {
+    // Calculates the current matchday
+    const currentMatchday = Object.values(historicalPoints)[0].length
+    const [matchday, setmatchday] = useState(currentMatchday)
     return (
     <>
+    <Head>
+      <title>Transfers</title>
+    </Head>
     <Menu session={session} league={league}/>
+    <h1>Standings</h1>
+    <table>
+    <tbody>
+    <tr><th>Name</th><th>Matchday { matchday} Points</th><th>Total Points</th></tr>
+    { standings.map((val) => 
+    <Player name={val.player} key={val.player} points={val.points} matchdayPoints={historicalPoints[val.player][matchday-1]}/>
+    )}
+    </tbody>
+    </table>
+    <br></br>
+    {/* This is to allow the user to input a matchday to show the number of points */}
+    <label htmlFor="matchday">Set matchday to show points for</label>
+    <input id='matchday' type={"range"} min={1} max={currentMatchday} value={matchday} onChange={(e) => {setmatchday(e.target.value)}}></input>
     </>
   )
 }
 
 // Gets the users session
 export async function getServerSideProps(ctx) {
-    const mysql = require('mysql')
-    var connection = mysql.createConnection({
-        host     : process.env.MYSQL_HOST,
-        user     : "root",
-        password : process.env.MYSQL_PASSWORD,
-        database : process.env.MYSQL_DATABASE
+    // Gets the leaderboard for the league
+    const standings = new Promise((resolve) => {
+        const mysql = require("mysql")
+        var connection = mysql.createConnection({
+            host     : process.env.MYSQL_HOST,
+            user     : "root",
+            password : process.env.MYSQL_PASSWORD,
+            database : process.env.MYSQL_DATABASE
+            })
+        connection.query("SELECT player, points FROM leagues WHERE leagueId=? ORDER BY points DESC", [ctx.params.league], function(error, results, fields) {
+            connection.end()
+            resolve(results)
         })
-    const session = await getSession(ctx)
-    return await new Promise((resolve) => {
-        if (session) {
-            connection.query("SELECT * FROM leagues WHERE leagueID=? and player=?", [ctx.params.league, session.user.email], function(error, results, fields) {
-                if (results.length > 0) {
-                    resolve({
-                        props: {
-                            league: ctx.params.league, leagueName: results[0].leagueName
-                        },
-                    })
-                } else {
-                    resolve({
-                        notFound : true
-                    })
-                }
+    }).then((val) => JSON.parse(JSON.stringify(val)))
+    // Gets the historical amount of points for every matchday in the league
+    const historicalPoints = new Promise((resolve) => {
+        const mysql = require("mysql")
+        var connection = mysql.createConnection({
+            host     : process.env.MYSQL_HOST,
+            user     : "root",
+            password : process.env.MYSQL_PASSWORD,
+            database : process.env.MYSQL_DATABASE
             })
-        } else {
-            connection.query("SELECT * FROM leagues WHERE leagueID=?", [ctx.params.league], function(error, results, fields) {
-                if (results.length > 0) {
-                    // Makes sure to redirect a user that is not logged in but went to a valid league to a login
-                    resolve({
-                        redirect : {
-                            destination : `/api/auth/signin?callbackUrl=${encodeURIComponent(ctx.resolvedUrl)}`,
-                            permanent : false,
-                        },
-                    })
-                } else {
-                    resolve({
-                        notFound : true
-                    })
-                }
-            })
-        }
-    }).then((val) => {
-        return val
-    })
+        connection.query("SELECT player, points, matchday FROM points WHERE leagueId=? ORDER BY matchday ASC", [ctx.params.league], function(error, results, fields) {
+            connection.end()
+            if (results.length > 0) {
+                let points = {}
+                results.forEach(element => {
+                    if (points[element.player]) {
+                        points[element.player].push(element.points)
+                    } else {
+                        points[element.player] = [element.points]
+                    }
+                })
+                resolve(points)
+            } else {
+                resolve({})
+            }
+        })
+    }).then((val) => JSON.parse(JSON.stringify(val)))
+    return await redirect(ctx, { standings: await standings, historicalPoints: await historicalPoints })
 }

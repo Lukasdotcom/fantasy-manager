@@ -9,9 +9,9 @@ const Layout = ({session, league}) => {
         <Link href='/'>Home</Link>
         { league &&
         <>
+            <Link href={`/${league}`}>Standings</Link>
             <Link href={`/${league}/squad`}>Squad</Link>
             <Link href={`/${league}/transfer`}>Transfer</Link>
-            <Link href={`/${league}/standings`}>Standings</Link>
         </>
         }
         <SessionProvider session={session}>
