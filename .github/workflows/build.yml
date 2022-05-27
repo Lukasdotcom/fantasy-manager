@@ -13,7 +13,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    env:
+      NODE_ENV: development
     strategy:
       matrix:
         node-version: [12.x, 14.x, 16.x]
