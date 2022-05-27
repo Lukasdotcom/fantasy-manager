@@ -1,3 +1,5 @@
+# Description
+This is meant to be an open source self hosted version of the official bundesliga fantasy.
 # Develop
 Download this git repository by running
 ```
