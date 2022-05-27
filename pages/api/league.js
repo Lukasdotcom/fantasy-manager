@@ -20,11 +20,11 @@ export default async function handler(req, res) {
                     resolve(results)
                 })}).then((results) => {
                     if (results.length == 0) {
-                        connection.query("INSERT INTO leagues VALUES(?, ?, ?)", [req.body.name, id, session.user.email])
+                        connection.query("INSERT INTO leagues VALUES(?, ?, ?, 0)", [req.body.name, id, session.user.email])
                         res.status(200).end("Created League")
                     } else {
                         throw "Could not create league"
-                }}).catch(() => {res.status(500).end("Could not create league")})
+                }}).catch(() => {console.error("Failure in creating league"); res.status(500).end("Error Could not create league")})
                 break;
             // Returns all leagues the player is in
             case "GET":

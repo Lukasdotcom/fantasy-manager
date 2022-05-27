@@ -17,6 +17,8 @@ connection.query("CREATE TABLE IF NOT EXISTS leagues (leagueName varchar(255), l
 connection.query("CREATE TABLE IF NOT EXISTS points (leagueID int, player varchar(255), points int, matchday int)")
 // Used to store transfers
 connection.query("CREATE TABLE IF NOT EXISTS transfers (leagueID int, seller varchar(255), buyer varchar(255), playeruid varchar(25))")
+// Used to store invite links
+connection.query("CREATE TABLE IF NOT EXISTS invite (inviteID varchar(25) PRIMARY KEY, leagueID int)")
 // Makes sure to check for an update every 30 minutes
 setInterval(update, 1800000)
 updateData()
