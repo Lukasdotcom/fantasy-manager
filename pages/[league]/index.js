@@ -35,7 +35,7 @@ export default function Home({session, league, standings, historicalPoints, invi
     return (
     <>
     <Head>
-      <title>Transfers</title>
+      <title>Standings</title>
     </Head>
     <Menu session={session} league={league}/>
     <h1>Standings</h1>
