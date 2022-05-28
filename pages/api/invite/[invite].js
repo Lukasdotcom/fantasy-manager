@@ -1,6 +1,6 @@
 import { getSession } from "next-auth/react"
 // Used to join a league
-export default async function handler(req, res) {
+export default async function handler(req, res, ctx) {
     const session = await getSession({ req })
     if (session) {
         const mysql = require('mysql')
@@ -60,6 +60,6 @@ export default async function handler(req, res) {
         connection.end()
     } else {
         // Redirects the user if they are not logged in
-        res.redirect(307, `/api/auth/signin?callbackUrl=${encodeURIComponent(ctx.resolvedUrl)}`).end()
+        res.redirect(307, `/api/auth/signin?callbackUrl=${encodeURIComponent(process.env.DOMAIN + "/api/invite/" + req.query.invite)}`).end()
     }
 }
