@@ -1,5 +1,5 @@
 import { getSession } from "next-auth/react"
-// Used to get information about the redirect for the league
+// Used to get information about the redirect for the league runs on every league page
 export default async function redirect(ctx, data) {
     const league = ctx.params.league
     const session = await getSession(ctx)

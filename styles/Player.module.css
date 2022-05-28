@@ -1,0 +1,18 @@
+.container {
+	display: flex;
+    width: 100%;
+	flex-direction: row;
+	border-color: white;
+	border-width: 2px;
+	border-style: solid;
+	margin-top: 5px;
+    align-items: center;
+}
+.innerContainer {
+    display: flex;
+    align-items: center;
+}
+.innerContainer div {
+    margin-left: 5px;
+    margin-right: 5px;
+}
