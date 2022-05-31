@@ -11,9 +11,18 @@ export default function Home({session, league, defaultSearch}) {
         <title>Transfers</title>
     </Head>
     <Menu session={session} league={league}/>
+    <div className="main-content" onScroll={async (e) => {
+        // Checks if scrolled to the bottom
+        const bottom = e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight
+        // Checks if there are only 2 players left that are not shown and if true requests 10 more players
+        if (bottom < e.target.scrollHeight/players.length * 2) {
+            fetch(`/api/player?limit=${players.length + 10}`).then(async (val) => setPlayers(await val.json()))
+        }
+    }}>
     { players.map((val) => 
         <Player key={val} uid={val} />
     )}
+    </div>
     </>
     )
 }

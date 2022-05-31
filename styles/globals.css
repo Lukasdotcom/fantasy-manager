@@ -43,3 +43,8 @@ button:hover {
   background-color: rgb(55, 55, 255);
   color: black;
 }
+
+.main-content {
+  height: 100vh;
+  overflow-y: scroll;
+}

@@ -1,14 +1,15 @@
 .nav {
-    height: 50px;
+    height: auto;
     background: #0000bb;
     color: #fff;
     display: flex;
     justify-content: center;
     display: flex;
     justify-content: flex-start;
+    overflow-x: scroll;
 }
   
 .nav a {
-    margin: 5px 20px;
-    font-size: 30px
+    margin: 1vw 1.4vw;
+    font-size: 4vh
 }
