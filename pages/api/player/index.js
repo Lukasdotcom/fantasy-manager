@@ -12,7 +12,7 @@ export default async function handler(req, res) {
         let searchTerm = req.query.searchTerm != undefined ? req.query.searchTerm : ""
         searchTerm = `%${searchTerm}%`
         // Used to get the number of players to max out the search results to
-        let limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit) : 20
+        let limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit) : 10
         // Creates the sql for all the positions
         let positions = ["att", "mid", "def", "gk"]
         if (req.query.positions != undefined) {
