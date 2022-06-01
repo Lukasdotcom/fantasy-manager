@@ -3,9 +3,9 @@ import redirect from "../../Modules/league"
 import Head from "next/head"
 import { useState, useEffect } from "react"
 import Player from "../../components/Player"
-export default function Home({session, league, defaultSearch}) {
+export default function Home({session, league}) {
     const positionList = ["gk", "def", "mid", "att"]
-    const [players, setPlayers] = useState(defaultSearch)
+    const [players, setPlayers] = useState([])
     const [searchTerm, setSearchTerm] = useState("")
     const [finished, setFinished] = useState(false)
     const [positions, setPositions] = useState(positionList)
@@ -63,6 +63,5 @@ export default function Home({session, league, defaultSearch}) {
 }
 
 export async function getServerSideProps(ctx) {
-    const players = fetch("http://localhost:3000/api/player").then(async (val) => await val.json())
-    return await redirect(ctx, {defaultSearch : await players})
+    return await redirect(ctx, {})
 }
