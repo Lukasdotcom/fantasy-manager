@@ -3,6 +3,14 @@ import redirect from "../../Modules/league"
 import Head from "next/head"
 import { useState, useEffect } from "react"
 import Player from "../../components/Player"
+// Used for the selecting and unselecting of a position
+function Postion({position, positions, setPositions}) {
+    return (
+    <>
+        <label htmlFor={position}>{position}:</label>
+        <input type="checkbox" onChange={(e) => {e.target.checked ? setPositions([...positions, position]) : setPositions(positions.filter((e2) => e2 != position))}} checked={positions.includes(position)} id={position}></input>
+    </>)
+}
 export default function Home({session, league}) {
     const positionList = ["gk", "def", "mid", "att"]
     const [players, setPlayers] = useState([])
@@ -47,11 +55,7 @@ export default function Home({session, league}) {
     <input onChange={(val) => {setSearchTerm(val.target.value)}} val={searchTerm} id="search"></input>
     <br></br>
     { positionList.map((position) => 
-        // Used to select and unselect every position
-        <>
-        <label htmlFor={position}>{position}:</label>
-        <input type="checkbox" onChange={(e) => {e.target.checked ? setPositions([...positions, position]) : setPositions(positions.filter((e2) => e2 != position))}} checked={positions.includes(position)} id={position}></input>
-        </>
+        <Postion key={position} position={position} positions={positions} setPositions={setPositions}/>
     )}
     <p>Yellow background means attendance unknown and red background that the player is not attending.</p>
     { players.map((val) => 
