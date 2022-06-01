@@ -53,6 +53,7 @@ export default function Home({session, league, defaultSearch}) {
         <input type="checkbox" onChange={(e) => {e.target.checked ? setPositions([...positions, position]) : setPositions(positions.filter((e2) => e2 != position))}} checked={positions.includes(position)} id={position}></input>
         </>
     )}
+    <p>Yellow background means attendance unknown and red background that the player is not attending.</p>
     { players.map((val) => 
         <Player key={val} uid={val} />
     )}

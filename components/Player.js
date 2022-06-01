@@ -11,14 +11,19 @@ const Layout = ({uid}) => {
         }
         getData()
     }, [uid])
+    var background = "black"
     if (Object.keys(data).length > 0) {
+        // Changes the background to the correct color if the player is missing or not known if they are coming
+        if (data.forecast == "u") {
+            background = "rgb(50, 50, 0)"
+        } else if (data.forecast == "m") {
+            background = "rgb(50, 0, 0)"
+        }
         return (
-            <div className={playerStyles.container}>
-                <div><p>{data.club}</p><p>{data.position}</p></div>
-                <div style={{"height" : "130px"}}>
+            <div className={playerStyles.container} style={{background}}>
+                <div style={{"width" : "min(10%, 80px)", "textAlign" : "center"}}><p>{data.club}</p><p>{data.position}</p></div>
                 <Image alt='' src={data.pictureUrl} width="130px" height="130px"/>
-                </div>
-                <div>
+                <div style={{"width" : "70%"}}>
                     <p>{data.name}</p>
                     <div className={playerStyles.innerContainer}>
                         <div>
@@ -35,6 +40,7 @@ const Layout = ({uid}) => {
                         </div>
                     </div>
                 </div>
+                <p style={{"width" : "15%", "textAlign" : "center"}}>Value: {data.value/1000000} M</p>
             </div>
             )
     } else {
