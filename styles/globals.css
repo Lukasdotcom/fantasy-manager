@@ -48,3 +48,13 @@ button:hover {
   height: 100vh;
   overflow-y: scroll;
 }
+
+.disabled-button {
+  background-color: rgb(100, 100, 100);
+  border: 2px solid black;
+}
+
+.disabled-button:hover {
+  background-color: rgb(100, 100, 100);
+  color: white;
+}

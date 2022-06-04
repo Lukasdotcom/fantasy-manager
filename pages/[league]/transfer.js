@@ -17,8 +17,15 @@ export default function Home({session, league}) {
     const [searchTerm, setSearchTerm] = useState("")
     const [finished, setFinished] = useState(false)
     const [positions, setPositions] = useState(positionList)
+    const [money, setMoney] = useState(0)
+    const [ownership, setOwnership] = useState({})
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {search(true)}, [searchTerm, positions])
+    // Used to get the data for a list of transfers and money
+    function transferData() {
+        fetch(`/api/transfer/${league}`).then(async (val) => {val = await val.json(); setMoney(val.money); setOwnership(val.ownership)})
+    }
+    useEffect(transferData, [league])
     // Used to search the isNew is used to check if it should reload everything back from the start
     async function search(isNew) {
         var length = -1
@@ -51,6 +58,7 @@ export default function Home({session, league}) {
             search(false)
         }
     }}>
+    <p>Money left: {money / 1000000}M</p>
     <label htmlFor="search">Search Player Name: </label>
     <input onChange={(val) => {setSearchTerm(val.target.value)}} val={searchTerm} id="search"></input>
     <br></br>
@@ -58,8 +66,8 @@ export default function Home({session, league}) {
         <Postion key={position} position={position} positions={positions} setPositions={setPositions}/>
     )}
     <p>Yellow background means attendance unknown and red background that the player is not attending.</p>
-    { players.map((val) => 
-        <Player key={val} uid={val} />
+    { players.map((val) =>
+        <Player key={val} uid={val} ownership={ownership[val]} money={money} league={league} transferData={transferData} />
     )}
     </div>
     </>

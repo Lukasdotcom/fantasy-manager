@@ -12,13 +12,15 @@ connection.query("CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KE
 // Creates a table that contains some key value pairs for data that is needed for some things
 connection.query("CREATE TABLE IF NOT EXISTS data (value1 varchar(25) PRIMARY KEY, value2 varchar(255))")
 // Used to store the leagues
-connection.query("CREATE TABLE IF NOT EXISTS leagues (leagueName varchar(255), leagueID int, player varchar(255), points int)")
+connection.query("CREATE TABLE IF NOT EXISTS leagues (leagueName varchar(255), leagueID int, player varchar(255), points int, money int)")
 // Used to store the Historical Points
 connection.query("CREATE TABLE IF NOT EXISTS points (leagueID int, player varchar(255), points int, matchday int)")
 // Used to store transfers
-connection.query("CREATE TABLE IF NOT EXISTS transfers (leagueID int, seller varchar(255), buyer varchar(255), playeruid varchar(25))")
+connection.query("CREATE TABLE IF NOT EXISTS transfers (leagueID int, seller varchar(255), buyer varchar(255), playeruid varchar(25), value int)")
 // Used to store invite links
 connection.query("CREATE TABLE IF NOT EXISTS invite (inviteID varchar(25) PRIMARY KEY, leagueID int)")
+// Used to store player squads
+connection.query("CREATE TABLE IF NOT EXISTS squad (leagueID int, player varchar(255), playeruid varchar(25), position varchar(5))")
 // Makes sure to check for an update every 30 minutes
 setInterval(update, 1800000)
 updateData()

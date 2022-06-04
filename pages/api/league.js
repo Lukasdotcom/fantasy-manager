@@ -20,7 +20,7 @@ export default async function handler(req, res) {
                     resolve(results)
                 })}).then((results) => {
                     if (results.length == 0) {
-                        connection.query("INSERT INTO leagues VALUES(?, ?, ?, 0)", [req.body.name, id, session.user.email])
+                        connection.query("INSERT INTO leagues VALUES(?, ?, ?, 0, 150000000)", [req.body.name, id, session.user.email])
                         res.status(200).end("Created League")
                     } else {
                         throw "Could not create league"

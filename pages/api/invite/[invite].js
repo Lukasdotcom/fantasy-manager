@@ -1,6 +1,6 @@
 import { getSession } from "next-auth/react"
 // Used to join a league
-export default async function handler(req, res, ctx) {
+export default async function handler(req, res) {
     const session = await getSession({ req })
     if (session) {
         const mysql = require('mysql')
@@ -28,7 +28,7 @@ export default async function handler(req, res, ctx) {
                             })
                             // Adds the player in the database if they have not joined yet
                             if (! joined) {
-                                connection.query("INSERT INTO leagues VALUES(?, ?, ?, 0)", [leagueName, result.leagueID, session.user.email])
+                                connection.query("INSERT INTO leagues VALUES(?, ?, ?, 0, 150000000)", [leagueName, result.leagueID, session.user.email])
                                 // Makes sure to add 0 points for every matchday that has already happened.
                                 connection.query("SELECT * FROM points WHERE leagueID=? ORDER BY points DESC LIMIT 1", [result.leagueID], function(error, point, fields) {
                                     let matchday = 0
