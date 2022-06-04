@@ -46,10 +46,28 @@ export default async function handler(req, res) {
                     })
                     // Puts all the ownership and transfer info in a dictionary
                     let ownership = {}
-                    playerSquad.forEach(e => {ownership[e.playeruid] = {"playerSquad" : true}})
-                    squads.forEach(e => {ownership[e.playeruid] = {"otherSquad" : e.player}})
-                    transfers.forEach(e => {ownership[e.playeruid] = {"transfer" : {"value" : e.value, "buyer" : e.buyer, "buyerSelf" : e.buyer == user, "seller" : e.seller, "sellerSelf" : e.seller == user}}})
-                    res.status(200).json({ownership: ownership, money: await money})
+                    let transferCount = 0
+                    transfers.forEach(e => {
+                        ownership[e.playeruid] = {"transfer" : {"value" : e.value, "buyer" : e.buyer, "buyerSelf" : e.buyer == user, "seller" : e.seller, "sellerSelf" : e.seller == user}}
+                        if (e.seller == user || e.buyer == user) {
+                            transferCount++
+                        }
+                    })
+                    playerSquad.forEach(e => {
+                        if (ownership[e.playeruid] === undefined) {
+                            ownership[e.playeruid] = {"playerSquad" : true}
+                        } else {
+                            ownership[e.playeruid].playerSquad = true
+                        }
+                    })
+                    squads.forEach(e => {
+                        if (ownership[e.playeruid] === undefined) {
+                            ownership[e.playeruid] = {"otherSquad" : e.player}
+                        } else {
+                            ownership[e.playeruid].otherSquad = true
+                        }
+                    })
+                    res.status(200).json({ownership: ownership, money: await money, transferCount})
                 } else {
                     res.status(404).end("League not found")
                 }
@@ -75,7 +93,8 @@ export default async function handler(req, res) {
                             resolve(true)
                         } else {
                             connection.query("SELECT * FROM transfers WHERE leagueID=? and (buyer=? or seller=?)", [league, user, user], function(error, result, fields) {
-                                resolve(result.length < 6)
+                                // Checks if this is past the limit of 6 players or if this is just an increase on a bid
+                                resolve(result.filter((e) => e.playeruid == playeruid).length < 6)
                             })
                         }
                     })

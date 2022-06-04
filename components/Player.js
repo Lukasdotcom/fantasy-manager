@@ -2,7 +2,7 @@ import playerStyles from "../styles/Player.module.css"
 import { useEffect, useState } from "react"
 import Image from 'next/image'
 // Used to create the layout for a player card that shows some simple details on a player
-const Layout = ({uid, ownership, money, league, transferData}) => {
+const Layout = ({uid, ownership, money, league, transferData, transferLeft}) => {
     const [data, setData] = useState({})
     // Used to get the data for the player 
     useEffect(() => {
@@ -54,7 +54,11 @@ const Layout = ({uid, ownership, money, league, transferData}) => {
                     outbidPlayer = ownership.transfer.buyer
                 }
             } else if (ownership.playerSquad === true) { // Checks if the player owns the player
-                PurchaseButton = <button onClick={buySell}>Sell for: {purchaseAmount/1000000} M</button>
+                if (transferLeft) {
+                    PurchaseButton = <button onClick={buySell}>Sell for: {purchaseAmount/1000000} M</button>
+                } else {
+                    PurchaseButton = <button className="disabled-button">No transfer left can&apos;t sell</button>
+                }
             } else if (ownership.otherSquad !== undefined) { // Checks if a different player has the player
                 PurchaseButton = <button className="disabled-button">Owned by {ownership.otherSquad}</button>
             }
@@ -65,6 +69,9 @@ const Layout = ({uid, ownership, money, league, transferData}) => {
                 PurchaseButton = <button className="disabled-button">You need: {purchaseAmount/1000000} M {outbidPlayer != "" ? "to outbid " + outbidPlayer : ""}</button>
             } else {
                 PurchaseButton = <button onClick={buySell}>{outbidPlayer != "" ? "Outbid " + outbidPlayer : "Buy"} for: {purchaseAmount/1000000} M</button>
+            }
+            if (!transferLeft) {
+                PurchaseButton = <button className="disabled-button">No transfer left can&apos;t buy</button>
             }
         }
         return (
@@ -88,7 +95,7 @@ const Layout = ({uid, ownership, money, league, transferData}) => {
                         </div>
                     </div>
                 </div>
-                <div style={{"width" : "15%", "textAlign" : "center"}}>
+                <div style={{"width" : "min(30%, 230px)", "textAlign" : "center"}}>
                 {PurchaseButton}
                 </div>
             </div>

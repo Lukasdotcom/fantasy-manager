@@ -5,7 +5,7 @@ export default function Home({session, league}) {
     return (
     <>
     <Head>
-      <title>Transfers</title>
+      <title>Squad</title>
     </Head>
     <Menu session={session} league={league}/>
     </>
