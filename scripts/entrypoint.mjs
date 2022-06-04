@@ -1,5 +1,5 @@
 import { createConnection } from 'mysql';
-import {updateData} from './update.mjs'
+import {runTransfers, updateData} from './update.mjs'
 const connection = createConnection({
     host     : process.env.MYSQL_HOST,
     user     : "root",

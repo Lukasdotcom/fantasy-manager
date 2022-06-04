@@ -28,3 +28,23 @@ export async function updateData() {
     console.log("Downloaded new data for today")
     connection.end()
 }
+export async function runTransfers() {
+    const connection = createConnection({
+        host     : process.env.MYSQL_HOST,
+        user     : "root",
+        password : process.env.MYSQL_PASSWORD,
+        database : process.env.MYSQL_DATABASE
+    })
+    // Goes through every transfer
+    connection.query("SELECT * FROM transfers", function(error, result, fields) {
+        result.forEach((e) => {
+            connection.query("DELETE FROM squad WHERE leagueID=? and playeruid=?", [e.leagueID, e.playeruid])
+            if (e.buyer != "") {
+                connection.query("INSERT INTO squad VALUES(?, ?, ?, 'bench')", [e.leagueID, e.buyer, e.playeruid])
+            }
+        })
+        connection.query("DELETE FROM transfers")
+        console.log("Ran every transfer")
+        connection.end()
+    })
+}

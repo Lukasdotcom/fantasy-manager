@@ -46,9 +46,9 @@ export default async function handler(req, res) {
                     })
                     // Puts all the ownership and transfer info in a dictionary
                     let ownership = {}
-                    transfers.forEach(e => {ownership[e.playeruid] = {"transfer" : {"value" : e.value, "player" : e.buyer, "self" : e.buyer == user}}})
                     playerSquad.forEach(e => {ownership[e.playeruid] = {"playerSquad" : true}})
                     squads.forEach(e => {ownership[e.playeruid] = {"otherSquad" : e.player}})
+                    transfers.forEach(e => {ownership[e.playeruid] = {"transfer" : {"value" : e.value, "buyer" : e.buyer, "buyerSelf" : e.buyer == user, "seller" : e.seller, "sellerSelf" : e.seller == user}}})
                     res.status(200).json({ownership: ownership, money: await money})
                 } else {
                     res.status(404).end("League not found")
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
                         if (result.length == 0) {
                             resolve(true)
                         } else {
-                            connection.query("SELECT * FROM transfers WHERE leagueID=? and player=?", [league, user], function(error, result, fields) {
+                            connection.query("SELECT * FROM transfers WHERE leagueID=? and (buyer=? or seller=?)", [league, user, user], function(error, result, fields) {
                                 resolve(result.length < 6)
                             })
                         }
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
                                 connection.query("SELECT * FROM transfers WHERE leagueID=? and playeruid=?", [league, playeruid], function(error, result, fields) {
                                     if (result.length == 0) {
                                         connection.query("INSERT INTO transfers VALUES(?, ?, '', ?, ?)", [league, user, playeruid, value])
-                                        connection.query("UPDATE leagues SET money=? WHERE leagueID=? and playeruid=?", [money + value, league, playeruid])
+                                        connection.query("UPDATE leagues SET money=? WHERE leagueID=? and player=?", [money + value, league, user])
                                     }
                                     resolve("sold")
                                 })

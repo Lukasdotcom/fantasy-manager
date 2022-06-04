@@ -41,15 +41,17 @@ const Layout = ({uid, ownership, money, league, transferData}) => {
         // Checks if the player has some transfer data
         if (ownership !== undefined) {
             if (ownership.transfer !== undefined) { // Checks if a transfer is on the player
-                if (ownership.transfer.self === true) {
+                if (ownership.transfer.buyerSelf === true) {
                     if (money >= 100000) {
                         PurchaseButton = <button onClick={buySell}>Increase bid from {ownership.transfer.value/1000000} M to {Math.floor(ownership.transfer.value/100000+1)/10} M</button>
                     } else {
-                        PurchaseButton = <p>Buying player for {ownership.transfer.value/1000000} M</p>
+                        PurchaseButton = <button className="disabled-button">Buying player for {ownership.transfer.value/1000000} M</button>
                     }
+                } else if (ownership.transfer.sellerSelf === true) {
+                    PurchaseButton = <button className="disabled-button">Selling player for {ownership.transfer.value/1000000} M</button>
                 } else {
                     purchaseAmount = ownership.transfer.value + 100000
-                    outbidPlayer = ownership.transfer.player
+                    outbidPlayer = ownership.transfer.buyer
                 }
             } else if (ownership.playerSquad === true) { // Checks if the player owns the player
                 PurchaseButton = <button onClick={buySell}>Sell for: {purchaseAmount/1000000} M</button>
