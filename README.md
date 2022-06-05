@@ -18,7 +18,7 @@ When you are done editing run this command and fix all the errors
 npm run lint
 ```
 # How to get Bundesliga Api
-Make an account on fantasy.bundesliga.com and make an account and then look at your cookies and one of the cookies is called acess_token and that is the api key for bundesliga
+Make an account on fantasy.bundesliga.com and then look at your cookies and one of the cookies is called acess_token and that is the api key for bundesliga
 # Goals
 Currently the goals are just to get feauture parity with the official bundesliga fantasy.
 # Production
