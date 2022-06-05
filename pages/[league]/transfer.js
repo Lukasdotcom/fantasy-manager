@@ -3,11 +3,12 @@ import redirect from "../../Modules/league"
 import Head from "next/head"
 import { useState, useEffect } from "react"
 import Player from "../../components/Player"
+
 // Used for the selecting and unselecting of a position
 function Postion({position, positions, setPositions}) {
     return (
     <>
-        <label htmlFor={position}>{position}:</label>
+        <label htmlFor={position}> {position}:</label>
         <input type="checkbox" onChange={(e) => {e.target.checked ? setPositions([...positions, position]) : setPositions(positions.filter((e2) => e2 != position))}} checked={positions.includes(position)} id={position}></input>
     </>)
 }
@@ -20,8 +21,9 @@ export default function Home({session, league}) {
     const [money, setMoney] = useState(0)
     const [ownership, setOwnership] = useState({})
     const [transferCount, setTransferCount] = useState(0)
+    const [orderBy, setOrderBy] = useState("value")
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => {search(true)}, [searchTerm, positions])
+    useEffect(() => {search(true)}, [searchTerm, positions, orderBy])
     // Used to get the data for a list of transfers and money
     function transferData() {
         fetch(`/api/transfer/${league}`).then(async (val) => {val = await val.json(); setMoney(val.money); setOwnership(val.ownership); setTransferCount(val.transferCount)})
@@ -40,7 +42,7 @@ export default function Home({session, league}) {
             setFinished(false)
         }
         // Gets the data and returns the amount of players found
-        const newLength = await fetch(`/api/player?${(isNew ? "" : `limit=${players.length + 10}` )}&searchTerm=${encodeURIComponent(searchTerm)}&positions=${encodeURIComponent(JSON.stringify(positions))}`).then(async (val) => {val = await val.json(); setPlayers(val); return val.length})
+        const newLength = await fetch(`/api/player?${(isNew ? "" : `limit=${players.length + 10}` )}&searchTerm=${encodeURIComponent(searchTerm)}&positions=${encodeURIComponent(JSON.stringify(positions))}&order_by=${orderBy}`).then(async (val) => {val = await val.json(); setPlayers(val); return val.length})
         if (newLength == length) {
             setFinished(true)
         }
@@ -64,9 +66,18 @@ export default function Home({session, league}) {
     <label htmlFor="search">Search Player Name: </label>
     <input onChange={(val) => {setSearchTerm(val.target.value)}} val={searchTerm} id="search"></input>
     <br></br>
+    <label htmlFor="order">Order search by:</label>
+    <select onChange={(val) => setOrderBy(val.target.value)} id="order">
+        { ["value", "total_points", "average_points", "last_match"].map((val) =>
+        <option key={val} selected={val == orderBy ? "selected" : ""}>{val}</option>
+        )}
+    </select>
+    <br></br>
+    <p>Positions to search: 
     { positionList.map((position) => 
         <Postion key={position} position={position} positions={positions} setPositions={setPositions}/>
     )}
+    </p>
     <p>Yellow background means attendance unknown and red background that the player is not attending.</p>
     { players.map((val) =>
         <Player key={val} uid={val} ownership={ownership[val]} money={money} league={league} transferLeft={transferCount<6} transferData={transferData} />
