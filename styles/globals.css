@@ -49,12 +49,11 @@ button:hover {
   overflow-y: scroll;
 }
 
-.disabled-button {
+button:disabled {
   background-color: rgb(100, 100, 100);
   border: 2px solid black;
 }
 
-.disabled-button:hover {
-  background-color: rgb(100, 100, 100);
+button:disabled:hover {
   color: white;
 }

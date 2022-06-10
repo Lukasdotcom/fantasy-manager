@@ -12,7 +12,7 @@ connection.query("CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KE
 // Creates a table that contains some key value pairs for data that is needed for some things
 connection.query("CREATE TABLE IF NOT EXISTS data (value1 varchar(25) PRIMARY KEY, value2 varchar(255))")
 // Used to store the leagues
-connection.query("CREATE TABLE IF NOT EXISTS leagues (leagueName varchar(255), leagueID int, player varchar(255), points int, money int)")
+connection.query("CREATE TABLE IF NOT EXISTS leagues (leagueName varchar(255), leagueID int, player varchar(255), points int, money int, formation varchar(255))")
 // Used to store the Historical Points
 connection.query("CREATE TABLE IF NOT EXISTS points (leagueID int, player varchar(255), points int, matchday int)")
 // Used to store transfers

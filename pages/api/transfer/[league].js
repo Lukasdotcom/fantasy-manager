@@ -1,6 +1,4 @@
 import { getSession } from 'next-auth/react'
-// Promise to get the amount of money the player has
-
 
 export default async function handler(req, res) {
     const mysql = require('mysql')

@@ -2,7 +2,7 @@ import Menu from "../../components/Menu"
 import redirect from "../../Modules/league"
 import Head from "next/head"
 import { useState, useEffect } from "react"
-import Player from "../../components/Player"
+import {TransferPlayer as Player} from "../../components/Player"
 
 // Used for the selecting and unselecting of a position
 function Postion({position, positions, setPositions}) {
@@ -67,9 +67,9 @@ export default function Home({session, league}) {
     <input onChange={(val) => {setSearchTerm(val.target.value)}} val={searchTerm} id="search"></input>
     <br></br>
     <label htmlFor="order">Order search by:</label>
-    <select onChange={(val) => setOrderBy(val.target.value)} id="order">
+    <select value={orderBy} onChange={(val) => setOrderBy(val.target.value)} id="order">
         { ["value", "total_points", "average_points", "last_match"].map((val) =>
-        <option key={val} selected={val == orderBy ? "selected" : ""}>{val}</option>
+        <option key={val}>{val}</option>
         )}
     </select>
     <br></br>
