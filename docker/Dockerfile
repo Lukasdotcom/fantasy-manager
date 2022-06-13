@@ -4,7 +4,6 @@ ENV NODE_ENV production
 RUN apk add git
 RUN git clone https://github.com/Lukasdotcom/Bundesliga
 WORKDIR /Bundesliga
-RUN npm ci
 RUN npm run build
 
 # Production image, copy all the files and run next
