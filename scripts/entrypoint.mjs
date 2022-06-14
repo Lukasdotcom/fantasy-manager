@@ -7,7 +7,7 @@ const connection = createConnection({
     database : process.env.MYSQL_DATABASE
 })
 let date = new Date
-var day = date.getDay()
+var day = -1
 connection.query("CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool)")
 // Creates a table that contains some key value pairs for data that is needed for some things
 connection.query("CREATE TABLE IF NOT EXISTS data (value1 varchar(25) PRIMARY KEY, value2 varchar(255))")
@@ -22,18 +22,24 @@ connection.query("CREATE TABLE IF NOT EXISTS invite (inviteID varchar(25) PRIMAR
 // Used to store player squads
 connection.query("CREATE TABLE IF NOT EXISTS squad (leagueID int, player varchar(255), playeruid varchar(25), position varchar(5))")
 // Makes sure to check for an update every 30 minutes
-setInterval(update, 1800000)
-updateData()
-function update() {
+setInterval(update, 10000)
+update()
+async function update() {
     let newDate = new Date
     // Checks if a new day is happening
     if (day != newDate.getDay()) {
         day = newDate.getDay()
-        if (day == 1) {
-            endMatchDay()
-        }
+        console.log("Downloading new data for today")
+        updateData()
+    } else if (await new Promise((resolve) => {
+        connection.query("SELECT * FROM data WHERE value1='update' and value2='1'", function(error, result, field) {
+            resolve(result.length > 0)
+        })
+    })) {
+        console.log("Updating data now")
         updateData()
     }
+    connection.query("UPDATE data SET value2='0' WHERE value1='update'")
 }
 // End the match day and calculates all the points
 function endMatchDay() {

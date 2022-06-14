@@ -8,24 +8,25 @@ export async function updateData() {
         password : process.env.MYSQL_PASSWORD,
         database : process.env.MYSQL_DATABASE
     })
+    const nowTime = parseInt(Date.now()/1000)
+    connection.query("INSERT INTO data VALUES('playerUpdate', ?) ON DUPLICATE KEY UPDATE value2=?", [nowTime, nowTime])
     /*const data = fetch("https://fantasy.bundesliga.com/api/player_transfers/init", {
         method: 'POST',
         headers:{
             'Content-Type':'application/json',
             'Cookie':`access_token=${process.env.BUNDESLIGA_API}`
         },
-        body: JSON.stringify({"payload":{"offerings_query":{"offset":0,"limit":500,"sort":{"order_by":"popularity","order_direction":"desc"}}}})
+        body: JSON.stringify({"payload":{"offerings_query":{"offset":0,"limit":1000,"sort":{"order_by":"popularity","order_direction":"desc"}}}})
     }).then(async (val) => {return await val.json()})*/
     const data = fetch("http://localhost:3000/data.json").then(async (val) => {return await val.json()})
-    connection.query("INSERT INTO data VALUES('playerUpdate', ?) ON DUPLICATE KEY UPDATE value2=?", [String(Date.now()), String(Date.now())])
     // Puts in the data if the transfermarket is open
-    connection.query("INSERT INTO data VALUES('transferOpen', ?) ON DUPLICATE KEY UPDATE value2=?", [(await data).opening_hour.opened, (await data).opening_hour.opened])
+    connection.query("INSERT INTO data VALUES('transferOpen', ?) ON DUPLICATE KEY UPDATE value2=?", [(await data).opening_hour.countdown > 3600, (await data).opening_hour.countdown > 3600])
     // Goes through all of the players and adds their data to the database
     const players = (await data).offerings.items
     players.forEach(async (val) => {
         connection.query("INSERT INTO players VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)  ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, last_match=?, locked=?", [val.player.uid, val.player.nickname, val.player.team.team_code, val.player.image_urls.default, val.transfer_value, val.player.positions[0], val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.statistics.last_match_points, val.player.is_locked, /*Start of have to update*/val.transfer_value, val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.statistics.last_match_points, val.player.is_locked])
     })
-    console.log("Downloaded new data for today")
+    console.log("Downloaded new data")
     connection.end()
 }
 export async function runTransfers() {
@@ -45,6 +46,21 @@ export async function runTransfers() {
         })
         connection.query("DELETE FROM transfers")
         console.log("Ran every transfer")
+        connection.end()
+    })
+}
+export function checkUpdate() {
+    const connection = createConnection({
+        host     : process.env.MYSQL_HOST,
+        user     : "root",
+        password : process.env.MYSQL_PASSWORD,
+        database : process.env.MYSQL_DATABASE
+    })
+    // Checks if matchdays are currently happening and if it is a matchday checks if the update time has passed
+    connection.query("SELECT value2 FROM data WHERE value1='transferOpen' or value1='playerUpdate' ORDER BY value1 DESC", function(error, result, field) {
+        if (result[0].value2 == 0 && parseInt(result[1].value2) < parseInt(Date.now()/1000) - parseInt(process.env.MIN_UPDATE_TIME)) {
+            connection.query("INSERT INTO data VALUES('update', '1') ON DUPLICATE KEY UPDATE value2=1")
+        }
         connection.end()
     })
 }
