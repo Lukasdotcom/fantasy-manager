@@ -1,4 +1,4 @@
-name: Docker Build/Publish Release
+name: Docker Build/Publish Beta
 
 on:
   push:
@@ -36,4 +36,4 @@ jobs:
     - name: Run Buildx (push image)      
       if: success()      
       run: |        
-        docker buildx build --platform ${{ steps.prepare.outputs.docker_platform }} --tag ${{ steps.prepare.outputs.docker_image }}:nightly --file Dockerfile --push .
+        docker buildx build --platform ${{ steps.prepare.outputs.docker_platform }} --tag ${{ steps.prepare.outputs.docker_image }}:nightly --file docker/Dockerfile --push .

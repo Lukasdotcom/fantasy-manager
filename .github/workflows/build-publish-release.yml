@@ -1,7 +1,7 @@
 name: Docker Build/Publish Release
 
 on:
-  releases:
+  release:
     types: [published]
 
 jobs:   
@@ -36,4 +36,4 @@ jobs:
     - name: Run Buildx (push image)      
       if: success()      
       run: |        
-        docker buildx build --platform ${{ steps.prepare.outputs.docker_platform }} --tag ${{ steps.prepare.outputs.docker_image }}:latest --tag ${{ steps.prepare.outputs.docker_image }}:${{github.event.release.tag_name}} --file Dockerfile --push .
+        docker buildx build --platform ${{ steps.prepare.outputs.docker_platform }} --tag ${{ steps.prepare.outputs.docker_image }}:latest --tag ${{ steps.prepare.outputs.docker_image }}:${{github.event.release.tag_name}} --file docker/Dockerfile --push .
