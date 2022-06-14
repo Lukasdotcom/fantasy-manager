@@ -1,5 +1,5 @@
 import { createConnection } from 'mysql';
-import {runTransfers, updateData} from './update.mjs'
+import {updateData} from './update.mjs'
 const connection = createConnection({
     host     : process.env.MYSQL_HOST,
     user     : "root",
@@ -7,7 +7,7 @@ const connection = createConnection({
     database : process.env.MYSQL_DATABASE
 })
 let date = new Date
-var day = -1
+var day = date.getDay()
 connection.query("CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool)")
 // Creates a table that contains some key value pairs for data that is needed for some things
 connection.query("CREATE TABLE IF NOT EXISTS data (value1 varchar(25) PRIMARY KEY, value2 varchar(255))")
@@ -23,7 +23,7 @@ connection.query("CREATE TABLE IF NOT EXISTS invite (inviteID varchar(25) PRIMAR
 connection.query("CREATE TABLE IF NOT EXISTS squad (leagueID int, player varchar(255), playeruid varchar(25), position varchar(5))")
 // Makes sure to check for an update every 30 minutes
 setInterval(update, 10000)
-update()
+updateData()
 async function update() {
     let newDate = new Date
     // Checks if a new day is happening
@@ -40,8 +40,4 @@ async function update() {
         updateData()
     }
     connection.query("UPDATE data SET value2='0' WHERE value1='update'")
-}
-// End the match day and calculates all the points
-function endMatchDay() {
-
 }
