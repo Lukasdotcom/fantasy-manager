@@ -1,7 +1,7 @@
 version: "2.1"
 services:
   bundesliga:
-    image: lukasdotcom/bundesliga:latest
+    image: lukasdotcom/bundesliga:latest # Change latest to nightly if you want to be using the bleeding edge
     container_name: bundesliga
     links:
       - db
@@ -13,7 +13,7 @@ services:
       - MIN_UPDATE_TIME=120 # Minimum amount of seconds to pass before the data updates on Fri, Sat, and Sun to prevent spamming the api.
       - BUNDESLIGA_API= # How to get this value is in the README
       - DOMAIN=http://localhost # Change this to your domain
-      # Get your oauth details for sign in with google and fill it in below
+      # Get your oauth 2.0 details for sign in with google and fill it in below
       - GOOGLE_ID=none
       - GOOGLE_SECRET=none
     ports:
