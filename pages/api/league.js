@@ -20,6 +20,7 @@ export default async function handler(req, res) {
                     connection.query("SELECT leagueID FROM leagues WHERE leagueID=?", [id], function(error, results, fields) {
                         if (results.length == 0) {
                             connection.query("INSERT INTO leagues VALUES(?, ?, ?, 0, 150000000, '[1, 4, 4, 2]')", [req.body.name, id, session.user.email])
+                            // Checks if the game is in a transfer period and if yes it starts the first matchday automatically
                             connection.query("SELECT value2 FROM data WHERE value1='transferOpen'", function(error, result, field) {
                                 if (parseInt(result[0].value2) == 0) {
                                     connection.query("INSERT INTO points VALUES(?, ?, 0, 1)" , [id, session.user.email])
@@ -32,11 +33,22 @@ export default async function handler(req, res) {
                     })
                 }).catch(() => {console.error("Failure in creating league"); res.status(500).end("Error Could not create league")})
                 break;
-            // Returns all leagues the player is in
-            case "GET":
+            case "GET": // Returns all leagues the player is in
                 return res.status(200).json(await leagueList(session.user.email))
             case "DELETE":
+                // Used to delete a league
                 connection.query("DELETE FROM leagues WHERE leagueID=? and player=?", [req.body.id, session.user.email])
+                connection.query("DELETE FROM points WHERE leagueID=? and player=?", [req.body.id, session.user.email])
+                connection.query("DELETE FROM squad WHERE leagueID=? and player=?", [req.body.id, session.user.email])
+                connection.query("UPDATE transfer SET seller='' WHERE leagueID=? and seller=?", [req.body.id, session.user.email])
+                connection.query("UPDATE transfer SET buyer='' WHERE leagueID=? and buyer=?", [req.body.id, session.user.email])
+                // Checks if the league still has players
+                connection.query("SELECT * FROM leagues WHERE leagueID=?", [req.body.id], function(error, result, field) {
+                    if (result.length == 0) {
+                        connection.query("DELETE FROM invite WHERE leagueID=?", [req.body.id])
+                        connection.query("DELETE FROM transfer WHERE leagueID=?", [req.body.id])
+                    }
+                }) 
                 res.status(200).end("Left league")
             default:
                 res.status(405).end(`Method ${req.method} Not Allowed`)
