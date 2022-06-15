@@ -44,7 +44,7 @@ export function Player({data, children}) {
     }
 }
 // Used for the transfer screen
-export function TransferPlayer({uid, ownership, money, league, transferData, transferLeft}) {
+export function TransferPlayer({uid, ownership, money, league, transferData, transferLeft, timeLeft}) {
     const [data, setData] = useState({})
     // Used to get the data for the player 
     useEffect(() => {
@@ -72,8 +72,12 @@ export function TransferPlayer({uid, ownership, money, league, transferData, tra
     let PurchaseButton = ""
     let purchaseAmount = data.value 
     let outbidPlayer = ""
+    // Checks if the transfer market is open
+    if (timeLeft === 0) {
+        PurchaseButton = <button disabled={true}>Transfer Market is closed</button>
+    }
     // Checks if the player has some transfer data
-    if (ownership !== undefined) {
+    if (ownership !== undefined && PurchaseButton === "") {
         if (ownership.transfer !== undefined) { // Checks if a transfer is on the player
             if (ownership.transfer.buyerSelf === true) {
                 if (money >= 100000) {
