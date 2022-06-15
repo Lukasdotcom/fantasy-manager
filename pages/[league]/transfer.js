@@ -22,11 +22,12 @@ export default function Home({session, league}) {
     const [ownership, setOwnership] = useState({})
     const [transferCount, setTransferCount] = useState(0)
     const [orderBy, setOrderBy] = useState("value")
+    const [timeLeft, setTimeLeft] = useState(0)
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {search(true)}, [searchTerm, positions, orderBy])
     // Used to get the data for a list of transfers and money
     function transferData() {
-        fetch(`/api/transfer/${league}`).then(async (val) => {val = await val.json(); setMoney(val.money); setOwnership(val.ownership); setTransferCount(val.transferCount)})
+        fetch(`/api/transfer/${league}`).then(async (val) => {val = await val.json(); setMoney(val.money); setOwnership(val.ownership); setTransferCount(val.transferCount); setTimeLeft(val.timeLeft)})
     }
     useEffect(transferData, [league])
     // Used to search the isNew is used to check if it should reload everything back from the start
@@ -42,7 +43,11 @@ export default function Home({session, league}) {
             setFinished(false)
         }
         // Gets the data and returns the amount of players found
-        const newLength = await fetch(`/api/player?${(isNew ? "" : `limit=${players.length + 10}` )}&searchTerm=${encodeURIComponent(searchTerm)}&positions=${encodeURIComponent(JSON.stringify(positions))}&order_by=${orderBy}`).then(async (val) => {val = await val.json(); setPlayers(val); return val.length})
+        const newLength = await fetch(`/api/player?${(isNew ? "" : `limit=${players.length + 10}` )}&searchTerm=${encodeURIComponent(searchTerm)}&positions=${encodeURIComponent(JSON.stringify(positions))}&order_by=${orderBy}`).then(async (val) => {
+            val = await val.json()
+            setPlayers(val)
+            return val.length
+        })
         if (newLength == length) {
             setFinished(true)
         }
@@ -80,7 +85,7 @@ export default function Home({session, league}) {
     </p>
     <p>Yellow background means attendance unknown and red background that the player is not attending.</p>
     { players.map((val) =>
-        <Player key={val} uid={val} ownership={ownership[val]} money={money} league={league} transferLeft={transferCount<6} transferData={transferData} />
+        <Player key={val} uid={val} ownership={ownership[val]} money={money} league={league} transferLeft={transferCount<6} transferData={transferData} timeLeft={timeLeft} />
     )}
     </div>
     </>
