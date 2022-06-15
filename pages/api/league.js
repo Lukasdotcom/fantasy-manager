@@ -16,15 +16,21 @@ export default async function handler(req, res) {
                 // Generates an id
                 const id = Math.floor(Math.random()*2000000)
                 // Makes sure that the id is not taken
-                await new Promise((resolve) => {connection.query("SELECT leagueID FROM leagues WHERE leagueID=?", [id], function(error, results, fields) {
-                    resolve(results)
-                })}).then((results) => {
-                    if (results.length == 0) {
-                        connection.query("INSERT INTO leagues VALUES(?, ?, ?, 0, 150000000, '[1, 4, 4, 2]')", [req.body.name, id, session.user.email])
-                        res.status(200).end("Created League")
-                    } else {
-                        throw "Could not create league"
-                }}).catch(() => {console.error("Failure in creating league"); res.status(500).end("Error Could not create league")})
+                await new Promise((resolve) => {
+                    connection.query("SELECT leagueID FROM leagues WHERE leagueID=?", [id], function(error, results, fields) {
+                        if (results.length == 0) {
+                            connection.query("INSERT INTO leagues VALUES(?, ?, ?, 0, 150000000, '[1, 4, 4, 2]')", [req.body.name, id, session.user.email])
+                            connection.query("SELECT value2 FROM data WHERE value1='transferOpen'", function(error, result, field) {
+                                if (parseInt(result[0].value2) == 0) {
+                                    connection.query("INSERT INTO points VALUES(?, ?, 0, 1)" , [id, session.user.email])
+                                }
+                                res.status(200).end("Created League")
+                            })
+                        } else {
+                            throw "Could not create league"
+                        }
+                    })
+                }).catch(() => {console.error("Failure in creating league"); res.status(500).end("Error Could not create league")})
                 break;
             // Returns all leagues the player is in
             case "GET":
