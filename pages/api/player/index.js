@@ -1,3 +1,4 @@
+import { getSession } from 'next-auth/react'
 // Used to return a list of UIDs of players that are searched for
 export default async function handler(req, res) {
     if (req.method == "GET") {
@@ -27,10 +28,15 @@ export default async function handler(req, res) {
         if (positionsSQL != "") {
             positionsSQL = `AND (${positionsSQL.slice(0, -4)})`
         }
+        // Checks if non existant players should be shown
+        const showHidden = Boolean(req.query.showHidden)
+        console.log(showHidden)
         // Gets the value to order by
         let order_by = ["value", "total_points", "average_points", "last_match"].includes(req.query.order_by) ? req.query.order_by : "value"
-        res.status(200).json(await new Promise((resolve) => {
-            connection.query(`SELECT uid FROM players WHERE name like ? ${positionsSQL} ORDER BY ${order_by} DESC LIMIT ${limit}`, [searchTerm], function(error, result, fields) {
+        res.status(200).json(await new Promise(async (resolve) => {
+            const session = await getSession({req})
+            connection.query(`SELECT uid FROM players WHERE${showHidden ? "" : " (`exists`=1 OR EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND player=?)) AND"} name like ? ${positionsSQL} ORDER BY ${order_by} DESC LIMIT ${limit}`, showHidden ? [searchTerm] : [session.user.email, searchTerm], function(error, result, fields) {
+                console.log(error)
                 resolve(result)
             })
         // Organizes the data in a list instead of a list of dictionaries
