@@ -1,11 +1,11 @@
 {
   "name": "bundesliga",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
   "scripts": {
     "dev": "npm install; node scripts/entrypoint.mjs & next dev",
     "build": "npm ci; next build",
-    "start": "next start",
+    "start": "node scripts/entrypoint.mjs & next start",
     "lint": "next lint"
   },
   "dependencies": {
