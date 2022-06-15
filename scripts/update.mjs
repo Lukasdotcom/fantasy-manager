@@ -22,8 +22,11 @@ export async function updateData() {
     // Puts in the data if the transfermarket is open
     const oldTransfer = await new Promise((res) => {
         connection.query("SELECT * FROM data WHERE value1='transferOpen'", function(error, result, field) {
-            if (result.length == 0) res(true)
-            res(parseInt(result[0].value2) > 0)
+            if (result.length == 0) {
+                res(true)
+            } else {
+                res(parseInt(result[0].value2) > 0)
+            }
         })
     })
     const newTransfer = (await data).opening_hour.countdown > 3600 ? (await data).opening_hour.countdown - 3600 : 0
