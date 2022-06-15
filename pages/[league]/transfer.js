@@ -22,8 +22,9 @@ export default function Home({session, league}) {
     const [ownership, setOwnership] = useState({})
     const [transferCount, setTransferCount] = useState(0)
     const [orderBy, setOrderBy] = useState("value")
+    const [showHidden, setShowHidden] = useState(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => {search(true)}, [searchTerm, positions, orderBy])
+    useEffect(() => {search(true)}, [searchTerm, positions, orderBy, showHidden])
     // Used to get the data for a list of transfers and money
     function transferData() {
         fetch(`/api/transfer/${league}`).then(async (val) => {val = await val.json(); setMoney(val.money); setOwnership(val.ownership); setTransferCount(val.transferCount)})
@@ -42,7 +43,7 @@ export default function Home({session, league}) {
             setFinished(false)
         }
         // Gets the data and returns the amount of players found
-        const newLength = await fetch(`/api/player?${(isNew ? "" : `limit=${players.length + 10}` )}&searchTerm=${encodeURIComponent(searchTerm)}&positions=${encodeURIComponent(JSON.stringify(positions))}&order_by=${orderBy}`).then(async (val) => {val = await val.json(); setPlayers(val); return val.length})
+        const newLength = await fetch(`/api/player?${(isNew ? "" : `limit=${players.length + 10}&` )}searchTerm=${encodeURIComponent(searchTerm)}&positions=${encodeURIComponent(JSON.stringify(positions))}&order_by=${orderBy}${showHidden ? "&showHidden=true" : ""}`).then(async (val) => {val = await val.json(); setPlayers(val); return val.length})
         if (newLength == length) {
             setFinished(true)
         }
@@ -78,7 +79,11 @@ export default function Home({session, league}) {
         <Postion key={position} position={position} positions={positions} setPositions={setPositions}/>
     )}
     </p>
-    <p>Yellow background means attendance unknown and red background that the player is not attending.</p>
+    <p>
+        <label htmlFor="showHidden"> Show Hidden Players(These players will all probably not earn points):</label>
+        <input type="checkbox" onChange={(e) => {setShowHidden(e.target.checked)}} checked={showHidden} id="showHidden"></input>
+    </p>
+    <p>Yellow background means attendance unknown, red background that the player is not attending, and pink that the player will not earn points anytime soon(Sell these players).</p>
     { players.map((val) =>
         <Player key={val} uid={val} ownership={ownership[val]} money={money} league={league} transferLeft={transferCount<6} transferData={transferData} />
     )}

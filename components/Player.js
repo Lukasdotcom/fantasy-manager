@@ -11,6 +11,10 @@ export function Player({data, children}) {
         } else if (data.forecast == "m") {
             background = "rgb(50, 0, 0)"
         }
+        // Checks if the player exists
+        if (data.exists === 0) {
+            background = "rgb(91, 30, 50)"
+        }
         return (
             <div className={playerStyles.container} style={{background}}>
                 <div style={{"width" : "min(10%, 80px)", "textAlign" : "center"}}><p>{data.club}</p><p>{data.position}</p></div>
