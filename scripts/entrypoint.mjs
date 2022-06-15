@@ -6,6 +6,8 @@ const connection = createConnection({
     password : process.env.MYSQL_PASSWORD,
     database : process.env.MYSQL_DATABASE
 })
+// Used to tell the program what version of the database to use
+const currentVersion = "0.1.1"
 let date = new Date
 var day = date.getDay()
 connection.query("CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool)")
@@ -21,9 +23,28 @@ connection.query("CREATE TABLE IF NOT EXISTS transfers (leagueID int, seller var
 connection.query("CREATE TABLE IF NOT EXISTS invite (inviteID varchar(25) PRIMARY KEY, leagueID int)")
 // Used to store player squads
 connection.query("CREATE TABLE IF NOT EXISTS squad (leagueID int, player varchar(255), playeruid varchar(25), position varchar(5))")
-// Makes sure to check for an update every 30 minutes
-setInterval(update, 10000)
-updateData()
+async function startUp() {
+    // Checks the version of the database is out of date
+    await new Promise((res) => {
+        connection.query("SELECT value2 FROM data WHERE value1='version'", function(error, result, field) {
+            if (result.length > 0) {
+                const oldVersion = result[0].value2
+                // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
+                // Makes sure that the database is up to date
+                if (oldVersion !== currentVersion) {
+                    console.error("Database is corrupted or is too old")
+                }
+            }
+            // Updated version of database in table
+            connection.query("INSERT INTO data VALUES('version', ?) ON DUPLICATE KEY UPDATE value2=?", [currentVersion, currentVersion])
+            res()
+        })
+    })
+    // Makes sure to check if an update is neccessary every 10 seconds
+    setInterval(update, 10000)
+    updateData()
+}
+startUp()
 async function update() {
     let newDate = new Date
     // Checks if a new day is happening
