@@ -59,6 +59,21 @@ async function update() {
     })) {
         console.log("Updating data now")
         updateData()
+    } else {
+        // Checks how much longer the transfer period is and lowers the value for the transfer period length and if the transfer period is about to end ends it
+        connection.query("SELECT value2 FROM data WHERE value1='transferOpen'", function(error, result, field) {
+            if (result.length > 0) {
+                const time = result[0].value2
+                if (time > 0) {
+                    if (time - 10 > 0) {
+                        connection.query("UPDATE data SET value2=? WHERE value1='transferOpen'", [time-10])
+                    } else {
+                        console.log("Predicted start of matchday")
+                        updateData()
+                    }
+                }
+            }
+        })
     }
     connection.query("UPDATE data SET value2='0' WHERE value1='update'")
 }

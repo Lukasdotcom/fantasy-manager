@@ -30,6 +30,18 @@ export default function Home({session, league}) {
     function transferData() {
         fetch(`/api/transfer/${league}`).then(async (val) => {val = await val.json(); setMoney(val.money); setOwnership(val.ownership); setTransferCount(val.transferCount); setTimeLeft(val.timeLeft)})
     }
+    // Used to lower the time left by one every second
+    useEffect(() => {
+        const id = setInterval(() => setTimeLeft((timeLeft) => timeLeft > 0 ? timeLeft - 1 : 0), 1000)
+        return () => {
+            clearInterval(id);
+        }
+    }, [])
+    // Used to calculate transfer message
+    let transferMessage = <p>Transfer Market Closed</p>
+    if (timeLeft > 0) {
+        transferMessage = <p>Transfer Market open for {Math.floor(timeLeft/3600)} H {Math.floor(timeLeft/60)%60} M {timeLeft % 60} S</p>
+    }
     useEffect(transferData, [league])
     // Used to search the isNew is used to check if it should reload everything back from the start
     async function search(isNew) {
@@ -69,6 +81,7 @@ export default function Home({session, league}) {
     }}>
     <p>{6-transferCount} transfers left</p>
     <p>Money left: {money / 1000000}M</p>
+    { transferMessage }
     <label htmlFor="search">Search Player Name: </label>
     <input onChange={(val) => {setSearchTerm(val.target.value)}} val={searchTerm} id="search"></input>
     <br></br>
