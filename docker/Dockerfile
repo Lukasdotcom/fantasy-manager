@@ -17,6 +17,7 @@ ENV NEXTAUTH_URL_INTERNAL=http://127.0.0.1:3000
 ENV MIN_UPDATE_TIME=120
 # You only need to copy next.config.js if you are NOT using the default configuration
 COPY --from=builder /Bundesliga/next.config.js ./next.config.js
+COPY --from=builder /Bundesliga/scripts ./scripts
 COPY --from=builder /Bundesliga/public ./public
 COPY --from=builder /Bundesliga/.next ./.next
 COPY --from=builder /Bundesliga/node_modules ./node_modules
