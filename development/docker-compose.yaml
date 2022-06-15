@@ -12,7 +12,6 @@ services:
       - MYSQL_DATABASE=bundesliga
       - MIN_UPDATE_TIME=120 # Minimum amount of seconds to pass before the data updates on Fri, Sat, and Sun to prevent spamming the api.
       - BUNDESLIGA_API= # How to get this value is in the README
-      - DOMAIN=http://localhost # unless you are not using localhost to access the website you do not have to change this
       # Get your oauth details for sign in with google and fill it in below
       - GOOGLE_ID=none
       - GOOGLE_SECRET=none

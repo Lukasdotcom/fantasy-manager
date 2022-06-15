@@ -60,6 +60,6 @@ export default async function handler(req, res) {
         connection.end()
     } else {
         // Redirects the user if they are not logged in
-        res.redirect(307, `/api/auth/signin?callbackUrl=${encodeURIComponent(process.env.DOMAIN + "/api/invite/" + req.query.invite)}`).end()
+        res.redirect(307, `/api/auth/signin?callbackUrl=${encodeURIComponent(process.env.NEXTAUTH_URL + "/api/invite/" + req.query.invite)}`).end()
     }
 }
