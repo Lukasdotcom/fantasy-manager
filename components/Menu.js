@@ -7,6 +7,7 @@ const Layout = ({session, league}) => {
     return (
     <nav className={navStyles.nav}>
         <Link href='/'>Home</Link>
+        <Link href='/info'>Info</Link>
         { league &&
         <>
             <Link href={`/${league}`}>Standings</Link>
