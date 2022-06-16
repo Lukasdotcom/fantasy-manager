@@ -2,10 +2,11 @@ import Menu from "../../components/Menu"
 import redirect from "../../Modules/league"
 import Head from "next/head"
 import { useState } from "react"
+import Username from "../../components/Username"
 
-// Shows some simple 
-function Player({name, matchdayPoints, points}) {
-    return <tr><td>{name}</td><td>{matchdayPoints}</td><td>{points}</td></tr>
+// Shows some simple UI for each user
+function User({name, matchdayPoints, points}) {
+    return <tr><td><Username id={name} /></td><td>{matchdayPoints}</td><td>{points}</td></tr>
 }
 // Used to show all the invites that exist and to delete an individual invite
 function Invite({link, league, host, remove}) { 
@@ -35,15 +36,15 @@ export default function Home({session, league, standings, historicalPoints, invi
     return (
     <>
     <Head>
-      <title>Standings</title>
+        <title>Standings</title>
     </Head>
     <Menu session={session} league={league}/>
     <h1>Standings</h1>
     <table>
     <tbody>
-    <tr><th>Player</th><th>Matchday { matchday} Points</th><th>Total Points</th></tr>
+    <tr><th>User</th><th>Matchday { matchday} Points</th><th>Total Points</th></tr>
     { standings.map((val) => 
-    <Player name={val.player} key={val.player} points={val.points} matchdayPoints={matchday != 0 ? historicalPoints[val.player][matchday-1] : 0}/>
+    <User name={val.user} key={val.user} points={val.points} matchdayPoints={matchday != 0 ? historicalPoints[val.user][matchday-1] : 0}/>
     )}
     </tbody>
     </table>
@@ -98,7 +99,7 @@ export async function getServerSideProps(ctx) {
             password : process.env.MYSQL_PASSWORD,
             database : process.env.MYSQL_DATABASE
             })
-        connection.query("SELECT player, points FROM leagues WHERE leagueId=? ORDER BY points DESC", [ctx.params.league], function(error, results, fields) {
+        connection.query("SELECT user, points FROM leagues WHERE leagueId=? ORDER BY points DESC", [ctx.params.league], function(error, results, fields) {
             connection.end()
             resolve(results)
         })
@@ -112,16 +113,16 @@ export async function getServerSideProps(ctx) {
             password : process.env.MYSQL_PASSWORD,
             database : process.env.MYSQL_DATABASE
             })
-        connection.query("SELECT player, points, matchday FROM points WHERE leagueId=? ORDER BY matchday ASC", [ctx.params.league], function(error, results, fields) {
+        connection.query("SELECT user, points, matchday FROM points WHERE leagueId=? ORDER BY matchday ASC", [ctx.params.league], function(error, results, fields) {
             connection.end()
-            // Reformats the result into a dictionary that has an entry for each player and each entry for that player is an array of all the points the players earned in chronological order.
+            // Reformats the result into a dictionary that has an entry for each user and each entry for that user is an array of all the points the user has earned in chronological order.
             if (results.length > 0) {
                 let points = {}
                 results.forEach(element => {
-                    if (points[element.player]) {
-                        points[element.player].push(element.points)
+                    if (points[element.user]) {
+                        points[element.user].push(element.points)
                     } else {
-                        points[element.player] = [element.points]
+                        points[element.user] = [element.points]
                     }
                 })
                 resolve(points)

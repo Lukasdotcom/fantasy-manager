@@ -87,7 +87,7 @@ export default function Home({session, leagueData}) {
 export async function getServerSideProps(ctx) {
   const session = getSession(ctx)
   if (await session) {
-    return {props : {leagueData : JSON.parse(JSON.stringify(await leagueList((await session).user.email)))}}
+    return {props : {leagueData : JSON.parse(JSON.stringify(await leagueList((await session).user.id)))}}
   } else {
     return {props : {leagueData : []}}
   }

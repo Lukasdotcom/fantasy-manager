@@ -7,16 +7,16 @@ export default async function handler(req, res) {
     if (!session) {
         res.status(401).end("Not logged in")
     } else {
-        const user = session.user.email
+        const user = session.user.id
         var connection = mysql.createConnection({
             host     : process.env.MYSQL_HOST,
             user     : "root",
             password : process.env.MYSQL_PASSWORD,
             database : process.env.MYSQL_DATABASE
             })
-        // Gets players money
+        // Gets users money
         const money = await new Promise((resolve) => {
-            connection.query("SELECT money FROM leagues WHERE leagueID=? and player=?", [league, user], function(error, results, fields) {
+            connection.query("SELECT money FROM leagues WHERE leagueID=? and user=?", [league, user], function(error, results, fields) {
                 resolve(results)
             })
         }).then((e) => e.length > 0 ? e[0].money : false)
@@ -24,22 +24,22 @@ export default async function handler(req, res) {
             // Used to return a dictionary of all transfers and ownerships
             case "GET":
                 if (money !== false) {
-                    const [transfers, playerSquad, squads, timeLeft] = await Promise.all([
+                    const [transfers, userSquad, squads, timeLeft] = await Promise.all([
                         // Gets list of all transfers
                         new Promise((resolve) => {
                             connection.query("SELECT * FROM transfers WHERE leagueID=?", [league], function(error, results, fields) {
                                 resolve(results)
                             })
                         }),
-                        // Gets players squad
+                        // Gets users squad
                         new Promise((resolve) => {
-                            connection.query("SELECT * FROM squad WHERE leagueID=? and player=?", [league, user], function(error, results, fields) {
+                            connection.query("SELECT * FROM squad WHERE leagueID=? and user=?", [league, user], function(error, results, fields) {
                                 resolve(results)
                             })
                         }),
-                        // Gets all squads that are not the players
+                        // Gets all squads that are not the users
                         new Promise((resolve) => {
-                            connection.query("SELECT * FROM squad WHERE leagueID=? and player!=?", [league, user], function(error, results, fields) {
+                            connection.query("SELECT * FROM squad WHERE leagueID=? and user!=?", [league, user], function(error, results, fields) {
                                 resolve(results)
                             })
                         }),
@@ -59,11 +59,11 @@ export default async function handler(req, res) {
                             transferCount++
                         }
                     })
-                    playerSquad.forEach(e => {
+                    userSquad.forEach(e => {
                         if (ownership[e.playeruid] === undefined) {
-                            ownership[e.playeruid] = {"playerSquad" : true}
+                            ownership[e.playeruid] = {"userSquad" : true}
                         } else {
-                            ownership[e.playeruid].playerSquad = true
+                            ownership[e.playeruid].userSquad = true
                         }
                     })
                     squads.forEach(e => {
@@ -97,7 +97,7 @@ export default async function handler(req, res) {
                     connection.query("SELECT value2 FROM data WHERE value1='transferOpen'", function(error, result, field) {
                         if (result[0].value2 > 0) {
                             // Checks if the user still can transfer a player
-                            connection.query("SELECT * FROM squad WHERE leagueID=? and player=?", [league, user], function(error, result, fields) {
+                            connection.query("SELECT * FROM squad WHERE leagueID=? and user=?", [league, user], function(error, result, fields) {
                                 if (result.length == 0) {
                                     resolve(true)
                                 } else {
@@ -115,13 +115,13 @@ export default async function handler(req, res) {
                 }).then(async (e) => {
                     return e ? await new Promise((resolve) => {
                         // Checks if it is a purchase or a sale
-                        connection.query("SELECT * FROM squad WHERE leagueID=? and player=? and playeruid=?", [league, user, playeruid], function(error, result, fields) {
+                        connection.query("SELECT * FROM squad WHERE leagueID=? and user=? and playeruid=?", [league, user, playeruid], function(error, result, fields) {
                             if (result.length > 0) {
                                 // Checks if the player is already being sold
                                 connection.query("SELECT * FROM transfers WHERE leagueID=? and playeruid=?", [league, playeruid], function(error, result, fields) {
                                     if (result.length == 0) {
-                                        connection.query("INSERT INTO transfers VALUES(?, ?, '', ?, ?)", [league, user, playeruid, value])
-                                        connection.query("UPDATE leagues SET money=? WHERE leagueID=? and player=?", [money + value, league, user])
+                                        connection.query("INSERT INTO transfers VALUES(?, ?, 0, ?, ?)", [league, user, playeruid, value])
+                                        connection.query("UPDATE leagues SET money=? WHERE leagueID=? and user=?", [money + value, league, user])
                                     }
                                     resolve("sold")
                                 })
@@ -132,10 +132,10 @@ export default async function handler(req, res) {
                                     // Checks if the player is already being sold
                                     connection.query("SELECT * FROM transfers WHERE leagueID=? and playeruid=?", [league, playeruid], async function(error, result, fields) {
                                         let purchaseAmount = value
-                                        // Checks if the player needs to overbid and checks if they have enough money
+                                        // Checks if the user needs to overbid and checks if they have enough money
                                         if (result.length > 0) {
                                             purchaseAmount = result[0].value + 100000
-                                            // Checks if the player is overbidding themselves
+                                            // Checks if the user is overbidding themselves
                                             if (purchaseAmount <= money || (result[0].buyer == user && money >= 100000)) {
                                                 connection.query("UPDATE transfers SET value=?, buyer=? WHERE leagueID=? and playeruid=?", [purchaseAmount, user, league, playeruid])
                                                 connection.query("UPDATE leagues SET money=money+? WHERE leagueID=? and player=?", [result[0].value, league, result[0].buyer])
@@ -146,11 +146,11 @@ export default async function handler(req, res) {
                                                 resolve("Not enough money")
                                             }
                                         } else {
-                                            // Checks if a player has it otherwise it is bought from the AI
+                                            // Checks if a user has the player otherwise it is bought from the AI
                                             if (value <= money ) {
                                                 connection.query("SELECT * FROM squad WHERE leagueID=? and playeruid=?", [league, playeruid], function(error, result, fields) {
                                                     if (result.length == 0) {
-                                                        connection.query("INSERT INTO transfers VALUES(?, '', ?, ?, ?)", [league, user, playeruid, value])
+                                                        connection.query("INSERT INTO transfers VALUES(?, 0, ?, ?, ?)", [league, user, playeruid, value])
                                                         resolve("bought")
                                                     } else {
                                                         resolve("Not for sale")
@@ -161,8 +161,8 @@ export default async function handler(req, res) {
                                                 resolve("Not enough money")
                                             }
                                         }
-                                        // Removes the money from the player after the purchase
-                                        connection.query("UPDATE leagues SET money=money-? WHERE leagueID=? and player=?", [purchaseAmount, league, user])
+                                        // Removes the money from the user after the purchase
+                                        connection.query("UPDATE leagues SET money=money-? WHERE leagueID=? and user=?", [purchaseAmount, league, user])
                                     })
                                 }
                             }

@@ -10,15 +10,15 @@ export async function updateData() {
     })
     const nowTime = parseInt(Date.now()/1000)
     connection.query("INSERT INTO data VALUES('playerUpdate', ?) ON DUPLICATE KEY UPDATE value2=?", [nowTime, nowTime])
-    const data = fetch("https://fantasy.bundesliga.com/api/player_transfers/init", {
+    /*const data = fetch("https://fantasy.bundesliga.com/api/player_transfers/init", {
         method: 'POST',
         headers:{
             'Content-Type':'application/json',
             'Cookie':`access_token=${process.env.BUNDESLIGA_API}`
         },
         body: JSON.stringify({"payload":{"offerings_query":{"offset":0,"limit":1000,"sort":{"order_by":"popularity","order_direction":"desc"}}}})
-    }).then(async (val) => {return await val.json()})
-    //const data = fetch("http://localhost:3000/data.json").then(async (val) => {return await val.json()})
+    }).then(async (val) => {return await val.json()})*/
+    const data = fetch("http://localhost:3000/data.json").then(async (val) => {return await val.json()})
     // Puts in the data if the transfermarket is open
     const oldTransfer = await new Promise((res) => {
         connection.query("SELECT * FROM data WHERE value1='transferOpen'", function(error, result, field) {
@@ -70,7 +70,7 @@ export async function startMatchday() {
         connection.query("SELECT * FROM transfers", function(error, result, fields) {
             result.forEach((e) => {
                 connection.query("DELETE FROM squad WHERE leagueID=? and playeruid=?", [e.leagueID, e.playeruid])
-                if (e.buyer != "") {
+                if (e.buyer != 0) {
                     connection.query("INSERT INTO squad VALUES(?, ?, ?, 'bench')", [e.leagueID, e.buyer, e.playeruid])
                 }
             })
@@ -81,7 +81,7 @@ export async function startMatchday() {
     })
     connection.query("UPDATE players SET last_match=0")
     // Sets up the points to 0 for every player in every league and sets up 0 points for that matchday
-    connection.query("SELECT leagueID, player, points FROM leagues ORDER BY leagueID", async function(error, result, field) {
+    connection.query("SELECT leagueID, user, points FROM leagues ORDER BY leagueID", async function(error, result, field) {
         let currentleagueID = -1
         let matchday = Promise.resolve(1)
         // Goes through every league and adds another matchday
@@ -101,7 +101,7 @@ export async function startMatchday() {
                     })
                 })
             }
-            connection2.query("INSERT INTO points VALUES(?, ?, 0, ?)", [e.leagueID, e.player, await matchday])
+            connection2.query("INSERT INTO points VALUES(?, ?, 0, ?)", [e.leagueID, e.user, await matchday])
             connection2.end()
         })
         connection.end()
@@ -116,7 +116,7 @@ function calcPoints() {
         password : process.env.MYSQL_PASSWORD,
         database : process.env.MYSQL_DATABASE
     })
-    connection.query("SELECT leagueID, player, points FROM leagues ORDER BY leagueID", function(error, result, field) {
+    connection.query("SELECT leagueID, user, points FROM leagues ORDER BY leagueID", function(error, result, field) {
         result.forEach(async (e) => {
             const connection2 = createConnection({
                 host     : process.env.MYSQL_HOST,
@@ -127,25 +127,25 @@ function calcPoints() {
             const [oldPoints, newPoints] = await Promise.all([
             // Gets how many points the user had for the matchday with the previous calculation
             new Promise((res) => {
-                connection2.query("SELECT points FROM points WHERE leagueID=? and player=? ORDER BY matchday DESC LIMIT 1", [e.leagueID, e.player], function(error, result, field) {
+                connection2.query("SELECT points FROM points WHERE leagueID=? and user=? ORDER BY matchday DESC LIMIT 1", [e.leagueID, e.user], function(error, result, field) {
                     res(result[0].points)
                 })
             }),
             // Calculates the amont of points the user should have for the matchday
             new Promise((res) => {
-                connection2.query("SELECT SUM(last_match) FROM players WHERE EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND position!='bench' AND leagueID=? AND player=?)", [e.leagueID, e.player], function(error, result, field) {
+                connection2.query("SELECT SUM(last_match) FROM players WHERE EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND position!='bench' AND leagueID=? AND user=?)", [e.leagueID, e.user], function(error, result, field) {
                     let value = Object.values(result[0])[0]
                     res(value ? value : 0)
                 })
             })])
             // Checks if the point calculations are off and if thery are wrong they are updated
             if (oldPoints !== newPoints) {
-                connection2.query("UPDATE points SET points=? WHERE leagueID=? AND player=? ORDER BY matchday DESC LIMIT 1", [newPoints, e.leagueID, e.player])
-                connection2.query("UPDATE leagues SET points=? WHERE leagueID=? AND player=?", [e.points - oldPoints + newPoints, e.leagueID, e.player])
+                connection2.query("UPDATE points SET points=? WHERE leagueID=? AND user=? ORDER BY matchday DESC LIMIT 1", [newPoints, e.leagueID, e.user])
+                connection2.query("UPDATE leagues SET points=? WHERE leagueID=? AND user=?", [e.points - oldPoints + newPoints, e.leagueID, e.user])
             }
             connection2.end()
         })
-        console.log("Updated player points")
+        console.log("Updated user points")
         connection.end()
     })
 }

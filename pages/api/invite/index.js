@@ -14,7 +14,7 @@ export default async function handler(req, res) {
             case "POST": // Used to create a new invite link
                 await new Promise((resolve) => {
                     // Makes sure that user is in the league they claim they are from
-                    connection.query("SELECT * FROM leagues WHERE leagueID=? and player=?", [req.body.leagueID, session.user.email], function(error, results, fields) {
+                    connection.query("SELECT * FROM leagues WHERE leagueID=? and user=?", [req.body.leagueID, session.user.id], function(error, results, fields) {
                         if (results.length > 0) {
                             connection.query("INSERT INTO invite VALUES(?, ?)", [req.body.link, req.body.leagueID], function(error, result, fields) {
                                 // Makes sure to check if any errors happened
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
                 break;
             case 'GET': // Used to get a list of invite links for a league
                 await new Promise(() => {
-                    connection.query("SELECT * FROM leagues WHERE leagueID=? and player=?", [req.query.leagueID, session.user.email], function(error, results, fields) {
+                    connection.query("SELECT * FROM leagues WHERE leagueID=? and user=?", [req.query.leagueID, session.user.id], function(error, results, fields) {
                         if (results.length > 0) {
                             connection.query("SELECT * FROM invite WHERE leagueID=?", [req.query.leagueID], function(error, results, fields) {
                                 res.status(200).json(results)
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
                 break;
             case "DELETE":
                 await new Promise(() => {
-                    connection.query("SELECT * FROM leagues WHERE leagueID=? and player=?", [req.body.leagueID, session.user.email], function(error, results, fields) {
+                    connection.query("SELECT * FROM leagues WHERE leagueID=? and user=?", [req.body.leagueID, session.user.id], function(error, results, fields) {
                         if (results.length > 0) {
                             connection.query("DELETE FROM invite WHERE leagueID=? and inviteID=?", [req.body.leagueID, req.body.link])
                             res.status(200).end("Deleted invite link")
