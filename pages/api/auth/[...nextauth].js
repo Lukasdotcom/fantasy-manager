@@ -29,7 +29,7 @@ const options = {
          authorize: async (credentials) => {
             return new Promise((res) => {
                const bcrypt = require('bcryptjs');
-               // Goes through every user that has the email or username that was given
+               // Goes through every user that has the email or username that was given and has password authentication enabled
                const connection = createConnection({
                   host       : process.env.MYSQL_HOST,
                   user       : "root",
@@ -72,7 +72,7 @@ const options = {
                   password : process.env.MYSQL_PASSWORD,
                   database : process.env.MYSQL_DATABASE
                })
-               const password = bcrypt.hashSync(credentials.password, process.env.BCRYPT_ROUNDS)
+               const password = bcrypt.hashSync(credentials.password, parseInt(process.env.BCRYPT_ROUNDS))
                connection.query("INSERT INTO users (username, password, email) VALUES(?, ?, '')", [credentials.username, password])
                connection.query("SELECT * FROM users WHERE (username=? AND password=?) AND email=''", [credentials.username, password], function(error, result) {
                   if (result.length > 0) {

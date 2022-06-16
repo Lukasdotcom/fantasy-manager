@@ -4,6 +4,7 @@ import Menu from "../components/Menu"
 // A place to change your username and other settings
 export default function Home({session, user}) {
     const [username, setUsername] = useState(user.username)
+    const [password, setPassword] = useState("")
     return (
     <>
     <Menu session={session}/>
@@ -27,6 +28,24 @@ export default function Home({session, user}) {
         }
         setUsername(e.target.value)    
     }} value={username} id="username"></input>
+    <br></br>
+    <label htmlFor="password">Edit password(Empty password means that password authentication is disabled): </label>
+    <input id='password' type='password' value={password} onChange={(e) => {setPassword(e.target.value)}}></input>
+    <button onClick={() => {
+        // Used to change the users password
+        fetch(`/api/user`,{
+            method : "POST",
+            headers:{
+                    'Content-Type':'application/json'
+                },
+            body: JSON.stringify({
+                "password" : password
+        })}).then(async (response) => {
+            if (!response.ok) {
+                alert(await response.text())
+            }
+        })
+    }}>Change Password</button>
     </>
     )
 }
