@@ -1,7 +1,7 @@
 import { createConnection } from 'mysql'
 import {updateData} from './update.mjs'
 // Used to tell the program what version of the database to use
-const currentVersion = "0.2.0"
+const currentVersion = "1.0.0"
 let date = new Date
 var day = date.getDay()
 
@@ -51,7 +51,7 @@ async function startUp() {
             if (result.length > 0) {
                 let oldVersion = result[0].value2
                 if (oldVersion == "0.1.1") {
-                    console.log("This version does not have a supported upgrade path to 0.2.0. Due to only me using this program.")
+                    console.log("This version does not have a supported upgrade path to 1.0.0. Due to only me using this program.")
                 }
                 // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
                 // Makes sure that the database is up to date

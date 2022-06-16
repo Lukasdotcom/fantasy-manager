@@ -1,7 +1,7 @@
 version: "2.1"
 services:
   bundesliga:
-    image: lukasdotcom/bundesliga:latest # Change latest to nightly if you want to be using the bleeding edge
+    image: lukasdotcom/bundesliga:1 # Change 1 to nightly if you want to be using the bleeding edge and latest if you want the last stable release. Major versions may have trouble between upgrades read the release before upping the major version.
     container_name: bundesliga
     links:
       - db
