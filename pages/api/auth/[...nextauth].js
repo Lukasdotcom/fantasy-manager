@@ -40,10 +40,11 @@ const options = {
       },
       // Used to find the users id and username
       async session({session}) {
+         // Checks if the user is logged in
          if (!session) return Promise.resolve(session)
          if (!session.user) return Promise.resolve(session)
          const email = session.user.email
-         const [id, username] = await new Promise((res, rej) => {
+         const [id, username] = await new Promise((res) => {
             const connection = createConnection({
                host       : process.env.MYSQL_HOST,
                user       : "root",

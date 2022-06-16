@@ -10,15 +10,15 @@ export async function updateData() {
     })
     const nowTime = parseInt(Date.now()/1000)
     connection.query("INSERT INTO data VALUES('playerUpdate', ?) ON DUPLICATE KEY UPDATE value2=?", [nowTime, nowTime])
-    /*const data = fetch("https://fantasy.bundesliga.com/api/player_transfers/init", {
+    const data = fetch("https://fantasy.bundesliga.com/api/player_transfers/init", {
         method: 'POST',
         headers:{
             'Content-Type':'application/json',
             'Cookie':`access_token=${process.env.BUNDESLIGA_API}`
         },
         body: JSON.stringify({"payload":{"offerings_query":{"offset":0,"limit":1000,"sort":{"order_by":"popularity","order_direction":"desc"}}}})
-    }).then(async (val) => {return await val.json()})*/
-    const data = fetch("http://localhost:3000/data.json").then(async (val) => {return await val.json()})
+    }).then(async (val) => {return await val.json()})
+    //const data = fetch("http://localhost:3000/data.json").then(async (val) => {return await val.json()})
     // Puts in the data if the transfermarket is open
     const oldTransfer = await new Promise((res) => {
         connection.query("SELECT * FROM data WHERE value1='transferOpen'", function(error, result, field) {
