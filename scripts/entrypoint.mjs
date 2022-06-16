@@ -49,7 +49,10 @@ async function startUp() {
     await new Promise((res) => {
         connection.query("SELECT value2 FROM data WHERE value1='version'", function(error, result, field) {
             if (result.length > 0) {
-                const oldVersion = result[0].value2
+                let oldVersion = result[0].value2
+                if (oldVersion == "0.1.1") {
+                    console.log("This version does not have a supported upgrade path to 0.2.0. Due to only me using this program.")
+                }
                 // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
                 // Makes sure that the database is up to date
                 if (oldVersion !== currentVersion) {
