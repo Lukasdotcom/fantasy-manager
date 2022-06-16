@@ -34,16 +34,26 @@ export async function updateData() {
      // Goes through all of the players and adds their data to the database
     const players = (await data).offerings.items
     connection.query("UPDATE players SET `exists`=0")
-    players.forEach(async (val) => {
-        connection.query("INSERT INTO players VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)  ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, last_match=?, locked=?, `exists`=1", [val.player.uid, val.player.nickname, val.player.team.team_code, val.player.image_urls.default, val.transfer_value, val.player.positions[0], val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.statistics.last_match_points, val.player.is_locked, /*Start of have to update*/val.transfer_value, val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.statistics.last_match_points, val.player.is_locked])
+    players.forEach((val, i) => {
+        if (newTransfer) {
+            connection.query("INSERT INTO players VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1", [val.player.uid, val.player.nickname, val.player.team.team_code, val.player.image_urls.default, val.transfer_value, val.player.positions[0], val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.statistics.last_match_points, val.player.is_locked, /*Start of have to update*/val.transfer_value, val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.is_locked])
+        } else {
+            connection.query("SELECT last_match, total_points FROM players WHERE uid=?", [val.player.uid], function(error, result, fields) {
+                if (result.length == 0) {
+                    connection.query("INSERT INTO players VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)", [val.player.uid, val.player.nickname, val.player.team.team_code, val.player.image_urls.default, val.transfer_value, val.player.positions[0], val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.statistics.last_match_points, val.player.is_locked])
+                } else {
+                    connection.query("UPDATE players SET value=?, forecast=?, total_points=?, average_points=?, last_match=last_match+?, locked=?, `exists`=1 WHERE uid=?", [val.transfer_value, val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, (val.player.statistics.total_points-result[0].total_points), val.player.is_locked, val.player.uid])
+                }
+            })
+            if (i == val.length - 1) connection.end()
+        }
     })
     console.log("Downloaded new data")
     // Checks if the matchday is running 
     if (newTransfer == 0) {
         // Checks if the transfer market has just closed or has been closed for a while
-        (oldTransfer > 0) !== (newTransfer > 0) ? startMatchday() : calcPoints()
+        ((oldTransfer > 0) !== (newTransfer > 0)) ? startMatchday() : calcPoints()
     }
-    connection.end()
 }
 
 // Used to start the matchday
@@ -69,6 +79,7 @@ export async function startMatchday() {
             res()
         })
     })
+    connection.query("UPDATE players SET last_match=0")
     // Sets up the points to 0 for every player in every league and sets up 0 points for that matchday
     connection.query("SELECT leagueID, player, points FROM leagues ORDER BY leagueID", async function(error, result, field) {
         let currentleagueID = -1
@@ -97,7 +108,7 @@ export async function startMatchday() {
         calcPoints()
     })
 }
-// Used to calculate the points for every player
+// Used to calculate the points for every user
 function calcPoints() {
     const connection = createConnection({
         host     : process.env.MYSQL_HOST,
