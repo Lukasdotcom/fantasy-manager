@@ -98,7 +98,6 @@ export default async function handler(req, res) {
                                                         // Gets the users formation
                                                         connection.query("SELECT formation FROM leagues WHERE leagueID=? and user=?", [league, user], function(error, result, fields) {
                                                             const formation = JSON.parse(result[0].formation)
-                                                            console.log(playerAmount < formation[2])
                                                             // Checks if there is still room in the formation for this player
                                                             let transferValid = false
                                                             switch (playerposition) {

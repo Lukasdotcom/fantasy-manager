@@ -30,7 +30,7 @@ async function startUp() {
         database : process.env.MYSQL_DATABASE
     })
     // Used to store the users
-    connection.query("CREATE TABLE IF NOT EXISTS users (id int AUTO_INCREMENT, PRIMARY KEY(`id`), email varchar(255), username varchar(255))")
+    connection.query("CREATE TABLE IF NOT EXISTS users (id int AUTO_INCREMENT, PRIMARY KEY(`id`), email varchar(255), username varchar(255), password varchar(60))")
     // Used to store the players data
     connection.query("CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool)")
     // Creates a table that contains some key value pairs for data that is needed for some things
