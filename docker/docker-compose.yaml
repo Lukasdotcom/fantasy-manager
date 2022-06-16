@@ -15,6 +15,7 @@ services:
       # Get your oauth 2.0 details for sign in with google and fill it in below
       - GOOGLE_ID=none
       - GOOGLE_SECRET=none
+      - NEXTAUTH_SECRET= # run openssl rand -base64 32 and plug the result into this
     ports:
       - 80:3000
     restart: always
