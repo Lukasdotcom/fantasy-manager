@@ -1,5 +1,5 @@
 FROM node:16-alpine
-ENV NODE_ENV development
+ENV NODE_ENV=development
 RUN mkdir /app
 WORKDIR /app
 # Sets the default configuration
