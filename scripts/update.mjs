@@ -4,7 +4,7 @@ import { createConnection } from 'mysql';
 export async function updateData() {
     const connection = createConnection({
         host     : process.env.MYSQL_HOST,
-        user     : "root",
+        user     : process.env.MYSQL_USER,
         password : process.env.MYSQL_PASSWORD,
         database : process.env.MYSQL_DATABASE
     })
@@ -61,7 +61,7 @@ export async function startMatchday() {
     console.log("Starting matchday")
     const connection = createConnection({
         host     : process.env.MYSQL_HOST,
-        user     : "root",
+        user     : process.env.MYSQL_USER,
         password : process.env.MYSQL_PASSWORD,
         database : process.env.MYSQL_DATABASE
     })
@@ -88,7 +88,7 @@ export async function startMatchday() {
         await result.forEach(async (e) => {
             const connection2 = createConnection({
                 host     : process.env.MYSQL_HOST,
-                user     : "root",
+                user     : process.env.MYSQL_USER,
                 password : process.env.MYSQL_PASSWORD,
                 database : process.env.MYSQL_DATABASE
             })
@@ -112,7 +112,7 @@ export async function startMatchday() {
 function calcPoints() {
     const connection = createConnection({
         host     : process.env.MYSQL_HOST,
-        user     : "root",
+        user     : process.env.MYSQL_USER,
         password : process.env.MYSQL_PASSWORD,
         database : process.env.MYSQL_DATABASE
     })
@@ -120,7 +120,7 @@ function calcPoints() {
         result.forEach(async (e) => {
             const connection2 = createConnection({
                 host     : process.env.MYSQL_HOST,
-                user     : "root",
+                user     : process.env.MYSQL_USER,
                 password : process.env.MYSQL_PASSWORD,
                 database : process.env.MYSQL_DATABASE
             })
@@ -152,7 +152,7 @@ function calcPoints() {
 export function checkUpdate() {
     const connection = createConnection({
         host     : process.env.MYSQL_HOST,
-        user     : "root",
+        user     : process.env.MYSQL_USER,
         password : process.env.MYSQL_PASSWORD,
         database : process.env.MYSQL_DATABASE
     })
