@@ -3,7 +3,7 @@ import redirect from "../../Modules/league"
 import Head from "next/head"
 import { SquadPlayer as Player } from "../../components/Player"
 import { useState, useEffect } from "react"
-import { getDefaultFlags } from "mysql/lib/ConnectionConfig"
+
 export default function Home({session, league}) {
     const [squad, setSquad] = useState({"att" : [], "mid" : [], "def" : [], "gk" : [], "bench" : []})
     const [formation, setFormation] = useState([1, 4, 4, 2])

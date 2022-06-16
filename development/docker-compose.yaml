@@ -15,6 +15,8 @@ services:
       # Get your oauth details for sign in with google and fill it in below
       - GOOGLE_ID=none
       - GOOGLE_SECRET=none
+      - NEXTAUTH_SECRET=hkf9eUXAZKjw99/hZ4Rrw7aNe47qxB+QuojMwmxbFqA= # If you want to change this run openssl rand -base64 32 and plug the result into this
+      - BCRYPT_ROUNDS=9 # The number of rounds the password should be hashed
     ports:
       - 80:3000
     restart: always

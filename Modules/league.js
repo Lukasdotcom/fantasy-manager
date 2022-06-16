@@ -12,8 +12,8 @@ export default async function redirect(ctx, data) {
         })
     return await new Promise((resolve) => {
         if (session) {
-            // Checks if the player is in the league or not
-            connection.query("SELECT * FROM leagues WHERE leagueID=? and player=?", [league, session.user.email], function(error, results, fields) {
+            // Checks if the user is in the league or not
+            connection.query("SELECT * FROM leagues WHERE leagueID=? and user=?", [league, session.user.id], function(error, results, fields) {
                 if (results.length > 0) { 
                     resolve({
                         props: {

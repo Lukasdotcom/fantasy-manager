@@ -19,16 +19,16 @@ export default async function handler(req, res) {
                     connection.query("SELECT * FROM leagues WHERE leagueID=?", [result.leagueID], function(error, result2, fields) {
                         if (result2.length > 0) {
                             let leagueName = result2[0].leagueName
-                            // Checks if the player has already joined the league
+                            // Checks if the user has already joined the league
                             let joined = false
                             result2.forEach(e => {
-                                if (e.player == session.user.email) {
+                                if (e.user == session.user.id) {
                                     joined = true
                                 }
                             })
-                            // Adds the player in the database if they have not joined yet
+                            // Adds the user in the database if they have not joined yet
                             if (! joined) {
-                                connection.query("INSERT INTO leagues VALUES(?, ?, ?, 0, 150000000, '[1, 4, 4, 2]')", [leagueName, result.leagueID, session.user.email])
+                                connection.query("INSERT INTO leagues VALUES(?, ?, ?, 0, 150000000, '[1, 4, 4, 2]')", [leagueName, result.leagueID, session.user.id])
                                 // Makes sure to add 0 points for every matchday that has already happened.
                                 connection.query("SELECT * FROM points WHERE leagueID=? ORDER BY points DESC LIMIT 1", [result.leagueID], function(error, point, fields) {
                                     let matchday = 0
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
                                         matchday = point[0].matchday
                                     }
                                     while (matchday > 0) {
-                                        connection.query("INSERT INTO points VALUES(?, ?, 0, ?)", [result.leagueID, session.user.email, matchday])
+                                        connection.query("INSERT INTO points VALUES(?, ?, 0, ?)", [result.leagueID, session.user.id, matchday])
                                         matchday --
                                     }
                                     resolve()

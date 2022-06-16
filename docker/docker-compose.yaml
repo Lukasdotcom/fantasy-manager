@@ -16,6 +16,7 @@ services:
       - GOOGLE_ID=none
       - GOOGLE_SECRET=none
       - NEXTAUTH_SECRET= # run openssl rand -base64 32 and plug the result into this
+      - BCRYPT_ROUNDS=9 # The number of rounds the password should be hashed
     ports:
       - 80:3000
     restart: always
