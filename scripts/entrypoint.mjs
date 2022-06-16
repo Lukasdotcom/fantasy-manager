@@ -91,7 +91,14 @@ async function update() {
                 const time = result[0].value2
                 if (time > 0) {
                     if (time - 10 > 0) {
-                        connection.query("UPDATE data SET value2=? WHERE value1='transferOpen'", [time-10])
+                        const connection2 = createConnection({
+                            host     : process.env.MYSQL_HOST,
+                            user     : "root",
+                            password : process.env.MYSQL_PASSWORD,
+                            database : process.env.MYSQL_DATABASE
+                        })
+                        connection2.query("UPDATE data SET value2=? WHERE value1='transferOpen'", [time-10])
+                        connection2.end()
                     } else {
                         console.log("Predicted start of matchday")
                         updateData()
@@ -100,6 +107,6 @@ async function update() {
             }
         })
     }
-    connection.query("UPDATE data SET value2='0' WHERE value1='update'")
+    connection.query("INSERT INTO data VALUES('update', '0') ON DUPLICATE KEY UPDATE value2=0")
     connection.end()
 }
