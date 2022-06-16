@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         const user = session.user.id
         var connection = mysql.createConnection({
             host     : process.env.MYSQL_HOST,
-            user     : "root",
+            user     : process.env.MYSQL_USER,
             password : process.env.MYSQL_PASSWORD,
             database : process.env.MYSQL_DATABASE
             })

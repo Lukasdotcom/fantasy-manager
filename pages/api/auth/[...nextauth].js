@@ -32,7 +32,7 @@ const options = {
                // Goes through every user that has the email or username that was given and has password authentication enabled
                const connection = createConnection({
                   host       : process.env.MYSQL_HOST,
-                  user       : "root",
+                  user       : process.env.MYSQL_USER,
                   password : process.env.MYSQL_PASSWORD,
                   database : process.env.MYSQL_DATABASE
                })
@@ -68,7 +68,7 @@ const options = {
                // Goes through every user that has the email or username that was given
                const connection = createConnection({
                   host       : process.env.MYSQL_HOST,
-                  user       : "root",
+                  user       : process.env.MYSQL_USER,
                   password : process.env.MYSQL_PASSWORD,
                   database : process.env.MYSQL_DATABASE
                })
@@ -93,7 +93,7 @@ const options = {
          if (account.provider === "google") {
             const connection = createConnection({
                host       : process.env.MYSQL_HOST,
-               user       : "root",
+               user       : process.env.MYSQL_USER,
                password : process.env.MYSQL_PASSWORD,
                database : process.env.MYSQL_DATABASE
             })
@@ -117,7 +117,7 @@ const options = {
          const [id, username] = await new Promise((res) => {
             const connection = createConnection({
                host       : process.env.MYSQL_HOST,
-               user       : "root",
+               user       : process.env.MYSQL_USER,
                password : process.env.MYSQL_PASSWORD,
                database : process.env.MYSQL_DATABASE
             })

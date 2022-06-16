@@ -13,7 +13,7 @@ async function startUp() {
             setTimeout(() => {
                 const connection = createConnection({
                     host     : process.env.MYSQL_HOST,
-                    user     : "root",
+                    user     : process.env.MYSQL_USER,
                     password : process.env.MYSQL_PASSWORD,
                     database : process.env.MYSQL_DATABASE
                 })
@@ -25,7 +25,7 @@ async function startUp() {
     }
     const connection = createConnection({
         host     : process.env.MYSQL_HOST,
-        user     : "root",
+        user     : process.env.MYSQL_USER,
         password : process.env.MYSQL_PASSWORD,
         database : process.env.MYSQL_DATABASE
     })
@@ -69,7 +69,7 @@ startUp()
 async function update() {
     const connection = createConnection({
         host     : process.env.MYSQL_HOST,
-        user     : "root",
+        user     : process.env.MYSQL_USER,
         password : process.env.MYSQL_PASSWORD,
         database : process.env.MYSQL_DATABASE
     })
@@ -95,7 +95,7 @@ async function update() {
                     if (time - 10 > 0) {
                         const connection2 = createConnection({
                             host     : process.env.MYSQL_HOST,
-                            user     : "root",
+                            user     : process.env.MYSQL_USER,
                             password : process.env.MYSQL_PASSWORD,
                             database : process.env.MYSQL_DATABASE
                         })
