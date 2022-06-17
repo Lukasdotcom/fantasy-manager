@@ -1,5 +1,5 @@
 # Used to build the project
-FROM node:16-alpine AS builder
+FROM node:18-alpine AS builder
 ENV NODE_ENV production
 RUN apk --no-cache add git
 RUN git clone https://github.com/Lukasdotcom/Bundesliga
@@ -7,7 +7,7 @@ WORKDIR /Bundesliga
 RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:16-alpine AS runner
+FROM node:18-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV production
 # Sets the default configuration
