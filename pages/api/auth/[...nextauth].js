@@ -42,11 +42,11 @@ const options = {
                      if (! finished) {
                         if (bcrypt.compareSync(credentials.password, e.password)) {
                            finished = true
-                           res({id : e.id, username : e.username, email : e.email})
+                           res({email : e.id})
                         }
                      }
                   })
-                  if (! finished) res("")
+                  if (! finished) res(null)
                })
                connection.end()
             })
@@ -76,9 +76,9 @@ const options = {
                connection.query("INSERT INTO users (username, password, email) VALUES(?, ?, '')", [credentials.username, password])
                connection.query("SELECT * FROM users WHERE (username=? AND password=?) AND email=''", [credentials.username, password], function(error, result) {
                   if (result.length > 0) {
-                     res({id : result[0].id, username : result[0].username, email : result[0].email})
+                     res({email : result[0].id})
                   } else {
-                     res("")
+                     res(null)
                   }
                })
                connection.end()
@@ -88,7 +88,7 @@ const options = {
       }),
    ],
    callbacks: {
-      async signIn({ account, profile }) {
+      async signIn({ account, profile, user }) {
          // Will make sure that if this was sign in with google only a verified user loggs in.
          if (account.provider === "google") {
             const connection = createConnection({
@@ -100,21 +100,46 @@ const options = {
             // Checks if the user has already registered and if no then the user is created
             connection.query("SELECT * FROM users WHERE email=?", [profile.email], function(error, result, field) {
                if (result.length == 0){
-                  connection.query("INSERT INTO users (email, username) VALUES (?, ?)", [profile.email, profile.email])
+                  connection.query("INSERT INTO users (email, username, password) VALUES (?, ?, '')", [profile.email, profile.email])
                }
                connection.end()
             })
             return profile.email_verified
          }
-         return true // Do different verification for other providers that don't have `email_verified`
+         return user
       },
       // Used to find the users id and username
       async session({session}) {
          // Checks if the user is logged in
          if (!session) return Promise.resolve(session)
          if (!session.user) return Promise.resolve(session)
-         const email = session.user.email
-         const [id, username] = await new Promise((res) => {
+         // Checks if this is signed in through google or not
+         if (parseInt(session.user.email) > 0) {
+            // Normal sign in
+            const id = session.user.email
+            const [email, username] = await new Promise((res) => {
+            const connection = createConnection({
+               host       : process.env.MYSQL_HOST,
+               user       : process.env.MYSQL_USER,
+               password : process.env.MYSQL_PASSWORD,
+               database : process.env.MYSQL_DATABASE
+            })
+            connection.query("SELECT * FROM users WHERE id=?", [id], function(error, result) {
+               result.length > 0 ? res([result[0].email, result[0].username]) : res(["", ""])
+            })
+            connection.end()
+            })
+            if (id == "") return Promise.resolve([])
+            session.user = {
+               id,
+               username,
+               email
+            }
+            return Promise.resolve(session)
+         } else {
+            // Sign in with google
+            const email = session.user.email
+            const [id, username] = await new Promise((res) => {
             const connection = createConnection({
                host       : process.env.MYSQL_HOST,
                user       : process.env.MYSQL_USER,
@@ -125,14 +150,15 @@ const options = {
                result.length > 0 ? res([result[0].id, result[0].username]) : res(["", ""])
             })
             connection.end()
-         })
-         if (id == "") return Promise.resolve([])
-         session.user = {
-            id,
-            username,
-            email
+            })
+            if (id == "") return Promise.resolve([])
+            session.user = {
+               id,
+               username,
+               email
+            }
+            return Promise.resolve(session)
          }
-         return Promise.resolve(session)
       }
 
    }
