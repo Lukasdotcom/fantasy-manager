@@ -104,25 +104,7 @@ const options = {
                }
                connection.end()
             })
-            let id = ""
-            let username = ""
-            // Checks if the email is verified
-            if (profile.email_verified) {
-               // Finds the user id and username
-               [id, username] = await new Promise((res) => {
-                  const connection = createConnection({
-                     host       : process.env.MYSQL_HOST,
-                     user       : process.env.MYSQL_USER,
-                     password : process.env.MYSQL_PASSWORD,
-                     database : process.env.MYSQL_DATABASE
-                  })
-                  connection.query("SELECT * FROM users WHERE email=?", [profile.email], function(error, result) {
-                     result.length > 0 ? res([result[0].id, result[0].username]) : res(["", ""])
-                  })
-                  connection.end()
-               })
-            }
-            return id === "" ? false : {email: id}
+            return profile.email_verified
          }
          return user
       },
@@ -131,9 +113,11 @@ const options = {
          // Checks if the user is logged in
          if (!session) return Promise.resolve(session)
          if (!session.user) return Promise.resolve(session)
-         // This stores the id
-         const id = session.user.email
-         const [email, username] = await new Promise((res) => {
+         // Checks if this is signed in through google or not
+         if (parseInt(session.user.email) > 0) {
+            // Normal sign in
+            const id = session.user.email
+            const [email, username] = await new Promise((res) => {
             const connection = createConnection({
                host       : process.env.MYSQL_HOST,
                user       : process.env.MYSQL_USER,
@@ -144,14 +128,37 @@ const options = {
                result.length > 0 ? res([result[0].email, result[0].username]) : res(["", ""])
             })
             connection.end()
-         })
-         if (id == "") return Promise.resolve([])
-         session.user = {
-            id,
-            username,
-            email
+            })
+            if (id == "") return Promise.resolve([])
+            session.user = {
+               id,
+               username,
+               email
+            }
+            return Promise.resolve(session)
+         } else {
+            // Sign in with google
+            const email = session.user.email
+            const [id, username] = await new Promise((res) => {
+            const connection = createConnection({
+               host       : process.env.MYSQL_HOST,
+               user       : process.env.MYSQL_USER,
+               password : process.env.MYSQL_PASSWORD,
+               database : process.env.MYSQL_DATABASE
+            })
+            connection.query("SELECT * FROM users WHERE email=?", [email], function(error, result) {
+               result.length > 0 ? res([result[0].id, result[0].username]) : res(["", ""])
+            })
+            connection.end()
+            })
+            if (id == "") return Promise.resolve([])
+            session.user = {
+               id,
+               username,
+               email
+            }
+            return Promise.resolve(session)
          }
-         return Promise.resolve(session)
       }
 
    }
