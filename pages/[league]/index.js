@@ -5,8 +5,8 @@ import { useState } from "react"
 import Username from "../../components/Username"
 
 // Shows some simple UI for each user
-function User({name, matchdayPoints, points}) {
-    return <tr><td><Username id={name} /></td><td>{matchdayPoints}</td><td>{points}</td></tr>
+function User({name, points}) {
+    return <tr><td><Username id={name} /></td><td>{points}</td></tr>
 }
 // Used to show all the invites that exist and to delete an individual invite
 function Invite({link, league, host, remove}) { 
@@ -30,9 +30,15 @@ export default function Home({session, league, standings, historicalPoints, invi
     } else {
         var currentMatchday = Object.values(historicalPoints)[0].length
     }
-    const [matchday, setmatchday] = useState(currentMatchday)
+    const [matchday, setmatchday] = useState(currentMatchday+1)
     const [invites, setInvites] = useState(inviteLinks)
     const [newInvite, setnewInvite] = useState("")
+    // Orders the players in the correct order by points
+    if (matchday <= currentMatchday) {
+        standings = [] 
+        Object.keys(historicalPoints).forEach((e) => {standings.push({user : e, points: historicalPoints[e][matchday]})})
+        standings.sort((a, b) => a.points - b.points)
+    }
     return (
     <>
     <Head>
@@ -42,17 +48,18 @@ export default function Home({session, league, standings, historicalPoints, invi
     <h1>Standings</h1>
     <table>
     <tbody>
-    <tr><th>User</th><th>Matchday { matchday} Points</th><th>Total Points</th></tr>
+    <tr><th>User</th><th>{matchday > currentMatchday ? "Total Points" : `Matchday ${matchday} Points`}</th></tr>
     { standings.map((val) => 
-    <User name={val.user} key={val.user} points={val.points} matchdayPoints={matchday != 0 ? historicalPoints[val.user][matchday-1] : 0}/>
+    <User name={val.user} key={val.user} points={matchday > currentMatchday ? val.points : historicalPoints[val.user][matchday-1]}/>
     )}
     </tbody>
     </table>
     <br></br>
     {matchday != 0 &&/* This is to allow the user to input a matchday to show the number of points */
     <>
-    <label htmlFor="matchday">Set matchday to show points for</label>
-    <input id='matchday' type={"range"} min={1} max={currentMatchday} value={matchday} onChange={(e) => {setmatchday(e.target.value)}}></input>
+    <label htmlFor="matchday">Drag this to show points for a specific matchday. If all the way on the right total points will be shown</label>
+    <br></br>
+    <input id='matchday' type={"range"} min={1} max={currentMatchday+1} value={matchday} onChange={(e) => {setmatchday(e.target.value)}}></input>
     </>
     }
     <h1>Invite Links</h1>
@@ -85,7 +92,7 @@ export default function Home({session, league, standings, historicalPoints, invi
         })
     }}>Add Invite</button>
     </>
-  )
+    )
 }
 
 // Gets the users session
@@ -99,11 +106,11 @@ export async function getServerSideProps(ctx) {
             password : process.env.MYSQL_PASSWORD,
             database : process.env.MYSQL_DATABASE
             })
-        connection.query("SELECT user, points FROM leagues WHERE leagueId=? ORDER BY points DESC", [ctx.params.league], function(error, results, fields) {
+        connection.query("SELECT user, points FROM leagues WHERE leagueId=?", [ctx.params.league], function(error, results, fields) {
             connection.end()
             resolve(results)
         })
-    }).then((val) => JSON.parse(JSON.stringify(val)))
+    }).then((val) => JSON.parse(JSON.stringify(val)).sort((a, b) => b.points-a.points))
     // Gets the historical amount of points for every matchday in the league
     const historicalPoints = new Promise((resolve) => {
         const mysql = require("mysql")
