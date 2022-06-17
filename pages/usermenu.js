@@ -1,12 +1,16 @@
 import { getSession } from "next-auth/react"
 import { useState } from "react"
 import Menu from "../components/Menu"
+import Head from "next/head"
 // A place to change your username and other settings
 export default function Home({session, user}) {
     const [username, setUsername] = useState(user.username)
     const [password, setPassword] = useState("")
     return (
     <>
+    <Head>
+        <title>Usermenu</title>
+    </Head>
     <Menu session={session}/>
     <h1>Usermenu</h1>
     <label htmlFor="username">Edit username: </label>
