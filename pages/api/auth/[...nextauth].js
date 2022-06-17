@@ -122,10 +122,11 @@ const options = {
                database : process.env.MYSQL_DATABASE
             })
             connection.query("SELECT * FROM users WHERE email=?", [email], function(error, result) {
-               result.length > 0 ? res([result[0].id, result[0].username]) : ["", ""]
+               result.length > 0 ? res([result[0].id, result[0].username]) : res(["", ""])
             })
             connection.end()
          })
+         if (id == "") return Promise.resolve([])
          session.user = {
             id,
             username,

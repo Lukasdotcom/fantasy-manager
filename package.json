@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@socialgouv/matomo-next": "^1.3.0",
     "bcryptjs": "^2.4.0",
     "mysql": "^2.18.0",
     "next": "^12.1.0",

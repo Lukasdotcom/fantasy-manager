@@ -18,6 +18,9 @@ services:
       - GOOGLE_SECRET=none
       - NEXTAUTH_SECRET=hkf9eUXAZKjw99/hZ4Rrw7aNe47qxB+QuojMwmxbFqA= # If you want to change this run openssl rand -base64 32 and plug the result into this
       - BCRYPT_ROUNDS=9 # The number of rounds the password should be hashed
+      # Uncomment the MATOMO enviromental variables and fill them out if you want to use matomo analytics
+      #- NEXT_PUBLIC_MATOMO_URL=
+      #- NEXT_PUBLIC_MATOMO_SITE_ID=
     ports:
       - 80:3000
     restart: always
