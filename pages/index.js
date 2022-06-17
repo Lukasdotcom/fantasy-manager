@@ -4,6 +4,7 @@ import { getSession, SessionProvider, useSession } from 'next-auth/react'
 import { leagueList } from "./api/league"
 import Link from 'next/link'
 import Menu from "../components/Menu"
+import { push } from "@socialgouv/matomo-next"
 // Used to create a new League
 function MakeLeague({getLeagueData}) {
   const [leagueName, setLeagueName] = useState("")
@@ -12,6 +13,7 @@ function MakeLeague({getLeagueData}) {
     <h2>Create League</h2>
     <input value={leagueName} onChange={(val) => {setLeagueName(val.target.value)}}></input>
     <button onClick={async () => {
+      push(["trackEvent",  "League", "Create", leagueName])
       // Used to create a league
       await fetch('/api/league', {
       method : "POST",
@@ -29,6 +31,7 @@ function MakeLeague({getLeagueData}) {
 function LeaveLeague({leagueID, getLeagueData}) {
   return (
   <button id={leagueID} onClick={async (e) => {
+    push(["trackEvent", "League", "Leave", leagueID])
     await fetch('/api/league', {
       method : "DELETE",
       headers:{

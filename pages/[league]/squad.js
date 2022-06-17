@@ -3,6 +3,7 @@ import redirect from "../../Modules/league"
 import Head from "next/head"
 import { SquadPlayer as Player } from "../../components/Player"
 import { useState, useEffect } from "react"
+import { push } from "@socialgouv/matomo-next"
 
 export default function Home({session, league}) {
     const [squad, setSquad] = useState({"att" : [], "mid" : [], "def" : [], "gk" : [], "bench" : []})
@@ -39,6 +40,7 @@ export default function Home({session, league}) {
     <select onChange={(e) => {
         // Used to change the formation
         let newFormation = JSON.parse(e.target.value)
+        push(["trackEvent", "New Formation", JSON.stringify(newFormation)])
         setFormation(newFormation)
         fetch(`/api/squad/${league}`, {
             method : "POST",
