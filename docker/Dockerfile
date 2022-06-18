@@ -21,6 +21,7 @@ COPY --from=builder /Bundesliga/scripts ./scripts
 COPY --from=builder /Bundesliga/public ./public
 COPY --from=builder /Bundesliga/pages ./pages
 COPY --from=builder /Bundesliga/components ./components
+COPY --from=builder /Bundesliga/Modules ./Modules
 COPY --from=builder /Bundesliga/styles ./styles
 COPY --from=builder /Bundesliga/node_modules ./node_modules
 COPY --from=builder /Bundesliga/package.json ./package.json
