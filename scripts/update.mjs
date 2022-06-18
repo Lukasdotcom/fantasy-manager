@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { createConnection } from 'mysql';
 // Used to update all the data
 export async function updateData() {
