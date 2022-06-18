@@ -4,7 +4,7 @@ ENV NODE_ENV production
 RUN apk --no-cache add git
 RUN git clone https://github.com/Lukasdotcom/Bundesliga
 WORKDIR /Bundesliga
-RUN npm run build
+RUN npm ci
 
 # Production image, copy all the files and run next
 FROM node:18-alpine AS runner
@@ -19,7 +19,9 @@ ENV BCRYPT_ROUNDS=9
 COPY --from=builder /Bundesliga/next.config.js ./next.config.js
 COPY --from=builder /Bundesliga/scripts ./scripts
 COPY --from=builder /Bundesliga/public ./public
-COPY --from=builder /Bundesliga/.next ./.next
+COPY --from=builder /Bundesliga/pages ./pages
+COPY --from=builder /Bundesliga/components ./components
+COPY --from=builder /Bundesliga/styles ./styles
 COPY --from=builder /Bundesliga/node_modules ./node_modules
 COPY --from=builder /Bundesliga/package.json ./package.json
 
