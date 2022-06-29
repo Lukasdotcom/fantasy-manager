@@ -39,7 +39,7 @@ export async function updateData() {
         } else {
             connection.query("SELECT last_match, total_points FROM players WHERE uid=?", [val.player.uid], function(error, result, fields) {
                 if (result.length == 0) {
-                    connection.query("INSERT INTO (uid, name, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) players VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)", [val.player.uid, val.player.nickname, val.player.team.team_code, val.player.image_urls.default, val.transfer_value, val.player.positions[0], val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.statistics.last_match_points, val.player.is_locked])
+                    connection.query("INSERT INTO players (uid, name, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)", [val.player.uid, val.player.nickname, val.player.team.team_code, val.player.image_urls.default, val.transfer_value, val.player.positions[0], val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.statistics.last_match_points, val.player.is_locked])
                 } else {
                     connection.query("UPDATE players SET value=?, forecast=?, total_points=?, average_points=?, last_match=last_match+?, locked=?, `exists`=1 WHERE uid=?", [val.transfer_value, val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, (val.player.statistics.total_points-result[0].total_points), val.player.is_locked, val.player.uid])
                 }
