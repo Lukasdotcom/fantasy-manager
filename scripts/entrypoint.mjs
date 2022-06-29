@@ -60,7 +60,7 @@ async function startUp() {
                 }
             }
             // Updated version of database in table
-            connection.query("INSERT INTO data VALUES('version', ?) ON DUPLICATE KEY UPDATE value2=?", [currentVersion, currentVersion])
+            connection.query("INSERT INTO data (value1, value2) VALUES('version', ?) ON DUPLICATE KEY UPDATE value2=?", [currentVersion, currentVersion])
             res()
         })
     })
@@ -112,6 +112,6 @@ async function update() {
             }
         })
     }
-    connection.query("INSERT INTO data VALUES('update', '0') ON DUPLICATE KEY UPDATE value2=0")
+    connection.query("INSERT INTO data (value1, value2) VALUES('update', '0') ON DUPLICATE KEY UPDATE value2=0")
     connection.end()
 }

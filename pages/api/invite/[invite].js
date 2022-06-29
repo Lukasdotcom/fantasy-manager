@@ -28,7 +28,7 @@ export default async function handler(req, res) {
                             })
                             // Adds the user in the database if they have not joined yet
                             if (! joined) {
-                                connection.query("INSERT INTO leagues VALUES(?, ?, ?, 0, 150000000, '[1, 4, 4, 2]')", [leagueName, result.leagueID, session.user.id])
+                                connection.query("INSERT INTO leagues (leagueName, leagueID, user, points, money, formation) VALUES(?, ?, ?, 0, 150000000, '[1, 4, 4, 2]')", [leagueName, result.leagueID, session.user.id])
                                 // Makes sure to add 0 points for every matchday that has already happened.
                                 connection.query("SELECT * FROM points WHERE leagueID=? ORDER BY points DESC LIMIT 1", [result.leagueID], function(error, point, fields) {
                                     let matchday = 0
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
                                         matchday = point[0].matchday
                                     }
                                     while (matchday > 0) {
-                                        connection.query("INSERT INTO points VALUES(?, ?, 0, ?)", [result.leagueID, session.user.id, matchday])
+                                        connection.query("INSERT INTO points (leagueID, user, points, matchday) VALUES(?, ?, 0, ?)", [result.leagueID, session.user.id, matchday])
                                         matchday --
                                     }
                                     resolve()
