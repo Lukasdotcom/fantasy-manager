@@ -100,7 +100,6 @@ const options = {
             // Checks if the user has already registered and if no then the user is created
             connection.query("SELECT * FROM users WHERE email=?", [profile.email], function(error, result, field) {
                if (result.length == 0){
-                  console.log(profile)
                   connection.query("INSERT INTO users (email, username, password) VALUES (?, ?, '')", [profile.email, profile.name])
                }
                connection.end()
