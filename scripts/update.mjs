@@ -8,7 +8,7 @@ export async function updateData() {
         database : process.env.MYSQL_DATABASE
     })
     const nowTime = parseInt(Date.now()/1000)
-    connection.query("INSERT INTO data VALUES('playerUpdate', ?) ON DUPLICATE KEY UPDATE value2=?", [nowTime, nowTime])
+    connection.query("INSERT INTO data (value1, value2) VALUES('playerUpdate', ?) ON DUPLICATE KEY UPDATE value2=?", [nowTime, nowTime])
     const data = fetch("https://fantasy.bundesliga.com/api/player_transfers/init", {
         method: 'POST',
         headers:{
@@ -29,17 +29,17 @@ export async function updateData() {
         })
     })
     const newTransfer = (await data).opening_hour.countdown > 3600 ? (await data).opening_hour.countdown - 3600 : 0
-    connection.query("INSERT INTO data VALUES('transferOpen', ?) ON DUPLICATE KEY UPDATE value2=?", [newTransfer, newTransfer])
+    connection.query("INSERT INTO data (value1, value2) VALUES('transferOpen', ?) ON DUPLICATE KEY UPDATE value2=?", [newTransfer, newTransfer])
      // Goes through all of the players and adds their data to the database
     const players = (await data).offerings.items
     connection.query("UPDATE players SET `exists`=0")
     players.forEach((val, i) => {
         if (newTransfer) {
-            connection.query("INSERT INTO players VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1", [val.player.uid, val.player.nickname, val.player.team.team_code, val.player.image_urls.default, val.transfer_value, val.player.positions[0], val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.statistics.last_match_points, val.player.is_locked, /*Start of have to update*/val.transfer_value, val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.is_locked])
+            connection.query("INSERT INTO players (uid, name, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1", [val.player.uid, val.player.nickname, val.player.team.team_code, val.player.image_urls.default, val.transfer_value, val.player.positions[0], val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.statistics.last_match_points, val.player.is_locked, /*Start of have to update*/val.transfer_value, val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.is_locked])
         } else {
             connection.query("SELECT last_match, total_points FROM players WHERE uid=?", [val.player.uid], function(error, result, fields) {
                 if (result.length == 0) {
-                    connection.query("INSERT INTO players VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)", [val.player.uid, val.player.nickname, val.player.team.team_code, val.player.image_urls.default, val.transfer_value, val.player.positions[0], val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.statistics.last_match_points, val.player.is_locked])
+                    connection.query("INSERT INTO (uid, name, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) players VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)", [val.player.uid, val.player.nickname, val.player.team.team_code, val.player.image_urls.default, val.transfer_value, val.player.positions[0], val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, val.player.statistics.last_match_points, val.player.is_locked])
                 } else {
                     connection.query("UPDATE players SET value=?, forecast=?, total_points=?, average_points=?, last_match=last_match+?, locked=?, `exists`=1 WHERE uid=?", [val.transfer_value, val.attendance.forecast[0], val.player.statistics.total_points, val.player.statistics.average_points, (val.player.statistics.total_points-result[0].total_points), val.player.is_locked, val.player.uid])
                 }
@@ -70,7 +70,7 @@ export async function startMatchday() {
             result.forEach((e) => {
                 connection.query("DELETE FROM squad WHERE leagueID=? and playeruid=?", [e.leagueID, e.playeruid])
                 if (e.buyer != 0) {
-                    connection.query("INSERT INTO squad VALUES(?, ?, ?, 'bench')", [e.leagueID, e.buyer, e.playeruid])
+                    connection.query("INSERT INTO squad (leagueID, user, playeruid, position) VALUES(?, ?, ?, 'bench')", [e.leagueID, e.buyer, e.playeruid])
                 }
             })
             connection.query("DELETE FROM transfers")
@@ -100,7 +100,7 @@ export async function startMatchday() {
                     })
                 })
             }
-            connection2.query("INSERT INTO points VALUES(?, ?, 0, ?)", [e.leagueID, e.user, await matchday])
+            connection2.query("INSERT INTO points (leagueID, user, points, matchday) VALUES(?, ?, 0, ?)", [e.leagueID, e.user, await matchday])
             connection2.end()
         })
         connection.end()
@@ -158,7 +158,7 @@ export function checkUpdate() {
     // Checks if matchdays are currently happening and if it is a matchday checks if the update time has passed
     connection.query("SELECT value2 FROM data WHERE value1='transferOpen' or value1='playerUpdate' ORDER BY value1 DESC", function(error, result, field) {
         if (result[0].value2 == 0 && parseInt(result[1].value2) < parseInt(Date.now()/1000) - parseInt(process.env.MIN_UPDATE_TIME)) {
-            connection.query("INSERT INTO data VALUES('update', '1') ON DUPLICATE KEY UPDATE value2=1")
+            connection.query("INSERT INTO data (value1, value2) VALUES('update', '1') ON DUPLICATE KEY UPDATE value2=1")
         }
         connection.end()
     })

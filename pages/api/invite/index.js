@@ -16,7 +16,7 @@ export default async function handler(req, res) {
                     // Makes sure that user is in the league they claim they are from
                     connection.query("SELECT * FROM leagues WHERE leagueID=? and user=?", [req.body.leagueID, session.user.id], function(error, results, fields) {
                         if (results.length > 0) {
-                            connection.query("INSERT INTO invite VALUES(?, ?)", [req.body.link, req.body.leagueID], function(error, result, fields) {
+                            connection.query("INSERT INTO invite (inviteID, leagueID) VALUES(?, ?)", [req.body.link, req.body.leagueID], function(error, result, fields) {
                                 // Makes sure to check if any errors happened
                                 if (error === null) {
                                     resolve([200, "Created Invite Link"])

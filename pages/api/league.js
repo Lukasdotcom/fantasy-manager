@@ -19,11 +19,11 @@ export default async function handler(req, res) {
                 await new Promise((resolve) => {
                     connection.query("SELECT leagueID FROM leagues WHERE leagueID=?", [id], function(error, results, fields) {
                         if (results.length == 0) {
-                            connection.query("INSERT INTO leagues VALUES(?, ?, ?, 0, 150000000, '[1, 4, 4, 2]')", [req.body.name, id, session.user.id])
+                            connection.query("INSERT INTO leagues (leagueName, leagueID, user, points, money, formation) VALUES(?, ?, ?, 0, 150000000, '[1, 4, 4, 2]')", [req.body.name, id, session.user.id])
                             // Checks if the game is in a transfer period and if yes it starts the first matchday automatically
                             connection.query("SELECT value2 FROM data WHERE value1='transferOpen'", function(error, result, field) {
                                 if (parseInt(result[0].value2) == 0) {
-                                    connection.query("INSERT INTO points VALUES(?, ?, 0, 1)" , [id, session.user.id])
+                                    connection.query("INSERT INTO points (leagueID, user, points, matchday) VALUES(?, ?, 0, 1)" , [id, session.user.id])
                                 }
                                 res.status(200).end("Created League")
                             })

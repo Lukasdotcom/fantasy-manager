@@ -120,7 +120,7 @@ export default async function handler(req, res) {
                                 // Checks if the player is already being sold
                                 connection.query("SELECT * FROM transfers WHERE leagueID=? and playeruid=?", [league, playeruid], function(error, result, fields) {
                                     if (result.length == 0) {
-                                        connection.query("INSERT INTO transfers VALUES(?, ?, 0, ?, ?)", [league, user, playeruid, value])
+                                        connection.query("INSERT INTO transfers (leagueID, seller, buyer, playeruid, value) VALUES(?, ?, 0, ?, ?)", [league, user, playeruid, value])
                                         connection.query("UPDATE leagues SET money=? WHERE leagueID=? and user=?", [money + value, league, user])
                                     }
                                     resolve("sold")
@@ -150,7 +150,7 @@ export default async function handler(req, res) {
                                             if (value <= money ) {
                                                 connection.query("SELECT * FROM squad WHERE leagueID=? and playeruid=?", [league, playeruid], function(error, result, fields) {
                                                     if (result.length == 0) {
-                                                        connection.query("INSERT INTO transfers VALUES(?, 0, ?, ?, ?)", [league, user, playeruid, value])
+                                                        connection.query("INSERT INTO transfers (leagueID, seller, buyer, playeruid, value) VALUES(?, 0, ?, ?, ?)", [league, user, playeruid, value])
                                                         resolve("bought")
                                                     } else {
                                                         resolve("Not for sale")
