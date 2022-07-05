@@ -57,3 +57,11 @@ button:disabled {
 button:disabled:hover {
   color: white;
 }
+
+.notification {
+  position: fixed;
+  bottom: 0;
+  border: 10px solid red;
+  margin: 0px;
+  background-color: rgb(255, 0, 0);
+}

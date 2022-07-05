@@ -1,5 +1,7 @@
 import { createConnection } from 'mysql'
 import {updateData} from './update.mjs'
+import version from "./../package.json" assert {type: "json"}
+
 // Used to tell the program what version of the database to use
 const currentVersion = "1.0.0"
 let date = new Date
@@ -67,6 +69,18 @@ async function startUp() {
     // Makes sure to check if an update is neccessary every 10 seconds
     setInterval(update, 10000)
     updateData()
+    // Checks if this is the latest version and if it does adds data
+    async function updateInfo() {
+        console.log("Checking for updates")
+        const releases = await fetch("https://api.github.com/repos/lukasdotcom/Bundesliga/releases").then((res) => res.json())
+        if (version !== releases[0].tag_name) {
+            connection.query("INSERT INTO data (value1, value2) VALUES('update', ?) ON DUPLICATE KEY UPDATE value2=?",[releases[0].html_url, releases[0].html_url])
+        } else {
+            connection.query("DELETE FROM data WHERE value1='update'")
+        }
+    }
+    updateInfo()
+    setInterval(updateInfo, 3600000*24)
 }
 startUp()
 async function update() {
