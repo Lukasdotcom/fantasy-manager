@@ -5,6 +5,7 @@ import { leagueList } from "./api/league"
 import Link from 'next/link'
 import Menu from "../components/Menu"
 import { push } from "@socialgouv/matomo-next"
+import {createConnection} from "mysql"
 // Used to create a new League
 function MakeLeague({getLeagueData}) {
   const [leagueName, setLeagueName] = useState("")
@@ -72,7 +73,8 @@ function Leagues({leagueData}) {
   }
   
 }
-export default function Home({session, leagueData}) {
+export default function Home({session, leagueData, versionData}) {
+  console.log(versionData)
   return (
     <>
     <Head>
@@ -83,15 +85,38 @@ export default function Home({session, leagueData}) {
     <SessionProvider session={session}>
       <Leagues leagueData={leagueData} />
     </SessionProvider>
+    { versionData !== null &&
+      <div className={"notification"}>
+        <a href={versionData} rel="noreferrer" target="_blank">New Update for more info Click Here</a>
+      </div>
+    }
     </>
   )
 }
 
 export async function getServerSideProps(ctx) {
+  const versionData = new Promise((res) => {
+    const connection = createConnection({
+      host     : process.env.MYSQL_HOST,
+      user     : process.env.MYSQL_USER,
+      password : process.env.MYSQL_PASSWORD,
+      database : process.env.MYSQL_DATABASE
+    })
+    connection.query("SELECT value2 FROM data WHERE value1='update'", function(error, result, field) {
+      console.log(result)
+      if (result.length === 0) {
+        res(null)
+      } else {
+        res(result[0].value2)
+      }
+    })
+    connection.end()
+  })
+  console.log(await versionData)
   const session = getSession(ctx)
   if (await session) {
-    return {props : {leagueData : JSON.parse(JSON.stringify(await leagueList((await session).user.id)))}}
+    return {props : {versionData : await versionData, leagueData : JSON.parse(JSON.stringify(await leagueList((await session).user.id)))}}
   } else {
-    return {props : {leagueData : []}}
+    return {props : {versionData : await versionData, leagueData : []}}
   }
 }
