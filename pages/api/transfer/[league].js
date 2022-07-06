@@ -172,8 +172,10 @@ export default async function handler(req, res) {
                 if (valid === false) {
                     res.status(400).end("No transfers left")
                 } else if (["bought", "sold"].includes(valid)) {
+                    console.log(`User ${user} succesfully ${valid} player ${playeruid}`)
                     res.status(200).end(`Succesfully ${valid} player`)
                 } else {
+                    console.warn(`User ${user} failed to buy/sell player ${playeruid} due to ${valid}`)
                     res.status(400).end(valid)
                 }
                 break;

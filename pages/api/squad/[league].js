@@ -116,6 +116,7 @@ export default async function handler(req, res) {
                                                             }
                                                             if (transferValid) {
                                                                 connection.query("UPDATE squad SET position=? WHERE leagueID=? and user=? and playeruid=?", [playerposition, league, user, e])
+                                                                console.log(`User ${user} moved player ${e} to field`)
                                                                 resolve()
                                                             } else {
                                                                 reject("No more room in formation")
@@ -127,6 +128,7 @@ export default async function handler(req, res) {
                                         } else {
                                             // If the player is on the field automatically move them to the bench
                                             connection.query("UPDATE squad SET position='bench' WHERE leagueID=? and user=? and playeruid=?", [league, user, e])
+                                            console.log(`User ${user} moved player ${e} to bench`)
                                             resolve()
                                         }
                                     } else {

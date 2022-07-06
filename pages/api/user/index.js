@@ -21,6 +21,7 @@ export default async function handler(req, res) {
                 const bcrypt = require('bcryptjs');
                 connection.query("UPDATE users SET password=? WHERE id=?", [password === "" ? "" : bcrypt.hashSync(password, parseInt(process.env.BCRYPT_ROUNDS)), id])
                 res.status(200).end("Changed password")
+                console.log(`User ${id} changed password`)
                 connection.end()
             } else if (req.body.username === undefined) {
                 res.status(500).end("No username given")
@@ -34,6 +35,7 @@ export default async function handler(req, res) {
                     })
                 connection.query("UPDATE users SET username=? WHERE id=?", [req.body.username, id])
                 res.status(200).end("Changed username")
+                console.log(`User ${id} changed username to ${req.body.username}`)
                 connection.end()
             }
             break;

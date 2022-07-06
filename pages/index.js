@@ -74,7 +74,6 @@ function Leagues({leagueData}) {
   
 }
 export default function Home({session, leagueData, versionData}) {
-  console.log(versionData)
   return (
     <>
     <Head>
@@ -103,7 +102,6 @@ export async function getServerSideProps(ctx) {
       database : process.env.MYSQL_DATABASE
     })
     connection.query("SELECT value2 FROM data WHERE value1='update'", function(error, result, field) {
-      console.log(result)
       if (result.length === 0) {
         res(null)
       } else {
@@ -112,7 +110,6 @@ export async function getServerSideProps(ctx) {
     })
     connection.end()
   })
-  console.log(await versionData)
   const session = getSession(ctx)
   if (await session) {
     return {props : {versionData : await versionData, leagueData : JSON.parse(JSON.stringify(await leagueList((await session).user.id)))}}

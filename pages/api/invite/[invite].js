@@ -1,4 +1,5 @@
 import { getSession } from "next-auth/react"
+import { sendError } from "next/dist/server/api-utils"
 // Used to join a league
 export default async function handler(req, res) {
     const session = await getSession({ req })
@@ -39,6 +40,7 @@ export default async function handler(req, res) {
                                         connection.query("INSERT INTO points (leagueID, user, points, matchday) VALUES(?, ?, 0, ?)", [result.leagueID, session.user.id, matchday])
                                         matchday --
                                     }
+                                    console.log(`Player ${session.user.id} joined league ${result.leagueID}`)
                                     resolve()
                                 })
                             } else {

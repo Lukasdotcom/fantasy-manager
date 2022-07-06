@@ -19,8 +19,10 @@ export default async function handler(req, res) {
                             connection.query("INSERT INTO invite (inviteID, leagueID) VALUES(?, ?)", [req.body.link, req.body.leagueID], function(error, result, fields) {
                                 // Makes sure to check if any errors happened
                                 if (error === null) {
+                                    console.log(`League ${req.body.leagueID} created invite link of ${req.body.link}`)
                                     resolve([200, "Created Invite Link"])
                                 } else {
+                                    console.warn(`League ${req.body.leagueID} tried to create invite link`)
                                     resolve([500, "Invite id already used"])
                                 }
                             })
@@ -48,6 +50,7 @@ export default async function handler(req, res) {
                     connection.query("SELECT * FROM leagues WHERE leagueID=? and user=?", [req.body.leagueID, session.user.id], function(error, results, fields) {
                         if (results.length > 0) {
                             connection.query("DELETE FROM invite WHERE leagueID=? and inviteID=?", [req.body.leagueID, req.body.link])
+                            console.log(`League ${req.body.leagueID} removed invite link of ${req.body.link}`)
                             res.status(200).end("Deleted invite link")
                         } else {
                             res.status(403).end("You are not in this league")
