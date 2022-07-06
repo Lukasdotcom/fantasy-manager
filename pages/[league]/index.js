@@ -3,6 +3,7 @@ import redirect from "../../Modules/league"
 import Head from "next/head"
 import { useState } from "react"
 import Username from "../../components/Username"
+import { push } from "@socialgouv/matomo-next"
 
 // Shows some simple UI for each user
 function User({name, points}) {
@@ -11,6 +12,7 @@ function User({name, points}) {
 // Used to show all the invites that exist and to delete an individual invite
 function Invite({link, league, host, remove}) { 
     return <p>Link: {`${host}/api/invite/${link}`}<button onClick={async () => {
+        push(["trackEvent", "Delete Invite", league, link])
         await fetch('/api/invite', {
             method: "DELETE",
             headers:{
@@ -67,7 +69,7 @@ export default function Home({session, league, standings, historicalPoints, invi
         <Invite host={host} key={val} link={val} league={league} remove={() => {setInvites(invites.filter((e)=>e!=val))}} />
     )}
     {/* Used to create a new invite link */}
-    <label htmlFor="invite">Enter Custom Invite Link Here: </label>
+    <label htmlFor="invite">Enter Custom Invite Link Here(Leave empty for a random invite link): </label>
     <input onChange={(val) => {setnewInvite(val.target.value)}} val={newInvite} id="invite"></input>
     <button onClick={() => {
         let link = newInvite
@@ -85,6 +87,7 @@ export default function Home({session, league, standings, historicalPoints, invi
                 "link" : link
         })}).then((response) => {
             if (response.ok) {
+                push(["trackEvent", "Create Invite", league, link])
                 setInvites([...invites, link])
             } else {
                 alert("Invite link already used")
