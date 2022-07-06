@@ -1,7 +1,6 @@
 import { createConnection } from 'mysql';
 // Used to update all the data
 export async function updateData() {
-    return
     const connection = createConnection({
         host     : process.env.MYSQL_HOST,
         user     : process.env.MYSQL_USER,
