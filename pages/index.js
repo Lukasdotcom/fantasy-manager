@@ -101,7 +101,7 @@ export async function getServerSideProps(ctx) {
       password : process.env.MYSQL_PASSWORD,
       database : process.env.MYSQL_DATABASE
     })
-    connection.query("SELECT value2 FROM data WHERE value1='update'", function(error, result, field) {
+    connection.query("SELECT value2 FROM data WHERE value1='updateProgram'", function(error, result, field) {
       if (result.length === 0) {
         res(null)
       } else {

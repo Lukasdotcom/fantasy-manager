@@ -1,6 +1,6 @@
 {
   "name": "bundesliga",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "private": true,
   "scripts": {
     "dev": "npm install; node scripts/entrypoint.mjs & next dev",

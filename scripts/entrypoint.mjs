@@ -74,9 +74,9 @@ async function startUp() {
         console.log("Checking for updates")
         const releases = await fetch("https://api.github.com/repos/lukasdotcom/Bundesliga/releases").then((res) => res.json())
         if (version.version !== releases[0].tag_name) {
-            connection.query("INSERT INTO data (value1, value2) VALUES('update', ?) ON DUPLICATE KEY UPDATE value2=?",[releases[0].html_url, releases[0].html_url])
+            connection.query("INSERT INTO data (value1, value2) VALUES('updateProgram', ?) ON DUPLICATE KEY UPDATE value2=?",[releases[0].html_url, releases[0].html_url])
         } else {
-            connection.query("DELETE FROM data WHERE value1='update'")
+            connection.query("DELETE FROM data WHERE value1='updateProgram'")
         }
     }
     updateInfo()
