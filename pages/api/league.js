@@ -26,6 +26,7 @@ export default async function handler(req, res) {
                                     connection.query("INSERT INTO points (leagueID, user, points, matchday) VALUES(?, ?, 0, 1)" , [id, session.user.id])
                                 }
                                 res.status(200).end("Created League")
+                                console.log(`User ${id} created league of ${id} with name ${req.body.name}`)
                             })
                         } else {
                             throw "Could not create league"
@@ -42,11 +43,13 @@ export default async function handler(req, res) {
                 connection.query("DELETE FROM squad WHERE leagueID=? and user=?", [req.body.id, session.user.id])
                 connection.query("UPDATE transfer SET seller='' WHERE leagueID=? and seller=?", [req.body.id, session.user.id])
                 connection.query("UPDATE transfer SET buyer='' WHERE leagueID=? and buyer=?", [req.body.id, session.user.id])
+                console.log(`User ${session.user.id} left league ${req.body.id}`)
                 // Checks if the league still has users
                 connection.query("SELECT * FROM leagues WHERE leagueID=?", [req.body.id], function(error, result, field) {
                     if (result.length == 0) {
                         connection.query("DELETE FROM invite WHERE leagueID=?", [req.body.id])
                         connection.query("DELETE FROM transfer WHERE leagueID=?", [req.body.id])
+                        console.log(`League ${req.body.id} is now empty and is being deleted`)
                     }
                 }) 
                 res.status(200).end("Left league")

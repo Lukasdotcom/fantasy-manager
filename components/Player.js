@@ -1,6 +1,7 @@
 import playerStyles from "../styles/Player.module.css"
 import { useEffect, useState } from "react"
 import Image from 'next/image'
+import { push } from "@socialgouv/matomo-next"
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it
 export function Player({data, children}) {
     var background = "black"
@@ -59,6 +60,7 @@ export function TransferPlayer({uid, ownership, money, league, transferData, tra
     }, [uid])
     // Used to purchase a player
     function buySell() {
+        push(["trackEvent", "Purchase/Sell", String(league), String(uid)])
         fetch(`/api/transfer/${league}`, {
             method : "POST",
             headers:{
@@ -150,6 +152,7 @@ export function SquadPlayer({uid, update, field, league}) {
     return (
         <Player data={data}>
             <button onClick={() => {
+                push(["trackEvent", "Move Player", league, uid])
                 // Used to move the player
                 fetch(`/api/squad/${league}`, {
                     method : "POST",
