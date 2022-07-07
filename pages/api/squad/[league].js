@@ -29,7 +29,7 @@ export default async function handler(req, res) {
             case "GET":
                 await new Promise((resolve) => {
                     // Checks if the league exists
-                    connection.query("SELECT * FROM leagues WHERE leagueID=? and user=?", [league, user], function(error, result, fields) {
+                    connection.query("SELECT * FROM leagueUsers WHERE leagueID=? and user=?", [league, user], function(error, result, fields) {
                         if (result.length > 0) {
                             const formation = JSON.parse(result[0].formation)
                             // Gets all the players on the team
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
                         await Promise.all([positionOpen(formation[1], "def"), positionOpen(formation[2], "mid"), positionOpen(formation[3], "att")]).catch((val)=> {
                             res.status(500).end(val)
                         }).then(() => {
-                            connection.query("UPDATE leagues SET formation=? WHERE leagueID=? and user=?", [JSON.stringify(formation), league, user])
+                            connection.query("UPDATE leagueUsers SET formation=? WHERE leagueID=? and user=?", [JSON.stringify(formation), league, user])
                         })
                     } else {
                         res.status(500).end("Invalid formation")
@@ -96,7 +96,7 @@ export default async function handler(req, res) {
                                                     connection.query("SELECT * FROM squad WHERE leagueID=? and user=? and position=?", [league, user, playerposition], function(error, result, field) {
                                                         const playerAmount = result.length
                                                         // Gets the users formation
-                                                        connection.query("SELECT formation FROM leagues WHERE leagueID=? and user=?", [league, user], function(error, result, fields) {
+                                                        connection.query("SELECT formation FROM leagueUsers WHERE leagueID=? and user=?", [league, user], function(error, result, fields) {
                                                             const formation = JSON.parse(result[0].formation)
                                                             // Checks if there is still room in the formation for this player
                                                             let transferValid = false

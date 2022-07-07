@@ -3,7 +3,7 @@ import {updateData} from './update.mjs'
 import version from "./../package.json" assert {type: "json"}
 
 // Used to tell the program what version of the database to use
-const currentVersion = "1.0.0"
+const currentVersion = "1.0.7"
 let date = new Date
 var day = date.getDay()
 
@@ -37,8 +37,10 @@ async function startUp() {
     connection.query("CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool)")
     // Creates a table that contains some key value pairs for data that is needed for some things
     connection.query("CREATE TABLE IF NOT EXISTS data (value1 varchar(25) PRIMARY KEY, value2 varchar(255))")
-    // Used to store the leagues
-    connection.query("CREATE TABLE IF NOT EXISTS leagues (leagueName varchar(255), leagueID int, user int, points int, money int, formation varchar(255))")
+    // Used to store the leagues settings
+    connection.query("CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY)")
+    // Used to store the leagues users
+    connection.query("CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, points int, money int, formation varchar(255))")
     // Used to store the Historical Points
     connection.query("CREATE TABLE IF NOT EXISTS points (leagueID int, user int, points int, matchday int)")
     // Used to store transfers
@@ -54,6 +56,21 @@ async function startUp() {
                 let oldVersion = result[0].value2
                 if (oldVersion == "0.1.1") {
                     console.log("This version does not have a supported upgrade path to 1.0.0. Due to only me using this program.")
+                }
+                if (oldVersion == "1.0.0") {
+                    console.log("Updating database to version 1.0.7")
+                    // Used to store the leagues settings
+                    connection.query("CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY)")
+                    // Used to store the leagues users
+                    connection.query("CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, points int, money int, formation varchar(255))")
+                    // Moves all of the old league data into the new format
+                    connection.query("SELECT * FROM leagues", function(error, result, field) {
+                        result.forEach(e => {
+                            connection.query("INSERT IGNORE INTO leagueSettings (leagueName, leagueID) VALUES (?, ?)", [e.leagueName, e.leagueID])
+                            connection.query("INSERT INTO leagueUsers (leagueID, user, points, money, formation) VALUES (?, ?, ?, ?, ?)", [e.leagueID, e.user, e.points, e.money, e.formation])
+                        })
+                    })
+                    oldVersion = "1.0.7"
                 }
                 // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
                 // Makes sure that the database is up to date

@@ -16,7 +16,7 @@ export default async function handler(req, res) {
             })
         // Gets users money
         const money = await new Promise((resolve) => {
-            connection.query("SELECT money FROM leagues WHERE leagueID=? and user=?", [league, user], function(error, results, fields) {
+            connection.query("SELECT money FROM leagueUsers WHERE leagueID=? and user=?", [league, user], function(error, results, fields) {
                 resolve(results)
             })
         }).then((e) => e.length > 0 ? e[0].money : false)
@@ -121,7 +121,7 @@ export default async function handler(req, res) {
                                 connection.query("SELECT * FROM transfers WHERE leagueID=? and playeruid=?", [league, playeruid], function(error, result, fields) {
                                     if (result.length == 0) {
                                         connection.query("INSERT INTO transfers (leagueID, seller, buyer, playeruid, value) VALUES(?, ?, 0, ?, ?)", [league, user, playeruid, value])
-                                        connection.query("UPDATE leagues SET money=? WHERE leagueID=? and user=?", [money + value, league, user])
+                                        connection.query("UPDATE leagueUsers SET money=? WHERE leagueID=? and user=?", [money + value, league, user])
                                     }
                                     resolve("sold")
                                 })
@@ -138,8 +138,8 @@ export default async function handler(req, res) {
                                             // Checks if the user is overbidding themselves
                                             if (purchaseAmount <= money || (result[0].buyer == user && money >= 100000)) {
                                                 connection.query("UPDATE transfers SET value=?, buyer=? WHERE leagueID=? and playeruid=?", [purchaseAmount, user, league, playeruid])
-                                                connection.query("UPDATE leagues SET money=money+? WHERE leagueID=? and player=?", [result[0].value, league, result[0].buyer])
-                                                connection.query("UPDATE leagues SET money=money+100000 WHERE leagueID=? and player=?", [league, result[0].seller])
+                                                connection.query("UPDATE leagueUsers SET money=money+? WHERE leagueID=? and player=?", [result[0].value, league, result[0].buyer])
+                                                connection.query("UPDATE leagueUsers SET money=money+100000 WHERE leagueID=? and player=?", [league, result[0].seller])
                                                 resolve("bought")
                                             } else {
                                                 purchaseAmount = 0
@@ -162,7 +162,7 @@ export default async function handler(req, res) {
                                             }
                                         }
                                         // Removes the money from the user after the purchase
-                                        connection.query("UPDATE leagues SET money=money-? WHERE leagueID=? and user=?", [purchaseAmount, league, user])
+                                        connection.query("UPDATE leagueUsers SET money=money-? WHERE leagueID=? and user=?", [purchaseAmount, league, user])
                                     })
                                 }
                             }

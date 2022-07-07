@@ -17,35 +17,31 @@ export default async function handler(req, res) {
                 if (result.length > 0) {
                     result = result[0]
                     // Gets the info for the league
-                    connection.query("SELECT * FROM leagues WHERE leagueID=?", [result.leagueID], function(error, result2, fields) {
+                    connection.query("SELECT * FROM leagueSettings WHERE leagueID=?", [result.leagueID], function(error, result2, fields) {
                         if (result2.length > 0) {
                             let leagueName = result2[0].leagueName
                             // Checks if the user has already joined the league
-                            let joined = false
-                            result2.forEach(e => {
-                                if (e.user == session.user.id) {
-                                    joined = true
+                            connection.query("SELECT * FROM leagueUsers WHERE leagueId=? and user=?", [result.leagueID, session.user.id], function(error, result3, field) {
+                                // Adds the user in the database if they have not joined yet
+                                if (result3.length == 0) {
+                                    connection.query("INSERT INTO leagueUsers (leagueID, user, points, money, formation) VALUES(?, ?, 0, 150000000, '[1, 4, 4, 2]')", [result.leagueID, session.user.id])
+                                    // Makes sure to add 0 points for every matchday that has already happened.
+                                    connection.query("SELECT * FROM points WHERE leagueID=? ORDER BY points DESC LIMIT 1", [result.leagueID], function(error, point, fields) {
+                                        let matchday = 0
+                                        if (point.length > 0) {
+                                            matchday = point[0].matchday
+                                        }
+                                        while (matchday > 0) {
+                                            connection.query("INSERT INTO points (leagueID, user, points, matchday) VALUES(?, ?, 0, ?)", [result.leagueID, session.user.id, matchday])
+                                            matchday --
+                                        }
+                                        console.log(`Player ${session.user.id} joined league ${result.leagueID}`)
+                                        resolve()
+                                    })
+                                } else {
+                                    resolve()
                                 }
                             })
-                            // Adds the user in the database if they have not joined yet
-                            if (! joined) {
-                                connection.query("INSERT INTO leagues (leagueName, leagueID, user, points, money, formation) VALUES(?, ?, ?, 0, 150000000, '[1, 4, 4, 2]')", [leagueName, result.leagueID, session.user.id])
-                                // Makes sure to add 0 points for every matchday that has already happened.
-                                connection.query("SELECT * FROM points WHERE leagueID=? ORDER BY points DESC LIMIT 1", [result.leagueID], function(error, point, fields) {
-                                    let matchday = 0
-                                    if (point.length > 0) {
-                                        matchday = point[0].matchday
-                                    }
-                                    while (matchday > 0) {
-                                        connection.query("INSERT INTO points (leagueID, user, points, matchday) VALUES(?, ?, 0, ?)", [result.leagueID, session.user.id, matchday])
-                                        matchday --
-                                    }
-                                    console.log(`Player ${session.user.id} joined league ${result.leagueID}`)
-                                    resolve()
-                                })
-                            } else {
-                                resolve()
-                            }
                             res.redirect(308, `/${result.leagueID}`).end()
                         } else {
                             console.error("Error occured with invite link")
