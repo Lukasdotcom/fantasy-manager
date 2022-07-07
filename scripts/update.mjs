@@ -80,7 +80,7 @@ export async function startMatchday() {
     })
     connection.query("UPDATE players SET last_match=0")
     // Sets up the points to 0 for every player in every league and sets up 0 points for that matchday
-    connection.query("SELECT leagueID, user, points FROM leagues ORDER BY leagueID", async function(error, result, field) {
+    connection.query("SELECT leagueID, user, points FROM leagueUsers ORDER BY leagueID", async function(error, result, field) {
         let currentleagueID = -1
         let matchday = Promise.resolve(1)
         // Goes through every league and adds another matchday
@@ -115,7 +115,7 @@ function calcPoints() {
         password : process.env.MYSQL_PASSWORD,
         database : process.env.MYSQL_DATABASE
     })
-    connection.query("SELECT leagueID, user, points FROM leagues ORDER BY leagueID", function(error, result, field) {
+    connection.query("SELECT leagueID, user, points FROM leagueUsers ORDER BY leagueID", function(error, result, field) {
         result.forEach(async (e) => {
             const connection2 = createConnection({
                 host     : process.env.MYSQL_HOST,
@@ -137,10 +137,10 @@ function calcPoints() {
                     res(value ? value : 0)
                 })
             })])
-            // Checks if the point calculations are off and if thery are wrong they are updated
+            // Checks if the point calculations are off and if they are wrong they are updated
             if (oldPoints !== newPoints) {
                 connection2.query("UPDATE points SET points=? WHERE leagueID=? AND user=? ORDER BY matchday DESC LIMIT 1", [newPoints, e.leagueID, e.user])
-                connection2.query("UPDATE leagues SET points=? WHERE leagueID=? AND user=?", [e.points - oldPoints + newPoints, e.leagueID, e.user])
+                connection2.query("UPDATE leagueUsers SET points=? WHERE leagueID=? AND user=?", [e.points - oldPoints + newPoints, e.leagueID, e.user])
             }
             connection2.end()
         })

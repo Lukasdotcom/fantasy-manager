@@ -13,7 +13,7 @@ export default async function redirect(ctx, data) {
     return await new Promise((resolve) => {
         if (session) {
             // Checks if the user is in the league or not
-            connection.query("SELECT * FROM leagues WHERE leagueID=? and user=?", [league, session.user.id], function(error, results, fields) {
+            connection.query("SELECT * FROM leagueSettings WHERE leagueID=? and EXISTS (SELECT * FROM leagueUsers WHERE user=? and leagueUsers.leagueID = leagueSettings.leagueID)", [league, session.user.id], function(error, results, fields) {
                 if (results.length > 0) { 
                     resolve({
                         props: {
@@ -27,7 +27,7 @@ export default async function redirect(ctx, data) {
                 }
             })
         } else {
-            connection.query("SELECT * FROM leagues WHERE leagueID=?", [league], function(error, results, fields) {
+            connection.query("SELECT * FROM leagueSettings WHERE leagueID=?", [league], function(error, results, fields) {
                 if (results.length > 0) {
                     // Makes sure to redirect a user that is not logged in but went to a valid league to a login
                     resolve({

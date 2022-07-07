@@ -109,11 +109,11 @@ export async function getServerSideProps(ctx) {
             password : process.env.MYSQL_PASSWORD,
             database : process.env.MYSQL_DATABASE
             })
-        connection.query("SELECT user, points FROM leagues WHERE leagueId=?", [ctx.params.league], function(error, results, fields) {
+        connection.query("SELECT user, points FROM leagueUsers WHERE leagueId=?", [ctx.params.league], function(error, results, fields) {
             connection.end()
             resolve(results)
         })
-    }).then((val) => JSON.parse(JSON.stringify(val)).sort((a, b) => b.points-a.points))
+    }).then((val) => JSON.parse(JSON.stringify(val.sort((a, b) => b.points-a.points))))
     // Gets the historical amount of points for every matchday in the league
     const historicalPoints = new Promise((resolve) => {
         const mysql = require("mysql")
