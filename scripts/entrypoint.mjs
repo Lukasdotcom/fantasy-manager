@@ -59,10 +59,6 @@ async function startUp() {
                 }
                 if (oldVersion == "1.0.0") {
                     console.log("Updating database to version 1.0.7")
-                    // Used to store the leagues settings
-                    connection.query("CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY)")
-                    // Used to store the leagues users
-                    connection.query("CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, points int, money int, formation varchar(255))")
                     // Moves all of the old league data into the new format
                     connection.query("SELECT * FROM leagues", function(error, result, field) {
                         result.forEach(e => {
@@ -70,6 +66,7 @@ async function startUp() {
                             connection.query("INSERT INTO leagueUsers (leagueID, user, points, money, formation) VALUES (?, ?, ?, ?, ?)", [e.leagueID, e.user, e.points, e.money, e.formation])
                         })
                     })
+                    connection.query("DROP TABLE leagues")
                     oldVersion = "1.0.7"
                 }
                 // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
