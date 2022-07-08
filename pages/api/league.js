@@ -37,7 +37,8 @@ export default async function handler(req, res) {
                 }).catch(() => {console.error("Failure in creating league"); res.status(500).end("Error Could not create league")})
                 break;
             case "GET": // Returns all leagues the user is in
-                return res.status(200).json(await leagueList(session.user.id))
+                res.status(200).json(await leagueList(session.user.id))
+                break;
             case "DELETE":
                 // Used to leave a league
                 connection.query("DELETE FROM leagueUsers WHERE leagueID=? and user=?", [req.body.id, session.user.id])
@@ -61,8 +62,9 @@ export default async function handler(req, res) {
                         connection2.end()
                         console.log(`League ${req.body.id} is now empty and is being deleted`)
                     }
-                }) 
+                })
                 res.status(200).end("Left league")
+                break;
             default:
                 res.status(405).end(`Method ${req.method} Not Allowed`)
                 break;
