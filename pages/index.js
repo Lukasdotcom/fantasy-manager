@@ -9,10 +9,16 @@ import {createConnection} from "mysql"
 // Used to create a new League
 function MakeLeague({getLeagueData}) {
   const [leagueName, setLeagueName] = useState("")
+  const [startingMoney, setStartingMoney] = useState(150)
   return (
     <>
     <h2>Create League</h2>
-    <input value={leagueName} onChange={(val) => {setLeagueName(val.target.value)}}></input>
+    <label htmlFor="startingMoney">Money players will start with in millions:</label>
+    <input id="startingMoney" value={startingMoney} type="number" onChange={(val) => {setStartingMoney(val.target.value)}}></input>
+    <br></br>
+    <label htmlFor="name">League name:</label>
+    <input htmlFor="name" value={leagueName} onChange={(val) => {setLeagueName(val.target.value)}}></input>
+    <br></br>
     <button onClick={async () => {
       push(["trackEvent",  "League", "Create", leagueName])
       // Used to create a league
@@ -22,7 +28,8 @@ function MakeLeague({getLeagueData}) {
               'Content-Type':'application/json'
           },
       body: JSON.stringify({
-          "name" : leagueName
+        "name" : leagueName,
+        "Starting Money" : startingMoney * 1000000
       })})
       getLeagueData()}}>Create League</button>
     </>

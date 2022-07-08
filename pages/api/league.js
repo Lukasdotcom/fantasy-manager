@@ -19,15 +19,20 @@ export default async function handler(req, res) {
                 await new Promise((resolve) => {
                     connection.query("SELECT leagueID FROM leagueSettings WHERE leagueID=?", [id], function(error, results, fields) {
                         if (results.length == 0) {
-                            connection.query("INSERT INTO leagueSettings (leagueName, leagueID) VALUES (?, ?)", [req.body.name, id])
-                            connection.query("INSERT INTO leagueUsers (leagueID, user, points, money, formation) VALUES(?, ?, 0, 150000000, '[1, 4, 4, 2]')", [id, session.user.id])
+                            const startMoney = parseInt(req.body["Starting Money"])
+                            if (startMoney > 10000) {
+                                connection.query("INSERT INTO leagueSettings (leagueName, leagueID, startMoney) VALUES (?, ?, ?)", [req.body.name, id, startMoney])
+                            } else {
+                                connection.query("INSERT INTO leagueSettings (leagueName, leagueID) VALUES (?, ?)", [req.body.name, id])
+                            }
+                            connection.query("INSERT INTO leagueUsers (leagueID, user, points, money, formation) VALUES(?, ?, 0, (SELECT startMoney FROM leagueSettings WHERE leagueId=?), '[1, 4, 4, 2]')", [id, session.user.id, id])
                             // Checks if the game is in a transfer period and if yes it starts the first matchday automatically
                             connection.query("SELECT value2 FROM data WHERE value1='transferOpen'", function(error, result, field) {
                                 if (parseInt(result[0].value2) == 0) {
                                     connection.query("INSERT INTO points (leagueID, user, points, matchday) VALUES(?, ?, 0, 1)" , [id, session.user.id])
                                 }
                                 res.status(200).end("Created League")
-                                console.log(`User ${id} created league of ${id} with name ${req.body.name}`)
+                                console.log(`User ${session.user.id} created league of ${id} with name ${req.body.name}`)
                                 resolve()
                             })
                         } else {

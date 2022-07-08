@@ -1,5 +1,4 @@
 import { getSession } from "next-auth/react"
-import { sendError } from "next/dist/server/api-utils"
 // Used to join a league
 export default async function handler(req, res) {
     const session = await getSession({ req })
@@ -24,7 +23,7 @@ export default async function handler(req, res) {
                             connection.query("SELECT * FROM leagueUsers WHERE leagueId=? and user=?", [result.leagueID, session.user.id], function(error, result3, field) {
                                 // Adds the user in the database if they have not joined yet
                                 if (result3.length == 0) {
-                                    connection.query("INSERT INTO leagueUsers (leagueID, user, points, money, formation) VALUES(?, ?, 0, 150000000, '[1, 4, 4, 2]')", [result.leagueID, session.user.id])
+                                    connection.query("INSERT INTO leagueUsers (leagueID, user, points, money, formation) VALUES(?, ?, 0, (SELECT startMoney FROM leagueSettings WHERE leagueId=?), '[1, 4, 4, 2]')", [result.leagueID, session.user.id, result.leagueID])
                                     // Makes sure to add 0 points for every matchday that has already happened.
                                     connection.query("SELECT * FROM points WHERE leagueID=? ORDER BY points DESC LIMIT 1", [result.leagueID], function(error, point, fields) {
                                         let matchday = 0

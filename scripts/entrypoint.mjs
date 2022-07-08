@@ -75,7 +75,7 @@ async function startUp() {
                     connection.query("ALTER TABLE leagueSettings ADD trasnfers int DEFAULT 6")
                     connection.query("ALTER TABLE leagueSettings ADD duplicatePlayers int DEFAULT 1")
                     connection.query("ALTER TABLE leagueUsers ADD admin bool DEFAULT 0")
-                    connection.query("UPDATE TABLE leagueUsers SET admin=1")
+                    connection.query("UPDATE leagueUsers SET admin=1")
                     oldVersion = "1.1.0"
                 }
                 // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
