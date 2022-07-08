@@ -151,7 +151,7 @@ const options = {
             })
             connection.end()
             })
-            if (id == "") return Promise.resolve([])
+            if (id == "") return Promise.resolve(undefined)
             session.user = {
                id,
                username,

@@ -3,7 +3,7 @@ import {updateData} from './update.mjs'
 import version from "./../package.json" assert {type: "json"}
 
 // Used to tell the program what version of the database to use
-const currentVersion = "1.0.7"
+const currentVersion = "1.1.0"
 let date = new Date
 var day = date.getDay()
 
@@ -38,9 +38,9 @@ async function startUp() {
     // Creates a table that contains some key value pairs for data that is needed for some things
     connection.query("CREATE TABLE IF NOT EXISTS data (value1 varchar(25) PRIMARY KEY, value2 varchar(255))")
     // Used to store the leagues settings
-    connection.query("CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY)")
+    connection.query("CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY, startMoney int DEFAULT 150000000, trasnfers int DEFAULT 6, duplicatePlayers int DEFAULT 1)")
     // Used to store the leagues users
-    connection.query("CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, points int, money int, formation varchar(255))")
+    connection.query("CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, points int, money int, formation varchar(255), admin bool DEFAULT 0)")
     // Used to store the Historical Points
     connection.query("CREATE TABLE IF NOT EXISTS points (leagueID int, user int, points int, matchday int)")
     // Used to store transfers
@@ -68,6 +68,15 @@ async function startUp() {
                     })
                     connection.query("DROP TABLE leagues")
                     oldVersion = "1.0.7"
+                }
+                if (oldVersion == "1.0.7") {
+                    console.log("Updating database to version 1.1.0")
+                    connection.query("ALTER TABLE leagueSettings ADD startMoney int DEFAULT 150000000")
+                    connection.query("ALTER TABLE leagueSettings ADD trasnfers int DEFAULT 6")
+                    connection.query("ALTER TABLE leagueSettings ADD duplicatePlayers int DEFAULT 1")
+                    connection.query("ALTER TABLE leagueUsers ADD admin bool DEFAULT 0")
+                    connection.query("UPDATE TABLE leagueUsers SET admin=1")
+                    oldVersion = "1.1.0"
                 }
                 // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
                 // Makes sure that the database is up to date
