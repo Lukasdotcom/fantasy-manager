@@ -1,11 +1,78 @@
 import Menu from "../../components/Menu"
 import redirect from "../../Modules/league"
 import Head from "next/head"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Username from "../../components/Username"
 import { push } from "@socialgouv/matomo-next"
+import { getSession } from "next-auth/react"
 
-// Shows some simple UI for each user
+// Creates the admin panel
+function AdminPanel({user, league}) {
+    const [startingMoney, setStartingMoney] = useState(150)
+    const [users, setUsers] = useState([])
+    const [transfers, setTransfers] = useState(6)
+    function updateData(league) {
+        fetch(`/api/league/${league}`).then(async (res) => {
+            if (res.ok) {
+                const result = await res.json()
+                setStartingMoney(result.settings.startMoney/1000000)
+                setUsers(result.users)
+                setTransfers(result.settings.transfers)
+            } else {
+                alert(await res.text())
+            }
+        })
+    }
+    useEffect(() => {
+        updateData(league)
+    }, [league])
+    return (
+    <>
+        <h1>Admin Panel</h1>
+        <label htmlFor="startingMoney">Money players will start with in millions:</label>
+        <input id="startingMoney" value={startingMoney} type="number" onChange={(val) => {setStartingMoney(val.target.value)}}></input>
+        <br />
+        <label htmlFor="transfers">Money players will start with in millions:</label>
+        <input id="transfers" value={transfers} type="number" onChange={(val) => {setTransfers(val.target.value)}}></input>
+        <h2>Check Users for Admin</h2>
+        { users.map((element, id) =>{
+            // Checks if this is the actual user
+            if (element.user != user) {
+                return (
+                <div key={id}>
+                <Username key={id} id={element.user} />
+                <input type="checkbox" checked={element.admin == 1} onChange={(e) => {setUsers((e2) => {e2[id].admin = e.target.checked ? 1 : 0; return [...e2]})}} ></input>
+                <br></br>
+                </div>
+                )
+            } else {
+                return <div key={id}></div>
+            }
+            }
+        )}
+        <br></br>
+        <button onClick={() => {
+            // Used to save the data
+            fetch(`/api/league/${league}`, {
+                method : "POST",
+                headers:{
+                        'Content-Type':'application/json'
+                    },
+                body: JSON.stringify({
+                    users,
+                    settings : {
+                        startingMoney : startingMoney*1000000,
+                        transfers
+                    }
+            })}).then(async (res) => {
+                if (!res.ok) alert(await res.text())
+                updateData(league)
+            })
+        }}>Save all Admin Settings</button>
+    </>
+    )
+}
+// Shows some simple UI for each user in the table
 function User({name, points}) {
     return <tr><td><Username id={name} /></td><td>{points}</td></tr>
 }
@@ -25,7 +92,7 @@ function Invite({link, league, host, remove}) {
         remove()
     }} className="red-button">Delete</button></p>
 }
-export default function Home({session, league, standings, historicalPoints, inviteLinks, host}) {
+export default function Home({user, admin, session, league, standings, historicalPoints, inviteLinks, host}) {
     // Calculates the current matchday
     if (Object.values(historicalPoints).length == 0) {
         var currentMatchday = 0
@@ -94,12 +161,17 @@ export default function Home({session, league, standings, historicalPoints, invi
             }
         })
     }}>Add Invite</button>
+    { admin &&
+        <AdminPanel user={user} league={league}/>
+    }
     </>
     )
 }
 
 // Gets the users session
 export async function getServerSideProps(ctx) {
+    // Gets the user id
+    const user = (await getSession(ctx)).user.id
     // Gets the leaderboard for the league
     const standings = new Promise((resolve) => {
         const mysql = require("mysql")
@@ -160,5 +232,18 @@ export async function getServerSideProps(ctx) {
             resolve(inviteLinks)
         })
     }).then((val) => JSON.parse(JSON.stringify(val)))
-    return await redirect(ctx, { standings: await standings, historicalPoints: await historicalPoints, inviteLinks: await inviteLinks, host: ctx.req.headers.host })
+    // Checks if the user is an admin
+    const admin = new Promise(async (res) => {
+        const mysql = require("mysql")
+        const connection = mysql.createConnection({
+            host     : process.env.MYSQL_HOST,
+            user     : process.env.MYSQL_USER,
+            password : process.env.MYSQL_PASSWORD,
+            database : process.env.MYSQL_DATABASE
+            })
+        connection.query("SELECT admin FROM leagueUsers WHERE admin=1 AND leagueID=? AND user=?", [ctx.params.league, user], function(error, result, field) {
+            res(result.length > 0)
+        })
+    })
+    return await redirect(ctx, { user, admin: await admin, standings: await standings, historicalPoints: await historicalPoints, inviteLinks: await inviteLinks, host: ctx.req.headers.host })
 }

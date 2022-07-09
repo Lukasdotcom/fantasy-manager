@@ -40,14 +40,12 @@ function LeaveLeague({leagueID, getLeagueData}) {
   return (
   <button id={leagueID} onClick={async (e) => {
     push(["trackEvent", "League", "Leave", leagueID])
-    await fetch('/api/league', {
+    await fetch(`/api/league/${leagueID}`, {
       method : "DELETE",
       headers:{
-              'Content-Type':'application/json'
-          },
-      body: JSON.stringify({
-          "id" : leagueID
-      })})
+          'Content-Type':'application/json'
+        }
+      })
     getLeagueData()
   }} className='red-button'>Leave League</button>
   )
