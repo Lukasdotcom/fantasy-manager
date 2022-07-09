@@ -101,9 +101,9 @@ export default async function handler(req, res) {
                                 if (result.length == 0) {
                                     resolve(true)
                                 } else {
-                                    connection.query("SELECT * FROM transfers WHERE leagueID=? and (buyer=? or seller=?)", [league, user, user], function(error, result, fields) {
-                                        // Checks if this is past the limit of 6 players or if this is just an increase on a bid
-                                        resolve(result.filter((e) => e.playeruid == playeruid).length < 6)
+                                    connection.query("SELECT * FROM transfers WHERE leagueID=? and (buyer=? or seller=?)", [league, user, user], async function(error, result, fields) {
+                                        // Checks if this is past the limit of players or if this is just an increase on a bid and finds out the limit of players
+                                        resolve(result.filter((e) => e.playeruid == playeruid).length < await new Promise((res) => {connection.query("SELECT transfers FROM leagueSettings WHERE leagueID=?", [league], function(error, result, field) {res(result[0].transfer)})}))
                                     })
                                 }
                             })

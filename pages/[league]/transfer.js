@@ -13,7 +13,7 @@ function Postion({position, positions, setPositions}) {
         <input type="checkbox" onChange={(e) => {e.target.checked ? setPositions([...positions, position]) : setPositions(positions.filter((e2) => e2 != position))}} checked={positions.includes(position)} id={position}></input>
     </>)
 }
-export default function Home({session, league}) {
+export default function Home({session, league, allowedTransfers}) {
     const positionList = ["gk", "def", "mid", "att"]
     const [players, setPlayers] = useState([])
     const [searchTerm, setSearchTerm] = useState("")
@@ -84,7 +84,7 @@ export default function Home({session, league}) {
             search(false)
         }
     }}>
-    <p>{6-transferCount} transfers left</p>
+    <p>{allowedTransfers-transferCount} transfers left</p>
     <p>Money left: {money / 1000000}M</p>
     { transferMessage }
     <label htmlFor="search">Search Player Name: </label>
@@ -108,7 +108,7 @@ export default function Home({session, league}) {
     </p>
     <p>Yellow background means attendance unknown, red background that the player is not attending, and pink that the player will not earn points anytime soon(Sell these players).</p>
     { players.map((val) =>
-        <Player key={val} uid={val} ownership={ownership[val]} money={money} league={league} transferLeft={transferCount<6} transferData={transferData} timeLeft={timeLeft} />
+        <Player key={val} uid={val} ownership={ownership[val]} money={money} league={league} transferLeft={transferCount<allowedTransfers} transferData={transferData} timeLeft={timeLeft} />
     )}
     </div>
     </>
@@ -116,5 +116,18 @@ export default function Home({session, league}) {
 }
 
 export async function getServerSideProps(ctx) {
-    return await redirect(ctx, {})
+    const mysql = require('mysql')
+    // Gets the amount of allowed transfers
+    const allowedTransfers = await new Promise((res) => {
+        const connection = mysql.createConnection({
+            host     : process.env.MYSQL_HOST,
+            user     : process.env.MYSQL_USER,
+            password : process.env.MYSQL_PASSWORD,
+            database : process.env.MYSQL_DATABASE
+            })
+        connection.query("SELECT transfers FROM leagueSettings WHERE leagueID=?", [ctx.params.league], function(error, result) {
+            result.length > 0 ? res(result[0].transfers) : res(0)
+        })
+    })
+    return await redirect(ctx, {allowedTransfers})
 }

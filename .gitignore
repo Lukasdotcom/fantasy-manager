@@ -32,3 +32,4 @@ yarn-error.log*
 .vercel
 
 public/data.json
+cache
