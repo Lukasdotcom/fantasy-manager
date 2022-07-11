@@ -1,7 +1,8 @@
 import { createConnection } from 'mysql'
 import {updateData} from './update.mjs'
 import version from "./../package.json" assert {type: "json"}
-
+import dotenv from 'dotenv'
+dotenv.config({ path: '.env.local' })
 // Used to tell the program what version of the database to use
 const currentVersion = "1.1.0"
 let date = new Date
