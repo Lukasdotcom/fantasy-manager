@@ -42,7 +42,7 @@ export default function Home({session, league, allowedTransfers, duplicatePlayer
     // Used to calculate transfer message
     let transferMessage = <p>Transfer Market Closed</p>
     if (timeLeft > 0) {
-        transferMessage = <p>Transfer Market open for {Math.floor(timeLeft/3600)} H {Math.floor(timeLeft/60)%60} M {timeLeft % 60} S</p>
+        transferMessage = <p>Transfer Market open for {Math.floor(timeLeft/3600/24)} D {Math.floor(timeLeft/3600)%24} H {Math.floor(timeLeft/60)%60} M {timeLeft % 60} S</p>
     }
     useEffect(transferData, [league])
     // Used to search the isNew is used to check if it should reload everything back from the start

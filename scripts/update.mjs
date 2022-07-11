@@ -28,7 +28,8 @@ export async function updateData() {
             }
         })
     })
-    const newTransfer = (await data).opening_hour.countdown > 3600 ? (await data).opening_hour.countdown - 3600 : 0
+    const countdown = (await data).opening_hour.countdown/ 1000
+    const newTransfer = countdown > 3600 ? countdown - 3600 : 0
     connection.query("INSERT INTO data (value1, value2) VALUES('transferOpen', ?) ON DUPLICATE KEY UPDATE value2=?", [newTransfer, newTransfer])
      // Goes through all of the players and adds their data to the database
     const players = (await data).offerings.items
