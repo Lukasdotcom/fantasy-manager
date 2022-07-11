@@ -33,3 +33,4 @@ yarn-error.log*
 
 public/data.json
 cache
+docker-compose.yaml

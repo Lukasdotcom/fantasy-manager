@@ -6,7 +6,7 @@ services:
     links:
       - db
     environment:
-      - NEXTAUTH_URL=http//localhost # The url of the server
+      - NEXTAUTH_URL=http://localhost # The url of the server
       - MYSQL_USER=bundesliga
       - MYSQL_PASSWORD=password
       - MYSQL_HOST=db
