@@ -22,6 +22,7 @@ async function startUp() {
                 connection.query("SHOW TABLES", function(error) {
                     res(error)
                 })
+                connection.end()
             }, 500)
         })
     }
@@ -89,11 +90,18 @@ async function startUp() {
             res()
         })
     })
+    connection.end()
     // Makes sure to check if an update is neccessary every 10 seconds
     setInterval(update, 10000)
     updateData()
     // Checks if this is the latest version and if it does adds data
     async function updateInfo() {
+        const connection = createConnection({
+            host     : process.env.MYSQL_HOST,
+            user     : process.env.MYSQL_USER,
+            password : process.env.MYSQL_PASSWORD,
+            database : process.env.MYSQL_DATABASE
+        })
         console.log("Checking for updates")
         const releases = await fetch("https://api.github.com/repos/lukasdotcom/Bundesliga/releases").then((res) => res.json())
         if (version.version !== releases[0].tag_name) {
@@ -101,6 +109,7 @@ async function startUp() {
         } else {
             connection.query("DELETE FROM data WHERE value1='updateProgram'")
         }
+        connection.end()
     }
     updateInfo()
     setInterval(updateInfo, 3600000*24)
