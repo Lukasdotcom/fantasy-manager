@@ -1,10 +1,6 @@
 {
   "extends": "next/core-web-vitals",
   "rules" : {
-    //"no-trailing-spaces" : "error"
-    //"line-comment-position" :"error"
     //"no-var" : "error"
-    //"indent" : "error"
-    //"no-const-assign" : "error"
   }
 }

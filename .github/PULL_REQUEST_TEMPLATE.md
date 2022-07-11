@@ -3,6 +3,7 @@
 Provide summary of changes with issue number if any.
 
 ## Have you done all the things below
+ - [ ] Run ```npm run format``` to format everything with prettier.
  - [ ] Run ```npm run lint``` and fix all errors and warnings.
  - [ ] Made sure that all database changes have update code in entrypoint.mjs.
  - [ ] Made sure to test your changes.
