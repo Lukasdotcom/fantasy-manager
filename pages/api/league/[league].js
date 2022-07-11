@@ -32,6 +32,7 @@ export default async function handler(req, res) {
                         const settings = req.body.settings
                         if (parseInt(settings.startingMoney)>10000) connection.query("UPDATE leagueSettings SET startMoney=? WHERE leagueID=?", [parseInt(settings.startingMoney), league])
                         if (parseInt(settings.transfers)>0) connection.query("UPDATE leagueSettings SET transfers=? WHERE leagueID=?", [parseInt(settings.transfers), league])
+                        if (parseInt(settings.duplicatePlayers)>0) connection.query("UPDATE leagueSettings SET duplicatePlayers=? WHERE leagueID=?", [parseInt(settings.duplicatePlayers), league])
                     }
                     res.status(200).end("Saved Settings")
                 } else {

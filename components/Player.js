@@ -2,7 +2,9 @@ import playerStyles from "../styles/Player.module.css"
 import { useEffect, useState } from "react"
 import Image from 'next/image'
 import { push } from "@socialgouv/matomo-next"
-// Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it
+import { useSession } from "next-auth/react"
+import Username from "../components/Username"
+// Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
 export function Player({data, children}) {
     var background = "black"
     if (Object.keys(data).length > 0) {
@@ -49,7 +51,9 @@ export function Player({data, children}) {
     }
 }
 // Used for the transfer screen
-export function TransferPlayer({uid, ownership, money, league, transferData, transferLeft, timeLeft}) {
+export function TransferPlayer({uid, ownership, money, league, transferData, transferLeft, timeLeft, duplicatePlayers}) {
+    const session = useSession()
+    const user = session.data ? session.data.user.id : 1
     const [data, setData] = useState({})
     // Used to get the data for the player 
     useEffect(() => {
@@ -75,47 +79,51 @@ export function TransferPlayer({uid, ownership, money, league, transferData, tra
             transferData()
         })
     }
-    let PurchaseButton = ""
-    let purchaseAmount = data.value 
-    let outbidPlayer = ""
-    // Checks if the transfer market is open
-    if (timeLeft === 0) {
-        PurchaseButton = <button disabled={true}>Transfer Market is closed</button>
-    }
-    // Checks if the player has some transfer data
-    if (ownership !== undefined && PurchaseButton === "") {
-        if (ownership.transfer !== undefined) { // Checks if a transfer is on the player
-            if (ownership.transfer.buyerSelf === true) {
-                if (money >= 100000) {
-                    PurchaseButton = <button onClick={buySell}>Increase bid from {ownership.transfer.value/1000000} M to {Math.floor(ownership.transfer.value/100000+1)/10} M</button>
-                } else {
-                    PurchaseButton = <button disabled={true}>Buying player for {ownership.transfer.value/1000000} M</button>
-                }
-            } else if (ownership.transfer.sellerSelf === true) {
-                PurchaseButton = <button disabled={true}>Selling player for {ownership.transfer.value/1000000} M</button>
+    let PurchaseButton = <button disabled={true}>Error Getting Player info</button>
+    // Checks if the ownership info exists
+    if (ownership !== undefined) {
+        // Checks if the transfer market is still open
+        if (timeLeft === 0) {
+            PurchaseButton = <button disabled={true}>Transfer Market is closed</button>
+        // Checks if the user is already purchasing the player
+        } else if (ownership.filter((e) => e.buyer === user).length > 0) {
+            PurchaseButton = <button disabled={true}>Buying for {ownership.filter((e) => e.buyer === user)[0].amount/1000000} M</button>
+        // Checks if the user is already selling the player
+        } else if (ownership.filter((e) => e.seller === user).length > 0) {
+            PurchaseButton = <button disabled={true}>Selling for {ownership.filter((e) => e.seller === user)[0].amount/1000000} M</button>
+        // Checks if ther user is out of transfers
+        } else if (!transferLeft) {
+            PurchaseButton = <button disabled={true}>No transfer left can&apos;t buy/sell</button>
+        // Checks if the user owns the player and can sell the player
+        } else if (ownership.filter((e) => e.owner === user).length > 0) {
+            PurchaseButton = <button onClick={buySell}>Sell for: {purchaseAmount/1000000} M</button>
+        // Checks if the player is still purchasable
+        } else if (duplicatePlayers  <= ownership.filter((e) => !e.transfer).length) {
+            PurchaseButton = <button disabled={true}>Player not for sale</button>
+        // Checks if the player can be bought from the market
+        } else if (duplicatePlayers  > ownership.length) {
+            if (data.value > money) {
+                PurchaseButton = <button disabled={true}>You need {data.value/1000000} M</button>
             } else {
-                purchaseAmount = ownership.transfer.value + 100000
-                outbidPlayer = ownership.transfer.buyer
+                PurchaseButton = <button onClick={buySell}>Buy for {data.value/1000000} M</button>
             }
-        } else if (ownership.playerSquad === true) { // Checks if the player owns the player
-            if (transferLeft) {
-                PurchaseButton = <button onClick={buySell}>Sell for: {purchaseAmount/1000000} M</button>
-            } else {
-                PurchaseButton = <button disabled={true}>No transfer left can&apos;t sell</button>
-            }
-        } else if (ownership.otherSquad !== undefined) { // Checks if a different player has the player
-            PurchaseButton = <button disabled={true}>Owned by {ownership.otherSquad}</button>
-        }
-    }
-    // Checks if purchaseable and if so checks if the plyer has enough money
-    if (PurchaseButton === "") {
-        if (purchaseAmount > money) {
-            PurchaseButton = <button disabled={true}>You need: {purchaseAmount/1000000} M {outbidPlayer != "" ? "to outbid " + outbidPlayer : ""}</button>
+        // Finds the cheapest market price and sets the purchase for that
         } else {
-            PurchaseButton = <button onClick={buySell}>{outbidPlayer != "" ? "Outbid " + outbidPlayer : "Buy"} for: {purchaseAmount/1000000} M</button>
+            let bestDeal = ownership.filter((e) => e.transfer).sort((a, b)=> a.amount - b.amount)[0]
+            let cheapestPrice = bestDeal.amount + 100000
+            if (cheapestPrice > money) {
+                PurchaseButton = <button disabled={true}>You need {cheapestPrice/1000000} M</button>
+            } else {
+                let outbidtext = bestDeal.buyer !== 0 ? <>by outbidding <Username id={bestDeal.buyer}></Username> </> : <></>
+                PurchaseButton = <button onClick={buySell}>Buy for {cheapestPrice/1000000} M {outbidtext}</button>
+            }
         }
-        if (!transferLeft) {
-            PurchaseButton = <button disabled={true}>No transfer left can&apos;t buy</button>
+    } else {
+        // If no ownership data exists the player must not be owned by anyone
+        if (data.value > money) {
+            PurchaseButton = <button disabled={true}>You need {data.value/1000000} M</button>
+        } else {
+            PurchaseButton = <button onClick={buySell}>Buy for {data.value/1000000} M</button>
         }
     }
     return (

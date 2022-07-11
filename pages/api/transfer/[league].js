@@ -18,28 +18,25 @@ export default async function handler(req, res) {
         const money = await new Promise((resolve) => {
             connection.query("SELECT money FROM leagueUsers WHERE leagueID=? and user=?", [league, user], function(error, results, fields) {
                 resolve(results)
-            })
-        }).then((e) => e.length > 0 ? e[0].money : false)
+            })}).then((e) => e.length > 0 ? e[0].money : false)
+        // Gets the leagues settings
+        const leagueSettings = await new Promise((res) => {
+            connection.query("SELECT transfers, duplicatePlayers FROM leagueSettings WHERE leagueID=?", [league], function(error, result, field) {res(result[0])})
+        })
         switch (req.method) {
             // Used to return a dictionary of all transfers and ownerships
             case "GET":
                 if (money !== false) {
-                    const [transfers, userSquad, squads, timeLeft] = await Promise.all([
+                    const [transfers, squads, timeLeft] = await Promise.all([
                         // Gets list of all transfers
                         new Promise((resolve) => {
                             connection.query("SELECT * FROM transfers WHERE leagueID=?", [league], function(error, results, fields) {
                                 resolve(results)
                             })
                         }),
-                        // Gets users squad
+                        // Gets squads
                         new Promise((resolve) => {
-                            connection.query("SELECT * FROM squad WHERE leagueID=? and user=?", [league, user], function(error, results, fields) {
-                                resolve(results)
-                            })
-                        }),
-                        // Gets all squads that are not the users
-                        new Promise((resolve) => {
-                            connection.query("SELECT * FROM squad WHERE leagueID=? and user!=?", [league, user], function(error, results, fields) {
+                            connection.query("SELECT * FROM squad WHERE leagueID=?", [league], function(error, results, fields) {
                                 resolve(results)
                             })
                         }),
@@ -53,27 +50,22 @@ export default async function handler(req, res) {
                     // Puts all the ownership and transfer info in a dictionary
                     let ownership = {}
                     let transferCount = 0
+                    squads.forEach(e => {
+                        ownership[e.playeruid] = [{"transfer" : false, "owner" : e.owner}]
+                    })
                     transfers.forEach(e => {
-                        ownership[e.playeruid] = {"transfer" : {"value" : e.value, "buyer" : e.buyer, "buyerSelf" : e.buyer == user, "seller" : e.seller, "sellerSelf" : e.seller == user}}
+                        const data = {"transfer" : true, "seller" : e.seller, "buyer" : e.buyer, "amount" : e.value}
+                        if (ownership[e.playeruid] === undefined) {
+                            ownership[e.playeruid] = [data]
+                        } else {
+                            ownership[e.playeruid].filter((f) => e.seller !== f.owner)
+                            ownership[e.playeruid].push(data)
+                        }
                         if (e.seller == user || e.buyer == user) {
                             transferCount++
                         }
                     })
-                    userSquad.forEach(e => {
-                        if (ownership[e.playeruid] === undefined) {
-                            ownership[e.playeruid] = {"userSquad" : true}
-                        } else {
-                            ownership[e.playeruid].userSquad = true
-                        }
-                    })
-                    squads.forEach(e => {
-                        if (ownership[e.playeruid] === undefined) {
-                            ownership[e.playeruid] = {"otherSquad" : e.player}
-                        } else {
-                            ownership[e.playeruid].otherSquad = true
-                        }
-                    })
-                    res.status(200).json({ownership: ownership, money: await money, transferCount, timeLeft})
+                    res.status(200).json({money: await money, transferCount, timeLeft, ownership})
                 } else {
                     res.status(404).end("League not found")
                 }
@@ -103,14 +95,13 @@ export default async function handler(req, res) {
                                 } else {
                                     connection.query("SELECT * FROM transfers WHERE leagueID=? and (buyer=? or seller=?)", [league, user, user], async function(error, result, fields) {
                                         // Checks if this is past the limit of players or if this is just an increase on a bid and finds out the limit of players
-                                        resolve(result.filter((e) => e.playeruid == playeruid).length < await new Promise((res) => {connection.query("SELECT transfers FROM leagueSettings WHERE leagueID=?", [league], function(error, result, field) {res(result[0].transfer)})}))
+                                        resolve(result.filter((e) => e.playeruid == playeruid).length < leagueSettings.transfers)
                                     })
                                 }
                             })
                         } else {
                             resolve(false)
                         }
-                        
                     })
                 }).then(async (e) => {
                     return e ? await new Promise((resolve) => {
@@ -129,40 +120,45 @@ export default async function handler(req, res) {
                                 if (value === false) {
                                     resolve("Player does not exist")
                                 } else {
-                                    // Checks if the player is already being sold
-                                    connection.query("SELECT * FROM transfers WHERE leagueID=? and playeruid=?", [league, playeruid], async function(error, result, fields) {
-                                        let purchaseAmount = value
-                                        // Checks if the user needs to overbid and checks if they have enough money
-                                        if (result.length > 0) {
-                                            purchaseAmount = result[0].value + 100000
-                                            // Checks if the user is overbidding themselves
-                                            if (purchaseAmount <= money || (result[0].buyer == user && money >= 100000)) {
-                                                connection.query("UPDATE transfers SET value=?, buyer=? WHERE leagueID=? and playeruid=?", [purchaseAmount, user, league, playeruid])
-                                                connection.query("UPDATE leagueUsers SET money=money+? WHERE leagueID=? and player=?", [result[0].value, league, result[0].buyer])
-                                                connection.query("UPDATE leagueUsers SET money=money+100000 WHERE leagueID=? and player=?", [league, result[0].seller])
-                                                resolve("bought")
-                                            } else {
-                                                purchaseAmount = 0
-                                                resolve("Not enough money")
-                                            }
+                                    connection.query("SELECT * FROM transfers WHERE leagueID=? and playeruid=?", [league, playeruid], function(error, transfers, field) {
+                                        // Checks if the player is already being purchase by the user
+                                        if (transfers.filter((e) => e.buyer === user).length > 0) {
+                                            resolve("Bought")
                                         } else {
-                                            // Checks if a user has the player otherwise it is bought from the AI
-                                            if (value <= money ) {
-                                                connection.query("SELECT * FROM squad WHERE leagueID=? and playeruid=?", [league, playeruid], function(error, result, fields) {
-                                                    if (result.length == 0) {
+                                            connection.query("SELECT * FROM squad WHERE leagueID=? and playeruid=?", [league, playeruid], function(error, squads, field) {
+                                                const playersInSquad = squads.filter((e) => transfers.filter((e2) => e.user === e2.seller).length == 0).length
+                                                // Checks if the player can still be bought from the ai
+                                                if (playersInSquad + transfers.length < leagueSettings.duplicatePlayers) {
+                                                    // Makes sure the user has enough money
+                                                    if (value <= money) {
+                                                        connection.query("UPDATE leagueUsers SET money=money-? WHERE leagueID=? and user=?", [value, league, user])
                                                         connection.query("INSERT INTO transfers (leagueID, seller, buyer, playeruid, value) VALUES(?, 0, ?, ?, ?)", [league, user, playeruid, value])
                                                         resolve("bought")
                                                     } else {
-                                                        resolve("Not for sale")
+                                                        resolve("Not enough money")
                                                     }
-                                                })
-                                            } else {
-                                                purchaseAmount = 0
-                                                resolve("Not enough money")
-                                            }
+                                                // Checks if the player can be bought by overbidding another user
+                                                } else if (transfers.length > 0) {
+                                                    // Sorts all the transfers so the cheapest one can be found
+                                                    transfers.sort((a, b) => a.value - b.value)
+                                                    let purchaseAmount = transfers[0].value + 100000
+                                                    let seller = transfers[0].seller
+                                                    let buyer = transfers[0].buyer
+                                                    // Checks if the user has enough money
+                                                    if (purchaseAmount <= money) {
+                                                        connection.query("UPDATE leagueUsers SET money=money-? WHERE leagueID=? and user=?", [purchaseAmount, league, user])
+                                                        connection.query("UPDATE leagueUsers SET money=money+? WHERE leagueID=? and user=?", [purchaseAmount - 100000, league, buyer])
+                                                        connection.query("UPDATE leagueUsers SET money=money+100000 WHERE leagueID=? and user=?", [league, seller])
+                                                        connection.query("UPDATE transfers SET buyer=?, value=? WHERE seller=? AND buyer=? AND leagueID=? AND playeruid=?", [user, purchaseAmount, seller, buyer, league, playeruid])
+                                                        resolve("bought")
+                                                    } else {
+                                                        resolve("Not enough money")
+                                                    }
+                                                } else {
+                                                    resolve("Not for sale")
+                                                }
+                                            })
                                         }
-                                        // Removes the money from the user after the purchase
-                                        connection.query("UPDATE leagueUsers SET money=money-? WHERE leagueID=? and user=?", [purchaseAmount, league, user])
                                     })
                                 }
                             }

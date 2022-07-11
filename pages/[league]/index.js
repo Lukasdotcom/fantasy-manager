@@ -11,6 +11,7 @@ function AdminPanel({user, league}) {
     const [startingMoney, setStartingMoney] = useState(150)
     const [users, setUsers] = useState([])
     const [transfers, setTransfers] = useState(6)
+    const [duplicatePlayers, setDuplicatePlayers] = useState(1)
     function updateData(league) {
         fetch(`/api/league/${league}`).then(async (res) => {
             if (res.ok) {
@@ -18,6 +19,7 @@ function AdminPanel({user, league}) {
                 setStartingMoney(result.settings.startMoney/1000000)
                 setUsers(result.users)
                 setTransfers(result.settings.transfers)
+                setDuplicatePlayers(result.settings.duplicatePlayers)
             } else {
                 alert(await res.text())
             }
@@ -32,8 +34,11 @@ function AdminPanel({user, league}) {
         <label htmlFor="startingMoney">Money players will start with in millions:</label>
         <input id="startingMoney" value={startingMoney} type="number" onChange={(val) => {setStartingMoney(val.target.value)}}></input>
         <br />
-        <label htmlFor="transfers">Money players will start with in millions:</label>
+        <label htmlFor="transfers">Amount of transfers per transfer time:</label>
         <input id="transfers" value={transfers} type="number" onChange={(val) => {setTransfers(val.target.value)}}></input>
+        <br />
+        <label htmlFor="duplicatePlayers">Amount of times a player can be in a squad in the league:</label>
+        <input id="duplicatePlayers" value={duplicatePlayers} type="number" onChange={(val) => {setDuplicatePlayers(val.target.value)}}></input>
         <h2>Check Users for Admin</h2>
         { users.map((element, id) =>{
             // Checks if this is the actual user
@@ -62,7 +67,8 @@ function AdminPanel({user, league}) {
                     users,
                     settings : {
                         startingMoney : startingMoney*1000000,
-                        transfers
+                        transfers,
+                        duplicatePlayers
                     }
             })}).then(async (res) => {
                 if (!res.ok) alert(await res.text())
@@ -171,7 +177,8 @@ export default function Home({user, admin, session, league, standings, historica
 // Gets the users session
 export async function getServerSideProps(ctx) {
     // Gets the user id
-    const user = (await getSession(ctx)).user.id
+    const session = await getSession(ctx)
+    const user = session ? session.user.id : -1
     // Gets the leaderboard for the league
     const standings = new Promise((resolve) => {
         const mysql = require("mysql")
