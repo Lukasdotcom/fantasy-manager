@@ -34,5 +34,5 @@ If applicable, add screenshots to help explain your problem.
  - Browser [e.g. stock browser, safari]
  - Version [e.g. 22]
 
-**Additional context**
+**Additional context like logs if you are the server admin**
 Add any other context about the problem here.
