@@ -83,7 +83,7 @@ export function TransferPlayer({uid, ownership, money, league, transferData, tra
     // Checks if the ownership info exists
     if (ownership !== undefined) {
         // Checks if the transfer market is still open
-        if (timeLeft === 0) {
+        if (timeLeft <= 0) {
             PurchaseButton = <button disabled={true}>Transfer Market is closed</button>
         // Checks if the user is already purchasing the player
         } else if (ownership.filter((e) => e.buyer === user).length > 0) {
@@ -120,7 +120,9 @@ export function TransferPlayer({uid, ownership, money, league, transferData, tra
         }
     } else {
         // If no ownership data exists the player must not be owned by anyone
-        if (data.value > money) {
+        if (timeLeft <= 0) {
+            PurchaseButton = <button disabled={true}>Transfer Market is closed</button>
+        } else if (data.value > money) {
             PurchaseButton = <button disabled={true}>You need {data.value/1000000} M</button>
         } else {
             PurchaseButton = <button onClick={buySell}>Buy for {data.value/1000000} M</button>
