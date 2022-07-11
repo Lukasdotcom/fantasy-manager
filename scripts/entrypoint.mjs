@@ -96,14 +96,18 @@ async function startUp() {
     updateData()
     // Checks if this is the latest version and if it does adds data
     async function updateInfo() {
+        console.log("Checking for updates")
+        const releases = await fetch("https://api.github.com/repos/lukasdotcom/Bundesliga/releases").then((res) => res.ok ? res.json() : {})
+        if (releases[0] === undefined || releases[0].tag_name === undefined) {
+            console.log("Failed to get version data from github api")
+            return
+        }
         const connection = createConnection({
             host     : process.env.MYSQL_HOST,
             user     : process.env.MYSQL_USER,
             password : process.env.MYSQL_PASSWORD,
             database : process.env.MYSQL_DATABASE
         })
-        console.log("Checking for updates")
-        const releases = await fetch("https://api.github.com/repos/lukasdotcom/Bundesliga/releases").then((res) => res.json())
         if (version.version !== releases[0].tag_name) {
             connection.query("INSERT INTO data (value1, value2) VALUES('updateProgram', ?) ON DUPLICATE KEY UPDATE value2=?",[releases[0].html_url, releases[0].html_url])
         } else {
