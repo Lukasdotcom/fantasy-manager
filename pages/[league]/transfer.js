@@ -4,6 +4,7 @@ import Head from "next/head"
 import { useState, useEffect } from "react"
 import {TransferPlayer as Player} from "../../components/Player"
 import { push } from "@socialgouv/matomo-next"
+import { SessionProvider } from "next-auth/react"
 
 // Used for the selecting and unselecting of a position
 function Postion({position, positions, setPositions}) {
@@ -13,7 +14,7 @@ function Postion({position, positions, setPositions}) {
         <input type="checkbox" onChange={(e) => {e.target.checked ? setPositions([...positions, position]) : setPositions(positions.filter((e2) => e2 != position))}} checked={positions.includes(position)} id={position}></input>
     </>)
 }
-export default function Home({session, league}) {
+export default function Home({session, league, allowedTransfers, duplicatePlayers}) {
     const positionList = ["gk", "def", "mid", "att"]
     const [players, setPlayers] = useState([])
     const [searchTerm, setSearchTerm] = useState("")
@@ -84,7 +85,7 @@ export default function Home({session, league}) {
             search(false)
         }
     }}>
-    <p>{6-transferCount} transfers left</p>
+    <p>{allowedTransfers-transferCount} transfers left</p>
     <p>Money left: {money / 1000000}M</p>
     { transferMessage }
     <label htmlFor="search">Search Player Name: </label>
@@ -107,14 +108,29 @@ export default function Home({session, league}) {
         <input type="checkbox" onChange={(e) => {setShowHidden(e.target.checked)}} checked={showHidden} id="showHidden"></input>
     </p>
     <p>Yellow background means attendance unknown, red background that the player is not attending, and pink that the player will not earn points anytime soon(Sell these players).</p>
+    <SessionProvider session={session}>
     { players.map((val) =>
-        <Player key={val} uid={val} ownership={ownership[val]} money={money} league={league} transferLeft={transferCount<6} transferData={transferData} timeLeft={timeLeft} />
+        <Player key={val} uid={val} money={money} ownership={ownership[val]} league={league} transferLeft={transferCount<allowedTransfers} transferData={transferData} timeLeft={timeLeft} duplicatePlayers={duplicatePlayers} />
     )}
+    </SessionProvider>
     </div>
     </>
     )
 }
 
 export async function getServerSideProps(ctx) {
-    return await redirect(ctx, {})
+    const mysql = require('mysql')
+    // Gets the amount of allowed transfers
+    const [allowedTransfers, duplicatePlayers] = await new Promise((res) => {
+        const connection = mysql.createConnection({
+            host     : process.env.MYSQL_HOST,
+            user     : process.env.MYSQL_USER,
+            password : process.env.MYSQL_PASSWORD,
+            database : process.env.MYSQL_DATABASE
+            })
+        connection.query("SELECT transfers, duplicatePlayers FROM leagueSettings WHERE leagueID=?", [ctx.params.league], function(error, result) {
+            result.length > 0 ? res([result[0].transfers, result[0].duplicatePlayers]) : res([0, 0])
+        })
+    })
+    return await redirect(ctx, {allowedTransfers, duplicatePlayers})
 }

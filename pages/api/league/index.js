@@ -19,15 +19,20 @@ export default async function handler(req, res) {
                 await new Promise((resolve) => {
                     connection.query("SELECT leagueID FROM leagueSettings WHERE leagueID=?", [id], function(error, results, fields) {
                         if (results.length == 0) {
-                            connection.query("INSERT INTO leagueSettings (leagueName, leagueID) VALUES (?, ?)", [req.body.name, id])
-                            connection.query("INSERT INTO leagueUsers (leagueID, user, points, money, formation) VALUES(?, ?, 0, 150000000, '[1, 4, 4, 2]')", [id, session.user.id])
+                            const startMoney = parseInt(req.body["Starting Money"])
+                            if (startMoney > 10000) {
+                                connection.query("INSERT INTO leagueSettings (leagueName, leagueID, startMoney) VALUES (?, ?, ?)", [req.body.name, id, startMoney])
+                            } else {
+                                connection.query("INSERT INTO leagueSettings (leagueName, leagueID) VALUES (?, ?)", [req.body.name, id])
+                            }
+                            connection.query("INSERT INTO leagueUsers (leagueID, user, points, money, formation, admin) VALUES(?, ?, 0, (SELECT startMoney FROM leagueSettings WHERE leagueId=?), '[1, 4, 4, 2]', 1)", [id, session.user.id, id])
                             // Checks if the game is in a transfer period and if yes it starts the first matchday automatically
                             connection.query("SELECT value2 FROM data WHERE value1='transferOpen'", function(error, result, field) {
                                 if (parseInt(result[0].value2) == 0) {
                                     connection.query("INSERT INTO points (leagueID, user, points, matchday) VALUES(?, ?, 0, 1)" , [id, session.user.id])
                                 }
                                 res.status(200).end("Created League")
-                                console.log(`User ${id} created league of ${id} with name ${req.body.name}`)
+                                console.log(`User ${session.user.id} created league of ${id} with name ${req.body.name}`)
                                 resolve()
                             })
                         } else {
@@ -38,32 +43,6 @@ export default async function handler(req, res) {
                 break;
             case "GET": // Returns all leagues the user is in
                 res.status(200).json(await leagueList(session.user.id))
-                break;
-            case "DELETE":
-                // Used to leave a league
-                connection.query("DELETE FROM leagueUsers WHERE leagueID=? and user=?", [req.body.id, session.user.id])
-                connection.query("DELETE FROM points WHERE leagueID=? and user=?", [req.body.id, session.user.id])
-                connection.query("DELETE FROM squad WHERE leagueID=? and user=?", [req.body.id, session.user.id])
-                connection.query("UPDATE transfers SET seller='' WHERE leagueID=? and seller=?", [req.body.id, session.user.id])
-                connection.query("UPDATE transfers SET buyer='' WHERE leagueID=? and buyer=?", [req.body.id, session.user.id])
-                console.log(`User ${session.user.id} left league ${req.body.id}`)
-                // Checks if the league still has users
-                connection.query("SELECT * FROM leagueUsers WHERE leagueID=?", [req.body.id], function(error, result, field) {
-                    const connection2 = mysql.createConnection({
-                        host     : process.env.MYSQL_HOST,
-                        user     : process.env.MYSQL_USER,
-                        password : process.env.MYSQL_PASSWORD,
-                        database : process.env.MYSQL_DATABASE
-                    })
-                    if (result.length == 0) {
-                        connection2.query("DELETE FROM invite WHERE leagueID=?", [req.body.id])
-                        connection2.query("DELETE FROM transfers WHERE leagueID=?", [req.body.id])
-                        connection2.query("DELETE FROM leagueSettings WHERE leagueId=?", [req.body.id])
-                        connection2.end()
-                        console.log(`League ${req.body.id} is now empty and is being deleted`)
-                    }
-                })
-                res.status(200).end("Left league")
                 break;
             default:
                 res.status(405).end(`Method ${req.method} Not Allowed`)
