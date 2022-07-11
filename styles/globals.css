@@ -5,7 +5,7 @@ body {
   padding: 0;
   margin: 0;
   font-size: 18px;
-  font-family:'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 a {
@@ -33,7 +33,7 @@ a {
 }
 
 button {
-  color:white;
+  color: white;
   background-color: rgb(0, 0, 255);
   border: 2px solid black;
   border-radius: 10px;
