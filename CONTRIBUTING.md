@@ -1,4 +1,5 @@
 # Todos before making a pull request
+ - [ ] Run ```npm run format``` to format everything with prettier.
  - [ ] Run ```npm run lint``` and fix all errors and warnings.
  - [ ] Made sure that all database changes have update code in entrypoint.mjs.
  - [ ] Made sure to test your changes.

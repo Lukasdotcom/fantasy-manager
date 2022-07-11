@@ -6,7 +6,9 @@
     "dev": "npm install; node scripts/entrypoint.mjs & next dev",
     "build": "npm ci; next build",
     "start": "next build; node scripts/entrypoint.mjs & next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "pretty": "npx prettier --check .",
+    "format": "npx prettier --write ."
   },
   "dependencies": {
     "@socialgouv/matomo-next": "1.4.0",
@@ -22,6 +24,7 @@
   },
   "devDependencies": {
     "eslint": "8.19.0",
-    "eslint-config-next": "12.2.2"
+    "eslint-config-next": "12.2.2",
+    "prettier": "2.7.1"
   }
 }
