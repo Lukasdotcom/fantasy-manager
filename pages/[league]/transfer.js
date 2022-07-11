@@ -26,8 +26,9 @@ export default function Home({session, league, allowedTransfers, duplicatePlayer
     const [orderBy, setOrderBy] = useState("value")
     const [showHidden, setShowHidden] = useState(false)
     const [timeLeft, setTimeLeft] = useState(0)
+    const [clubSearch, setClubSearch] = useState("")
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => {search(true)}, [searchTerm, positions, orderBy, showHidden])
+    useEffect(() => {search(true)}, [searchTerm, positions, orderBy, showHidden, clubSearch])
     // Used to get the data for a list of transfers and money
     function transferData() {
         fetch(`/api/transfer/${league}`).then(async (val) => {val = await val.json(); setMoney(val.money); setOwnership(val.ownership); setTransferCount(val.transferCount); setTimeLeft(val.timeLeft)})
@@ -59,10 +60,11 @@ export default function Home({session, league, allowedTransfers, duplicatePlayer
             push(["trackEvent", "Search Transfer", "Positions", JSON.stringify(positions)])
             push(["trackEvent", "Search Transfer", "Order By", orderBy])
             push(["trackEvent", "Search Transfer", "Show Hidden", JSON.stringify(showHidden)])
+            push(["trackEvent", "Search Transfer", "Club Search", clubSearch])
             setFinished(false)
         }
         // Gets the data and returns the amount of players found
-        const newLength = await fetch(`/api/player?${(isNew ? "" : `limit=${players.length + 10}` )}&searchTerm=${encodeURIComponent(searchTerm)}&positions=${encodeURIComponent(JSON.stringify(positions))}&order_by=${orderBy}${showHidden ? "&showHidden=true" : ""}`).then(async (val) => {
+        const newLength = await fetch(`/api/player?${(isNew ? "" : `limit=${players.length + 10}` )}&searchTerm=${encodeURIComponent(searchTerm)}&clubSearch=${encodeURIComponent(clubSearch)}&positions=${encodeURIComponent(JSON.stringify(positions))}&order_by=${orderBy}${showHidden ? "&showHidden=true" : ""}`).then(async (val) => {
             val = await val.json()
             setPlayers(val)
             return val.length
@@ -90,6 +92,9 @@ export default function Home({session, league, allowedTransfers, duplicatePlayer
     { transferMessage }
     <label htmlFor="search">Search Player Name: </label>
     <input onChange={(val) => {setSearchTerm(val.target.value)}} val={searchTerm} id="search"></input>
+    <br></br>
+    <label htmlFor="club">Search Club(Uses the shortname so VFB for VFB Stuttgart): </label>
+    <input onChange={(val) => {setClubSearch(val.target.value)}} val={clubSearch} id="search"></input>
     <br></br>
     <label htmlFor="order">Order search by:</label>
     <select value={orderBy} onChange={(val) => setOrderBy(val.target.value)} id="order">
