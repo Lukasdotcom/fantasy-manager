@@ -10,7 +10,8 @@ Only the latest version is supported right now.
 | 0.x.x   | :x:                |
 
 ### Reporting a Vulnerability
+
 Please report (suspected) security vulnerabilities to security@lschaefer.xyz
 
 - You will receive a response from me within 7 working days.
-- I will fix it as soon as I can. 
+- I will fix it as soon as I can.
