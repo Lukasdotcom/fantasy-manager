@@ -10,42 +10,44 @@ let day = date.getDay();
 
 async function startUp() {
   const connection = await connect();
-  // Used to store the users
-  connection.query(
-    "CREATE TABLE IF NOT EXISTS users (id int AUTO_INCREMENT, PRIMARY KEY(`id`), email varchar(255), username varchar(255), password varchar(60))"
-  );
-  // Used to store the players data
-  connection.query(
-    "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool)"
-  );
-  // Creates a table that contains some key value pairs for data that is needed for some things
-  connection.query(
-    "CREATE TABLE IF NOT EXISTS data (value1 varchar(25) PRIMARY KEY, value2 varchar(255))"
-  );
-  // Used to store the leagues settings
-  connection.query(
-    "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1)"
-  );
-  // Used to store the leagues users
-  connection.query(
-    "CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, points int, money int, formation varchar(255), admin bool DEFAULT 0)"
-  );
-  // Used to store the Historical Points
-  connection.query(
-    "CREATE TABLE IF NOT EXISTS points (leagueID int, user int, points int, matchday int)"
-  );
-  // Used to store transfers
-  connection.query(
-    "CREATE TABLE IF NOT EXISTS transfers (leagueID int, seller int, buyer int, playeruid varchar(25), value int)"
-  );
-  // Used to store invite links
-  connection.query(
-    "CREATE TABLE IF NOT EXISTS invite (inviteID varchar(25) PRIMARY KEY, leagueID int)"
-  );
-  // Used to store player squads
-  connection.query(
-    "CREATE TABLE IF NOT EXISTS squad (leagueID int, user int, playeruid varchar(25), position varchar(5))"
-  );
+  await Promise.all([
+    // Used to store the users
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, email varchar(255), username varchar(255), password varchar(60))"
+    ),
+    // Used to store the players data
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool)"
+    ),
+    // Creates a table that contains some key value pairs for data that is needed for some things
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS data (value1 varchar(25) PRIMARY KEY, value2 varchar(255))"
+    ),
+    // Used to store the leagues settings
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1)"
+    ),
+    // Used to store the leagues users
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, points int, money int, formation varchar(255), admin bool DEFAULT 0)"
+    ),
+    // Used to store the Historical Points
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS points (leagueID int, user int, points int, matchday int)"
+    ),
+    // Used to store transfers
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS transfers (leagueID int, seller int, buyer int, playeruid varchar(25), value int)"
+    ),
+    // Used to store invite links
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS invite (inviteID varchar(25) PRIMARY KEY, leagueID int)"
+    ),
+    // Used to store player squads
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS squad (leagueID int, user int, playeruid varchar(25), position varchar(5))"
+    ),
+  ]);
   // Checks the version of the database is out of date
   let oldVersion = await connection.query(
     "SELECT value2 FROM data WHERE value1='version'"
@@ -106,6 +108,10 @@ async function startUp() {
   updateData();
   // Checks if this is the latest version and if it does adds data
   async function updateInfo() {
+    if (process.env.NODE_ENV === "development") {
+      console.log("Skipping update check due to being development enviroment");
+      return;
+    }
     console.log("Checking for updates");
     const releases = await fetch(
       "https://api.github.com/repos/lukasdotcom/Bundesliga/releases"

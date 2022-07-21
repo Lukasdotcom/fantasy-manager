@@ -6,13 +6,13 @@ This is meant to be an open source self hosted version of the official bundeslig
 
 ## Production or Installation
 
-First download this file and edit the file to your preferences.
+1. First download this file and edit the file to your preferences.
 
 ```
 wget 'https://raw.githubusercontent.com/Lukasdotcom/Bundesliga/main/docker/docker-compose.yaml'
 ```
 
-Then run this.
+2. Then run this.
 
 ```
 docker-compose up

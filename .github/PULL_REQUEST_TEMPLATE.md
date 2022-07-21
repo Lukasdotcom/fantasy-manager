@@ -8,6 +8,7 @@ Provide summary of changes with issue number if any.
 - [ ] Run `npm run lint` and fix all errors and warnings.
 - [ ] Made sure that all database changes have update code in entrypoint.mjs.
 - [ ] Made sure to test your changes.
+- [ ] All sql syntax would work on mysql.
 
 ## Change type
 

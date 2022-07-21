@@ -28,7 +28,9 @@ export async function updateData() {
   ).then(async (val) => {
     return await val.json();
   });
-  //const data = fetch("http://localhost:3000/data.json").then(async (val) => {return await val.json()})
+  /*const data = fetch("http://localhost:3000/data.json").then(async (val) => {
+    return await val.json();
+  });*/
   // Puts in the data if the transfermarket is open
   const oldTransfer = await connection
     .query("SELECT * FROM data WHERE value1='transferOpen'")
@@ -48,7 +50,8 @@ export async function updateData() {
   // Goes through all of the players and adds their data to the database
   const players = (await data).offerings.items;
   connection.query("UPDATE players SET `exists`=0");
-  players.forEach((val, i) => {
+  players.forEach(async (val, i) => {
+    // Checks if it is a matchday
     if (newTransfer) {
       connection.query(
         "INSERT INTO players (uid, name, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1",
@@ -73,7 +76,7 @@ export async function updateData() {
       );
     } else {
       // Checks if the player already is in the database or not
-      const playerExists = connection.query(
+      const playerExists = await connection.query(
         "SELECT last_match, total_points FROM players WHERE uid=?",
         [val.player.uid]
       );
@@ -102,7 +105,7 @@ export async function updateData() {
             val.attendance.forecast[0],
             val.player.statistics.total_points,
             val.player.statistics.average_points,
-            val.player.statistics.total_points - result[0].total_points,
+            val.player.statistics.total_points - playerExists[0].total_points,
             val.player.is_locked,
             val.player.uid,
           ]
@@ -138,7 +141,6 @@ export async function startMatchday() {
   });
   connection.query("DELETE FROM transfers");
   console.log("Simulated every transfer");
-  res();
   // Goes through every transfer
   connection.query("UPDATE players SET last_match=0");
   // Sets up the points to 0 for every player in every league and sets up 0 points for that matchday

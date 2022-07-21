@@ -11,7 +11,7 @@ Only the latest version is supported right now.
 
 ### Reporting a Vulnerability
 
-Please report (suspected) security vulnerabilities to security@lschaefer.xyz
+Please report (suspected) security vulnerabilities to security@lschaefer.xyz **DO NOT CREATE A PUBLIC GITHUB ISSUE FOR SECURITY VULNERABILITIES**
 
 - You will receive a response from me within 7 working days.
-- I will fix it as soon as I can.
+- I will fix it as soon as I can with or without your help.
