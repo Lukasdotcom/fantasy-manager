@@ -1,4 +1,5 @@
 import { getSession } from "next-auth/react";
+import connect from "../../../Modules/database.mjs";
 
 // Used to change a users username
 export default async function handler(req, res) {
@@ -10,14 +11,8 @@ export default async function handler(req, res) {
         res.status(401).end("Not logged in");
       } else if (req.body.password !== undefined) {
         // Updates the password if one is given.
-        const mysql = require("mysql");
         const password = req.body.password;
-        const connection = mysql.createConnection({
-          host: process.env.MYSQL_HOST,
-          user: process.env.MYSQL_USER,
-          password: process.env.MYSQL_PASSWORD,
-          database: process.env.MYSQL_DATABASE,
-        });
+        const connection = await connect();
         const bcrypt = require("bcryptjs");
         connection.query("UPDATE users SET password=? WHERE id=?", [
           password === ""
@@ -31,13 +26,7 @@ export default async function handler(req, res) {
       } else if (req.body.username === undefined) {
         res.status(500).end("No username given");
       } else {
-        const mysql = require("mysql");
-        const connection = mysql.createConnection({
-          host: process.env.MYSQL_HOST,
-          user: process.env.MYSQL_USER,
-          password: process.env.MYSQL_PASSWORD,
-          database: process.env.MYSQL_DATABASE,
-        });
+        const connection = await connect();
         connection.query("UPDATE users SET username=? WHERE id=?", [
           req.body.username,
           id,

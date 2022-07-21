@@ -1,7 +1,7 @@
 import { getSession } from "next-auth/react";
+import connect from "../../../Modules/database.mjs";
 
 export default async function handler(req, res) {
-  const mysql = require("mysql");
   const session = await getSession({ req });
   const league = req.query.league;
   // An array of valid formations
@@ -18,12 +18,7 @@ export default async function handler(req, res) {
     res.status(401).end("Not logged in");
   } else {
     const user = session.user.id;
-    var connection = mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-    });
+    const connection = await connect();
     switch (req.method) {
       // Used to return a dictionary of all formations and your current squad and formation
       case "GET":
@@ -57,17 +52,15 @@ export default async function handler(req, res) {
       case "POST":
         // Checks if there are enough spots for a position
         function positionOpen(limit, position) {
-          return new Promise((resolve, reject) => {
-            connection.query(
-              `SELECT * FROM squad WHERE position='${position}'`,
-              function (error, result, fields) {
-                if (result.length > limit) {
-                  reject(`Not enough spots for ${position}`);
-                } else {
-                  resolve(`Enough spots for ${position}`);
-                }
-              }
+          return new Promise(async (resolve, reject) => {
+            const result = await connection.query(
+              `SELECT * FROM squad WHERE position='${position}'`
             );
+            if (result.length > limit) {
+              reject(`Not enough spots for ${position}`);
+            } else {
+              resolve(`Enough spots for ${position}`);
+            }
           });
         }
         // Checks if the user wants to change the formation
@@ -107,94 +100,82 @@ export default async function handler(req, res) {
             await Promise.all(
               playerMove.map(
                 (e) =>
-                  new Promise((resolve, reject) => {
-                    connection.query(
+                  new Promise(async (resolve, reject) => {
+                    let position = connection.query(
                       "SELECT * FROM squad WHERE leagueID=? and user=? and playeruid=?",
-                      [league, user, e],
-                      function (error, result, field) {
-                        // Checks if the player is owned by the user
-                        if (result.length > 0) {
-                          // Checks what position the player is
-                          let position = result[0].position;
-                          if (position === "bench") {
-                            // Finds the players position and checks if they are locked
+                      [league, user, e]
+                    );
+                    // Checks if the player is owned by the user
+                    if (position.length > 0) {
+                      // Checks what position the player is
+                      position = position[0].position;
+                      if (position === "bench") {
+                        // Finds the players position and checks if they are locked
+                        const locked = await connection.query(
+                          "SELECT position, locked FROM players WHERE uid=?",
+                          [e]
+                        );
+                        if (locked[0].locked) {
+                          reject(`${e} is locked`);
+                        } else {
+                          const playerposition = locked[0].position;
+                          // Gets the amount of players on that position
+                          const playerAmount = (
+                            await connection.query(
+                              "SELECT * FROM squad WHERE leagueID=? and user=? and position=?",
+                              [league, user, playerposition]
+                            )
+                          ).length;
+                          // Gets the users formation
+                          const formation = JSON.parse(
+                            (
+                              await connection.query(
+                                "SELECT formation FROM leagueUsers WHERE leagueID=? and user=?",
+                                [league, user]
+                              )
+                            )[0].formation
+                          );
+                          // Checks if there is still room in the formation for this player
+                          let transferValid = false;
+                          switch (playerposition) {
+                            case "gk":
+                              transferValid = playerAmount < formation[0];
+                              break;
+                            case "def":
+                              transferValid = playerAmount < formation[1];
+                              break;
+                            case "mid":
+                              transferValid = playerAmount < formation[2];
+                              break;
+                            case "att":
+                              transferValid = playerAmount < formation[3];
+                              break;
+                          }
+                          if (transferValid) {
                             connection.query(
-                              "SELECT position, locked FROM players WHERE uid=?",
-                              [e],
-                              function (error, result, field) {
-                                if (result[0].locked) {
-                                  reject(`${e} is locked`);
-                                } else {
-                                  const playerposition = result[0].position;
-                                  // Gets the amount of players on that position
-                                  connection.query(
-                                    "SELECT * FROM squad WHERE leagueID=? and user=? and position=?",
-                                    [league, user, playerposition],
-                                    function (error, result, field) {
-                                      const playerAmount = result.length;
-                                      // Gets the users formation
-                                      connection.query(
-                                        "SELECT formation FROM leagueUsers WHERE leagueID=? and user=?",
-                                        [league, user],
-                                        function (error, result, fields) {
-                                          const formation = JSON.parse(
-                                            result[0].formation
-                                          );
-                                          // Checks if there is still room in the formation for this player
-                                          let transferValid = false;
-                                          switch (playerposition) {
-                                            case "gk":
-                                              transferValid =
-                                                playerAmount < formation[0];
-                                              break;
-                                            case "def":
-                                              transferValid =
-                                                playerAmount < formation[1];
-                                              break;
-                                            case "mid":
-                                              transferValid =
-                                                playerAmount < formation[2];
-                                              break;
-                                            case "att":
-                                              transferValid =
-                                                playerAmount < formation[3];
-                                              break;
-                                          }
-                                          if (transferValid) {
-                                            connection.query(
-                                              "UPDATE squad SET position=? WHERE leagueID=? and user=? and playeruid=?",
-                                              [playerposition, league, user, e]
-                                            );
-                                            console.log(
-                                              `User ${user} moved player ${e} to field`
-                                            );
-                                            resolve();
-                                          } else {
-                                            reject("No more room in formation");
-                                          }
-                                        }
-                                      );
-                                    }
-                                  );
-                                }
-                              }
-                            );
-                          } else {
-                            // If the player is on the field automatically move them to the bench
-                            connection.query(
-                              "UPDATE squad SET position='bench' WHERE leagueID=? and user=? and playeruid=?",
-                              [league, user, e]
+                              "UPDATE squad SET position=? WHERE leagueID=? and user=? and playeruid=?",
+                              [playerposition, league, user, e]
                             );
                             console.log(
-                              `User ${user} moved player ${e} to bench`
+                              `User ${user} moved player ${e} to field`
                             );
                             resolve();
+                          } else {
+                            reject("No more room in formation");
                           }
-                        } else {
-                          reject(`${e} is not your player`);
                         }
+                      } else {
+                        // If the player is on the field automatically move them to the bench
+                        connection.query(
+                          "UPDATE squad SET position='bench' WHERE leagueID=? and user=? and playeruid=?",
+                          [league, user, e]
+                        );
+                        console.log(`User ${user} moved player ${e} to bench`);
+                        resolve();
                       }
-                    );
+                    } else {
+                      reject(`${e} is not your player`);
+                    }
                   })
               )
             ).catch((e) => {

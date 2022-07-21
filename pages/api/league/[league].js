@@ -1,30 +1,20 @@
 import { getSession } from "next-auth/react";
+import connect from "../../../Modules/database.mjs";
 
 export default async function handler(req, res) {
   const session = await getSession({ req });
   if (session) {
-    const mysql = require("mysql");
-    const connection = mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-    });
+    const connection = await connect();
     const league = req.query.league;
     switch (req.method) {
       // Used to edit a league
       case "POST":
         // Checks if the user is qualified to do this
         if (
-          await new Promise((res) => {
-            connection.query(
-              "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
-              [league, session.user.id],
-              function (error, result, field) {
-                res(result.length > 0);
-              }
-            );
-          })
+          connection.query(
+            "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
+            [league, session.user.id]
+          ).length > 0
         ) {
           if (req.body.users !== undefined) {
             if (req.body.users.forEach !== undefined) {
@@ -63,41 +53,24 @@ export default async function handler(req, res) {
       case "GET": // Returns the league Settings and which users are admins
         // Checks if the user is qualified to do this
         if (
-          await new Promise((res) => {
-            connection.query(
+          (
+            await connection.query(
               "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
-              [league, session.user.id],
-              function (error, result, field) {
-                res(result.length > 0);
-              }
-            );
-          })
+              [league, session.user.id]
+            )
+          ).length > 0
         ) {
-          res.status(200).json(
-            await new Promise((res) => {
-              // Gets the settings for the league
-              connection.query(
-                "SELECT * FROM leagueSettings WHERE leagueID=?",
-                [league],
-                function (error, settings, field) {
-                  if (settings.length == 0)
-                    throw `Could not find league settings for league ${leagueID}`;
-                  settings = settings[0];
-                  // Gets a list of users and says which ones are admins
-                  connection.query(
-                    "SELECT user, admin FROM leagueUsers WHERE leagueID=?",
-                    [league],
-                    function (error, users, field) {
-                      res({
-                        users,
-                        settings,
-                      });
-                    }
-                  );
-                }
-              );
-            })
-          );
+          // Gets the settings and admin status for users
+          const [settings, users] = await Promise.all([
+            connection.query("SELECT * FROM leagueSettings WHERE leagueID=?", [
+              league,
+            ]),
+            connection.query(
+              "SELECT user, admin FROM leagueUsers WHERE leagueID=?",
+              [league]
+            ),
+          ]);
+          res.status(200).json({ settings, users });
         } else {
           res.status(401).end("Not admin of this league");
         }
@@ -126,31 +99,18 @@ export default async function handler(req, res) {
         );
         console.log(`User ${session.user.id} left league ${league}`);
         // Checks if the league still has users
-        connection.query(
-          "SELECT * FROM leagueUsers WHERE leagueID=?",
-          [league],
-          function (error, result, field) {
-            const connection2 = mysql.createConnection({
-              host: process.env.MYSQL_HOST,
-              user: process.env.MYSQL_USER,
-              password: process.env.MYSQL_PASSWORD,
-              database: process.env.MYSQL_DATABASE,
-            });
-            if (result.length == 0) {
-              connection2.query("DELETE FROM invite WHERE leagueID=?", [
-                league,
-              ]);
-              connection2.query("DELETE FROM transfers WHERE leagueID=?", [
-                league,
-              ]);
-              connection2.query("DELETE FROM leagueSettings WHERE leagueId=?", [
-                league,
-              ]);
-              connection2.end();
-              console.log(`League ${league} is now empty and is being deleted`);
-            }
-          }
-        );
+        const isEmpty = connection
+          .query("SELECT * FROM leagueUsers WHERE leagueID=?", [league])
+          .then((res) => res.length == 0);
+        if (isEmpty == 0) {
+          connection.query("DELETE FROM invite WHERE leagueID=?", [league]);
+          connection.query("DELETE FROM transfers WHERE leagueID=?", [league]);
+          connection.query("DELETE FROM leagueSettings WHERE leagueId=?", [
+            league,
+          ]);
+          connection.end();
+          console.log(`League ${league} is now empty and is being deleted`);
+        }
         res.status(200).end("Left league");
         break;
       default:

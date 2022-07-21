@@ -1,31 +1,25 @@
+import connect from "../../../Modules/database.mjs";
+
 // Used to return the username of a selected user
 export default async function handler(req, res) {
   switch (req.method) {
     case "GET":
-      const mysql = require("mysql");
-      const connection = mysql.createConnection({
-        host: process.env.MYSQL_HOST,
-        user: process.env.MYSQL_USER,
-        password: process.env.MYSQL_PASSWORD,
-        database: process.env.MYSQL_DATABASE,
-      });
+      const connection = await connect();
       // Gets the id
       const id = req.query.id;
-      await new Promise((resolve) => {
-        connection.query(
+      await new Promise(async (resolve) => {
+        // Checks if the user exists
+        const users = await connection.query(
           "SELECT username FROM users WHERE id=?",
-          [id],
-          function (error, result, field) {
-            // Checks if the user exists
-            if (result.length > 0) {
-              res.status(200).json(result[0].username);
-              resolve();
-            } else {
-              res.status(404).end("Player not found");
-              resolve();
-            }
-          }
+          [id]
         );
+        if (users.length > 0) {
+          res.status(200).json(users[0].username);
+          resolve();
+        } else {
+          res.status(404).end("Player not found");
+          resolve();
+        }
       });
       connection.end();
       break;

@@ -5,7 +5,7 @@ import { leagueList } from "./api/league";
 import Link from "next/link";
 import Menu from "../components/Menu";
 import { push } from "@socialgouv/matomo-next";
-import { createConnection } from "mysql";
+import connect from "../Modules/database.mjs";
 // Used to create a new League
 function MakeLeague({ getLeagueData }) {
   const [leagueName, setLeagueName] = useState("");
@@ -130,25 +130,11 @@ export default function Home({ session, leagueData, versionData }) {
 }
 
 export async function getServerSideProps(ctx) {
-  const versionData = new Promise((res) => {
-    const connection = createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-    });
-    connection.query(
-      "SELECT value2 FROM data WHERE value1='updateProgram'",
-      function (error, result, field) {
-        if (result.length === 0) {
-          res(null);
-        } else {
-          res(result[0].value2);
-        }
-      }
-    );
-    connection.end();
-  });
+  const connection = await connect();
+  const versionData = connection
+    .query("SELECT value2 FROM data WHERE value1='updateProgram'")
+    .then((result) => (result.length === 0 ? null : result[0].value2));
+  connection.end();
   const session = getSession(ctx);
   if (await session) {
     return {
