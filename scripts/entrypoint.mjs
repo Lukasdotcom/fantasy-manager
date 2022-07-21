@@ -139,8 +139,11 @@ async function update() {
     updateData();
     // Checks if an update was requested
   } else if (
-    connection3.query("SELECT * FROM data WHERE value1='update' and value2='1'")
-      .length > 0
+    (
+      await connection3.query(
+        "SELECT * FROM data WHERE value1='update' and value2='1'"
+      )
+    ).length > 0
   ) {
     console.log("Updating data now");
     updateData();

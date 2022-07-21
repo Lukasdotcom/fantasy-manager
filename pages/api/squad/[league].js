@@ -22,31 +22,25 @@ export default async function handler(req, res) {
     switch (req.method) {
       // Used to return a dictionary of all formations and your current squad and formation
       case "GET":
-        await new Promise((resolve) => {
+        await new Promise(async (resolve) => {
           // Checks if the league exists
-          connection.query(
+          const result = await connection.query(
             "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
-            [league, user],
-            function (error, result, fields) {
-              if (result.length > 0) {
-                const formation = JSON.parse(result[0].formation);
-                // Gets all the players on the team
-                connection.query(
-                  "SELECT playeruid, position FROM squad WHERE leagueID=? and user=?",
-                  [league, user],
-                  function (error, players, fields) {
-                    res
-                      .status(200)
-                      .json({ formation, players, validFormations });
-                    resolve();
-                  }
-                );
-              } else {
-                res.status(404).end("League not found");
-                resolve();
-              }
-            }
+            [league, user]
           );
+          if (result.length > 0) {
+            const formation = JSON.parse(result[0].formation);
+            // Gets all the players on the team
+            const players = await connection.query(
+              "SELECT playeruid, position FROM squad WHERE leagueID=? and user=?",
+              [league, user]
+            );
+            res.status(200).json({ formation, players, validFormations });
+            resolve();
+          } else {
+            res.status(404).end("League not found");
+            resolve();
+          }
         });
         break;
       case "POST":
@@ -101,7 +95,7 @@ export default async function handler(req, res) {
               playerMove.map(
                 (e) =>
                   new Promise(async (resolve, reject) => {
-                    let position = connection.query(
+                    let position = await connection.query(
                       "SELECT * FROM squad WHERE leagueID=? and user=? and playeruid=?",
                       [league, user, e]
                     );

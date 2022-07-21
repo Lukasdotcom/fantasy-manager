@@ -11,10 +11,10 @@ export default async function handler(req, res) {
       case "POST":
         // Checks if the user is qualified to do this
         if (
-          connection.query(
+          (await connection.query(
             "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
             [league, session.user.id]
-          ).length > 0
+          ).length) > 0
         ) {
           if (req.body.users !== undefined) {
             if (req.body.users.forEach !== undefined) {
@@ -99,7 +99,7 @@ export default async function handler(req, res) {
         );
         console.log(`User ${session.user.id} left league ${league}`);
         // Checks if the league still has users
-        const isEmpty = connection
+        const isEmpty = await connection
           .query("SELECT * FROM leagueUsers WHERE leagueID=?", [league])
           .then((res) => res.length == 0);
         if (isEmpty == 0) {

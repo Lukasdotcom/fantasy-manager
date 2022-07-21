@@ -131,7 +131,7 @@ export default function Home({ session, leagueData, versionData }) {
 
 export async function getServerSideProps(ctx) {
   const connection = await connect();
-  const versionData = connection
+  const versionData = await connection
     .query("SELECT value2 FROM data WHERE value1='updateProgram'")
     .then((result) => (result.length === 0 ? null : result[0].value2));
   connection.end();
