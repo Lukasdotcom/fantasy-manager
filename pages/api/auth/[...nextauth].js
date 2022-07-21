@@ -30,7 +30,7 @@ const options = {
         const bcrypt = require("bcryptjs");
         // Goes through every user that has the email or username that was given and has password authentication enabled
         const connection = await connect();
-        const users = connection.query(
+        const users = await connection.query(
           "SELECT * FROM users WHERE (email=? OR username=?) AND password!=''",
           [credentials.username, credentials.username]
         );
@@ -88,7 +88,7 @@ const options = {
       if (account.provider === "google") {
         const connection = await connect();
         // Checks if the user has already registered and if no then the user is created
-        const registered = connection
+        const registered = await connection
           .query("SELECT * FROM users WHERE email=?", [profile.email])
           .then((res) => res.length !== 0);
         if (!registered) {
@@ -133,7 +133,7 @@ const options = {
         // Sign in with google
         const email = session.user.email;
         const connection = await connect();
-        const [id, username] = connection
+        const [id, username] = await connection
           .query("SELECT * FROM users WHERE email=?", [email])
           .then((result) => {
             if (result.length > 0) {
