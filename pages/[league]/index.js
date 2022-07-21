@@ -296,10 +296,12 @@ export async function getServerSideProps(ctx) {
   // Gets the leaderboard for the league
   const standings = new Promise(async (resolve) => {
     const connection = await connect();
-    resolve(await connection.query(
-      "SELECT user, points FROM leagueUsers WHERE leagueId=?",
-      [ctx.params.league],
-    ));
+    resolve(
+      await connection.query(
+        "SELECT user, points FROM leagueUsers WHERE leagueId=?",
+        [ctx.params.league]
+      )
+    );
     connection.end();
   }).then((val) =>
     JSON.parse(JSON.stringify(val.sort((a, b) => b.points - a.points)))

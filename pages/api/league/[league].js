@@ -53,10 +53,12 @@ export default async function handler(req, res) {
       case "GET": // Returns the league Settings and which users are admins
         // Checks if the user is qualified to do this
         if (
-          (await connection.query(
-            "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
-            [league, session.user.id]
-          )).length > 0
+          (
+            await connection.query(
+              "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
+              [league, session.user.id]
+            )
+          ).length > 0
         ) {
           // Gets the settings and admin status for users
           const [settings, users] = await Promise.all([

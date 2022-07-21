@@ -7,11 +7,10 @@ export default async function redirect(ctx, data) {
   const connection = await connect();
   if (session) {
     // Checks if the user is in the league or not
-    const leagueInfo = await connection
-      .query(
-        "SELECT * FROM leagueSettings WHERE leagueID=? and EXISTS (SELECT * FROM leagueUsers WHERE user=? and leagueUsers.leagueID = leagueSettings.leagueID)",
-        [league, session.user.id]
-      )
+    const leagueInfo = await connection.query(
+      "SELECT * FROM leagueSettings WHERE leagueID=? and EXISTS (SELECT * FROM leagueUsers WHERE user=? and leagueUsers.leagueID = leagueSettings.leagueID)",
+      [league, session.user.id]
+    );
     connection.end();
     if (leagueInfo.length > 0) {
       return {

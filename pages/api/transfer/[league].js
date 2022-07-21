@@ -17,10 +17,12 @@ export default async function handler(req, res) {
       ])
       .then((e) => (e.length > 0 ? e[0].money : false));
     // Gets the leagues settings
-    const leagueSettings = (await connection.query(
-      "SELECT transfers, duplicatePlayers FROM leagueSettings WHERE leagueID=?",
-      [league]
-    ))[0];
+    const leagueSettings = (
+      await connection.query(
+        "SELECT transfers, duplicatePlayers FROM leagueSettings WHERE leagueID=?",
+        [league]
+      )
+    )[0];
     switch (req.method) {
       // Used to return a dictionary of all transfers and ownerships
       case "GET":
@@ -34,9 +36,7 @@ export default async function handler(req, res) {
             connection.query("SELECT * FROM squad WHERE leagueID=?", [league]),
             // Gets the amount of time left in the transfer period
             connection
-              .query(
-                "SELECT value2 FROM data WHERE value1='transferOpen'"
-              )
+              .query("SELECT value2 FROM data WHERE value1='transferOpen'")
               .then((result) => parseInt(result[0].value2)),
           ]);
           // Puts all the ownership and transfer info in a dictionary

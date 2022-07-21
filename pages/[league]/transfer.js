@@ -239,7 +239,7 @@ export async function getServerSideProps(ctx) {
       "SELECT transfers, duplicatePlayers FROM leagueSettings WHERE leagueID=?",
       [ctx.params.league]
     )
-    .then((result) => 
+    .then((result) =>
       result.length > 0
         ? [result[0].transfers, result[0].duplicatePlayers]
         : [0, 0]
