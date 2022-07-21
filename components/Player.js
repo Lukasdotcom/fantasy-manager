@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import Username from "../components/Username";
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
 export function Player({ data, children }) {
-  var background = "black";
+  let background = "black";
   if (Object.keys(data).length > 0) {
     // Changes the background to the correct color if the player is missing or not known if they are coming
     if (data.forecast == "u") {
@@ -211,8 +211,8 @@ export function SquadPlayer({ uid, update, field, league }) {
     getData();
   }, [uid]);
   // Checks if the player is on the bench or not
-  var MoveButton = "";
-  var disabled = false;
+  let MoveButton = "";
+  let disabled = false;
   if (field === undefined) {
     MoveButton = "Move to Bench";
   } else {

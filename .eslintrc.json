@@ -1,6 +1,9 @@
 {
   "extends": "next/core-web-vitals",
   "rules": {
-    //"no-var" : "error"
+    "no-var": "error",
+    "no-implied-eval": "error",
+    "no-eval": "error",
+    "no-const-assign": "error"
   }
 }

@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { createConnection } from "mysql";
+import connect from "../../../Modules/database.mjs";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 const options = {
@@ -27,33 +27,25 @@ const options = {
       },
       // Used to make sure that the credentails are correct
       authorize: async (credentials) => {
-        return new Promise((res) => {
-          const bcrypt = require("bcryptjs");
-          // Goes through every user that has the email or username that was given and has password authentication enabled
-          const connection = createConnection({
-            host: process.env.MYSQL_HOST,
-            user: process.env.MYSQL_USER,
-            password: process.env.MYSQL_PASSWORD,
-            database: process.env.MYSQL_DATABASE,
-          });
-          connection.query(
-            "SELECT * FROM users WHERE (email=? OR username=?) AND password!=''",
-            [credentials.username, credentials.username],
-            function (error, result) {
-              let finished = false;
-              result.forEach((e) => {
-                if (!finished) {
-                  if (bcrypt.compareSync(credentials.password, e.password)) {
-                    finished = true;
-                    res({ email: e.id });
-                  }
-                }
-              });
-              if (!finished) res(null);
+        const bcrypt = require("bcryptjs");
+        // Goes through every user that has the email or username that was given and has password authentication enabled
+        const connection = await connect();
+        const users = connection.query(
+          "SELECT * FROM users WHERE (email=? OR username=?) AND password!=''",
+          [credentials.username, credentials.username]
+        );
+        let finished = false;
+        let result = null;
+        users.forEach((e) => {
+          if (!finished) {
+            if (bcrypt.compareSync(credentials.password, e.password)) {
+              finished = true;
+              result = { email: e.id };
             }
-          );
-          connection.end();
+          }
         });
+        connection.end();
+        return Promise.resolve(result);
       },
     }),
     CredentialsProvider({
@@ -66,36 +58,27 @@ const options = {
       },
       // Used to make sure that the credentails are correct
       authorize: async (credentials) => {
-        return new Promise((res) => {
-          const bcrypt = require("bcryptjs");
-          // Goes through every user that has the email or username that was given
-          const connection = createConnection({
-            host: process.env.MYSQL_HOST,
-            user: process.env.MYSQL_USER,
-            password: process.env.MYSQL_PASSWORD,
-            database: process.env.MYSQL_DATABASE,
-          });
-          const password = bcrypt.hashSync(
-            credentials.password,
-            parseInt(process.env.BCRYPT_ROUNDS)
-          );
-          connection.query(
-            "INSERT INTO users (username, password, email) VALUES(?, ?, '')",
-            [credentials.username, password]
-          );
-          connection.query(
-            "SELECT * FROM users WHERE (username=? AND password=?) AND email=''",
-            [credentials.username, password],
-            function (error, result) {
-              if (result.length > 0) {
-                res({ email: result[0].id });
-              } else {
-                res(null);
-              }
-            }
-          );
-          connection.end();
-        });
+        const bcrypt = require("bcryptjs");
+        // Goes through every user that has the email or username that was given
+        const connection = await connect();
+        const password = bcrypt.hashSync(
+          credentials.password,
+          parseInt(process.env.BCRYPT_ROUNDS)
+        );
+        connection.query(
+          "INSERT INTO users (username, password, email) VALUES(?, ?, '')",
+          [credentials.username, password]
+        );
+        const users = await connection.query(
+          "SELECT * FROM users WHERE (username=? AND password=?) AND email=''",
+          [credentials.username, password]
+        );
+        let result = null;
+        if (users.length > 0) {
+          result = { email: users[0].id };
+        }
+        connection.end();
+        return Promise.resolve(result);
       },
     }),
   ],
@@ -103,26 +86,18 @@ const options = {
     async signIn({ account, profile, user }) {
       // Will make sure that if this was sign in with google only a verified user loggs in.
       if (account.provider === "google") {
-        const connection = createConnection({
-          host: process.env.MYSQL_HOST,
-          user: process.env.MYSQL_USER,
-          password: process.env.MYSQL_PASSWORD,
-          database: process.env.MYSQL_DATABASE,
-        });
+        const connection = await connect();
         // Checks if the user has already registered and if no then the user is created
-        connection.query(
-          "SELECT * FROM users WHERE email=?",
-          [profile.email],
-          function (error, result, field) {
-            if (result.length == 0) {
-              connection.query(
-                "INSERT INTO users (email, username, password) VALUES (?, ?, '')",
-                [profile.email, profile.name]
-              );
-            }
-            connection.end();
-          }
-        );
+        const registered = connection
+          .query("SELECT * FROM users WHERE email=?", [profile.email])
+          .then((res) => res.length !== 0);
+        if (!registered) {
+          connection.query(
+            "INSERT INTO users (email, username, password) VALUES (?, ?, '')",
+            [profile.email, profile.name]
+          );
+        }
+        connection.end();
         return profile.email_verified;
       }
       return user;
@@ -134,26 +109,19 @@ const options = {
       if (!session.user) return Promise.resolve(session);
       // Checks if this is signed in through google or not
       if (parseInt(session.user.email) > 0) {
+        const connection = await connect();
         // Normal sign in
         const id = session.user.email;
-        const [email, username] = await new Promise((res) => {
-          const connection = createConnection({
-            host: process.env.MYSQL_HOST,
-            user: process.env.MYSQL_USER,
-            password: process.env.MYSQL_PASSWORD,
-            database: process.env.MYSQL_DATABASE,
-          });
-          connection.query(
-            "SELECT * FROM users WHERE id=?",
-            [id],
-            function (error, result) {
-              result.length > 0
-                ? res([result[0].email, result[0].username])
-                : res(["", ""]);
+        const [email, username] = await connection
+          .query("SELECT * FROM users WHERE id=?", [id])
+          .then((result) => {
+            if (result.length > 0) {
+              return [result[0].email, result[0].username];
+            } else {
+              return ["", ""];
             }
-          );
-          connection.end();
-        });
+          });
+        connection.end();
         if (username == "") return Promise.resolve(undefined);
         session.user = {
           id,
@@ -164,24 +132,17 @@ const options = {
       } else {
         // Sign in with google
         const email = session.user.email;
-        const [id, username] = await new Promise((res) => {
-          const connection = createConnection({
-            host: process.env.MYSQL_HOST,
-            user: process.env.MYSQL_USER,
-            password: process.env.MYSQL_PASSWORD,
-            database: process.env.MYSQL_DATABASE,
-          });
-          connection.query(
-            "SELECT * FROM users WHERE email=?",
-            [email],
-            function (error, result) {
-              result.length > 0
-                ? res([result[0].id, result[0].username])
-                : res(["", ""]);
+        const connection = await connect();
+        const [id, username] = connection
+          .query("SELECT * FROM users WHERE email=?", [email])
+          .then((result) => {
+            if (result.length > 0) {
+              return [result[0].email, result[0].username];
+            } else {
+              return ["", ""];
             }
-          );
-          connection.end();
-        });
+          });
+        connection.end();
         if (id == "") return Promise.resolve(undefined);
         session.user = {
           id,

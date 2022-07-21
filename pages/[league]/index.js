@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Username from "../../components/Username";
 import { push } from "@socialgouv/matomo-next";
 import { getSession } from "next-auth/react";
+import connect from "../../Modules/database.mjs";
 
 // Creates the admin panel
 function AdminPanel({ user, league }) {
@@ -165,10 +166,9 @@ export default function Home({
   host,
 }) {
   // Calculates the current matchday
-  if (Object.values(historicalPoints).length == 0) {
-    var currentMatchday = 0;
-  } else {
-    var currentMatchday = Object.values(historicalPoints)[0].length;
+  let currentMatchday = 0;
+  if (Object.values(historicalPoints).length !== 0) {
+    currentMatchday = Object.values(historicalPoints)[0].length;
   }
   const [matchday, setmatchday] = useState(currentMatchday + 1);
   const [invites, setInvites] = useState(inviteLinks);
@@ -294,95 +294,62 @@ export async function getServerSideProps(ctx) {
   const session = await getSession(ctx);
   const user = session ? session.user.id : -1;
   // Gets the leaderboard for the league
-  const standings = new Promise((resolve) => {
-    const mysql = require("mysql");
-    var connection = mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-    });
-    connection.query(
+  const standings = new Promise(async (resolve) => {
+    const connection = await connect();
+    resolve(await connection.query(
       "SELECT user, points FROM leagueUsers WHERE leagueId=?",
       [ctx.params.league],
-      function (error, results, fields) {
-        connection.end();
-        resolve(results);
-      }
-    );
+    ));
+    connection.end();
   }).then((val) =>
     JSON.parse(JSON.stringify(val.sort((a, b) => b.points - a.points)))
   );
   // Gets the historical amount of points for every matchday in the league
-  const historicalPoints = new Promise((resolve) => {
-    const mysql = require("mysql");
-    var connection = mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-    });
-    connection.query(
+  const historicalPoints = new Promise(async (resolve) => {
+    const connection = await connect();
+    const results = await connection.query(
       "SELECT user, points, matchday FROM points WHERE leagueId=? ORDER BY matchday ASC",
-      [ctx.params.league],
-      function (error, results, fields) {
-        connection.end();
-        // Reformats the result into a dictionary that has an entry for each user and each entry for that user is an array of all the points the user has earned in chronological order.
-        if (results.length > 0) {
-          let points = {};
-          results.forEach((element) => {
-            if (points[element.user]) {
-              points[element.user].push(element.points);
-            } else {
-              points[element.user] = [element.points];
-            }
-          });
-          resolve(points);
+      [ctx.params.league]
+    );
+    connection.end();
+    // Reformats the result into a dictionary that has an entry for each user and each entry for that user is an array of all the points the user has earned in chronological order.
+    if (results.length > 0) {
+      let points = {};
+      results.forEach((element) => {
+        if (points[element.user]) {
+          points[element.user].push(element.points);
         } else {
-          resolve({});
+          points[element.user] = [element.points];
         }
-      }
-    );
+      });
+      resolve(points);
+    } else {
+      resolve({});
+    }
   }).then((val) => JSON.parse(JSON.stringify(val)));
-  const inviteLinks = new Promise((resolve) => {
+  const inviteLinks = new Promise(async (resolve) => {
     // Gets an array of invite links for this league
-    const mysql = require("mysql");
-    var connection = mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-    });
-    connection.query(
+    const connection = await connect();
+    const results = await connection.query(
       "SELECT inviteID FROM invite WHERE leagueId=?",
-      [ctx.params.league],
-      function (error, results, fields) {
-        connection.end();
-        // Turns the result into a list of valid invite links
-        let inviteLinks = [];
-        results.forEach((val) => {
-          inviteLinks.push(val.inviteID);
-        });
-        resolve(inviteLinks);
-      }
+      [ctx.params.league]
     );
+    connection.end();
+    // Turns the result into a list of valid invite links
+    let inviteLinks = [];
+    results.forEach((val) => {
+      inviteLinks.push(val.inviteID);
+    });
+    resolve(inviteLinks);
   }).then((val) => JSON.parse(JSON.stringify(val)));
   // Checks if the user is an admin
   const admin = new Promise(async (res) => {
-    const mysql = require("mysql");
-    const connection = mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-    });
-    connection.query(
+    const connection = await connect();
+    const result = await connection.query(
       "SELECT admin FROM leagueUsers WHERE admin=1 AND leagueID=? AND user=?",
-      [ctx.params.league, user],
-      function (error, result, field) {
-        res(result.length > 0);
-      }
+      [ctx.params.league, user]
     );
+    res(result.length > 0);
   });
   return await redirect(ctx, {
     user,

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { TransferPlayer as Player } from "../../components/Player";
 import { push } from "@socialgouv/matomo-next";
 import { SessionProvider } from "next-auth/react";
+import connect from "../../Modules/database.mjs";
 
 // Used for the selecting and unselecting of a position
 function Postion({ position, positions, setPositions }) {
@@ -42,9 +43,9 @@ export default function Home({
   const [showHidden, setShowHidden] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const [clubSearch, setClubSearch] = useState("");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     search(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, positions, orderBy, showHidden, clubSearch]);
   // Used to get the data for a list of transfers and money
   function transferData() {
@@ -80,7 +81,7 @@ export default function Home({
   useEffect(transferData, [league]);
   // Used to search the isNew is used to check if it should reload everything back from the start
   async function search(isNew) {
-    var length = -1;
+    let length = -1;
     if (!isNew) {
       if (finished) {
         return;
@@ -231,24 +232,18 @@ export default function Home({
 }
 
 export async function getServerSideProps(ctx) {
-  const mysql = require("mysql");
+  const connection = await connect();
   // Gets the amount of allowed transfers
-  const [allowedTransfers, duplicatePlayers] = await new Promise((res) => {
-    const connection = mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-    });
-    connection.query(
+  const [allowedTransfers, duplicatePlayers] = await connection
+    .query(
       "SELECT transfers, duplicatePlayers FROM leagueSettings WHERE leagueID=?",
-      [ctx.params.league],
-      function (error, result) {
-        result.length > 0
-          ? res([result[0].transfers, result[0].duplicatePlayers])
-          : res([0, 0]);
-      }
+      [ctx.params.league]
+    )
+    .then((result) => 
+      result.length > 0
+        ? [result[0].transfers, result[0].duplicatePlayers]
+        : [0, 0]
     );
-  });
+  connection.end();
   return await redirect(ctx, { allowedTransfers, duplicatePlayers });
 }
