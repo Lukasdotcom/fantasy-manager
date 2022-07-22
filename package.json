@@ -3,12 +3,17 @@
   "version": "1.1.5",
   "private": true,
   "scripts": {
-    "dev": "npm install; node scripts/entrypoint.mjs & next dev",
+    "dev": "export NODE_ENV=development; npm install; node scripts/entrypoint.mjs & next dev",
     "build": "npm ci; next build",
-    "start": "next build; node scripts/entrypoint.mjs & next start",
+    "start": "export NODE_ENV=production; npm run start2",
+    "start:test": "export NODE_ENV=test; npm run start2",
+    "start2": "node scripts/entrypoint.mjs & next build; next start",
     "lint": "next lint",
     "pretty": "npx prettier --check .",
-    "format": "npx prettier --write ."
+    "format": "npx prettier --write .",
+    "cypress:open": "cypress open",
+    "cypress": "wait-on http://127.0.0.1:3000; cypress run",
+    "start:no-build": "node scripts/entrypoint.mjs & next start"
   },
   "dependencies": {
     "@socialgouv/matomo-next": "1.4.0",
@@ -25,8 +30,11 @@
     "sqlite3": "5.0.10"
   },
   "devDependencies": {
+    "cypress": "10.3.1",
     "eslint": "8.20.0",
     "eslint-config-next": "12.2.2",
-    "prettier": "2.7.1"
+    "eslint-plugin-cypress": "2.12.1",
+    "prettier": "2.7.1",
+    "wait-on": "6.0.1"
   }
 }

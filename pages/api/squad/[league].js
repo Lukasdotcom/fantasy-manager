@@ -1,5 +1,6 @@
 import { getSession } from "next-auth/react";
 import connect from "../../../Modules/database.mjs";
+import { calcPoints } from "../../../scripts/update.mjs";
 
 export default async function handler(req, res) {
   const session = await getSession({ req });
@@ -48,7 +49,8 @@ export default async function handler(req, res) {
         function positionOpen(limit, position) {
           return new Promise(async (resolve, reject) => {
             const result = await connection.query(
-              `SELECT * FROM squad WHERE position='${position}'`
+              `SELECT * FROM squad WHERE position=? AND leagueID=? AND user=?`,
+              [position, league, user]
             );
             if (result.length > limit) {
               reject(`Not enough spots for ${position}`);
@@ -74,14 +76,14 @@ export default async function handler(req, res) {
               positionOpen(formation[2], "mid"),
               positionOpen(formation[3], "att"),
             ])
-              .catch((val) => {
-                res.status(500).end(val);
-              })
               .then(() => {
                 connection.query(
                   "UPDATE leagueUsers SET formation=? WHERE leagueID=? and user=?",
                   [JSON.stringify(formation), league, user]
                 );
+              })
+              .catch((val) => {
+                res.status(500).end(val.replace(/[^A-Za-z0-9 ]/g, ""));
               });
           } else {
             res.status(500).end("Invalid formation");
@@ -175,6 +177,8 @@ export default async function handler(req, res) {
             ).catch((e) => {
               res.status(500).end(e);
             });
+            // Has the point calculation update
+            calcPoints();
           }
         }
         // If no errors happened gives a succesful result

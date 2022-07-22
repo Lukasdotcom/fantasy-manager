@@ -2,13 +2,25 @@ import connect from "../Modules/database.mjs";
 import { updateData } from "./update.mjs";
 import version from "./../package.json" assert { type: "json" };
 import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
+import { unlink } from "fs";
+if (process.env.NODE_ENV !== "test") {
+  dotenv.config({ path: ".env.local" });
+} else {
+  dotenv.config({ path: ".env.test.local" });
+}
 // Used to tell the program what version of the database to use
 const currentVersion = "1.1.0";
 const date = new Date();
 let day = date.getDay();
 
 async function startUp() {
+  if (process.env.NODE_ENV === "test") {
+    await new Promise((res) => {
+      unlink(process.env.SQLITE, function () {
+        res();
+      });
+    });
+  }
   const connection = await connect();
   await Promise.all([
     // Used to store the users
@@ -108,7 +120,10 @@ async function startUp() {
   updateData();
   // Checks if this is the latest version and if it does adds data
   async function updateInfo() {
-    if (process.env.NODE_ENV === "development") {
+    if (
+      process.env.NODE_ENV === "development" ||
+      process.env.NODE_ENV === "test"
+    ) {
       console.log("Skipping update check due to being development enviroment");
       return;
     }

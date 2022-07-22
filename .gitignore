@@ -31,7 +31,13 @@ yarn-error.log*
 # vercel
 .vercel
 
-public/data.json
+# cypress
+cypress/screenshots
+cypress/videos
+
 cache
 docker-compose.yaml
 *.db
+public/*.js
+!.env.test.local
+!docker

@@ -46,7 +46,15 @@ export function Player({ data, children }) {
             </div>
           </div>
         </div>
-        {children}
+        <div
+          className="playerButton"
+          style={{
+            width: "min(30%, 230px)",
+            textAlign: "center",
+          }}
+        >
+          {children}
+        </div>
       </div>
     );
   } else {
@@ -104,7 +112,7 @@ export function TransferPlayer({
     // Checks if the transfer market is still open
     if (timeLeft <= 0) {
       PurchaseButton = (
-        <button disabled={true}>Transfer Market is closed</button>
+        <button disabled={true}>Transfer Market is Closed</button>
       );
       // Checks if the user is already purchasing the player
     } else if (ownership.filter((e) => e.buyer === user).length > 0) {
@@ -130,15 +138,13 @@ export function TransferPlayer({
       // Checks if the user owns the player and can sell the player
     } else if (ownership.filter((e) => e.owner === user).length > 0) {
       PurchaseButton = (
-        <button onClick={buySell}>
-          Sell for: {purchaseAmount / 1000000} M
-        </button>
+        <button onClick={buySell}>Sell for: {data.value / 1000000} M</button>
       );
       // Checks if the player is still purchasable
     } else if (
       duplicatePlayers <= ownership.filter((e) => !e.transfer).length
     ) {
-      PurchaseButton = <button disabled={true}>Player not for sale</button>;
+      PurchaseButton = <button disabled={true}>Player not for Sale</button>;
       // Checks if the player can be bought from the market
     } else if (duplicatePlayers > ownership.length) {
       if (data.value > money) {
@@ -180,7 +186,7 @@ export function TransferPlayer({
     // If no ownership data exists the player must not be owned by anyone
     if (timeLeft <= 0) {
       PurchaseButton = (
-        <button disabled={true}>Transfer Market is closed</button>
+        <button disabled={true}>Transfer Market is Closed</button>
       );
     } else if (data.value > money) {
       PurchaseButton = (
@@ -192,13 +198,7 @@ export function TransferPlayer({
       );
     }
   }
-  return (
-    <Player data={data}>
-      <div style={{ width: "min(30%, 230px)", textAlign: "center" }}>
-        {PurchaseButton}
-      </div>
-    </Player>
-  );
+  return <Player data={data}>{PurchaseButton}</Player>;
 }
 // Used for the squad. Field should be undefined unless they are on the bench and then it shoud give what positions are still open
 export function SquadPlayer({ uid, update, field, league }) {
@@ -217,12 +217,10 @@ export function SquadPlayer({ uid, update, field, league }) {
     MoveButton = "Move to Bench";
   } else {
     disabled = !field[data.position];
-    MoveButton = !disabled
-      ? "Move to Field"
-      : "Remove player from position to move this player onto field";
+    MoveButton = !disabled ? "Move to Field" : "Position is Full";
     if (data.locked) {
       disabled = true;
-      MoveButton = "Player has already played";
+      MoveButton = "Player has Already Played";
     }
   }
   return (

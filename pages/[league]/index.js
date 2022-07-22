@@ -177,9 +177,12 @@ export default function Home({
   if (matchday <= currentMatchday) {
     standings = [];
     Object.keys(historicalPoints).forEach((e) => {
-      standings.push({ user: e, points: historicalPoints[e][matchday] });
+      standings.push({
+        user: e,
+        points: historicalPoints[String(e)][matchday - 1],
+      });
     });
-    standings.sort((a, b) => a.points - b.points);
+    standings.sort((a, b) => b.points - a.points);
   }
   return (
     <>
