@@ -26,7 +26,5 @@ jobs:
       - run: npm run pretty
       # Installs packages
       - run: npm ci
-      # Builds the project
-      - run: npm run start:test
-      # Runs cypress
-      - run: npm run cypress
+      # Builds the project and runs cypress
+      - run: npm run start:test & npm run cypress

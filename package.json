@@ -12,7 +12,7 @@
     "pretty": "npx prettier --check .",
     "format": "npx prettier --write .",
     "cypress:open": "cypress open",
-    "cypress": "cypress run",
+    "cypress": "wait-on http://127.0.0.1:3000; cypress run",
     "start:no-build": "node scripts/entrypoint.mjs & next start"
   },
   "dependencies": {
