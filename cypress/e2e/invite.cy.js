@@ -56,7 +56,8 @@ describe("Invite User into league and change some league Settings and run throug
       .click()
       .then(() => {
         cy.setCookie("next-auth.session-token", user1);
-      }).then(() => {
+      })
+      .then(() => {
         cy.reload();
       });
     // Gives other user admin rights
@@ -199,15 +200,17 @@ describe("Invite User into league and change some league Settings and run throug
       .contains("Player not for Sale");
     cy.contains("Money left: 153M");
     // Has both players leave the league
-    cy.contains("Home").click()
-    cy.contains("Leave League").click().then(() => {
-      cy.setCookie("next-auth.session-token", user2);
-    })
-    .then(() => {
-      cy.reload()
-    });
-    cy.contains("Leave League").click()
-    cy.contains("Sign Out").click()
+    cy.contains("Home").click();
+    cy.contains("Leave League")
+      .click()
+      .then(() => {
+        cy.setCookie("next-auth.session-token", user2);
+      })
+      .then(() => {
+        cy.reload();
+      });
+    cy.contains("Leave League").click();
+    cy.contains("Sign Out").click();
     // Checks if the league is actually deleted
     cy.contains("Sign In/Sign Up").click();
     cy.get("#input-username-for-Sign\\ Up-provider").type("Invite 3");
