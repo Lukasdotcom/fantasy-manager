@@ -1,0 +1,331 @@
+{
+  "match_day_uid": "34",
+  "agent": {
+    "budget": 1000000,
+    "transfers_left": 0,
+    "bonus_transfers_left": 0,
+    "first_transaction": false,
+    "pending": false
+  },
+  "offerings": {
+    "offset": 0,
+    "per_page": 500,
+    "total_offerings": 569,
+    "sorted_by": "price",
+    "items": [
+      {
+        "buyable": false,
+        "active": true,
+        "interactive": false,
+        "denials_for_buying": ["already_in_selection"],
+        "transfer_value": 25800000,
+        "favorite": false,
+        "player": {
+          "uid": "ef5112a9f971a1e40966",
+          "external_uid": "DFL-OBJ-00000M",
+          "transfer_value": 25800000,
+          "statistics": {
+            "total_points": 448,
+            "average_points": 13,
+            "best_value_rank": 17,
+            "form": 11,
+            "popularity": 71,
+            "last_match_points": 11
+          },
+          "statistics_path": "https://fantasy.bundesliga.com/player_statistics/ef5112a9f971a1e40966",
+          "image_urls": {
+            "default": "https://i.bundesliga.com/player/dfl-obj-00000m-dfl-clu-00000g-dfl-sea-0001k5-200x200.png",
+            "1x": "https://i.bundesliga.com/player/dfl-obj-00000m-dfl-clu-00000g-dfl-sea-0001k5-050x050.png",
+            "2x": "https://i.bundesliga.com/player/dfl-obj-00000m-dfl-clu-00000g-dfl-sea-0001k5-100x100.png",
+            "3x": "https://i.bundesliga.com/player/dfl-obj-00000m-dfl-clu-00000g-dfl-sea-0001k5-150x150.png"
+          },
+          "nickname": "Robert Lewandowski",
+          "positions": ["att"],
+          "is_locked": false,
+          "is_eliminated": false,
+          "is_available": true,
+          "match_starts_in": 0,
+          "total_scores": { "att": 448, "def": 705, "mid": 551, "gk": 842 },
+          "team": {
+            "uid": "cb93bdb4138cc7c15950",
+            "team_code": "FCB",
+            "image_urls": {
+              "default": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png",
+              "1x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png?fit=50",
+              "2x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png?fit=100",
+              "3x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png?fit=150"
+            }
+          },
+          "next_opponent": { "team_code": "WOB", "match_venue": "away" }
+        },
+        "attendance": {
+          "forecast": "attending",
+          "details": [
+            { "key": "initial_state_in_squad", "args": { "state": "starter" } }
+          ]
+        }
+      },
+      {
+        "buyable": true,
+        "active": true,
+        "interactive": false,
+        "denials_for_buying": [],
+        "transfer_value": 21000000,
+        "favorite": false,
+        "player": {
+          "uid": "496071e6bc5e9ddb848b",
+          "external_uid": "DFL-OBJ-0000IA",
+          "transfer_value": 21000000,
+          "statistics": {
+            "total_points": 317,
+            "average_points": 10,
+            "best_value_rank": 15,
+            "form": 7,
+            "popularity": 11,
+            "last_match_points": 6
+          },
+          "statistics_path": "https://fantasy.bundesliga.com/player_statistics/496071e6bc5e9ddb848b",
+          "image_urls": {
+            "default": "https://i.bundesliga.com/player/dfl-obj-0000ia-dfl-clu-00000g-dfl-sea-0001k5-200x200.png",
+            "1x": "https://i.bundesliga.com/player/dfl-obj-0000ia-dfl-clu-00000g-dfl-sea-0001k5-050x050.png",
+            "2x": "https://i.bundesliga.com/player/dfl-obj-0000ia-dfl-clu-00000g-dfl-sea-0001k5-100x100.png",
+            "3x": "https://i.bundesliga.com/player/dfl-obj-0000ia-dfl-clu-00000g-dfl-sea-0001k5-150x150.png"
+          },
+          "nickname": "Thomas Müller",
+          "positions": ["att"],
+          "is_locked": false,
+          "is_eliminated": false,
+          "is_available": true,
+          "match_starts_in": 0,
+          "total_scores": { "att": 317, "def": 487, "mid": 363, "gk": 611 },
+          "team": {
+            "uid": "cb93bdb4138cc7c15950",
+            "team_code": "FCB",
+            "image_urls": {
+              "default": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png",
+              "1x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png?fit=50",
+              "2x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png?fit=100",
+              "3x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png?fit=150"
+            }
+          },
+          "next_opponent": { "team_code": "WOB", "match_venue": "away" }
+        },
+        "attendance": {
+          "forecast": "attending",
+          "details": [
+            { "key": "initial_state_in_squad", "args": { "state": "starter" } }
+          ]
+        }
+      },
+      {
+        "buyable": false,
+        "active": true,
+        "interactive": false,
+        "denials_for_buying": ["already_in_selection"],
+        "transfer_value": 20100000,
+        "favorite": false,
+        "player": {
+          "uid": "87963521baf120631131",
+          "external_uid": "DFL-OBJ-002G3D",
+          "transfer_value": 20100000,
+          "statistics": {
+            "total_points": 410,
+            "average_points": 12,
+            "best_value_rank": 20,
+            "form": 11,
+            "popularity": 30,
+            "last_match_points": 11
+          },
+          "statistics_path": "https://fantasy.bundesliga.com/player_statistics/87963521baf120631131",
+          "image_urls": {
+            "default": "https://i.bundesliga.com/player/dfl-obj-002g3d-dfl-clu-000017-dfl-sea-0001k5-200x200.png",
+            "1x": "https://i.bundesliga.com/player/dfl-obj-002g3d-dfl-clu-000017-dfl-sea-0001k5-050x050.png",
+            "2x": "https://i.bundesliga.com/player/dfl-obj-002g3d-dfl-clu-000017-dfl-sea-0001k5-100x100.png",
+            "3x": "https://i.bundesliga.com/player/dfl-obj-002g3d-dfl-clu-000017-dfl-sea-0001k5-150x150.png"
+          },
+          "nickname": "Christopher Nkunku",
+          "positions": ["mid"],
+          "is_locked": false,
+          "is_eliminated": false,
+          "is_available": true,
+          "match_starts_in": 0,
+          "total_scores": { "att": 348, "def": 533, "mid": 410, "gk": 654 },
+          "team": {
+            "uid": "eaf1829e14f15b9dff1d",
+            "team_code": "RBL",
+            "image_urls": {
+              "default": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Leipzig-RBL.png",
+              "1x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Leipzig-RBL.png?fit=50",
+              "2x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Leipzig-RBL.png?fit=100",
+              "3x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Leipzig-RBL.png?fit=150"
+            }
+          },
+          "next_opponent": { "team_code": "DSC", "match_venue": "away" }
+        },
+        "attendance": {
+          "forecast": "attending",
+          "details": [
+            { "key": "initial_state_in_squad", "args": { "state": "starter" } }
+          ]
+        }
+      },
+      {
+        "buyable": false,
+        "active": true,
+        "interactive": false,
+        "denials_for_buying": ["already_in_selection"],
+        "transfer_value": 19700000,
+        "favorite": false,
+        "player": {
+          "uid": "a4e3b74d3b62fbd6376b",
+          "external_uid": "DFL-OBJ-002G8I",
+          "transfer_value": 19700000,
+          "statistics": {
+            "total_points": 288,
+            "average_points": 12,
+            "best_value_rank": 15,
+            "form": 11,
+            "popularity": 62,
+            "last_match_points": 9
+          },
+          "statistics_path": "https://fantasy.bundesliga.com/player_statistics/a4e3b74d3b62fbd6376b",
+          "image_urls": {
+            "default": "https://i.bundesliga.com/player/dfl-obj-002g8i-dfl-clu-000007-dfl-sea-0001k5-200x200.png",
+            "1x": "https://i.bundesliga.com/player/dfl-obj-002g8i-dfl-clu-000007-dfl-sea-0001k5-050x050.png",
+            "2x": "https://i.bundesliga.com/player/dfl-obj-002g8i-dfl-clu-000007-dfl-sea-0001k5-100x100.png",
+            "3x": "https://i.bundesliga.com/player/dfl-obj-002g8i-dfl-clu-000007-dfl-sea-0001k5-150x150.png"
+          },
+          "nickname": "Erling Haaland",
+          "positions": ["att"],
+          "is_locked": false,
+          "is_eliminated": false,
+          "is_available": true,
+          "match_starts_in": 0,
+          "total_scores": { "att": 288, "def": 404, "mid": 346, "gk": 506 },
+          "team": {
+            "uid": "865dfce2666513576ffc",
+            "team_code": "BVB",
+            "image_urls": {
+              "default": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Dortmund-BVB.png",
+              "1x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Dortmund-BVB.png?fit=50",
+              "2x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Dortmund-BVB.png?fit=100",
+              "3x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Dortmund-BVB.png?fit=150"
+            }
+          },
+          "next_opponent": { "team_code": "BSC", "match_venue": "home" }
+        },
+        "attendance": {
+          "forecast": "attending",
+          "details": [
+            { "key": "initial_state_in_squad", "args": { "state": "starter" } }
+          ]
+        }
+      },
+      {
+        "buyable": false,
+        "active": true,
+        "interactive": false,
+        "denials_for_buying": ["already_in_selection"],
+        "transfer_value": 19300000,
+        "favorite": false,
+        "player": {
+          "uid": "57d8c553b7ee72c871c0",
+          "external_uid": "DFL-OBJ-0002F5",
+          "transfer_value": 19300000,
+          "statistics": {
+            "total_points": 256,
+            "average_points": 9,
+            "best_value_rank": 13,
+            "form": 8,
+            "popularity": 40,
+            "last_match_points": 11
+          },
+          "statistics_path": "https://fantasy.bundesliga.com/player_statistics/57d8c553b7ee72c871c0",
+          "image_urls": {
+            "default": "https://i.bundesliga.com/player/dfl-obj-0002f5-dfl-clu-00000g-dfl-sea-0001k5-200x200.png",
+            "1x": "https://i.bundesliga.com/player/dfl-obj-0002f5-dfl-clu-00000g-dfl-sea-0001k5-050x050.png",
+            "2x": "https://i.bundesliga.com/player/dfl-obj-0002f5-dfl-clu-00000g-dfl-sea-0001k5-100x100.png",
+            "3x": "https://i.bundesliga.com/player/dfl-obj-0002f5-dfl-clu-00000g-dfl-sea-0001k5-150x150.png"
+          },
+          "nickname": "Joshua Kimmich",
+          "positions": ["mid"],
+          "is_locked": false,
+          "is_eliminated": false,
+          "is_available": true,
+          "match_starts_in": 0,
+          "total_scores": { "att": 234, "def": 345, "mid": 256, "gk": 398 },
+          "team": {
+            "uid": "cb93bdb4138cc7c15950",
+            "team_code": "FCB",
+            "image_urls": {
+              "default": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png",
+              "1x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png?fit=50",
+              "2x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png?fit=100",
+              "3x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png?fit=150"
+            }
+          },
+          "next_opponent": { "team_code": "WOB", "match_venue": "away" }
+        },
+        "attendance": {
+          "forecast": "attending",
+          "details": [
+            { "key": "initial_state_in_squad", "args": { "state": "starter" } }
+          ]
+        }
+      },
+      {
+        "buyable": true,
+        "active": true,
+        "interactive": false,
+        "denials_for_buying": [],
+        "transfer_value": 19000000,
+        "favorite": false,
+        "player": {
+          "uid": "daa441f73441494721fc",
+          "external_uid": "DFL-OBJ-0002JQ",
+          "transfer_value": 19000000,
+          "statistics": {
+            "total_points": 283,
+            "average_points": 9,
+            "best_value_rank": 14,
+            "form": 8,
+            "popularity": 15,
+            "last_match_points": 10
+          },
+          "statistics_path": "https://fantasy.bundesliga.com/player_statistics/daa441f73441494721fc",
+          "image_urls": {
+            "default": "https://i.bundesliga.com/player/dfl-obj-0002jq-dfl-clu-00000f-dfl-sea-0001k5-200x200.png",
+            "1x": "https://i.bundesliga.com/player/dfl-obj-0002jq-dfl-clu-00000f-dfl-sea-0001k5-050x050.png",
+            "2x": "https://i.bundesliga.com/player/dfl-obj-0002jq-dfl-clu-00000f-dfl-sea-0001k5-100x100.png",
+            "3x": "https://i.bundesliga.com/player/dfl-obj-0002jq-dfl-clu-00000f-dfl-sea-0001k5-150x150.png"
+          },
+          "nickname": "Filip Kostić",
+          "positions": ["mid"],
+          "is_locked": false,
+          "is_eliminated": false,
+          "is_available": true,
+          "match_starts_in": 0,
+          "total_scores": { "att": 249, "def": 364, "mid": 283, "gk": 450 },
+          "team": {
+            "uid": "97362e9407f66680da23",
+            "team_code": "SGE",
+            "image_urls": {
+              "default": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Frankfurt-SGE.png",
+              "1x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Frankfurt-SGE.png?fit=50",
+              "2x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Frankfurt-SGE.png?fit=100",
+              "3x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Frankfurt-SGE.png?fit=150"
+            }
+          },
+          "next_opponent": { "team_code": "M05", "match_venue": "away" }
+        },
+        "attendance": {
+          "forecast": "attending",
+          "details": [
+            { "key": "initial_state_in_squad", "args": { "state": "starter" } }
+          ]
+        }
+      }
+    ]
+  },
+  "opening_hour": { "opened": false, "countdown": 0 }
+}

@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   // Is true if the user is in the league
   const inLeague = await connection
     .query("SELECT * FROM leagueUsers WHERE leagueID=? and user=?", [
-      req.query.leagueID,
+      req.body.leagueID,
       session.user.id,
     ])
     .then((res) => res.length > 0);
@@ -22,14 +22,20 @@ export default async function handler(req, res) {
   }
   switch (req.method) {
     case "POST": // Used to create a new invite link
-      await connection.query(
-        "INSERT INTO invite (inviteID, leagueID) VALUES(?, ?)",
-        [req.body.link, req.body.leagueID]
-      );
-      console.log(
-        `League ${req.body.leagueID} created invite link of ${req.body.link}`
-      );
-      res.status(200).end("Created Invite Link");
+      await connection
+        .query("INSERT INTO invite (inviteID, leagueID) VALUES(?, ?)", [
+          req.body.link,
+          req.body.leagueID,
+        ])
+        .then(() => {
+          console.log(
+            `League ${req.body.leagueID} created invite link of ${req.body.link}`
+          );
+          res.status(200).end("Created Invite Link");
+        })
+        .catch(() => {
+          res.status(500).end("Invite link taken");
+        });
       break;
     case "GET": // Used to get a list of invite links for a league
       const invites = await connection.query(

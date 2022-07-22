@@ -1,59 +1,62 @@
 import connect from "../Modules/database.mjs";
 // Used to update all the data
-export async function updateData() {
+export async function updateData(file = "../sample/data1.json") {
   const connection = await connect();
   const nowTime = parseInt(Date.now() / 1000);
   connection.query(
     "INSERT INTO data (value1, value2) VALUES('playerUpdate', ?) ON DUPLICATE KEY UPDATE value2=?",
     [nowTime, nowTime]
   );
-  const data = fetch(
-    "https://fantasy.bundesliga.com/api/player_transfers/init",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: `access_token=${process.env.BUNDESLIGA_API}`,
-      },
-      body: JSON.stringify({
-        payload: {
-          offerings_query: {
-            offset: 0,
-            limit: 1000,
-            sort: { order_by: "popularity", order_direction: "desc" },
+  // Gets the player data
+  const data =
+    process.env.NODE_ENV !== "test"
+      ? fetch("https://fantasy.bundesliga.com/api/player_transfers/init", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: `access_token=${process.env.BUNDESLIGA_API}`,
           },
-        },
-      }),
-    }
-  ).then(async (val) => {
-    return await val.json();
-  });
-  /*const data = fetch("http://localhost:3000/data.json").then(async (val) => {
-    return await val.json();
-  });*/
+          body: JSON.stringify({
+            payload: {
+              offerings_query: {
+                offset: 0,
+                limit: 1000,
+                sort: { order_by: "popularity", order_direction: "desc" },
+              },
+            },
+          }),
+        }).then(async (val) => {
+          return await val.json();
+        })
+      : Promise.resolve(
+          (await import(file, { assert: { type: "json" } })).default
+        );
   // Puts in the data if the transfermarket is open
   const oldTransfer = await connection
     .query("SELECT * FROM data WHERE value1='transferOpen'")
     .then((result) => {
       if (result.length == 0) {
-        return true;
+        return 0;
       } else {
-        return parseInt(result[0].value2) > 0;
+        return parseInt(result[0].value2);
       }
     });
   const countdown = (await data).opening_hour.countdown / 1000;
   const newTransfer = countdown > 3600 ? countdown - 3600 : 0;
-  connection.query(
+  await connection.query(
     "INSERT INTO data (value1, value2) VALUES('transferOpen', ?) ON DUPLICATE KEY UPDATE value2=?",
     [newTransfer, newTransfer]
   );
   // Goes through all of the players and adds their data to the database
   const players = (await data).offerings.items;
-  connection.query("UPDATE players SET `exists`=0");
-  players.forEach(async (val, i) => {
+  await connection.query("UPDATE players SET `exists`=0");
+  let index = 0;
+  while (index < players.length) {
+    let val = players[index];
+    index++;
     // Checks if it is a matchday
     if (newTransfer) {
-      connection.query(
+      await connection.query(
         "INSERT INTO players (uid, name, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1",
         [
           val.player.uid,
@@ -81,7 +84,7 @@ export async function updateData() {
         [val.player.uid]
       );
       if (playerExists.length == 0) {
-        connection.query(
+        await connection.query(
           "INSERT INTO players (uid, name, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)",
           [
             val.player.uid,
@@ -98,27 +101,29 @@ export async function updateData() {
           ]
         );
       } else {
-        connection.query(
-          "UPDATE players SET value=?, forecast=?, total_points=?, average_points=?, last_match=last_match+?, locked=?, `exists`=1 WHERE uid=?",
+        await connection.query(
+          "UPDATE players SET value=?, forecast=?, total_points=?, average_points=?, last_match=?, locked=?, `exists`=1 WHERE uid=?",
           [
             val.transfer_value,
             val.attendance.forecast[0],
             val.player.statistics.total_points,
             val.player.statistics.average_points,
-            val.player.statistics.total_points - playerExists[0].total_points,
+            playerExists[0].last_match +
+              val.player.statistics.total_points -
+              playerExists[0].total_points,
             val.player.is_locked,
             val.player.uid,
           ]
         );
       }
-      if (i == val.length - 1) connection.end();
     }
-  });
+  }
+  connection.end();
   console.log("Downloaded new data");
   // Checks if the matchday is running
   if (newTransfer == 0) {
     // Checks if the transfer market has just closed or has been closed for a while
-    oldTransfer > 0 !== newTransfer > 0 ? startMatchday() : calcPoints();
+    oldTransfer == 0 ? await calcPoints() : await startMatchday();
   }
 }
 
@@ -127,70 +132,77 @@ export async function startMatchday() {
   console.log("Starting matchday");
   const connection = await connect();
   const transfers = await connection.query("SELECT * FROM transfers");
-  transfers.forEach((e) => {
-    connection.query("DELETE FROM squad WHERE leagueID=? and playeruid=?", [
-      e.leagueID,
-      e.playeruid,
-    ]);
+  let index = 0;
+  while (index < transfers.length) {
+    let e = transfers[index];
+    index++;
+    await connection.query(
+      "DELETE FROM squad WHERE leagueID=? and playeruid=? and user=?",
+      [e.leagueID, e.playeruid, e.seller]
+    );
     if (e.buyer != 0) {
-      connection.query(
+      await connection.query(
         "INSERT INTO squad (leagueID, user, playeruid, position) VALUES(?, ?, ?, 'bench')",
         [e.leagueID, e.buyer, e.playeruid]
       );
     }
-  });
-  connection.query("DELETE FROM transfers");
+  }
+  await connection.query("DELETE FROM transfers");
   console.log("Simulated every transfer");
   // Goes through every transfer
-  connection.query("UPDATE players SET last_match=0");
+  await connection.query("UPDATE players SET last_match=0");
   // Sets up the points to 0 for every player in every league and sets up 0 points for that matchday
   const leagues = await connection.query(
     "SELECT leagueID, user, points FROM leagueUsers ORDER BY leagueID"
   );
   let currentleagueID = -1;
-  let matchday = Promise.resolve(1);
+  let matchday = 1;
+  index = 0;
   // Goes through every league and adds another matchday
-  await leagues.forEach(async (e) => {
+  while (index < leagues.length) {
+    let e = leagues[index];
+    index++;
     if (e.leagueID !== currentleagueID) {
       currentleagueID = e.leagueID;
       // Calculates the latest matchday for that league
-      matchday = new Promise((res) => {
-        connection
-          .query(
-            "SELECT matchday FROM points WHERE leagueID=? ORDER BY matchday DESC LIMIT 1",
-            [currentleagueID]
-          )
-          .then((result) => {
-            return result.length > 0 ? result[0].matchday + 1 : 1;
-          });
-      });
+      matchday = await connection
+        .query(
+          "SELECT matchday FROM points WHERE leagueID=? ORDER BY matchday DESC LIMIT 1",
+          [currentleagueID]
+        )
+        .then((result) => (result.length > 0 ? result[0].matchday + 1 : 1));
     }
-    connection.query(
+    await connection.query(
       "INSERT INTO points (leagueID, user, points, matchday) VALUES(?, ?, 0, ?)",
-      [e.leagueID, e.user, await matchday]
+      [e.leagueID, e.user, matchday]
     );
-  });
+  }
   connection.end();
-  calcPoints();
+  await calcPoints();
+  return;
 }
 // Used to calculate the points for every user
-async function calcPoints() {
+export async function calcPoints() {
   const connection = await connect();
   const leagueUsers = await connection.query(
     "SELECT leagueID, user, points FROM leagueUsers ORDER BY leagueID"
   );
-  leagueUsers.forEach(async (e) => {
-    const connection2 = await connect();
+  let index = 0;
+  let currentleagueID = -1;
+  let matchday = 1;
+  while (index < leagueUsers.length) {
+    let e = leagueUsers[index];
+    index++;
     const [oldPoints, newPoints] = await Promise.all([
       // Gets how many points the user had for the matchday with the previous calculation
-      connection2
+      connection
         .query(
           "SELECT points FROM points WHERE leagueID=? and user=? ORDER BY matchday DESC LIMIT 1",
           [e.leagueID, e.user]
         )
         .then((result) => result[0].points),
       // Calculates the amont of points the user should have for the matchday
-      connection2
+      connection
         .query(
           "SELECT SUM(last_match) FROM players WHERE EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND position!='bench' AND leagueID=? AND user=?)",
           [e.leagueID, e.user]
@@ -202,19 +214,30 @@ async function calcPoints() {
     ]);
     // Checks if the point calculations are off and if they are wrong they are updated
     if (oldPoints !== newPoints) {
-      connection2.query(
-        "UPDATE points SET points=? WHERE leagueID=? AND user=? ORDER BY matchday DESC LIMIT 1",
-        [newPoints, e.leagueID, e.user]
+      // Checks if the matchday might be different
+      if (e.leagueID !== currentleagueID) {
+        currentleagueID = e.leagueID;
+        // Calculates the latest matchday for that league
+        matchday = await connection
+          .query(
+            "SELECT matchday FROM points WHERE leagueID=? ORDER BY matchday DESC LIMIT 1",
+            [currentleagueID]
+          )
+          .then((result) => (result.length > 0 ? result[0].matchday : 1));
+      }
+      connection.query(
+        "UPDATE points SET points=? WHERE leagueID=? AND user=? AND matchday=?",
+        [newPoints, e.leagueID, e.user, matchday]
       );
-      connection2.query(
+      connection.query(
         "UPDATE leagueUsers SET points=? WHERE leagueID=? AND user=?",
         [e.points - oldPoints + newPoints, e.leagueID, e.user]
       );
     }
-    connection2.end();
-  });
+  }
   console.log("Updated user points");
   connection.end();
+  return;
 }
 export async function checkUpdate() {
   const connection = await connect();

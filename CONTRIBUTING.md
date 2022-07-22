@@ -3,7 +3,8 @@
 - [ ] Run `npm run format` to format everything with prettier.
 - [ ] Run `npm run lint` and fix all errors and new warnings.
 - [ ] Made sure that all database changes have update code in entrypoint.mjs.
-- [ ] Made sure to test your changes.
+- [ ] Made sure to test your changes whith [cypress](#cypress) by running `npm run start:test` and in another terminal `npm run cypress`. If this fails and you don't know why look in the [cypress section](#cypress).
+- [ ] If you added any features it would be great if you tested them with cypress(Not required).
 
 # How to run development enviroment
 
@@ -66,3 +67,17 @@ git clone https://github.com/lukasdotcom/Bundesliga
 4. Edit the BUNDESLIGA_API entry by getting the value as shown in the README
 5. Edit the volume and replace /locationToWhereThisGithubIsDownloaded with wherever this repository got downloaded to.
 6. Then run `docker-compose up`
+
+# Cypress
+
+## FAQs
+
+- Q: Why is the cypress test failing
+- A: If you made any major UI changes it may cause the test to fail. You may have to change the tests slightly.
+
+## How to Make Tests
+
+1. First run `npm run start:test` to start a testing server.
+2. Secondly run `npm run cypress:open` to open cypress itself.
+3. The tests will be located in the cypress/e2e folder.
+4. If you want to load custom data into the db on the player values and points put the data into the sample folder and load it like shown in the invite2.mjs file in the cypress/e2e direcotory.

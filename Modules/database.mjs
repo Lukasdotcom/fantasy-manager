@@ -2,7 +2,11 @@ import { createConnection } from "mysql";
 import dotenv from "dotenv";
 import { open } from "sqlite";
 import sqlite3 from "sqlite3";
-dotenv.config({ path: ".env.local" });
+if (process.env.NODE_ENV !== "test") {
+  dotenv.config({ path: ".env.local" });
+} else {
+  dotenv.config({ path: ".env.test.local" });
+}
 // Creates a connection
 export default async function connect() {
   // Checks if sqlite or mysql should be used
@@ -87,17 +91,22 @@ class connectionSqlite {
       /on duplicate key update/gi,
       "ON CONFLICT DO UPDATE SET"
     );
-    if (statement.slice(0, 12) === "CREATE TABLE")
-      statement = statement.replace(/ int /gi, " INTEGER ");
-    statement = statement.replace(/ varchar\\(.+?\\) /gi, " TEXT ");
-    statement = statement.replace(/ bool /gi, " NUMERIC ");
-    statement = statement.replace(/ AUTO_INCREMENT /gi, " AUTOINCREMENT ");
-    if (logError) console.log(statement);
     if (true) sqlite3.verbose();
     if (statement.slice(0, 6) === "SELECT") {
+      if (logError) console.log(statement);
       const result = await this.connection.all(statement, prepare);
       return Promise.resolve(result);
     } else {
+      if (
+        statement.slice(0, 12) === "CREATE TABLE" ||
+        statement.slice(0, 11) === "ALTER TABLE"
+      ) {
+        statement = statement.replace(/ int /gi, " INTEGER ");
+        statement = statement.replace(/ varchar\\(.+?\\) /gi, " TEXT ");
+        statement = statement.replace(/ bool /gi, " NUMERIC ");
+        statement = statement.replace(/ AUTO_INCREMENT /gi, " AUTOINCREMENT ");
+      }
+      if (logError) console.log(statement);
       await this.connection.run(statement, prepare);
       return Promise.resolve(undefined);
     }

@@ -4,9 +4,24 @@ import Head from "next/head";
 import { useState, useEffect } from "react";
 import { TransferPlayer as Player } from "../../components/Player";
 import { push } from "@socialgouv/matomo-next";
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
 import connect from "../../Modules/database.mjs";
 
+// Shows the amount of transfers left
+function TransfersLeft({ ownership, allowedTransfers, transferCount }) {
+  const session = useSession();
+  const user = session.data ? session.data.user.id : 1;
+  return (
+    <p>
+      {Object.values(ownership).filter(
+        (e) => e.filter((e) => e.owner === user).length > 0
+      ).length == 0
+        ? "Unlimited"
+        : allowedTransfers - transferCount}{" "}
+      transfers left
+    </p>
+  );
+}
 // Used for the selecting and unselecting of a position
 function Postion({ position, positions, setPositions }) {
   return (
@@ -144,7 +159,13 @@ export default function Home({
           }
         }}
       >
-        <p>{allowedTransfers - transferCount} transfers left</p>
+        <SessionProvider session={session}>
+          <TransfersLeft
+            ownership={ownership}
+            allowedTransfers={allowedTransfers}
+            transferCount={transferCount}
+          />
+        </SessionProvider>
         <p>Money left: {money / 1000000}M</p>
         {transferMessage}
         <label htmlFor="search">Search Player Name: </label>

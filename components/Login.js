@@ -4,12 +4,12 @@ import Link from "next/link";
 export default function Layout() {
   const { data: session } = useSession();
   if (!session) {
-    return <button onClick={signIn}>Sign in/Sign Up</button>;
+    return <button onClick={signIn}>Sign In/Sign Up</button>;
   } else {
     return (
       <>
         <Link href="/usermenu">Usermenu</Link>
-        <button onClick={signOut}>Sign out</button>
+        <button onClick={signOut}>Sign Out</button>
       </>
     );
   }

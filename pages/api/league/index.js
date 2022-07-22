@@ -20,12 +20,12 @@ export default async function handler(req, res) {
         }
         const startMoney = parseInt(req.body["Starting Money"]);
         if (startMoney > 10000) {
-          connection.query(
+          await connection.query(
             "INSERT INTO leagueSettings (leagueName, leagueID, startMoney) VALUES (?, ?, ?)",
             [req.body.name, id, startMoney]
           );
         } else {
-          connection.query(
+          await connection.query(
             "INSERT INTO leagueSettings (leagueName, leagueID) VALUES (?, ?)",
             [req.body.name, id]
           );
