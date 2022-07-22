@@ -3,7 +3,6 @@ import { updateData } from "./update.mjs";
 import version from "./../package.json" assert { type: "json" };
 import dotenv from "dotenv";
 import { unlink } from "fs";
-console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV !== "test") {
   dotenv.config({ path: ".env.local" });
 } else {
