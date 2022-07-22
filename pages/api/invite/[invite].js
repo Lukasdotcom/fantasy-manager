@@ -15,7 +15,7 @@ export default async function handler(req, res) {
       res.redirect(308, "/404").end();
       return;
     }
-    invite = result[0];
+    invite = invite[0];
     // Gets the info for the league
     let leagueName = await connection.query(
       "SELECT * FROM leagueSettings WHERE leagueID=?",
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       // Checks if the user has already joined the league
       const leagueUsers = await connection.query(
         "SELECT * FROM leagueUsers WHERE leagueId=? and user=?",
-        [result.leagueID, session.user.id]
+        [invite.leagueID, session.user.id]
       );
       // Adds the user in the database if they have not joined yet
       if (leagueUsers.length == 0) {
@@ -56,7 +56,6 @@ export default async function handler(req, res) {
             console.log(
               `Player ${session.user.id} joined league ${invite.leagueID}`
             );
-            resolve();
           });
       }
       res.redirect(308, `/${invite.leagueID}`).end();

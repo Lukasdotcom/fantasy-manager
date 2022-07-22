@@ -11,10 +11,12 @@ export default async function handler(req, res) {
       case "POST":
         // Checks if the user is qualified to do this
         if (
-          (await connection.query(
-            "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
-            [league, session.user.id]
-          ).length) > 0
+          (
+            await connection.query(
+              "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
+              [league, session.user.id]
+            )
+          ).length > 0
         ) {
           if (req.body.users !== undefined) {
             if (req.body.users.forEach !== undefined) {
@@ -62,9 +64,9 @@ export default async function handler(req, res) {
         ) {
           // Gets the settings and admin status for users
           const [settings, users] = await Promise.all([
-            connection.query("SELECT * FROM leagueSettings WHERE leagueID=?", [
-              league,
-            ]),
+            connection
+              .query("SELECT * FROM leagueSettings WHERE leagueID=?", [league])
+              .then((res) => res[0]),
             connection.query(
               "SELECT user, admin FROM leagueUsers WHERE leagueID=?",
               [league]

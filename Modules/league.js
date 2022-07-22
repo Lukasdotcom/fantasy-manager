@@ -27,10 +27,7 @@ export default async function redirect(ctx, data) {
     }
   } else {
     const leagueExists = await connection
-      .query("SELECT * FROM leagueSettings WHERE leagueID=?", [
-        league,
-        session.user.id,
-      ])
+      .query("SELECT * FROM leagueSettings WHERE leagueID=?", [league])
       .then((res) => res.length > 0);
     connection.end();
     if (leagueExists) {

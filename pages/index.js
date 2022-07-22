@@ -27,7 +27,7 @@ function MakeLeague({ getLeagueData }) {
       <br></br>
       <label htmlFor="name">League name:</label>
       <input
-        htmlFor="name"
+        id="name"
         value={leagueName}
         onChange={(val) => {
           setLeagueName(val.target.value);

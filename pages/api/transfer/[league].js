@@ -43,7 +43,11 @@ export default async function handler(req, res) {
           let ownership = {};
           let transferCount = 0;
           squads.forEach((e) => {
-            ownership[e.playeruid] = [{ transfer: false, owner: e.owner }];
+            if (ownership[e.playeruid] === undefined) {
+              ownership[e.playeruid] = [{ transfer: false, owner: e.user }];
+            } else {
+              ownership[e.playeruid].push({ transfer: false, owner: e.user });
+            }
           });
           transfers.forEach((e) => {
             const data = {
@@ -55,7 +59,9 @@ export default async function handler(req, res) {
             if (ownership[e.playeruid] === undefined) {
               ownership[e.playeruid] = [data];
             } else {
-              ownership[e.playeruid].filter((f) => e.seller !== f.owner);
+              ownership[e.playeruid] = ownership[e.playeruid].filter(
+                (f) => e.seller !== f.owner
+              );
               ownership[e.playeruid].push(data);
             }
             if (e.seller == user || e.buyer == user) {
