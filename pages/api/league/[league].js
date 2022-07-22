@@ -79,7 +79,7 @@ export default async function handler(req, res) {
         break;
       case "DELETE":
         // Used to leave a league
-        connection.query(
+        await connection.query(
           "DELETE FROM leagueUsers WHERE leagueID=? and user=?",
           [league, session.user.id]
         );
@@ -104,7 +104,7 @@ export default async function handler(req, res) {
         const isEmpty = await connection
           .query("SELECT * FROM leagueUsers WHERE leagueID=?", [league])
           .then((res) => res.length == 0);
-        if (isEmpty == 0) {
+        if (isEmpty) {
           connection.query("DELETE FROM invite WHERE leagueID=?", [league]);
           connection.query("DELETE FROM transfers WHERE leagueID=?", [league]);
           connection.query("DELETE FROM leagueSettings WHERE leagueId=?", [

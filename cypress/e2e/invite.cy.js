@@ -56,8 +56,9 @@ describe("Invite User into league and change some league Settings and run throug
       .click()
       .then(() => {
         cy.setCookie("next-auth.session-token", user1);
+      }).then(() => {
+        cy.reload();
       });
-    cy.reload();
     // Gives other user admin rights
     cy.get('[type="checkbox"]').check();
     cy.contains("Save all Admin Settings").click();

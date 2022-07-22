@@ -6,13 +6,13 @@
     "dev": "export NODE_ENV=development; npm install; node scripts/entrypoint.mjs & next dev",
     "build": "npm ci; next build",
     "start": "export NODE_ENV=production; npm run start2",
+    "start:test": "export NODE_ENV=test; npm run start2",
     "start2": "node scripts/entrypoint.mjs & next build; next start",
     "lint": "next lint",
     "pretty": "npx prettier --check .",
     "format": "npx prettier --write .",
     "cypress:open": "cypress open",
-    "cypress": "export NODE_ENV=test; npm run start2 & wait-on http://localhost:3000; cypress run",
-    "cypress:dev": "export NODE_ENV=test; npm run start2;"
+    "cypress": "wait-on http://127.0.0.1:3000; cypress run"
   },
   "dependencies": {
     "@socialgouv/matomo-next": "1.4.0",
