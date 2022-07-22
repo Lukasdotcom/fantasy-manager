@@ -69,10 +69,14 @@ git clone https://github.com/lukasdotcom/Bundesliga
 6. Then run `docker-compose up`
 
 # Cypress
+
 ## FAQs
+
 - Q: Why is the cypress test failing
 - A: If you made any major UI changes it may cause the test to fail. You may have to change the tests slightly.
+
 ## How to Make Tests
+
 1. First run `npm run start:test` to start a testing server.
 2. Secondly run `npm run cypress:open` to open cypress itself.
 3. The tests will be located in the cypress/e2e folder.
