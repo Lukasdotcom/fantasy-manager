@@ -23,4 +23,4 @@ Add any other context or screenshots about the feature request here.
 
 **A Quick Question**
 
-- [ ] Are you willing to work on this.
+- [ ] Are you willing to work on this?
