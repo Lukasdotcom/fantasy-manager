@@ -83,7 +83,7 @@ export default async function handler(req, res) {
                 );
               })
               .catch((val) => {
-                res.status(500).end(val);
+                res.status(500).end(val.replace(/[^A-Za-z0-9 ]/g, ""));
               });
           } else {
             res.status(500).end("Invalid formation");
