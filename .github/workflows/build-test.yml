@@ -24,6 +24,8 @@ jobs:
           cache: "npm"
       # Makes sure the code is formatted correctly
       - run: npm run pretty
+      # Installs packages
+      - run: npm ci
       # Builds the project
       - run: npm run start:test
       # Runs cypress
