@@ -1,0 +1,28 @@
+version: "2.1"
+services:
+  bundesliga:
+    image: lukasdotcom/bundesliga:1 # Change 1 to nightly if you want to be using the bleeding edge and latest if you want the last stable release. Major versions may have trouble between upgrades read the release before upping the major version.
+    container_name: bundesliga
+    links:
+      - db
+    environment:
+      - NEXTAUTH_URL=http://localhost # The url of the server
+      - SQLITE=/mnt/bundesliga.db
+      - MIN_UPDATE_TIME=120 # Minimum amount of seconds to pass before the data updates on Fri, Sat, and Sun to prevent spamming the api.
+      - BUNDESLIGA_API= # How to get this value is in the README
+      # Get your oauth 2.0 details for sign in with google and fill it in below
+      - GOOGLE_ID=none
+      - GOOGLE_SECRET=none
+      - NEXTAUTH_SECRET= # run openssl rand -base64 32 and plug the result into this
+      - BCRYPT_ROUNDS=9 # The number of rounds the password should be hashed
+      # Uncomment the MATOMO enviromental variables and fill them out if you want to use matomo analytics
+      #- NEXT_PUBLIC_MATOMO_URL=
+      #- NEXT_PUBLIC_MATOMO_SITE_ID=
+    ports:
+      - 80:3000
+    restart: always
+    volumes:
+      - bundesliga:/mnt
+volumes:
+  bundesliga:
+    external: true
