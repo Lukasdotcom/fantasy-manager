@@ -31,4 +31,4 @@ jobs:
       # Builds the project
       - run: npm run build
       # Runs cypress tests
-      - run: npm run start2 & npm run cypress
+      - run: npm run start:test & npm run cypress
