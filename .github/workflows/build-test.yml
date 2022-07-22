@@ -1,4 +1,4 @@
-name: Cypress and Build
+name: Build
 
 on:
   push:
@@ -25,6 +25,4 @@ jobs:
       # Makes sure the code is formatted correctly
       - run: npm run pretty
       # Installs packages
-      - run: npm ci
-      # Builds the project and runs cypress
-      - run: npm run start:test & npm run cypress
+      - run: npm run build
