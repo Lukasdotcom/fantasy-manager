@@ -12,7 +12,8 @@
     "pretty": "npx prettier --check .",
     "format": "npx prettier --write .",
     "cypress:open": "cypress open",
-    "cypress": "wait-on http://127.0.0.1:3000; cypress run"
+    "cypress": "cypress run",
+    "start:no-build": "node scripts/entrypoint.mjs & next start"
   },
   "dependencies": {
     "@socialgouv/matomo-next": "1.4.0",
@@ -33,7 +34,6 @@
     "eslint": "8.20.0",
     "eslint-config-next": "12.2.2",
     "eslint-plugin-cypress": "2.12.1",
-    "prettier": "2.7.1",
-    "wait-on": "6.0.1"
+    "prettier": "2.7.1"
   }
 }
