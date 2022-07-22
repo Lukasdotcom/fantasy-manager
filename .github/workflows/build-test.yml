@@ -10,12 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      NODE_ENV: development
+      NODE_ENV: test
     strategy:
       matrix:
         node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -26,15 +25,6 @@ jobs:
       # Makes sure the code is formatted correctly
       - run: npm run pretty
       # Builds the project
-      - run: npm run build
+      - run: npm run start:test
       # Runs cypress
-      - name: Cypress run
-        uses: cypress-io/github-action@v4
-        with:
-          start: npm run start:no-build
-          # quote the url to be safe against YML parsing surprises
-          wait-on: "http://127.0.0.1:3000"
-          # Makes sure that it does not wait forever for the server to start
-          wait-on-timeout: 120
-        env:
-          NODE_ENV: test
+      - run: npm run cypress
