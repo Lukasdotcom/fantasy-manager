@@ -1,3 +1,4 @@
+
 version: "2.1"
 services:
   bundesliga:
@@ -7,7 +8,10 @@ services:
       - db
     environment:
       - NEXTAUTH_URL=http://localhost # The url of the server
-      - SQLITE=/mnt/bundesliga.db
+      - MYSQL_USER=bundesliga
+      - MYSQL_PASSWORD=password
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=bundesliga
       - MIN_UPDATE_TIME=120 # Minimum amount of seconds to pass before the data updates on Fri, Sat, and Sun to prevent spamming the api.
       - BUNDESLIGA_API= # How to get this value is in the README
       # Get your oauth 2.0 details for sign in with google and fill it in below
@@ -21,8 +25,16 @@ services:
     ports:
       - 80:3000
     restart: always
+  db:
+    image: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_USER=bundesliga
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=bundesliga
+    restart: always
     volumes:
-      - bundesliga:/mnt
+      - bundesliga:/var/lib/mysql
 volumes:
   bundesliga:
     external: true

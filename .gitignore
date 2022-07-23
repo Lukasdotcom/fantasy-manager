@@ -40,4 +40,4 @@ docker-compose.yaml
 *.db
 public/*.js
 !.env.test.local
-!docker/sqlite/docker-compose.yaml
+!docker/mariadb/docker-compose.yaml

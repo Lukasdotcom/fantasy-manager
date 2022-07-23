@@ -6,9 +6,9 @@ This is meant to be an open source self hosted version of the official bundeslig
 
 ## Production or Installation
 
-There are 2 options to run this Sqlite and Mariadb. If you are unsure I would recommend Mariadb.
+There are 2 options to run this Sqlite and Mariadb. If you are unsure I would recommend sqlite it is faster.
 
-### Mariadb
+### Sqlite
 
 1. First download this file and edit the file to your preferences.
 
@@ -22,12 +22,12 @@ wget 'https://raw.githubusercontent.com/Lukasdotcom/Bundesliga/main/docker/docke
 docker-compose up
 ```
 
-### Sqlite
+### Mariadb
 
 1. First download this file and edit the file to your preferences.
 
 ```
-wget 'https://raw.githubusercontent.com/Lukasdotcom/Bundesliga/main/docker/sqlite/docker-compose.yaml'
+wget 'https://raw.githubusercontent.com/Lukasdotcom/Bundesliga/main/docker/mariadb/docker-compose.yaml'
 ```
 
 2. Then run this.
