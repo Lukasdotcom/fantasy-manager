@@ -28,4 +28,3 @@ jobs:
       - run: npm run pretty
       # Runs eslint
       - run: npm run lint
-      
