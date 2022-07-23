@@ -8,7 +8,7 @@
     "start": "export NODE_ENV=production; npm run start2",
     "start:test": "export NODE_ENV=test; npm run start2",
     "start2": "node scripts/entrypoint.mjs & next build; next start",
-    "lint": "next lint",
+    "lint": "next lint --max-warnings 0",
     "pretty": "npx prettier --check .",
     "format": "npx prettier --write .",
     "cypress:open": "cypress open",
