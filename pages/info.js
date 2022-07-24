@@ -38,7 +38,7 @@ export default function Home({ session }) {
       </p>
       <h2>Installing as an App</h2>
       <p>
-        I don&apos;t really want ot pay $100 to get an apple developer license
+        I don&apos;t really want to pay $100 to get an apple developer license
         so there is not an app you can install from the app store or play store.
         But if you want something close to an app you can install a PWA. This
         will look like a regular app but won&apos;t cost me anything to host. To
