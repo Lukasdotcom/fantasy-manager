@@ -152,7 +152,10 @@ export default async function authenticate(req, res) {
     // Only adds sign in with github and google if they are setup by the server owner
     if (
       !(process.env.GITHUB_ID === undefined || process.env.GITHUB_ID === "") &&
-      !(process.env.GITHUB_SECRET === undefined || process.env.GITHUB_SECRET === "")
+      !(
+        process.env.GITHUB_SECRET === undefined ||
+        process.env.GITHUB_SECRET === ""
+      )
     ) {
       options.providers = [
         GithubProvider({
@@ -164,7 +167,10 @@ export default async function authenticate(req, res) {
     }
     if (
       !(process.env.GOOGLE_ID === undefined || process.env.GOOGLE_ID === "") &&
-      !(process.env.GOOGLE_SECRET === undefined || process.env.GOOGLE_SECRET === "") 
+      !(
+        process.env.GOOGLE_SECRET === undefined ||
+        process.env.GOOGLE_SECRET === ""
+      )
     ) {
       options.providers = [
         GoogleProvider({
