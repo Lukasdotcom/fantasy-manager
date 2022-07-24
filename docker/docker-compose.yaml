@@ -10,9 +10,11 @@ services:
       - SQLITE=/mnt/bundesliga.db
       - MIN_UPDATE_TIME=120 # Minimum amount of seconds to pass before the data updates on Fri, Sat, and Sun to prevent spamming the api.
       - BUNDESLIGA_API= # How to get this value is in the README
-      # Get your oauth 2.0 details for sign in with google and fill it in below
-      - GOOGLE_ID=
-      - GOOGLE_SECRET=
+      # Get your oauth details for sign in with google or github and fill it in below(not required)
+      #- GOOGLE_ID=
+      #- GOOGLE_SECRET=
+      #- GITHUB_ID=
+      #- GITHUB_SECRET=
       - NEXTAUTH_SECRET= # run openssl rand -base64 32 and plug the result into this
       - BCRYPT_ROUNDS=9 # The number of rounds the password should be hashed
       # Uncomment the MATOMO enviromental variables and fill them out if you want to use matomo analytics
