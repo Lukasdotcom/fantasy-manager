@@ -5,6 +5,7 @@
 This is meant to be an open source self hosted version of the official bundesliga fantasy. If you want to try this out use my hosted version which is located [here](https://bundesliga.lschaefer.xyz)![](https://uptime.lschaefer.xyz/api/badge/15/uptime/720?label=30&labelSuffix=d). For any questions feel free to post a question in the discussions tab.
 
 ## Features
+
 1. Completly free and open source.
 2. Unlimited users and unlimited leagues.
 3. Customize starting money.
