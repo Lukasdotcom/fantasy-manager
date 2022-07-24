@@ -137,7 +137,7 @@ const options = {
           .query("SELECT * FROM users WHERE email=?", [email])
           .then((result) => {
             if (result.length > 0) {
-              return [result[0].email, result[0].username];
+              return [result[0].id, result[0].username];
             } else {
               return ["", ""];
             }
