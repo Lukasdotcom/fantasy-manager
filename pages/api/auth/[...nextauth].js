@@ -2,27 +2,18 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import connect from "../../../Modules/database.mjs";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GithubProvider from "next-auth/providers/github";
 
+let ran = false;
 const options = {
   // Configure one or more authentication providers
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code",
-        },
-      },
-    }),
     CredentialsProvider({
       // Used to sign in
       id: "Sign In",
       name: "Sign In",
       credentials: {
-        username: { label: "Username", type: "username" },
+        username: { label: "Username/Email", type: "username" },
         password: { label: "Password", type: "password" },
       },
       // Used to make sure that the credentails are correct
@@ -85,7 +76,7 @@ const options = {
   callbacks: {
     async signIn({ account, profile, user }) {
       // Will make sure that if this was sign in with google only a verified user loggs in.
-      if (account.provider === "google") {
+      if (account.provider === "google" || account.provider === "github") {
         const connection = await connect();
         // Checks if the user has already registered and if no then the user is created
         const registered = await connection
@@ -98,7 +89,8 @@ const options = {
           );
         }
         connection.end();
-        return profile.email_verified;
+        if (account.provider === "google") return profile.email_verified;
+        return true;
       }
       return user;
     },
@@ -107,7 +99,7 @@ const options = {
       // Checks if the user is logged in
       if (!session) return Promise.resolve(session);
       if (!session.user) return Promise.resolve(session);
-      // Checks if this is signed in through google or not
+      // Checks if this is signed in through google/github or not
       if (parseInt(session.user.email) > 0) {
         const connection = await connect();
         // Normal sign in
@@ -156,5 +148,46 @@ const options = {
 };
 
 export default async function authenticate(req, res) {
+  if (ran === false) {
+    // Only adds sign in with github and google if they are setup by the server owner
+    if (
+      !(process.env.GITHUB_ID === undefined || process.env.GITHUB_ID === "") &&
+      !(
+        process.env.GITHUB_SECRET === undefined ||
+        process.env.GITHUB_SECRET === ""
+      )
+    ) {
+      options.providers = [
+        GithubProvider({
+          clientId: process.env.GITHUB_ID,
+          clientSecret: process.env.GITHUB_SECRET,
+        }),
+        ...options.providers,
+      ];
+    }
+    if (
+      !(process.env.GOOGLE_ID === undefined || process.env.GOOGLE_ID === "") &&
+      !(
+        process.env.GOOGLE_SECRET === undefined ||
+        process.env.GOOGLE_SECRET === ""
+      )
+    ) {
+      options.providers = [
+        GoogleProvider({
+          clientId: process.env.GOOGLE_ID,
+          clientSecret: process.env.GOOGLE_SECRET,
+          authorization: {
+            params: {
+              prompt: "consent",
+              access_type: "offline",
+              response_type: "code",
+            },
+          },
+        }),
+        ...options.providers,
+      ];
+    }
+    ran = true;
+  }
   await NextAuth(req, res, options);
 }
