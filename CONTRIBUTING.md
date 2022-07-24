@@ -18,7 +18,7 @@ There are 2 ways to run the development enviroment [Native](#native) and [Docker
 
 **This is the reccommended way.**
 
-1. If you want to use the easier way and use sqlite skip to step 8.
+1. If you want to use the recommended and easier way and use sqlite skip to step 8.
 2. First [install mysql](https://dev.mysql.com/downloads/mysql).
 3. When you are installing it will ask for the root user password. Enter whatever you want just remember the password.
 4. When you are done installing open a terminal and type the following `mysql -u "root" -p` then press enter.

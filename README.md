@@ -4,6 +4,25 @@
 
 This is meant to be an open source self hosted version of the official bundesliga fantasy. If you want to try this out use my hosted version which is located [here](https://bundesliga.lschaefer.xyz)![](https://uptime.lschaefer.xyz/api/badge/15/uptime/720?label=30&labelSuffix=d). For any questions feel free to post a question in the discussions tab.
 
+## Features
+1. Completly free and open source.
+2. Unlimited users and unlimited leagues.
+3. Customize starting money.
+4. Limit transfer amount
+   1. Note all users are allowed unlimited transfers while they have an empty squad
+5. Ability to allow players to be bought by multiple users in the same league.
+6. Ranking tables for(Only in leagues):
+   1. Top points for every matchday
+   2. Top points in total
+7. Many ways to search through players:
+   1. By price
+   2. By total points
+   3. By average points
+   4. By the last match points(Requires the server to have been up for the last match day)
+   5. By Club
+   6. By Name
+   7. By Position
+
 ## Production or Installation
 
 There are 2 options to run this Sqlite and Mariadb. If you are unsure I would recommend sqlite it is faster.
