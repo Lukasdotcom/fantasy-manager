@@ -21,7 +21,7 @@
     "dotenv": "16.0.1",
     "mysql": "2.18.1",
     "next": "12.2.3",
-    "next-auth": "4.10.2",
+    "next-auth": "4.10.3",
     "next-pwa": "5.5.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
