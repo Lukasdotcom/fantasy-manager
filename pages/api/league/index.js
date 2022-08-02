@@ -40,7 +40,7 @@ export default async function handler(req, res) {
           .then((res) => parseInt(res[0].value2) == 0);
         if (transferClosed) {
           connection.query(
-            "INSERT INTO points (leagueID, user, points, matchday) VALUES(?, ?, 0, 1)",
+            "INSERT INTO points (leagueID, user, points, matchday, time) VALUES(?, ?, 0, 1, 0)",
             [id, session.user.id]
           );
         }

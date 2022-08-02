@@ -47,6 +47,8 @@ export async function updateData(file = "../sample/data1.json") {
     "INSERT INTO data (value1, value2) VALUES('transferOpen', ?) ON DUPLICATE KEY UPDATE value2=?",
     [newTransfer, newTransfer]
   );
+  // Checks if the transfer market is closing
+  if (newTransfer > 0 && oldTransfer == 0) endMatchday();
   // Goes through all of the players and adds their data to the database
   const players = (await data).offerings.items;
   await connection.query("UPDATE players SET `exists`=0");
@@ -129,6 +131,7 @@ export async function updateData(file = "../sample/data1.json") {
 
 // Used to start the matchday
 export async function startMatchday() {
+  const startTime = parseInt(Date.now() / 1000);
   console.log("Starting matchday");
   const connection = await connect();
   const transfers = await connection.query("SELECT * FROM transfers");
@@ -181,8 +184,77 @@ export async function startMatchday() {
   await calcPoints();
   return;
 }
+// Runs when the matchday ends
+async function endMatchday() {
+  console.log("Ending Matchday")
+  // Calculates all the points
+  await calcPoints();
+  const connection = await connect();
+  const time = parseInt(Date.now() / 1000);
+  // Makes sure all the points have the right time set for them
+  connection.query("UPDATE points SET time=? WHERE time IS NULL", [time])
+  // Copies all the player data to the historical player data
+  const players = await connection.query("SELECT * FROM players");
+  let counter = 0;
+  console.log("Archiving player data");
+  while (players.length > counter) {
+    const player = players[counter];
+    counter++;
+    connection.query(
+      "INSERT INTO historicalPlayers (time, uid, name, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, `exists`), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        time,
+        player.uid,
+        player.name,
+        player.club,
+        player.pictureUrl,
+        player.value,
+        player.position,
+        player.forecast,
+        player.total_points,
+        player.average_points,
+        player.last_match,
+        player.exists,
+      ]
+    );
+  }
+  // Copies all squads into the historical squads
+  const squads = await connection.query("SELECT * FROM sqaud ORDER BY leagueID DESC");
+  counter = 0;
+  let matchday = 1;
+  let currentleagueID = 0;
+  console.log("Archiving user squads");
+  while (squads.length > counter) {
+    const squad = squads[counter];
+    counter++;
+    // Checks if the leagues matchday has already been calculated
+    if (squad.leagueID !== currentleagueID) {
+      currentleagueID = e.leagueID;
+      // Calculates the latest matchday for that league
+      matchday = await connection
+        .query(
+          "SELECT matchday FROM points WHERE leagueID=? ORDER BY matchday DESC LIMIT 1",
+          [currentleagueID]
+        )
+        .then((result) => (result.length > 0 ? result[0].matchday : 1));
+    }
+    connection.query(
+      "INSERT INTO historicalSquad (time, matchday, leagueID, user, playeruid, position), (?, ?, ?, ?, ?, ?)",
+      [
+        matchday,
+        squad.leagueID,
+        squad.user,
+        squad.playeruid,
+        squad.position,
+      ]
+    );
+  }
+  connection.end();
+  return;
+}
 // Used to calculate the points for every user
 export async function calcPoints() {
+  console.log("Calculating player points")
   const connection = await connect();
   const leagueUsers = await connection.query(
     "SELECT leagueID, user, points FROM leagueUsers ORDER BY leagueID"
