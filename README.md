@@ -26,7 +26,7 @@ This is meant to be an open source self hosted version of the official bundeslig
 
 ## Production or Installation
 
-There are 2 options to run this Sqlite and Mariadb. If you are unsure I would recommend sqlite it is faster.
+There are 2 options to run this Sqlite and Mariadb. If you are unsure I would recommend sqlite it is faster. If you would like to install this without docker-compose you can use the (Non-Docker)
 
 ### Sqlite
 
@@ -54,6 +54,20 @@ wget 'https://raw.githubusercontent.com/Lukasdotcom/Bundesliga/main/docker/maria
 
 ```
 docker-compose up
+```
+
+### Non Docker
+
+1. First clone this git repository
+
+```
+git clone https://github.com/lukasdotcom/Bundesliga
+```
+
+2. Run the command below and the webserver will be exposed on port 3000
+
+```
+npm run start
 ```
 
 ## Development
