@@ -199,6 +199,21 @@ describe("Invite User into league and change some league Settings and run throug
       .children("button")
       .contains("Player not for Sale");
     cy.contains("Money left: 153M");
+    cy.contains("Standings").click();
+    cy.get("tbody > :nth-child(3) > :nth-child(3) > button").click();
+    cy.get(':nth-child(17) > [style="width: 70%;"] > :nth-child(1)').contains(
+      "Thomas Müller"
+    );
+    cy.get(":nth-child(17) > .playerButton > p").contains("Selling for 21.1M");
+    cy.get("#matchday").select("1");
+    cy.get(':nth-child(6) > [style="width: 70%;"] > :nth-child(1)').contains(
+      "Robert Lewandowski"
+    );
+    cy.get(':nth-child(16) > [style="width: 70%;"] > :nth-child(1)').contains(
+      "Robert Lewandowski"
+    );
+    cy.contains("19.7 M");
+    // Looks at the historical data for all the users
     // Has both players leave the league
     cy.contains("Home").click();
     cy.contains("Leave League")

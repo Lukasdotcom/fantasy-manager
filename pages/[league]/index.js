@@ -6,6 +6,7 @@ import Username from "../../components/Username";
 import { push } from "@socialgouv/matomo-next";
 import { getSession } from "next-auth/react";
 import connect from "../../Modules/database.mjs";
+import Link from "next/link";
 
 // Creates the admin panel
 function AdminPanel({ user, league }) {
@@ -120,12 +121,12 @@ function AdminPanel({ user, league }) {
 // Shows some simple UI for each user in the table
 function User({ name, points }) {
   return (
-    <tr>
+    <>
       <td>
         <Username id={name} />
       </td>
       <td>{points}</td>
-    </tr>
+    </>
   );
 }
 // Used to show all the invites that exist and to delete an individual invite
@@ -202,15 +203,25 @@ export default function Home({
             </th>
           </tr>
           {standings.map((val) => (
-            <User
-              name={val.user}
-              key={val.user}
-              points={
-                matchday > currentMatchday
-                  ? val.points
-                  : historicalPoints[val.user][matchday - 1]
-              }
-            />
+            <tr key={val.user}>
+              <User
+                name={val.user}
+                points={
+                  matchday > currentMatchday
+                    ? val.points
+                    : historicalPoints[val.user][matchday - 1]
+                }
+              />
+              <td>
+                <Link
+                  href={`/${league}/${val.user}/${
+                    matchday > currentMatchday ? "" : matchday
+                  }`}
+                >
+                  <button>Click to View Squad at point in history</button>
+                </Link>
+              </td>
+            </tr>
           ))}
         </tbody>
       </table>

@@ -6,10 +6,18 @@ export default async function handler(req, res) {
     const connection = await connect();
     // Checks if new data needs to be requested
     checkUpdate();
-    const result = await connection.query(
-      `SELECT * FROM players WHERE uid=? LIMIT 1`,
-      [req.query.uid]
-    );
+    let result = [];
+    if (parseInt(req.query.time) > 0) {
+      result = await connection.query(
+        "SELECT * FROM historicalPlayers WHERE uid=? AND time=?",
+        [req.query.uid, parseInt(req.query.time)]
+      );
+    } else {
+      result = await connection.query(
+        `SELECT * FROM players WHERE uid=? LIMIT 1`,
+        [req.query.uid]
+      );
+    }
     // Checks if the player exists
     if (result.length > 0) {
       res.status(200).json(result[0]);

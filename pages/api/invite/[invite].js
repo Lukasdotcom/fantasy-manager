@@ -37,20 +37,24 @@ export default async function handler(req, res) {
         );
         // Makes sure to add 0 point matchdays for every matchday that has already happened.
         await connection
-          .query(
-            "SELECT * FROM points WHERE leagueID=? ORDER BY points DESC",
-            [invite.leagueID]
-          )
+          .query("SELECT * FROM points WHERE leagueID=? ORDER BY points DESC", [
+            invite.leagueID,
+          ])
           .then(async (point) => {
             let matchday = 0;
             if (point.length > 0) {
               matchday = point[0].matchday;
             }
             while (matchday > 0) {
-              const time = point.filter((a) => a.matchday === matchday)
+              const time = point.filter((a) => a.matchday === matchday);
               connection.query(
-                "INSERT INTO points (leagueID, user, points, matchday, time) VALUES(?, ?, 0, ?, ?)",
-                [invite.leagueID, session.user.id, matchday, time.length > 0 ? time[0].time : 0]
+                "INSERT INTO points (leagueID, user, points, matchday, time, money) VALUES(?, ?, 0, ?, ?, 0)",
+                [
+                  invite.leagueID,
+                  session.user.id,
+                  matchday,
+                  time.length > 0 ? time[0].time : 0,
+                ]
               );
               matchday--;
             }

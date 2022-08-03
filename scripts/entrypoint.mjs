@@ -69,7 +69,7 @@ async function startUp() {
     ),
     // Used to store historical transfer data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalTransfers (matchday int, seller int, buyer int, playeruid varchar(25), value int)"
+      "CREATE TABLE IF NOT EXISTS historicalTransfers (matchday int, leagueID int, seller int, buyer int, playeruid varchar(25), value int)"
     ),
   ]);
   // Checks the version of the database is out of date
@@ -116,9 +116,9 @@ async function startUp() {
       oldVersion = "1.1.0";
     }
     if (oldVersion == "1.1.0") {
-      await connection.query("ALTER TABLE points ADD time int")
-      connection.query("UPDATE points SET time=0")
-      oldVersion = "1.2.0"
+      await connection.query("ALTER TABLE points ADD time int");
+      connection.query("UPDATE points SET time=0");
+      oldVersion = "1.2.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date
@@ -201,7 +201,7 @@ async function update() {
         } else {
           console.log(`Predicting start of matchday in ${time} seconds`);
           // Makes sure to wait until the time is done
-          setTimeout(updateData(), time * 1000 + 1)
+          setTimeout(updateData, time * 1000 + 1);
         }
       }
     }
