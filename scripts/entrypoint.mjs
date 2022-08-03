@@ -118,7 +118,7 @@ async function startUp() {
     if (oldVersion == "1.1.0") {
       console.log("Updating database to version 1.2.0");
       await connection.query("ALTER TABLE points ADD time int");
-      connection.query("UPDATE points SET time=0");
+      await connection.query("UPDATE points SET time=0");
       oldVersion = "1.2.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
