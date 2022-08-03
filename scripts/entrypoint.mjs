@@ -9,7 +9,7 @@ if (process.env.NODE_ENV !== "test") {
   dotenv.config({ path: ".env.test.local" });
 }
 // Used to tell the program what version of the database to use
-const currentVersion = "1.1.0";
+const currentVersion = "1.2.0";
 const date = new Date();
 let day = date.getDay();
 
@@ -45,7 +45,7 @@ async function startUp() {
     ),
     // Used to store the Historical Points
     connection.query(
-      "CREATE TABLE IF NOT EXISTS points (leagueID int, user int, points int, matchday int)"
+      "CREATE TABLE IF NOT EXISTS points (leagueID int, user int, points int, matchday int, money int, time int)"
     ),
     // Used to store transfers
     connection.query(
@@ -58,6 +58,18 @@ async function startUp() {
     // Used to store player squads
     connection.query(
       "CREATE TABLE IF NOT EXISTS squad (leagueID int, user int, playeruid varchar(25), position varchar(5))"
+    ),
+    // Used to store historical squads
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS historicalSquad (matchday int, leagueID int, user int, playeruid varchar(25), position varchar(5))"
+    ),
+    // Used to store historical player data
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool)"
+    ),
+    // Used to store historical transfer data
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS historicalTransfers (matchday int, leagueID int, seller int, buyer int, playeruid varchar(25), value int)"
     ),
   ]);
   // Checks the version of the database is out of date
@@ -102,6 +114,12 @@ async function startUp() {
       connection.query("ALTER TABLE leagueUsers ADD admin bool DEFAULT 0");
       connection.query("UPDATE leagueUsers SET admin=1");
       oldVersion = "1.1.0";
+    }
+    if (oldVersion == "1.1.0") {
+      console.log("Updating database to version 1.2.0");
+      await connection.query("ALTER TABLE points ADD time int");
+      await connection.query("UPDATE points SET time=0");
+      oldVersion = "1.2.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date
@@ -182,8 +200,9 @@ async function update() {
             [time - 10]
           );
         } else {
-          console.log("Predicted start of matchday");
-          updateData();
+          console.log(`Predicting start of matchday in ${time} seconds`);
+          // Makes sure to wait until the time is done
+          setTimeout(updateData, time * 1000 + 1);
         }
       }
     }

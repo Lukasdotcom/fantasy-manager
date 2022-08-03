@@ -5,7 +5,7 @@ import { push } from "@socialgouv/matomo-next";
 import { useSession } from "next-auth/react";
 import Username from "../components/Username";
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
-export function Player({ data, children }) {
+function InternalPlayer({ data, children }) {
   let background = "black";
   if (Object.keys(data).length > 0) {
     // Changes the background to the correct color if the player is missing or not known if they are coming
@@ -198,7 +198,7 @@ export function TransferPlayer({
       );
     }
   }
-  return <Player data={data}>{PurchaseButton}</Player>;
+  return <InternalPlayer data={data}>{PurchaseButton}</InternalPlayer>;
 }
 // Used for the squad. Field should be undefined unless they are on the bench and then it shoud give what positions are still open
 export function SquadPlayer({ uid, update, field, league }) {
@@ -224,7 +224,7 @@ export function SquadPlayer({ uid, update, field, league }) {
     }
   }
   return (
-    <Player data={data}>
+    <InternalPlayer data={data}>
       <button
         onClick={() => {
           push(["trackEvent", "Move Player", league, uid]);
@@ -249,6 +249,30 @@ export function SquadPlayer({ uid, update, field, league }) {
       >
         {MoveButton}
       </button>
-    </Player>
+    </InternalPlayer>
   );
+}
+// Used to show the player without any buttons
+export function Player({ uid, children }) {
+  const [data, setData] = useState({});
+  // Used to get the data for the player
+  useEffect(() => {
+    async function getData() {
+      setData(await (await fetch(`/api/player/${uid}`)).json());
+    }
+    getData();
+  }, [uid]);
+  return <InternalPlayer data={data}> {children}</InternalPlayer>;
+}
+// Used to show the player with historical data
+export function HistoricalPlayer({ uid, time, children }) {
+  const [data, setData] = useState({});
+  // Used to get the data for the player
+  useEffect(() => {
+    async function getData() {
+      setData(await (await fetch(`/api/player/${uid}?time=${time}`)).json());
+    }
+    getData();
+  }, [uid, time]);
+  return <InternalPlayer data={data}> {children}</InternalPlayer>;
 }

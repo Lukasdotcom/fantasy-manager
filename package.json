@@ -1,6 +1,6 @@
 {
   "name": "bundesliga",
-  "version": "1.1.5",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "dev": "export NODE_ENV=development; npm install; node scripts/entrypoint.mjs & next dev",
@@ -9,8 +9,8 @@
     "start:test": "export NODE_ENV=test; npm run start2",
     "start2": "node scripts/entrypoint.mjs & next build; next start",
     "lint": "next lint --max-warnings 0",
-    "pretty": "npx prettier --check .",
-    "format": "npx prettier --write .",
+    "pretty": "prettier --check .",
+    "format": "prettier --write .",
     "cypress:open": "cypress open",
     "cypress": "wait-on http://127.0.0.1:3000; cypress run",
     "start:no-build": "node scripts/entrypoint.mjs & next start"

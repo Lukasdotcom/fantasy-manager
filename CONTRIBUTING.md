@@ -73,7 +73,7 @@ git clone https://github.com/lukasdotcom/Bundesliga
 ## FAQs
 
 - Q: Why is the cypress test failing
-- A: If you made any major UI changes it may cause the test to fail. You may have to change the tests slightly.
+- A: If you made any major UI changes it may cause the test to fail. You may have to change the tests slightly(For help with making tests go to [How to Make Tests](#how-to-make-tests)). Otherwise there should be a video and a picture in the cypress/videos or cypress/screenshots directories.
 
 ## How to Make Tests
 
