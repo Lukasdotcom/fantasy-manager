@@ -15,6 +15,7 @@ describe("User", () => {
     cy.get("#username").should("value", "Sample User");
     cy.get("#username").clear();
     cy.get("#username").type("New Sample Username");
+    cy.contains("Change Username").click()
     cy.get('[href="/usermenu"]').click();
     cy.get("#username").should("value", "New Sample Username");
     cy.get("#password").type("New Password");

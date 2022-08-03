@@ -17,26 +17,28 @@ export default function Home({ session, user }) {
       <input
         onChange={(e) => {
           // Used to change the username
-          if (e.target.value !== "") {
-            fetch(`/api/user`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                username: e.target.value,
-              }),
-            }).then(async (response) => {
-              if (!response.ok) {
-                alert(await response.text());
-              }
-            });
-          }
           setUsername(e.target.value);
         }}
         value={username}
         id="username"
       ></input>
+      <button onClick={() => {
+        if (username !== "") {
+          fetch(`/api/user`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              username
+            }),
+          }).then(async (response) => {
+            if (!response.ok) {
+              alert(await response.text());
+            }
+          });
+        }
+      }}>Change Username</button>
       <br></br>
       <label htmlFor="password">
         Edit password(Empty password means that password authentication is
