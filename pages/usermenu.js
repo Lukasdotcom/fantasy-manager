@@ -17,14 +17,21 @@ export default function Home({ session, user }) {
       <input
         onChange={(e) => {
           // Used to change the username
-          if (e.target.value !== "") {
+          setUsername(e.target.value);
+        }}
+        value={username}
+        id="username"
+      ></input>
+      <button
+        onClick={() => {
+          if (username !== "") {
             fetch(`/api/user`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                username: e.target.value,
+                username,
               }),
             }).then(async (response) => {
               if (!response.ok) {
@@ -32,11 +39,10 @@ export default function Home({ session, user }) {
               }
             });
           }
-          setUsername(e.target.value);
         }}
-        value={username}
-        id="username"
-      ></input>
+      >
+        Change Username
+      </button>
       <br></br>
       <label htmlFor="password">
         Edit password(Empty password means that password authentication is
