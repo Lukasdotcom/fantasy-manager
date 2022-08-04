@@ -6,6 +6,7 @@ import { TransferPlayer as Player } from "../../components/Player";
 import { push } from "@socialgouv/matomo-next";
 import { SessionProvider, useSession } from "next-auth/react";
 import connect from "../../Modules/database.mjs";
+import Link from "next/link";
 
 // Shows the amount of transfers left
 function TransfersLeft({ ownership, allowedTransfers, transferCount }) {
@@ -232,6 +233,9 @@ export default function Home({
           player is not attending, and pink that the player will not earn points
           anytime soon(Sell these players).
         </p>
+        <button>
+          <Link href="/download">Download Player Data</Link>
+        </button>
         <SessionProvider session={session}>
           {players.map((val) => (
             <Player
