@@ -131,10 +131,12 @@ async function startUp() {
         connection.query(
           "ALTER TABLE leagueSettings ADD starredPercentage int DEFAULT 150"
         ),
+      ]);
+      await Promise.all([
         connection.query("UPDATE squad SET starred=0"),
         connection.query("UPDATE historicalSquad SET starred=0"),
         connection.query("UPDATE leagueSettings SET starredPercentage=150"),
-      ]);
+      ])
       oldVersion = "1.3.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
