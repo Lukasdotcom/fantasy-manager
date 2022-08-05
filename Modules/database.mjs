@@ -34,7 +34,7 @@ export default async function connect() {
       });
       if (error) {
         counter++;
-        console.log("Failed to connect to database");
+        console.error("Failed to connect to database");
         connect.end();
         if (counter > 10) throw "Could not connect to database";
       }
