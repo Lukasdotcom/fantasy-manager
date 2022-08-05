@@ -41,7 +41,9 @@ export async function updateData(file = "../sample/data1.json") {
         return parseInt(result[0].value2);
       }
     });
-  const countdown = (await data).opening_hour.countdown / 1000;
+  const countdown = (await data).opening_hour.opened
+    ? (await data).opening_hour.countdown / 1000
+    : 0;
   const newTransfer = countdown > 3600 ? countdown - 3600 : 0;
   await connection.query(
     "INSERT INTO data (value1, value2) VALUES('transferOpen', ?) ON DUPLICATE KEY UPDATE value2=?",
