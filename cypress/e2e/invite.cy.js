@@ -142,9 +142,7 @@ describe("Invite User into league and change some league Settings and run throug
       .children(".playerButton")
       .contains("Star")
       .click();
-    cy.contains("Erling Haaland")
-      .parent()
-      .contains("0 X Star")
+    cy.contains("Erling Haaland").parent().contains("0 X Star");
     // Sims matchday until all players have played
     cy.exec("export NODE_ENV=test; node cypress/e2e/invite3.mjs");
     // Checks that the user points are correct
@@ -218,7 +216,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get(':nth-child(6) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
-    cy.get('[alt="starred"]')
+    cy.get('[alt="starred"]');
     cy.get(":nth-child(17) > .playerButton > p").contains("Selling for 21.1M");
     cy.get("#matchday").select("1");
     cy.get(':nth-child(6) > [style="width: 70%;"] > :nth-child(1)').contains(

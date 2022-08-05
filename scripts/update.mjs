@@ -281,9 +281,13 @@ async function endMatchday() {
 export async function calcPoints() {
   const connection = await connect();
   // Makes sure that the transfer season is running
-  if (await connection.query("SELECT value2 FROM data WHERE value1='transferOpen'").then((result) => result.length > 0 ? result[0].value2 !== "0" : true)) {
-    connection.end()
-    return
+  if (
+    await connection
+      .query("SELECT value2 FROM data WHERE value1='transferOpen'")
+      .then((result) => (result.length > 0 ? result[0].value2 !== "0" : true))
+  ) {
+    connection.end();
+    return;
   }
   console.log("Calculating player points");
   const leagueUsers = await connection.query(

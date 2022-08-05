@@ -27,7 +27,10 @@ export default function Home({ session, league, starredPercentage }) {
       const val = await e.json();
       let players = { att: [], mid: [], def: [], gk: [], bench: [] };
       val.players.forEach((e) => {
-        players[e.position].push({"playeruid" : e.playeruid, "starred" : e.starred});
+        players[e.position].push({
+          playeruid: e.playeruid,
+          starred: e.starred,
+        });
       });
       setFormation(val.formation);
       setSquad(players);
@@ -94,7 +97,13 @@ export default function Home({ session, league, starredPercentage }) {
         (
           e // Used to get the players for the attack
         ) => (
-          <Player uid={e.playeruid} key={e.playeruid} league={league} starred={e.starred} update={getSquad} />
+          <Player
+            uid={e.playeruid}
+            key={e.playeruid}
+            league={league}
+            starred={e.starred}
+            update={getSquad}
+          />
         )
       )}
       <h2>Midfielders</h2>
@@ -102,7 +111,13 @@ export default function Home({ session, league, starredPercentage }) {
         (
           e // Used to get the players for the mid
         ) => (
-          <Player uid={e.playeruid} key={e.playeruid} league={league} starred={e.starred} update={getSquad} />
+          <Player
+            uid={e.playeruid}
+            key={e.playeruid}
+            league={league}
+            starred={e.starred}
+            update={getSquad}
+          />
         )
       )}
       <h2>Defense</h2>
@@ -110,7 +125,13 @@ export default function Home({ session, league, starredPercentage }) {
         (
           e // Used to get the players for the defense
         ) => (
-          <Player uid={e.playeruid} key={e.playeruid} league={league} starred={e.starred} update={getSquad} />
+          <Player
+            uid={e.playeruid}
+            key={e.playeruid}
+            league={league}
+            starred={e.starred}
+            update={getSquad}
+          />
         )
       )}
       <h2>Goalkeeper</h2>
@@ -118,7 +139,12 @@ export default function Home({ session, league, starredPercentage }) {
         (
           e // Used to get the player for the goalkeeper
         ) => (
-          <Player uid={e.playeruid} key={e.playeruid} league={league} update={getSquad} />
+          <Player
+            uid={e.playeruid}
+            key={e.playeruid}
+            league={league}
+            update={getSquad}
+          />
         )
       )}
       <h2>Bench</h2>

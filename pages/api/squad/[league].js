@@ -93,32 +93,45 @@ export default async function handler(req, res) {
         if (star !== undefined) {
           if (star.map !== undefined) {
             await Promise.all(
-              star.map((e) => 
-                new Promise(async (resolve, rej) => {
-                  const player = String(e);
-                  // Checks if the player is on the bench
-                  const position = await connection
-                  .query(
-                    "SELECT position FROM squad WHERE user=? AND leagueID=? AND playeruid=?", [user, league, player]
-                  )
-                  .then((result) =>
-                    result.length > 0
-                      ? result[0].position
-                      : "bench"
-                  )
-                  if (position !== "bench") {
-                    if (await connection.query("SELECT locked FROM players WHERE uid=? AND locked=0", [player]).then((result) => result.length > 0)) {
-                      console.log(`User ${user} starred player ${e}`)
-                      await connection.query("UPDATE squad SET starred=0 WHERE user=? AND position=? AND leagueID=?", [user, position, league]);
-                      await connection.query("UPDATE squad SET starred=1 WHERE user=? AND playeruid=? AND leagueID=?", [user, player, league]);
-                      resolve();
+              star.map(
+                (e) =>
+                  new Promise(async (resolve, rej) => {
+                    const player = String(e);
+                    // Checks if the player is on the bench
+                    const position = await connection
+                      .query(
+                        "SELECT position FROM squad WHERE user=? AND leagueID=? AND playeruid=?",
+                        [user, league, player]
+                      )
+                      .then((result) =>
+                        result.length > 0 ? result[0].position : "bench"
+                      );
+                    if (position !== "bench") {
+                      if (
+                        await connection
+                          .query(
+                            "SELECT locked FROM players WHERE uid=? AND locked=0",
+                            [player]
+                          )
+                          .then((result) => result.length > 0)
+                      ) {
+                        console.log(`User ${user} starred player ${e}`);
+                        await connection.query(
+                          "UPDATE squad SET starred=0 WHERE user=? AND position=? AND leagueID=?",
+                          [user, position, league]
+                        );
+                        await connection.query(
+                          "UPDATE squad SET starred=1 WHERE user=? AND playeruid=? AND leagueID=?",
+                          [user, player, league]
+                        );
+                        resolve();
+                      } else {
+                        rej("Player already played");
+                      }
                     } else {
-                      rej("Player already played")
+                      rej("Player is not in the field");
                     }
-                  } else {
-                    rej("Player is not in the field");
-                  }
-                })
+                  })
               )
             ).catch((e) => {
               res.status(500).end(e);
@@ -218,7 +231,8 @@ export default async function handler(req, res) {
         // Has the point calculation update
         calcPoints();
         // If no errors happened gives a succesful result
-        if (res.statusMessage === undefined) res.status(200).end("Succesfully did commands");
+        if (res.statusMessage === undefined)
+          res.status(200).end("Succesfully did commands");
         break;
       default:
         res.status(405).end(`Method ${req.method} Not Allowed`);

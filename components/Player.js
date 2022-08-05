@@ -26,7 +26,14 @@ function InternalPlayer({ data, children, starred }) {
         </div>
         <Image alt="" src={data.pictureUrl} width="130px" height="130px" />
         <div style={{ width: "70%" }}>
-          <p>{data.name}{starred ? <Image alt="starred" src="/star.svg" width="20px" height="20px" /> : ""}</p>
+          <p>
+            {data.name}
+            {starred ? (
+              <Image alt="starred" src="/star.svg" width="20px" height="20px" />
+            ) : (
+              ""
+            )}
+          </p>
           <div className={playerStyles.innerContainer}>
             <div>
               <p>Total</p>
@@ -38,7 +45,10 @@ function InternalPlayer({ data, children, starred }) {
             </div>
             <div>
               <p>Last Match</p>
-              <p>{data.last_match}{starred ? " X Star" : ""}</p>
+              <p>
+                {data.last_match}
+                {starred ? " X Star" : ""}
+              </p>
             </div>
             <div>
               <p>Value</p>
@@ -249,26 +259,30 @@ export function SquadPlayer({ uid, update, field, league, starred }) {
       >
         {MoveButton}
       </button>
-      { (starred === false || starred === 0) && !data.locked && 
-        <button onClick={() => {
-          push(["trackEvent", "Star Player", league, uid]);
-          fetch(`/api/squad/${league}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              star: [uid],
-            }),
-          })
-            .then(async (response) => {
-              if (!response.ok) {
-                alert(await response.text());
-              }
+      {(starred === false || starred === 0) && !data.locked && (
+        <button
+          onClick={() => {
+            push(["trackEvent", "Star Player", league, uid]);
+            fetch(`/api/squad/${league}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                star: [uid],
+              }),
             })
-            .then(update);
-        }}>Star</button>
-      }
+              .then(async (response) => {
+                if (!response.ok) {
+                  alert(await response.text());
+                }
+              })
+              .then(update);
+          }}
+        >
+          Star
+        </button>
+      )}
     </InternalPlayer>
   );
 }
@@ -282,7 +296,12 @@ export function Player({ uid, children, starred }) {
     }
     getData();
   }, [uid]);
-  return <InternalPlayer data={data} starred={starred}> {children}</InternalPlayer>;
+  return (
+    <InternalPlayer data={data} starred={starred}>
+      {" "}
+      {children}
+    </InternalPlayer>
+  );
 }
 // Used to show the player with historical data
 export function HistoricalPlayer({ uid, time, children, starred }) {
@@ -294,5 +313,10 @@ export function HistoricalPlayer({ uid, time, children, starred }) {
     }
     getData();
   }, [uid, time]);
-  return <InternalPlayer data={data} starred={starred}> {children}</InternalPlayer>;
+  return (
+    <InternalPlayer data={data} starred={starred}>
+      {" "}
+      {children}
+    </InternalPlayer>
+  );
 }
