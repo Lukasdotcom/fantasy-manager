@@ -3,7 +3,7 @@
   background: #0000bb;
   color: #fff;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   overflow-x: scroll;
 }
 
