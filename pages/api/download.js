@@ -32,7 +32,7 @@ export default async function handler(req, res) {
           uid: "Uid",
           name: "Name",
           club: "Club",
-          "Picture Url": "pictureUrl",
+          pictureUrl: "Picture Url",
           value: "Value",
           position: "Position",
           forecast: "Forecast",
