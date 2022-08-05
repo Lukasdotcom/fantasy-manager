@@ -5,16 +5,23 @@ import Menu from "../components/Menu";
 import connect from "../Modules/database.mjs";
 export default function Home({ session, historicalTimes }) {
   const [matchday, setMatchday] = useState("");
+  const [showHidden, setShowHidden] = useState(false);
   // Tracks the kind of download
   function download(type) {
     if (matchday !== "") push(["trackEvent", "Download", "Time", matchday]);
     push(["trackEvent", "Download", "Type", type]);
+    push([
+      "trackEvent",
+      "Download",
+      "Show Hidden",
+      showHidden ? "true" : "false",
+    ]);
   }
   // Generates the download link
   function downloadLink(type) {
     return `/api/download?type=${type}${
       matchday !== "" ? `&time=${matchday}` : ""
-    }`;
+    }${showHidden ? "&showHidden=true" : ""}`;
   }
   return (
     <>
@@ -40,6 +47,18 @@ export default function Home({ session, historicalTimes }) {
         })}
         <option value="">Latest</option>
       </select>
+      <br></br>
+      <label htmlFor="showHidden">
+        Download hidden players in addition to all other ones:{" "}
+      </label>
+      <input
+        id="showHidden"
+        type="checkbox"
+        checked={showHidden}
+        onChange={(e) => {
+          setShowHidden(e.target.checked);
+        }}
+      ></input>
       <br></br>
       <button
         onClick={() => {
