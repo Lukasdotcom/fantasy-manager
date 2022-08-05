@@ -11,13 +11,11 @@ export async function getServerSideProps(ctx) {
   const league = ctx.params.league;
   const matchday = ctx.params.matchday;
   // Checks if the matchday exists
-  if (
-    (
-      await connection.query("SELECT * FROM points WHERE matchday=?", [
-        matchday,
-      ])
-    ).length === 0
-  ) {
+  const timeData = await connection.query(
+    "SELECT * FROM points WHERE matchday=?",
+    [matchday]
+  );
+  if (timeData.length === 0) {
     return {
       notFound: true,
     };
@@ -28,7 +26,7 @@ export async function getServerSideProps(ctx) {
     [league, user, matchday]
   );
   // Calculates the timestamp for this matchday
-  const time = squad.length > 0 ? squad[0].time : 0;
+  const time = timeData[0].time;
   const [transfers, username, latestMatchday] = await Promise.all([
     // Gets all transfers at the moment from the user
     connection.query(

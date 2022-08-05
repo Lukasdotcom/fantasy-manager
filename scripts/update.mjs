@@ -279,8 +279,17 @@ async function endMatchday() {
 }
 // Used to calculate the points for every user
 export async function calcPoints() {
-  console.log("Calculating player points");
   const connection = await connect();
+  // Makes sure that the transfer season is running
+  if (
+    await connection
+      .query("SELECT value2 FROM data WHERE value1='transferOpen'")
+      .then((result) => (result.length > 0 ? result[0].value2 !== "0" : true))
+  ) {
+    connection.end();
+    return;
+  }
+  console.log("Calculating player points");
   const leagueUsers = await connection.query(
     "SELECT leagueID, user, points FROM leagueUsers ORDER BY leagueID"
   );
@@ -299,15 +308,40 @@ export async function calcPoints() {
         )
         .then((result) => result[0].points),
       // Calculates the amont of points the user should have for the matchday
-      connection
-        .query(
-          "SELECT SUM(last_match) FROM players WHERE EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND position!='bench' AND leagueID=? AND user=?)",
-          [e.leagueID, e.user]
-        )
-        .then((result) => {
-          const value = Object.values(result[0])[0];
-          return value ? value : 0;
-        }),
+      new Promise(async (res) => {
+        res(
+          // Calculates points for non starred players
+          (await connection
+            .query(
+              "SELECT SUM(last_match) FROM players WHERE EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND position!='bench' AND leagueID=? AND user=? AND starred=0)",
+              [e.leagueID, e.user]
+            )
+            .then((result) => {
+              const value = Object.values(result[0])[0];
+              return value ? value : 0;
+            })) +
+            // Calculates points for starred players
+            Math.ceil(
+              (await connection
+                .query(
+                  "SELECT SUM(last_match) FROM players WHERE EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND position!='bench' AND leagueID=? AND user=? AND starred=1)",
+                  [e.leagueID, e.user]
+                )
+                .then((result) => {
+                  const value = Object.values(result[0])[0];
+                  return value ? value : 0;
+                })) *
+                (await connection
+                  .query(
+                    "SELECT starredPercentage FROM leagueSettings WHERE leagueID=?",
+                    [e.leagueID]
+                  )
+                  .then((res) =>
+                    res.length > 0 ? res[0].starredPercentage / 100 : 1.5
+                  ))
+            )
+        );
+      }),
     ]);
     // Checks if the point calculations are off and if they are wrong they are updated
     if (oldPoints !== newPoints) {

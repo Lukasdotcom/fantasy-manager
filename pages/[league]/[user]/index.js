@@ -48,9 +48,16 @@ export default function HistoricalView({
         .filter((e) => e.position === "att")
         .map((e) => {
           if (currentMatchday === 0)
-            return <Player key={e.playeruid} uid={e.playeruid} />;
+            return (
+              <Player key={e.playeruid} starred={e.starred} uid={e.playeruid} />
+            );
           return (
-            <HistoricalPlayer key={e.playeruid} uid={e.playeruid} time={time} />
+            <HistoricalPlayer
+              key={e.playeruid}
+              uid={e.playeruid}
+              starred={e.starred}
+              time={time}
+            />
           );
         })}
       <h2>Midfielders</h2>
@@ -58,9 +65,16 @@ export default function HistoricalView({
         .filter((e) => e.position === "mid")
         .map((e) => {
           if (currentMatchday === 0)
-            return <Player key={e.playeruid} uid={e.playeruid} />;
+            return (
+              <Player key={e.playeruid} starred={e.starred} uid={e.playeruid} />
+            );
           return (
-            <HistoricalPlayer key={e.playeruid} uid={e.playeruid} time={time} />
+            <HistoricalPlayer
+              key={e.playeruid}
+              uid={e.playeruid}
+              starred={e.starred}
+              time={time}
+            />
           );
         })}
       <h2>Defenders</h2>
@@ -68,9 +82,16 @@ export default function HistoricalView({
         .filter((e) => e.position === "def")
         .map((e) => {
           if (currentMatchday === 0)
-            return <Player key={e.playeruid} uid={e.playeruid} />;
+            return (
+              <Player key={e.playeruid} starred={e.starred} uid={e.playeruid} />
+            );
           return (
-            <HistoricalPlayer key={e.playeruid} uid={e.playeruid} time={time} />
+            <HistoricalPlayer
+              key={e.playeruid}
+              uid={e.playeruid}
+              starred={e.starred}
+              time={time}
+            />
           );
         })}
       <h2>Goalkeeper</h2>

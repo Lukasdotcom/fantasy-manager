@@ -4,8 +4,9 @@ import Head from "next/head";
 import { SquadPlayer as Player } from "../../components/Player";
 import { useState, useEffect } from "react";
 import { push } from "@socialgouv/matomo-next";
+import connect from "../../Modules/database.mjs";
 
-export default function Home({ session, league }) {
+export default function Home({ session, league, starredPercentage }) {
   const [squad, setSquad] = useState({
     att: [],
     mid: [],
@@ -26,7 +27,10 @@ export default function Home({ session, league }) {
       const val = await e.json();
       let players = { att: [], mid: [], def: [], gk: [], bench: [] };
       val.players.forEach((e) => {
-        players[e.position].push(e.playeruid);
+        players[e.position].push({
+          playeruid: e.playeruid,
+          starred: e.starred,
+        });
       });
       setFormation(val.formation);
       setSquad(players);
@@ -49,6 +53,11 @@ export default function Home({ session, league }) {
       </Head>
       <Menu session={session} league={league} />
       <h1>Squad</h1>
+      <p>
+        You can have one starred Forward, Midfielder, and Defender. These
+        players will then get {starredPercentage}% of the regular amount of
+        points.
+      </p>
       <label htmlFor="formation">Formation: </label>
       <select
         onChange={(e) => {
@@ -88,7 +97,13 @@ export default function Home({ session, league }) {
         (
           e // Used to get the players for the attack
         ) => (
-          <Player uid={e} key={e} league={league} update={getSquad} />
+          <Player
+            uid={e.playeruid}
+            key={e.playeruid}
+            league={league}
+            starred={e.starred}
+            update={getSquad}
+          />
         )
       )}
       <h2>Midfielders</h2>
@@ -96,7 +111,13 @@ export default function Home({ session, league }) {
         (
           e // Used to get the players for the mid
         ) => (
-          <Player uid={e} key={e} league={league} update={getSquad} />
+          <Player
+            uid={e.playeruid}
+            key={e.playeruid}
+            league={league}
+            starred={e.starred}
+            update={getSquad}
+          />
         )
       )}
       <h2>Defense</h2>
@@ -104,7 +125,13 @@ export default function Home({ session, league }) {
         (
           e // Used to get the players for the defense
         ) => (
-          <Player uid={e} key={e} league={league} update={getSquad} />
+          <Player
+            uid={e.playeruid}
+            key={e.playeruid}
+            league={league}
+            starred={e.starred}
+            update={getSquad}
+          />
         )
       )}
       <h2>Goalkeeper</h2>
@@ -112,7 +139,12 @@ export default function Home({ session, league }) {
         (
           e // Used to get the player for the goalkeeper
         ) => (
-          <Player uid={e} key={e} league={league} update={getSquad} />
+          <Player
+            uid={e.playeruid}
+            key={e.playeruid}
+            league={league}
+            update={getSquad}
+          />
         )
       )}
       <h2>Bench</h2>
@@ -121,8 +153,8 @@ export default function Home({ session, league }) {
           e // Used to get the players for the bench
         ) => (
           <Player
-            uid={e}
-            key={e}
+            uid={e.playeruid}
+            key={e.playeruid}
             field={field}
             league={league}
             update={getSquad}
@@ -135,5 +167,12 @@ export default function Home({ session, league }) {
 
 // Gets the users session
 export async function getServerSideProps(ctx) {
-  return await redirect(ctx, {});
+  const connection = await connect();
+  const starredPercentage = await connection
+    .query("SELECT starredPercentage FROM leagueSettings WHERE leagueID=?", [
+      ctx.query.league,
+    ])
+    .then((res) => (res.length > 0 ? res[0].starredPercentage : 150));
+  connection.end();
+  return await redirect(ctx, { starredPercentage });
 }

@@ -26,8 +26,9 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Add Invite").click();
     cy.contains("Link: localhost:3000/api/invite/").contains("Delete").click();
     cy.contains("Link: localhost:3000/api/invite/invite1");
-    // Changes the default money amount
+    // Changes the default money amount and starred player multiplier
     cy.get("#startingMoney").clear().type(100);
+    cy.get("#starredPercentage").clear().type(180);
     cy.contains("Save all Admin Settings").click();
     // Signs into User 2 which will join the league through the invite
     cy.contains("Sign Out").click();
@@ -134,14 +135,22 @@ describe("Invite User into league and change some league Settings and run throug
       .children(".playerButton")
       .children("button")
       .contains("Move to Bench");
+    cy.contains("180%");
+    cy.contains("Erling Haaland")
+      .parent()
+      .parent()
+      .children(".playerButton")
+      .contains("Star")
+      .click();
+    cy.contains("Erling Haaland").parent().contains("0 X Star");
     // Sims matchday until all players have played
     cy.exec("export NODE_ENV=test; node cypress/e2e/invite3.mjs");
     // Checks that the user points are correct
     cy.contains("Standings").click();
-    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("22");
+    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("44");
     cy.get("tbody > :nth-child(3) > :nth-child(2)").contains("0");
     cy.get("#matchday").invoke("val", 1).trigger("change");
-    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("22");
+    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("44");
     cy.get("tbody > :nth-child(3) > :nth-child(2)").contains("0");
     // Moves a player to the bench
     cy.contains("Squad").click();
@@ -154,10 +163,10 @@ describe("Invite User into league and change some league Settings and run throug
       .click();
     cy.contains("Standings").click();
     // Checks if the points got updated
-    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("12");
+    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("34");
     cy.get("tbody > :nth-child(3) > :nth-child(2)").contains("0");
     cy.get("#matchday").invoke("val", 1).trigger("change");
-    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("12");
+    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("34");
     cy.get("tbody > :nth-child(3) > :nth-child(2)").contains("0");
     // Checks Nkunku button
     cy.contains("Squad").click();
@@ -200,10 +209,14 @@ describe("Invite User into league and change some league Settings and run throug
       .contains("Player not for Sale");
     cy.contains("Money left: 153M");
     cy.contains("Standings").click();
-    cy.get("tbody > :nth-child(3) > :nth-child(3) > button").click();
-    cy.get(':nth-child(17) > [style="width: 70%;"] > :nth-child(1)').contains(
-      "Thomas Müller"
+    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("34");
+    cy.get("tbody > :nth-child(3) > :nth-child(2)").contains("0");
+    cy.get("tbody > :nth-child(2) > :nth-child(3) > button").click();
+    // Looks at the historical data for one of the users
+    cy.get(':nth-child(6) > [style="width: 70%;"] > :nth-child(1)').contains(
+      "Robert Lewandowski"
     );
+    cy.get('[alt="starred"]');
     cy.get(":nth-child(17) > .playerButton > p").contains("Selling for 21.1M");
     cy.get("#matchday").select("1");
     cy.get(':nth-child(6) > [style="width: 70%;"] > :nth-child(1)').contains(
@@ -213,7 +226,6 @@ describe("Invite User into league and change some league Settings and run throug
       "Robert Lewandowski"
     );
     cy.contains("19.7 M");
-    // Looks at the historical data for all the users
     // Has both players leave the league
     cy.contains("Home").click();
     cy.contains("Leave League")
