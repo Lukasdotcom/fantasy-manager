@@ -49,6 +49,12 @@ export default async function handler(req, res) {
     res.setHeader("Content-Disposition", "attachment; filename=players.json");
     res.status(200).end(JSON.stringify(data));
   }
-  console.log(`A ${req.query.type === "csv" ? "csv" : "json"} download was requested for ${parseInt(req.query.time) > 0 ? parseInt(req.query.time) : "latest"} time`)
+  console.log(
+    `A ${
+      req.query.type === "csv" ? "csv" : "json"
+    } download was requested for ${
+      parseInt(req.query.time) > 0 ? parseInt(req.query.time) : "latest"
+    } time`
+  );
   connection.end();
 }
