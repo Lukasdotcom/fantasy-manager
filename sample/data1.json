@@ -327,5 +327,5 @@
       }
     ]
   },
-  "opening_hour": { "opened": false, "countdown": 10000000000 }
+  "opening_hour": { "opened": true, "countdown": 10000000000 }
 }
