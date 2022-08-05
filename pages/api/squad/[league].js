@@ -15,11 +15,11 @@ export default async function handler(req, res) {
     [1, 5, 3, 2],
     [1, 5, 4, 1],
   ];
+  const connection = await connect();
   if (!session) {
     res.status(401).end("Not logged in");
   } else {
     const user = session.user.id;
-    const connection = await connect();
     switch (req.method) {
       // Used to return a dictionary of all formations and your current squad and formation
       case "GET":
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
             const formation = JSON.parse(result[0].formation);
             // Gets all the players on the team
             const players = await connection.query(
-              "SELECT playeruid, position FROM squad WHERE leagueID=? and user=?",
+              "SELECT playeruid, position, starred FROM squad WHERE leagueID=? and user=?",
               [league, user]
             );
             res.status(200).json({ formation, players, validFormations });
@@ -87,6 +87,42 @@ export default async function handler(req, res) {
               });
           } else {
             res.status(500).end("Invalid formation");
+          }
+        }
+        const star = req.body.star;
+        if (star !== undefined) {
+          if (star.map !== undefined) {
+            await Promise.all(
+              star.map((e) => 
+                new Promise(async (resolve, rej) => {
+                  const player = String(e);
+                  // Checks if the player is on the bench
+                  const position = await connection
+                  .query(
+                    "SELECT position FROM squad WHERE user=? AND leagueID=? AND playeruid=?", [user, league, player]
+                  )
+                  .then((result) =>
+                    result.length > 0
+                      ? result[0].position
+                      : "bench"
+                  )
+                  if (position !== "bench") {
+                    if (await connection.query("SELECT locked FROM players WHERE uid=? AND locked=0", [player]).then((result) => result.length > 0)) {
+                      console.log(`User ${user} starred player ${e}`)
+                      await connection.query("UPDATE squad SET starred=0 WHERE user=? AND position=? AND leagueID=?", [user, position, league]);
+                      await connection.query("UPDATE squad SET starred=1 WHERE user=? AND playeruid=? AND leagueID=?", [user, player, league]);
+                      resolve();
+                    } else {
+                      rej("Player already played")
+                    }
+                  } else {
+                    rej("Player is not in the field");
+                  }
+                })
+              )
+            ).catch((e) => {
+              res.status(500).end(e);
+            });
           }
         }
         // List of players to move
@@ -163,7 +199,7 @@ export default async function handler(req, res) {
                       } else {
                         // If the player is on the field automatically move them to the bench
                         connection.query(
-                          "UPDATE squad SET position='bench' WHERE leagueID=? and user=? and playeruid=?",
+                          "UPDATE squad SET position='bench', starred=0 WHERE leagueID=? and user=? and playeruid=?",
                           [league, user, e]
                         );
                         console.log(`User ${user} moved player ${e} to bench`);
@@ -177,17 +213,17 @@ export default async function handler(req, res) {
             ).catch((e) => {
               res.status(500).end(e);
             });
-            // Has the point calculation update
-            calcPoints();
           }
         }
+        // Has the point calculation update
+        calcPoints();
         // If no errors happened gives a succesful result
-        res.status(200).end("Succesfully did commands");
+        if (res.statusMessage === undefined) res.status(200).end("Succesfully did commands");
         break;
       default:
         res.status(405).end(`Method ${req.method} Not Allowed`);
         break;
     }
-    connection.end();
   }
+  connection.end();
 }

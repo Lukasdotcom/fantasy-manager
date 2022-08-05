@@ -46,6 +46,11 @@ export default async function handler(req, res) {
                 "UPDATE leagueSettings SET duplicatePlayers=? WHERE leagueID=?",
                 [parseInt(settings.duplicatePlayers), league]
               );
+            if (parseInt(settings.starredPercentage) > 100)
+              connection.query(
+                "UPDATE leagueSettings SET starredPercentage=? WHERE leagueID=?",
+                [parseInt(settings.starredPercentage), league]
+              );
           }
           res.status(200).end("Saved Settings");
         } else {

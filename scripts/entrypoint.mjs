@@ -9,7 +9,7 @@ if (process.env.NODE_ENV !== "test") {
   dotenv.config({ path: ".env.test.local" });
 }
 // Used to tell the program what version of the database to use
-const currentVersion = "1.2.0";
+const currentVersion = "1.3.0";
 const date = new Date();
 let day = date.getDay();
 
@@ -37,7 +37,7 @@ async function startUp() {
     ),
     // Used to store the leagues settings
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1)"
+      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150)"
     ),
     // Used to store the leagues users
     connection.query(
@@ -57,11 +57,11 @@ async function startUp() {
     ),
     // Used to store player squads
     connection.query(
-      "CREATE TABLE IF NOT EXISTS squad (leagueID int, user int, playeruid varchar(25), position varchar(5))"
+      "CREATE TABLE IF NOT EXISTS squad (leagueID int, user int, playeruid varchar(25), position varchar(5), starred bool DEFAULT 0)"
     ),
     // Used to store historical squads
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalSquad (matchday int, leagueID int, user int, playeruid varchar(25), position varchar(5))"
+      "CREATE TABLE IF NOT EXISTS historicalSquad (matchday int, leagueID int, user int, playeruid varchar(25), position varchar(5), starred bool DEFAULT 0)"
     ),
     // Used to store historical player data
     connection.query(
@@ -120,6 +120,22 @@ async function startUp() {
       await connection.query("ALTER TABLE points ADD time int");
       await connection.query("UPDATE points SET time=0");
       oldVersion = "1.2.0";
+    }
+    if (oldVersion == "1.2.0") {
+      console.log("Updating database to version 1.3.0");
+      await Promise.all([
+        connection.query("ALTER TABLE squad ADD starred bool DEFAULT 0"),
+        connection.query(
+          "ALTER TABLE historicalSquad ADD starred bool DEFAULT 0"
+        ),
+        connection.query(
+          "ALTER TABLE leagueSettings ADD starredPercentage int DEFAULT 150"
+        ),
+        connection.query("UPDATE squad SET starred=0"),
+        connection.query("UPDATE historicalSquad SET starred=0"),
+        connection.query("UPDATE leagueSettings SET starredPercentage=150"),
+      ]);
+      oldVersion = "1.3.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date

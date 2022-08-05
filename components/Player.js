@@ -5,7 +5,7 @@ import { push } from "@socialgouv/matomo-next";
 import { useSession } from "next-auth/react";
 import Username from "../components/Username";
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
-function InternalPlayer({ data, children }) {
+function InternalPlayer({ data, children, starred }) {
   let background = "black";
   if (Object.keys(data).length > 0) {
     // Changes the background to the correct color if the player is missing or not known if they are coming
@@ -26,7 +26,7 @@ function InternalPlayer({ data, children }) {
         </div>
         <Image alt="" src={data.pictureUrl} width="130px" height="130px" />
         <div style={{ width: "70%" }}>
-          <p>{data.name}</p>
+          <p>{data.name}{starred ? <Image alt="starred" src="/star.svg" width="20px" height="20px" /> : ""}</p>
           <div className={playerStyles.innerContainer}>
             <div>
               <p>Total</p>
@@ -38,7 +38,7 @@ function InternalPlayer({ data, children }) {
             </div>
             <div>
               <p>Last Match</p>
-              <p>{data.last_match}</p>
+              <p>{data.last_match}{starred ? " X Star" : ""}</p>
             </div>
             <div>
               <p>Value</p>
@@ -201,7 +201,7 @@ export function TransferPlayer({
   return <InternalPlayer data={data}>{PurchaseButton}</InternalPlayer>;
 }
 // Used for the squad. Field should be undefined unless they are on the bench and then it shoud give what positions are still open
-export function SquadPlayer({ uid, update, field, league }) {
+export function SquadPlayer({ uid, update, field, league, starred }) {
   const [data, setData] = useState({});
   // Used to get the data for the player
   useEffect(() => {
@@ -224,7 +224,7 @@ export function SquadPlayer({ uid, update, field, league }) {
     }
   }
   return (
-    <InternalPlayer data={data}>
+    <InternalPlayer data={data} starred={starred}>
       <button
         onClick={() => {
           push(["trackEvent", "Move Player", league, uid]);
@@ -249,11 +249,31 @@ export function SquadPlayer({ uid, update, field, league }) {
       >
         {MoveButton}
       </button>
+      { (starred === false || starred === 0) && !data.locked && 
+        <button onClick={() => {
+          push(["trackEvent", "Star Player", league, uid]);
+          fetch(`/api/squad/${league}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              star: [uid],
+            }),
+          })
+            .then(async (response) => {
+              if (!response.ok) {
+                alert(await response.text());
+              }
+            })
+            .then(update);
+        }}>Star</button>
+      }
     </InternalPlayer>
   );
 }
 // Used to show the player without any buttons
-export function Player({ uid, children }) {
+export function Player({ uid, children, starred }) {
   const [data, setData] = useState({});
   // Used to get the data for the player
   useEffect(() => {
@@ -262,10 +282,10 @@ export function Player({ uid, children }) {
     }
     getData();
   }, [uid]);
-  return <InternalPlayer data={data}> {children}</InternalPlayer>;
+  return <InternalPlayer data={data} starred={starred}> {children}</InternalPlayer>;
 }
 // Used to show the player with historical data
-export function HistoricalPlayer({ uid, time, children }) {
+export function HistoricalPlayer({ uid, time, children, starred }) {
   const [data, setData] = useState({});
   // Used to get the data for the player
   useEffect(() => {
@@ -274,5 +294,5 @@ export function HistoricalPlayer({ uid, time, children }) {
     }
     getData();
   }, [uid, time]);
-  return <InternalPlayer data={data}> {children}</InternalPlayer>;
+  return <InternalPlayer data={data} starred={starred}> {children}</InternalPlayer>;
 }

@@ -14,6 +14,7 @@ function AdminPanel({ user, league }) {
   const [users, setUsers] = useState([]);
   const [transfers, setTransfers] = useState(6);
   const [duplicatePlayers, setDuplicatePlayers] = useState(1);
+  const [starredPercentage, setStarredPercentage] = useState(150);
   function updateData(league) {
     fetch(`/api/league/${league}`).then(async (res) => {
       if (res.ok) {
@@ -22,6 +23,7 @@ function AdminPanel({ user, league }) {
         setUsers(result.users);
         setTransfers(result.settings.transfers);
         setDuplicatePlayers(result.settings.duplicatePlayers);
+        setStarredPercentage(result.settings.starredPercentage);
       } else {
         alert(await res.text());
       }
@@ -66,6 +68,19 @@ function AdminPanel({ user, league }) {
           setDuplicatePlayers(val.target.value);
         }}
       ></input>
+      <br></br>
+      <label htmlFor="starredPercentage">
+        Point percantage for starred Players(150 means 1.5 times points for
+        starred players):
+      </label>
+      <input
+        id="starredPercentage"
+        value={starredPercentage}
+        type="number"
+        onChange={(val) => {
+          setStarredPercentage(val.target.value);
+        }}
+      ></input>
       <h2>Check Users for Admin</h2>
       {users.map((element, id) => {
         // Checks if this is the actual user
@@ -105,6 +120,7 @@ function AdminPanel({ user, league }) {
                 startingMoney: startingMoney * 1000000,
                 transfers,
                 duplicatePlayers,
+                starredPercentage,
               },
             }),
           }).then(async (res) => {
