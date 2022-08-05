@@ -10,27 +10,39 @@ export async function updateData(file = "../sample/data1.json") {
   // Gets the player data
   const data =
     process.env.NODE_ENV !== "test"
-      ? fetch("https://fantasy.bundesliga.com/api/player_transfers/init", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: `access_token=${process.env.BUNDESLIGA_API}`,
-          },
-          body: JSON.stringify({
-            payload: {
-              offerings_query: {
-                offset: 0,
-                limit: 1000,
-                sort: { order_by: "popularity", order_direction: "desc" },
-              },
+      ? await fetch(
+          "https://fantasy.bundesliga.com/api/player_transfers/init",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Cookie: `access_token=${process.env.BUNDESLIGA_API}`,
             },
-          }),
-        }).then(async (val) => {
-          return await val.json();
+            body: JSON.stringify({
+              payload: {
+                offerings_query: {
+                  offset: 0,
+                  limit: 1000,
+                  sort: { order_by: "popularity", order_direction: "desc" },
+                },
+              },
+            }),
+          }
+        ).then(async (val) => {
+          if (val.ok) {
+            return await val.json();
+          } else {
+            return "FAILURE";
+          }
         })
-      : Promise.resolve(
-          (await import(file, { assert: { type: "json" } })).default
-        );
+      : (await import(file, { assert: { type: "json" } })).default;
+  if (data === "FAILURE") {
+    console.error(
+      "Error - Failed to get data(if this happens to often something is wrong)"
+    );
+    connection.end();
+    return;
+  }
   // Puts in the data if the transfermarket is open
   const oldTransfer = await connection
     .query("SELECT * FROM data WHERE value1='transferOpen'")
@@ -41,8 +53,8 @@ export async function updateData(file = "../sample/data1.json") {
         return parseInt(result[0].value2);
       }
     });
-  const countdown = (await data).opening_hour.opened
-    ? (await data).opening_hour.countdown / 1000
+  const countdown = data.opening_hour.opened
+    ? data.opening_hour.countdown / 1000
     : 0;
   const newTransfer = countdown > 3600 ? countdown - 3600 : 0;
   await connection.query(
@@ -52,7 +64,7 @@ export async function updateData(file = "../sample/data1.json") {
   // Checks if the transfer market is closing
   if (newTransfer > 0 && oldTransfer == 0) await endMatchday();
   // Goes through all of the players and adds their data to the database
-  const players = (await data).offerings.items;
+  const players = data.offerings.items;
   await connection.query("UPDATE players SET `exists`=0");
   let index = 0;
   while (index < players.length) {
