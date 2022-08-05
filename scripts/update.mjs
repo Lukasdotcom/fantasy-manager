@@ -10,33 +10,38 @@ export async function updateData(file = "../sample/data1.json") {
   // Gets the player data
   const data =
     process.env.NODE_ENV !== "test"
-      ? await fetch("https://fantasy.bundesliga.com/api/player_transfers/init", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: `access_token=${process.env.BUNDESLIGA_API}`,
-          },
-          body: JSON.stringify({
-            payload: {
-              offerings_query: {
-                offset: 0,
-                limit: 1000,
-                sort: { order_by: "popularity", order_direction: "desc" },
-              },
+      ? await fetch(
+          "https://fantasy.bundesliga.com/api/player_transfers/init",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Cookie: `access_token=${process.env.BUNDESLIGA_API}`,
             },
-          }),
-        }).then(async (val) => {
+            body: JSON.stringify({
+              payload: {
+                offerings_query: {
+                  offset: 0,
+                  limit: 1000,
+                  sort: { order_by: "popularity", order_direction: "desc" },
+                },
+              },
+            }),
+          }
+        ).then(async (val) => {
           if (val.ok) {
             return await val.json();
           } else {
-            return "FAILURE"
+            return "FAILURE";
           }
         })
-      : (await import(file, { assert: { type: "json" } })).default
+      : (await import(file, { assert: { type: "json" } })).default;
   if (data === "FAILURE") {
-    console.error("Error - Failed to get data(if this happens to often something is wrong)");
+    console.error(
+      "Error - Failed to get data(if this happens to often something is wrong)"
+    );
     connection.end();
-    return
+    return;
   }
   // Puts in the data if the transfermarket is open
   const oldTransfer = await connection
