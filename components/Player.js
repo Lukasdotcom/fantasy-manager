@@ -4,8 +4,10 @@ import Image from "next/image";
 import { push } from "@socialgouv/matomo-next";
 import { useSession } from "next-auth/react";
 import Username from "../components/Username";
+import fallbackImg from "../public/playerFallback.png";
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
 function InternalPlayer({ data, children, starred }) {
+  const [pictureUrl, setPictureUrl] = useState(undefined);
   let background = "black";
   if (Object.keys(data).length > 0) {
     // Changes the background to the correct color if the player is missing or not known if they are coming
@@ -18,13 +20,26 @@ function InternalPlayer({ data, children, starred }) {
     if (data.exists === 0) {
       background = "rgb(91, 30, 50)";
     }
+    // Checks if the player has a picture url set
+    if (pictureUrl === undefined) {
+      setPictureUrl(data.pictureUrl);
+    }
     return (
       <div className={playerStyles.container} style={{ background }}>
         <div style={{ width: "min(10%, 80px)", textAlign: "center" }}>
           <p>{data.club}</p>
           <p>{data.position}</p>
         </div>
-        <Image alt="" src={data.pictureUrl} width="130px" height="130px" />
+        <Image
+          alt=""
+          onError={() => {
+            // If the picture does not exist a fallback picture is used
+            setPictureUrl(fallbackImg);
+          }}
+          src={pictureUrl}
+          width="130px"
+          height="130px"
+        />
         <div style={{ width: "70%" }}>
           <p>
             {data.name}
