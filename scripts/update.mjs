@@ -1,4 +1,5 @@
 import connect from "../Modules/database.mjs";
+import noAccents from "../Modules/normalize.mjs";
 // Used to update all the data
 export async function updateData(file = "../sample/data1.json") {
   const connection = await connect();
@@ -73,10 +74,11 @@ export async function updateData(file = "../sample/data1.json") {
     // Checks if it is a matchday
     if (newTransfer) {
       await connection.query(
-        "INSERT INTO players (uid, name, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1",
+        "INSERT INTO players (uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1",
         [
           val.player.uid,
           val.player.nickname,
+          noAccents(val.player.nickname),
           val.player.team.team_code,
           val.player.image_urls.default,
           val.transfer_value,
@@ -101,10 +103,11 @@ export async function updateData(file = "../sample/data1.json") {
       );
       if (playerExists.length == 0) {
         await connection.query(
-          "INSERT INTO players (uid, name, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)",
+          "INSERT INTO players (uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)",
           [
             val.player.uid,
             val.player.nickname,
+            noAccents(val.player.nickname),
             val.player.team.team_code,
             val.player.image_urls.default,
             val.transfer_value,
@@ -244,11 +247,12 @@ async function endMatchday() {
     const player = players[counter];
     counter++;
     connection.query(
-      "INSERT INTO historicalPlayers (time, uid, name, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, `exists`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, `exists`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         time,
         player.uid,
         player.name,
+        noAccents(player.name),
         player.club,
         player.pictureUrl,
         player.value,

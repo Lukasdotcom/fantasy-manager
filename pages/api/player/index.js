@@ -52,10 +52,10 @@ export default async function handler(req, res) {
               showHidden
                 ? ""
                 : " (`exists`=1 OR EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND user=?)) AND"
-            } name like ? AND club like ? ${positionsSQL} ORDER BY ${order_by} DESC LIMIT ${limit}`,
+            } (name like ? OR nameAscii like ?) AND club like ? ${positionsSQL} ORDER BY ${order_by} DESC LIMIT ${limit}`,
             showHidden
-              ? [searchTerm, clubSearch]
-              : [session ? session.user.id : "", searchTerm, clubSearch]
+              ? [searchTerm, searchTerm, clubSearch]
+              : [session ? session.user.id : "", searchTerm, searchTerm, clubSearch]
           )
         );
         // Organizes the data in a list instead of a list of dictionaries
