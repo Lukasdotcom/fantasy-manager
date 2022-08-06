@@ -83,6 +83,7 @@ class connectionMysql {
 }
 class connectionSqlite {
   constructor(connection) {
+    connection.configure("busyTimeout", 10000);
     this.connection = connection;
   }
   async query(statement, prepare = [], logError = false) {

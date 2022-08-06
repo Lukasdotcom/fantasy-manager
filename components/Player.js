@@ -5,6 +5,7 @@ import { push } from "@socialgouv/matomo-next";
 import { useSession } from "next-auth/react";
 import Username from "../components/Username";
 import fallbackImg from "../public/playerFallback.png";
+import Link from "next/link";
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
 function InternalPlayer({ data, children, starred }) {
   const [pictureUrl, setPictureUrl] = useState(undefined);
@@ -47,6 +48,14 @@ function InternalPlayer({ data, children, starred }) {
               <Image alt="starred" src="/star.svg" width="20px" height="20px" />
             ) : (
               ""
+            )}
+            {data.updateRunning === false && (
+              <Link href="/error/no-update">
+                <a style={{ color: "red" }}>
+                  {" "}
+                  Player Data not updating click for details
+                </a>
+              </Link>
             )}
           </p>
           <div className={playerStyles.innerContainer}>

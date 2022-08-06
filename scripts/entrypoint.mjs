@@ -255,5 +255,10 @@ async function update() {
   connection3.query(
     "INSERT INTO data (value1, value2) VALUES('update', '0') ON DUPLICATE KEY UPDATE value2=0"
   );
+  // Updates the latest update check value
+  connection3.query(
+    "INSERT INTO data (value1, value2) VALUES('lastUpdateCheck', ?) ON DUPLICATE KEY UPDATE value2=?",
+    [String(parseInt(Date.now() / 1000)), String(parseInt(Date.now() / 1000))]
+  );
   connection3.end();
 }
