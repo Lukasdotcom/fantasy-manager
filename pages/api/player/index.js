@@ -55,7 +55,12 @@ export default async function handler(req, res) {
             } (name like ? OR nameAscii like ?) AND club like ? ${positionsSQL} ORDER BY ${order_by} DESC LIMIT ${limit}`,
             showHidden
               ? [searchTerm, searchTerm, clubSearch]
-              : [session ? session.user.id : "", searchTerm, searchTerm, clubSearch]
+              : [
+                  session ? session.user.id : "",
+                  searchTerm,
+                  searchTerm,
+                  clubSearch,
+                ]
           )
         );
         // Organizes the data in a list instead of a list of dictionaries
