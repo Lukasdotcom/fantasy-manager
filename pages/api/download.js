@@ -31,6 +31,7 @@ export default async function handler(req, res) {
         {
           uid: "Uid",
           name: "Name",
+          nameAscii: "Ascii Name",
           club: "Club",
           pictureUrl: "Picture Url",
           value: "Value",

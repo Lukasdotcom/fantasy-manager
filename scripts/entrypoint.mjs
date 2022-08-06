@@ -3,13 +3,14 @@ import { updateData } from "./update.mjs";
 import version from "./../package.json" assert { type: "json" };
 import dotenv from "dotenv";
 import { unlink } from "fs";
+import noAccents from "../Modules/normalize.mjs";
 if (process.env.NODE_ENV !== "test") {
   dotenv.config({ path: ".env.local" });
 } else {
   dotenv.config({ path: ".env.test.local" });
 }
 // Used to tell the program what version of the database to use
-const currentVersion = "1.3.0";
+const currentVersion = "1.3.1";
 const date = new Date();
 let day = date.getDay();
 
@@ -29,7 +30,7 @@ async function startUp() {
     ),
     // Used to store the players data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool)"
+      "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool)"
     ),
     // Creates a table that contains some key value pairs for data that is needed for some things
     connection.query(
@@ -65,7 +66,7 @@ async function startUp() {
     ),
     // Used to store historical player data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool)"
+      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool)"
     ),
     // Used to store historical transfer data
     connection.query(
@@ -138,6 +139,32 @@ async function startUp() {
         connection.query("UPDATE leagueSettings SET starredPercentage=150"),
       ]);
       oldVersion = "1.3.0";
+    }
+    if (oldVersion == "1.3.0") {
+      console.log("Updating database to version 1.3.1");
+      await Promise.all([
+        connection.query("ALTER TABLE players ADD nameAscii varchar(255)"),
+        connection.query(
+          "ALTER TABLE historicalPlayers ADD nameAscii varchar(255)"
+        ),
+      ]);
+      let players = await connection.query("SELECT * FROM players");
+      players.forEach((e) => {
+        connection.query("UPDATE players SET nameAscii=? WHERE uid=?", [
+          noAccents(e.name),
+          e.uid,
+        ]);
+      });
+      let historicalPlayers = await connection.query(
+        "SELECT * FROM historicalPlayers"
+      );
+      historicalPlayers.forEach((e) => {
+        connection.query(
+          "UPDATE historicalPlayers SET nameAscii=? WHERE uid=?",
+          [noAccents(e.name), e.uid]
+        );
+      });
+      oldVersion = "1.3.1";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date
