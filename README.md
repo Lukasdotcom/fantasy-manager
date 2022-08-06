@@ -61,6 +61,11 @@ docker-compose up
 
 ### Dockerless
 
+Required Tools:
+
+- [Nodejs](https://nodejs.org/en/download/) ≥ 18
+- [Git](https://git-scm.com/downloads)
+
 1. First clone this git repository
 
 ```
