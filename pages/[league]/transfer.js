@@ -58,6 +58,7 @@ export default function Home({
   const [orderBy, setOrderBy] = useState("value");
   const [showHidden, setShowHidden] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [open, setOpen] = useState(true);
   const [clubSearch, setClubSearch] = useState("");
   useEffect(() => {
     search(true);
@@ -71,6 +72,7 @@ export default function Home({
       setOwnership(val.ownership);
       setTransferCount(val.transferCount);
       setTimeLeft(val.timeLeft);
+      setOpen(val.transferOpen);
     });
   }
   // Used to lower the time left by one every second
@@ -84,16 +86,13 @@ export default function Home({
     };
   }, []);
   // Used to calculate transfer message
-  let transferMessage = <p>Transfer Market Closed</p>;
-  if (timeLeft > 0) {
-    transferMessage = (
-      <p>
-        Transfer Market open for {Math.floor(timeLeft / 3600 / 24)} D{" "}
-        {Math.floor(timeLeft / 3600) % 24} H {Math.floor(timeLeft / 60) % 60} M{" "}
-        {timeLeft % 60} S
-      </p>
-    );
-  }
+  let transferMessage = (
+    <p>
+      Transfer Market {open ? "Open" : "Closed"} for{" "}
+      {Math.floor(timeLeft / 3600 / 24)} D {Math.floor(timeLeft / 3600) % 24} H{" "}
+      {Math.floor(timeLeft / 60) % 60} M {timeLeft % 60} S
+    </p>
+  );
   useEffect(transferData, [league]);
   // Used to search the isNew is used to check if it should reload everything back from the start
   async function search(isNew) {
@@ -246,7 +245,7 @@ export default function Home({
               league={league}
               transferLeft={transferCount < allowedTransfers}
               transferData={transferData}
-              timeLeft={timeLeft}
+              open={open}
               duplicatePlayers={duplicatePlayers}
             />
           ))}

@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         // Checks if the game is in a transfer period and if yes it starts the first matchday automatically
         const transferClosed = await connection
           .query("SELECT value2 FROM data WHERE value1='transferOpen'")
-          .then((res) => parseInt(res[0].value2) == 0);
+          .then((res) => res[0].value2 !== "true");
         if (transferClosed) {
           connection.query(
             "INSERT INTO points (leagueID, user, points, matchday, time, money) VALUES(?, ?, 0, 1, 0, 0)",
