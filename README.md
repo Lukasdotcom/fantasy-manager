@@ -72,7 +72,8 @@ Required Tools:
 git clone https://github.com/lukasdotcom/Bundesliga
 ```
 
-2. Run the command below and the webserver will be exposed on port 3000
+2. Then copy the .env.sample file located in the docker folder. Edit the values like mentioned in the file and then put the contents into a file called .env.local in the root folder of the project
+3. Run the command below and the webserver will be exposed on port 3000
 
 ```
 npm run start
