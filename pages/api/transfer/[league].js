@@ -27,18 +27,26 @@ export default async function handler(req, res) {
       // Used to return a dictionary of all transfers and ownerships
       case "GET":
         if (money !== false) {
-          const [transfers, squads, timeLeft] = await Promise.all([
-            // Gets list of all transfers
-            connection.query("SELECT * FROM transfers WHERE leagueID=?", [
-              league,
-            ]),
-            // Gets squads
-            connection.query("SELECT * FROM squad WHERE leagueID=?", [league]),
-            // Gets the amount of time left in the transfer period
-            connection
-              .query("SELECT value2 FROM data WHERE value1='transferOpen'")
-              .then((result) => parseInt(result[0].value2)),
-          ]);
+          const [transfers, squads, transferOpen, timeLeft] = await Promise.all(
+            [
+              // Gets list of all transfers
+              connection.query("SELECT * FROM transfers WHERE leagueID=?", [
+                league,
+              ]),
+              // Gets squads
+              connection.query("SELECT * FROM squad WHERE leagueID=?", [
+                league,
+              ]),
+              // Checks if the transfer market is open
+              connection
+                .query("SELECT value2 FROM data WHERE value1='transferOpen'")
+                .then((result) => result[0].value2 === "true"),
+              // Gets the amount of time left in the transfer period
+              connection
+                .query("SELECT value2 FROM data WHERE value1='countdown'")
+                .then((result) => parseInt(result[0].value2)),
+            ]
+          );
           // Puts all the ownership and transfer info in a dictionary
           let ownership = {};
           let transferCount = 0;
@@ -68,9 +76,13 @@ export default async function handler(req, res) {
               transferCount++;
             }
           });
-          res
-            .status(200)
-            .json({ money: await money, transferCount, timeLeft, ownership });
+          res.status(200).json({
+            money: await money,
+            transferCount,
+            timeLeft,
+            ownership,
+            transferOpen,
+          });
         } else {
           res.status(404).end("League not found");
         }
@@ -85,12 +97,13 @@ export default async function handler(req, res) {
         // Promise that returns false if this transfer can not be done and sold when it is a sale and bought when it is a purchase
         const valid = await new Promise(async (resolve) => {
           // Checks if the transfer market is still open
-          const transferOpen = (
-            await connection.query(
-              "SELECT value2 FROM data WHERE value1='transferOpen'"
-            )
-          )[0].value2;
-          if (transferOpen > 0) {
+          const transferOpen =
+            (
+              await connection.query(
+                "SELECT value2 FROM data WHERE value1='transferOpen'"
+              )
+            )[0].value2 === "true";
+          if (transferOpen) {
             // Checks if the user still can transfer a player
             const squadSize = (
               await connection.query(
