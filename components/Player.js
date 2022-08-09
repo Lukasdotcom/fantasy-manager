@@ -107,7 +107,7 @@ export function TransferPlayer({
   league,
   transferData,
   transferLeft,
-  timeLeft,
+  open,
   duplicatePlayers,
 }) {
   const session = useSession();
@@ -144,7 +144,7 @@ export function TransferPlayer({
   // Checks if the ownership info exists
   if (ownership !== undefined) {
     // Checks if the transfer market is still open
-    if (timeLeft <= 0) {
+    if (!open) {
       PurchaseButton = (
         <button disabled={true}>Transfer Market is Closed</button>
       );
@@ -218,7 +218,7 @@ export function TransferPlayer({
     }
   } else {
     // If no ownership data exists the player must not be owned by anyone
-    if (timeLeft <= 0) {
+    if (!open) {
       PurchaseButton = (
         <button disabled={true}>Transfer Market is Closed</button>
       );

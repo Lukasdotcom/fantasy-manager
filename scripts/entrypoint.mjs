@@ -1,5 +1,5 @@
 import connect from "../Modules/database.mjs";
-import { updateData } from "./update.mjs";
+import { checkUpdate, updateData } from "./update.mjs";
 import version from "./../package.json" assert { type: "json" };
 import dotenv from "dotenv";
 import { unlink } from "fs";
@@ -231,30 +231,46 @@ async function update() {
   ) {
     console.log("Updating data now");
     updateData();
-  } else {
-    // Checks how much longer the transfer period is and lowers the value for the transfer period length and if the transfer period is about to end ends it
-    const transferOpen = await connection3.query(
-      "SELECT value2 FROM data WHERE value1='transferOpen'"
-    );
-    if (transferOpen.length > 0) {
-      const time = transferOpen[0].value2;
-      if (time > 0) {
-        if (time - 10 > 0) {
-          connection3.query(
-            "UPDATE data SET value2=? WHERE value1='transferOpen'",
-            [time - 10]
-          );
-        } else {
-          console.log(`Predicting start of matchday in ${time} seconds`);
-          // Makes sure to wait until the time is done
-          setTimeout(updateData, time * 1000 + 1);
-        }
-      }
-    }
   }
   connection3.query(
     "INSERT INTO data (value1, value2) VALUES('update', '0') ON DUPLICATE KEY UPDATE value2=0"
   );
+  // Checks how much longer the transfer period is and lowers the value for the transfer period length and if the transfer period is about to end ends it
+  const countdown = await connection3.query(
+    "SELECT value2 FROM data WHERE value1='countdown'"
+  );
+  const transferOpen =
+    (await connection3.query(
+      "SELECT value2 FROM data WHERE value1='transferOpen'"
+    )) === "true";
+  if (countdown.length > 0) {
+    const time = countdown[0].value2;
+    // Updates the countdown
+    if (transferOpen) {
+      if (time - 11 > 0) {
+        connection3.query("UPDATE data SET value2=? WHERE value1='countdown'", [
+          time - 10,
+        ]);
+      } else {
+        console.log(`Predicting start of matchday in ${time} seconds`);
+        // Makes sure to wait until the time is done
+        setTimeout(updateData, time * 1000 + 1);
+      }
+    } else {
+      if (time - 11 > 0) {
+        // If there is about an hour left an update is requested
+        if (time - 3600 < 11) {
+          checkUpdate();
+        }
+        connection3.query("UPDATE data SET value2=? WHERE value1='countdown'", [
+          time - 10,
+        ]);
+      } else {
+        console.log(`Predicting end of matchday in ${time} seconds`);
+        setTimeout(updateData, time * 1000 + 1);
+      }
+    }
+  }
   // Updates the latest update check value
   connection3.query(
     "INSERT INTO data (value1, value2) VALUES('lastUpdateCheck', ?) ON DUPLICATE KEY UPDATE value2=?",

@@ -49,21 +49,29 @@ export async function updateData(file = "../sample/data1.json") {
     .query("SELECT * FROM data WHERE value1='transferOpen'")
     .then((result) => {
       if (result.length == 0) {
-        return 0;
+        return false;
       } else {
-        return parseInt(result[0].value2);
+        return result[0].value2 === "true";
       }
     });
-  const countdown = data.opening_hour.opened
-    ? data.opening_hour.countdown / 1000
-    : 0;
-  const newTransfer = countdown > 3600 ? countdown - 3600 : 0;
+  let newTransfer = data.opening_hour.opened;
+  let countdown =
+    data.opening_hour.countdown / 1000 - (data.opening_hour.opened ? 3600 : 0);
+  // Defaults to closed if the countdown is less than 0
+  if (countdown <= 0) {
+    countdown = 0;
+    newTransfer = false;
+  }
   await connection.query(
     "INSERT INTO data (value1, value2) VALUES('transferOpen', ?) ON DUPLICATE KEY UPDATE value2=?",
-    [newTransfer, newTransfer]
+    [String(newTransfer), String(newTransfer)]
+  );
+  connection.query(
+    "INSERT INTO data (value1, value2) VALUES('countdown', ?) ON DUPLICATE KEY UPDATE value2=?",
+    [countdown, countdown]
   );
   // Checks if the transfer market is closing
-  if (newTransfer > 0 && oldTransfer == 0) await endMatchday();
+  if (newTransfer && !oldTransfer) await endMatchday();
   // Goes through all of the players and adds their data to the database
   const players = data.offerings.items;
   await connection.query("UPDATE players SET `exists`=0");
@@ -140,9 +148,9 @@ export async function updateData(file = "../sample/data1.json") {
   connection.end();
   console.log("Downloaded new data");
   // Checks if the matchday is running
-  if (newTransfer == 0) {
+  if (!newTransfer) {
     // Checks if the transfer market has just closed or has been closed for a while
-    oldTransfer == 0 ? await calcPoints() : await startMatchday();
+    !oldTransfer ? await calcPoints() : await startMatchday();
   }
 }
 
@@ -302,7 +310,7 @@ export async function calcPoints() {
   if (
     await connection
       .query("SELECT value2 FROM data WHERE value1='transferOpen'")
-      .then((result) => (result.length > 0 ? result[0].value2 !== "0" : true))
+      .then((result) => (result.length > 0 ? result[0].value2 == "true" : true))
   ) {
     connection.end();
     return;
@@ -391,13 +399,18 @@ export async function calcPoints() {
 export async function checkUpdate() {
   const connection = await connect();
   // Checks if matchdays are currently happening and if it is a matchday checks if the update time has passed
+  // If it is not a matchday it is checked if the update time for that has passed
   const result = await connection.query(
     "SELECT value2 FROM data WHERE value1='transferOpen' or value1='playerUpdate' ORDER BY value1 DESC"
   );
   if (
-    result[0].value2 == 0 &&
     parseInt(result[1].value2) <
-      parseInt(Date.now() / 1000) - parseInt(process.env.MIN_UPDATE_TIME)
+    parseInt(Date.now() / 1000) -
+      parseInt(
+        result[0].value === "true"
+          ? process.env.MIN_UPDATE_TIME_TRANSFER
+          : process.env.MIN_UPDATE_TIME
+      )
   ) {
     connection.query(
       "INSERT INTO data (value1, value2) VALUES('update', '1') ON DUPLICATE KEY UPDATE value2=1"

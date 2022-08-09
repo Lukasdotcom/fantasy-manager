@@ -13,6 +13,7 @@ services:
       - MYSQL_HOST=db
       - MYSQL_DATABASE=bundesliga
       - MIN_UPDATE_TIME=120 # Minimum amount of seconds to pass before the data updates on Fri, Sat, and Sun to prevent spamming the api.
+      - MIN_UPDATE_TIME_TRANSFER=3600 # Minimum amount of seconds to pass before the data is updated during the transfer period
       # Get your oauth details for sign in with google or github and fill it in below(not required)
       #- GOOGLE_ID=
       #- GOOGLE_SECRET=
