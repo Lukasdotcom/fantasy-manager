@@ -19,11 +19,13 @@ export default async function handler(req, res) {
       );
     }
     // Tells the user if the updates are still running
-    result[0].updateRunning = await connection
-      .query("SELECT value2 FROM data WHERE value1='lastUpdateCheck'")
-      .then((result) =>
-        result.length > 0 ? Date.now() / 1000 - 600 < result[0].value2 : false
-      );
+    if (result.length > 0) {
+      result[0].updateRunning = await connection
+        .query("SELECT value2 FROM data WHERE value1='lastUpdateCheck'")
+        .then((result) =>
+          result.length > 0 ? Date.now() / 1000 - 600 < result[0].value2 : false
+        );
+    }
     // Checks if the player exists
     if (result.length > 0) {
       res.status(200).json(result[0]);
