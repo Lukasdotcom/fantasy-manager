@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import Username from "../components/Username";
 import fallbackImg from "../public/playerFallback.png";
 import Link from "next/link";
-import { Button, Box, useTheme } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
 function InternalPlayer({ data, children, starred }) {
   const [pictureUrl, setPictureUrl] = useState(undefined);
@@ -95,7 +95,7 @@ function InternalPlayer({ data, children, starred }) {
   } else {
     return (
       <div className={playerStyles.container}>
-        <p>loading...</p>
+        <CircularProgress />
       </div>
     );
   }
@@ -243,6 +243,13 @@ export function TransferPlayer({
           Transfer Market is Closed
         </Button>
       );
+    } else if (!transferLeft) {
+      PurchaseButton = (
+        <Button variant="outlined" disabled={true}>
+          No transfer left can&apos;t buy
+        </Button>
+      );
+      // Checks if the user owns the player and can sell the player
     } else if (data.value > money) {
       PurchaseButton = (
         <Button variant="outlined" disabled={true}>
