@@ -82,7 +82,7 @@ export async function updateData(file = "../sample/data1.json") {
     // Checks if it is a matchday
     if (newTransfer) {
       await connection.query(
-        "INSERT INTO players (uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1",
+        "INSERT INTO players (uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1, club=?, pictureUrl=?, position=?",
         [
           val.player.uid,
           val.player.nickname,
@@ -101,6 +101,9 @@ export async function updateData(file = "../sample/data1.json") {
           val.player.statistics.total_points,
           val.player.statistics.average_points,
           val.player.is_locked,
+          val.player.team.team_code,
+          val.player.image_urls.default,
+          val.player.positions[0],
         ]
       );
     } else {

@@ -201,6 +201,8 @@ describe("Invite User into league and change some league Settings and run throug
       .children(".playerButton")
       .children("button")
       .click();
+    // Makes sure that Lewandowski has changed clubs
+    cy.contains("VFB");
     // Purchases Mueller and checks if Nkunku is purchasable
     cy.contains("Transfer").click();
     cy.contains("Buy for 21.1 M").click();
