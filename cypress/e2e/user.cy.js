@@ -6,12 +6,12 @@ describe("User", () => {
   it("signup", () => {
     // Signs in
     cy.visit("http://localhost:3000");
-    cy.contains("Sign In/Sign Up").click();
+    cy.get("#login").click();
     cy.get("#input-username-for-Sign\\ Up-provider").type("Sample User");
     cy.get("#input-password-for-Sign\\ Up-provider").type("Sample Password");
     cy.contains("Sign in with Sign Up").click();
     // Edits the user
-    cy.get('[href="/usermenu"]').click();
+    cy.contains("SU").click();
     cy.get("#username").should("value", "Sample User");
     cy.get("#username").clear();
     cy.get("#username").type("New Sample Username");
@@ -19,12 +19,12 @@ describe("User", () => {
     cy.get('[href="/usermenu"]').click();
     cy.get("#username").should("value", "New Sample Username");
     cy.get("#password").type("New Password");
-    cy.contains("Change Password").click();
+    cy.contains("Update Password").click();
     // Signs out
-    cy.contains("Sign Out").click();
+    cy.get("#logout").click();
     // Trys to sign in with the wrong password and username
     cy.visit("http://localhost:3000");
-    cy.contains("Sign In/Sign Up").click();
+    cy.get("#login").click();
     cy.get("#input-username-for-Sign\\ In-provider").type("Sample User");
     cy.get("#input-password-for-Sign\\ In-provider").type("Sample Password");
     cy.contains("Sign in with Sign In").click();
@@ -42,6 +42,6 @@ describe("User", () => {
     );
     cy.get("#input-password-for-Sign\\ In-provider").type("New Password");
     cy.contains("Sign in with Sign In").click();
-    cy.get('[href="/usermenu"]');
+    cy.contains("NS");
   });
 });

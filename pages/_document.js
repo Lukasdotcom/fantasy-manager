@@ -4,15 +4,18 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="true"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
           rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+        />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/icon?family=Material+Icons"
         />
         <meta name="application-name" content="Bundesliga Fantasy Manager" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -68,7 +71,6 @@ export default function Document() {
           sizes="180x180"
           href="/icons/apple-icon-180x180.png"
         />
-
         <link
           rel="icon"
           type="image/png"

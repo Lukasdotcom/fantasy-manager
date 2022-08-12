@@ -20,7 +20,13 @@ export default async function handler(req, res) {
             : bcrypt.hashSync(password, parseInt(process.env.BCRYPT_ROUNDS)),
           id,
         ]);
-        res.status(200).end("Changed password");
+        res
+          .status(200)
+          .end(
+            req.body.password === ""
+              ? "Disabled password auth"
+              : "Changed password"
+          );
         console.log(`User ${id} changed password`);
         connection.end();
       } else if (req.body.username === undefined) {

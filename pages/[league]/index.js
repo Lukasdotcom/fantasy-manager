@@ -2,14 +2,29 @@ import Menu from "../../components/Menu";
 import redirect from "../../Modules/league";
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import Username from "../../components/Username";
+import { UserChip } from "../../components/Username";
 import { push } from "@socialgouv/matomo-next";
 import { getSession } from "next-auth/react";
 import connect from "../../Modules/database.mjs";
-import Link from "next/link";
+import Link from "../../components/Link";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Button,
+  Pagination,
+  PaginationItem,
+  TextField,
+  InputAdornment,
+  Autocomplete,
+  Box,
+} from "@mui/material";
 
 // Creates the admin panel
-function AdminPanel({ user, league }) {
+function AdminPanel({ league, notify }) {
   const [startingMoney, setStartingMoney] = useState(150);
   const [users, setUsers] = useState([]);
   const [transfers, setTransfers] = useState(6);
@@ -35,80 +50,106 @@ function AdminPanel({ user, league }) {
   return (
     <>
       <h1>Admin Panel</h1>
-      <label htmlFor="startingMoney">
-        Money players will start with in millions:
-      </label>
-      <input
+      <TextField
         id="startingMoney"
-        value={startingMoney}
+        variant="outlined"
+        size="small"
+        label="Starting Money"
         type="number"
         onChange={(val) => {
+          // Used to change the invite link
           setStartingMoney(val.target.value);
         }}
-      ></input>
+        value={startingMoney}
+      />
       <br />
-      <label htmlFor="transfers">Amount of transfers per transfer time:</label>
-      <input
+      <TextField
         id="transfers"
-        value={transfers}
+        variant="outlined"
+        size="small"
+        label="Transfer Amount"
         type="number"
         onChange={(val) => {
+          // Used to change the invite link
           setTransfers(val.target.value);
         }}
-      ></input>
+        value={transfers}
+      />
       <br />
-      <label htmlFor="duplicatePlayers">
-        Amount of times a player can be in a squad in the league:
-      </label>
-      <input
+      <TextField
         id="duplicatePlayers"
-        value={duplicatePlayers}
+        variant="outlined"
+        size="small"
+        helperText="Amount of Squads players can be in"
         type="number"
         onChange={(val) => {
+          // Used to change the invite link
           setDuplicatePlayers(val.target.value);
         }}
-      ></input>
+        value={duplicatePlayers}
+      />
       <br></br>
-      <label htmlFor="starredPercentage">
-        Point percantage for starred Players(150 means 1.5 times points for
-        starred players):
-      </label>
-      <input
+      <TextField
         id="starredPercentage"
-        value={starredPercentage}
+        variant="outlined"
+        size="small"
+        helperText="Point boost for starred players"
+        InputProps={{
+          endAdornment: <InputAdornment position="end">%</InputAdornment>,
+        }}
         type="number"
         onChange={(val) => {
+          // Used to change the invite link
           setStarredPercentage(val.target.value);
         }}
-      ></input>
-      <h2>Check Users for Admin</h2>
-      {users.map((element, id) => {
-        // Checks if this is the actual user
-        if (element.user != user) {
-          return (
-            <div key={id}>
-              <Username key={id} id={element.user} />
-              <input
-                type="checkbox"
-                checked={element.admin == 1}
-                onChange={(e) => {
-                  setUsers((e2) => {
-                    e2[id].admin = e.target.checked ? 1 : 0;
-                    return [...e2];
-                  });
-                }}
-              ></input>
-              <br></br>
-            </div>
-          );
-        } else {
-          return <div key={id}></div>;
-        }
-      })}
+        value={starredPercentage}
+      />
       <br></br>
-      <button
+      <Autocomplete
+        multiple
+        id="admins"
+        options={users}
+        freeSolo
+        value={users.filter((e) => e.admin == 1)}
+        renderTags={(value, getTagProps) =>
+          value.map((option, index) => (
+            <UserChip
+              key={option.user}
+              userid={option.user}
+              {...getTagProps({ index })}
+            />
+          ))
+        }
+        onChange={(e, value) => {
+          let admins = value.map((e) => e.user);
+          setUsers((e2) => {
+            // Updates the value for all of the users
+            e2.forEach((e3) => {
+              e3.admin = admins.includes(parseInt(e3.user));
+            });
+            return [...e2];
+          });
+        }}
+        renderOption={(props, option) => (
+          <Box {...props}>
+            <UserChip key={option.user} userid={option.user} />
+          </Box>
+        )}
+        getOptionLabel={(option) => String(option.user)}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            variant="standard"
+            label="Admins"
+            placeholder="New Admin"
+          />
+        )}
+      />
+      <br></br>
+      <Button
         onClick={() => {
           // Used to save the data
+          notify("Saving");
           fetch(`/api/league/${league}`, {
             method: "POST",
             headers: {
@@ -124,36 +165,26 @@ function AdminPanel({ user, league }) {
               },
             }),
           }).then(async (res) => {
-            if (!res.ok) alert(await res.text());
-            updateData(league);
+            notify(await res.text(), res.ok ? "success" : "error");
           });
         }}
+        variant="contained"
       >
-        Save all Admin Settings
-      </button>
-    </>
-  );
-}
-// Shows some simple UI for each user in the table
-function User({ name, points }) {
-  return (
-    <>
-      <td>
-        <Username id={name} />
-      </td>
-      <td>{points}</td>
+        Save Admin Settings
+      </Button>
     </>
   );
 }
 // Used to show all the invites that exist and to delete an individual invite
-function Invite({ link, league, host, remove }) {
+function Invite({ link, league, host, remove, notify }) {
   return (
     <p>
       Link: {`${host}/api/invite/${link}`}
-      <button
+      <Button
         onClick={async () => {
+          notify("Deleting");
           push(["trackEvent", "Delete Invite", league, link]);
-          await fetch("/api/invite", {
+          const response = await fetch("/api/invite", {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
@@ -163,12 +194,15 @@ function Invite({ link, league, host, remove }) {
               link: link,
             }),
           });
+          notify(await response.text(), response.ok ? "success" : "error");
           remove();
         }}
-        className="red-button"
+        sx={{ margin: "5px" }}
+        variant="outlined"
+        color="error"
       >
         Delete
-      </button>
+      </Button>
     </p>
   );
 }
@@ -181,6 +215,7 @@ export default function Home({
   historicalPoints,
   inviteLinks,
   host,
+  notify,
 }) {
   // Calculates the current matchday
   let currentMatchday = 0;
@@ -208,60 +243,58 @@ export default function Home({
       </Head>
       <Menu session={session} league={league} />
       <h1>Standings</h1>
-      <table>
-        <tbody>
-          <tr>
-            <th>User</th>
-            <th>
-              {matchday > currentMatchday
-                ? "Total Points"
-                : `Matchday ${matchday} Points`}
-            </th>
-          </tr>
-          {standings.map((val) => (
-            <tr key={val.user}>
-              <User
-                name={val.user}
-                points={
-                  matchday > currentMatchday
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>User</TableCell>
+              <TableCell>
+                {matchday > currentMatchday
+                  ? "Total Points"
+                  : `Matchday ${matchday} Points`}
+              </TableCell>
+              <TableCell>Buttons to View Historical Data</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {standings.map((val) => (
+              <TableRow key={val.user}>
+                <TableCell>
+                  <UserChip userid={val.user} />
+                </TableCell>
+                <TableCell>
+                  {matchday > currentMatchday
                     ? val.points
-                    : historicalPoints[val.user][matchday - 1]
-                }
-              />
-              <td>
-                <Link
-                  href={`/${league}/${val.user}/${
-                    matchday > currentMatchday ? "" : matchday
-                  }`}
-                >
-                  <button>Click to View Squad at point in history</button>
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <br></br>
-      {matchday !=
-        0 /* This is to allow the user to input a matchday to show the number of points */ && (
-        <>
-          <label htmlFor="matchday">
-            Drag this to show points for a specific matchday. If all the way on
-            the right total points will be shown
-          </label>
-          <br></br>
-          <input
-            id="matchday"
-            type={"range"}
-            min={1}
-            max={currentMatchday + 1}
-            value={matchday}
-            onChange={(e) => {
-              setmatchday(e.target.value);
-            }}
-          ></input>
-        </>
-      )}
+                    : historicalPoints[val.user][matchday - 1]}
+                </TableCell>
+                <TableCell>
+                  <Link
+                    href={`/${league}/${val.user}/${
+                      matchday > currentMatchday ? "" : matchday
+                    }`}
+                  >
+                    <Button>Click to View</Button>
+                  </Link>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <p>Select the matchday here</p>
+      <Pagination
+        page={matchday}
+        count={currentMatchday + 1}
+        onChange={(e, v) => {
+          setmatchday(v);
+        }}
+        renderItem={(item) => {
+          if (item.page > currentMatchday) item.page = "All";
+          return <PaginationItem {...item} />;
+        }}
+      >
+        <PaginationItem type="last">adsadsdasdas</PaginationItem>
+      </Pagination>
       <h1>Invite Links</h1>
       {invites.map((val) => (
         <Invite
@@ -269,30 +302,33 @@ export default function Home({
           key={val}
           link={val}
           league={league}
+          notify={notify}
           remove={() => {
             setInvites(invites.filter((e) => e != val));
           }}
         />
       ))}
       {/* Used to create a new invite link */}
-      <label htmlFor="invite">
-        Enter Custom Invite Link Here(Leave empty for a random invite link):{" "}
-      </label>
-      <input
+      <TextField
+        id="invite"
+        variant="outlined"
+        size="small"
+        label="Invite Link"
         onChange={(val) => {
+          // Used to change the invite link
           setnewInvite(val.target.value);
         }}
-        val={newInvite}
-        id="invite"
-      ></input>
-      <button
-        onClick={() => {
+        value={newInvite}
+      />
+      <Button
+        onClick={async () => {
           let link = newInvite;
+          notify("Creating new invite");
           // Makes sure to generate a random leagueID if none is given
           if (link === "") {
             link = String(Math.random()).slice(2);
           }
-          fetch("/api/invite", {
+          const response = await fetch("/api/invite", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -301,19 +337,14 @@ export default function Home({
               leagueID: league,
               link: link,
             }),
-          }).then((response) => {
-            if (response.ok) {
-              push(["trackEvent", "Create Invite", league, link]);
-              setInvites([...invites, link]);
-            } else {
-              alert("Invite link already used");
-            }
           });
+          notify(await response.text(), response.ok ? "success" : "error");
+          if (response.ok) setInvites([...invites, link]);
         }}
       >
         Add Invite
-      </button>
-      {admin && <AdminPanel user={user} league={league} />}
+      </Button>
+      {admin && <AdminPanel user={user} league={league} notify={notify} />}
     </>
   );
 }
@@ -384,7 +415,6 @@ export async function getServerSideProps(ctx) {
     res(result.length > 0);
   });
   return await redirect(ctx, {
-    user,
     admin: await admin,
     standings: await standings,
     historicalPoints: await historicalPoints,

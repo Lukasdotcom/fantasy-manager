@@ -8,7 +8,7 @@ describe("Invite User into league and change some league Settings and run throug
     let user2;
     // Signs in
     cy.visit("http://localhost:3000");
-    cy.contains("Sign In/Sign Up").click();
+    cy.get("#login").click();
     cy.get("#input-username-for-Sign\\ Up-provider").type("Invite 1");
     cy.get("#input-password-for-Sign\\ Up-provider").type("password");
     cy.contains("Sign in with Sign Up").click();
@@ -20,7 +20,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#name").type("Sample League");
     cy.get("button").contains("Create League").click();
     // Creates invites and deletes the randomly generated one
-    cy.contains("Sample League").click();
+    cy.contains("Open League").click();
     cy.contains("Add Invite").click();
     cy.get("#invite").type("invite1");
     cy.contains("Add Invite").click();
@@ -29,9 +29,9 @@ describe("Invite User into league and change some league Settings and run throug
     // Changes the default money amount and starred player multiplier
     cy.get("#startingMoney").clear().type(100);
     cy.get("#starredPercentage").clear().type(180);
-    cy.contains("Save all Admin Settings").click();
+    cy.contains("Save Admin Settings").click();
     // Signs into User 2 which will join the league through the invite
-    cy.contains("Sign Out").click();
+    cy.get("#logout").click();
     cy.get("#input-username-for-Sign\\ Up-provider").type("Invite 2");
     cy.get("#input-password-for-Sign\\ Up-provider").type("password");
     cy.contains("Sign in with Sign Up").click();
@@ -62,8 +62,9 @@ describe("Invite User into league and change some league Settings and run throug
         cy.reload();
       });
     // Gives other user admin rights
-    cy.get('[type="checkbox"]').check();
-    cy.contains("Save all Admin Settings").click();
+    cy.get("#admins").click();
+    cy.get("#admins-option-1").click();
+    cy.contains("Save Admin Settings").click();
     // Outbides Lewandoski purchase
     cy.contains("Transfer").click();
     cy.contains("Money left: 200M");
@@ -82,7 +83,7 @@ describe("Invite User into league and change some league Settings and run throug
       });
     // Changes the amount of times a player can be in a squad and buys lewandowski
     cy.get("#duplicatePlayers").clear().type(2);
-    cy.contains("Save all Admin Settings").click();
+    cy.contains("Save Admin Settings").click();
     cy.contains("Transfer").click();
     cy.contains("Unlimited transfers left");
     cy.contains("Money left: 100M");
@@ -103,7 +104,8 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Transfer Market is Closed");
     // Looks at the squad and moves some players around
     cy.contains("Squad").click();
-    cy.get("#formation").select("5-4-1");
+    cy.get("#formation").click();
+    cy.contains("5-4-1").click();
     cy.contains("Robert Lewandowski")
       .parent()
       .parent()
@@ -122,7 +124,8 @@ describe("Invite User into league and change some league Settings and run throug
       .children(".playerButton")
       .children("button")
       .click();
-    cy.get("#formation").select("4-4-2");
+    cy.get("#formation").click();
+    cy.contains("4-4-2").click();
     cy.contains("Erling Haaland")
       .parent()
       .parent()
@@ -147,11 +150,11 @@ describe("Invite User into league and change some league Settings and run throug
     cy.exec("export NODE_ENV=test; node cypress/e2e/invite3.mjs");
     // Checks that the user points are correct
     cy.contains("Standings").click();
-    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("44");
-    cy.get("tbody > :nth-child(3) > :nth-child(2)").contains("0");
-    cy.get("#matchday").invoke("val", 1).trigger("change");
-    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("44");
-    cy.get("tbody > :nth-child(3) > :nth-child(2)").contains("0");
+    cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("44");
+    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("0");
+    cy.get(".MuiPagination-ul > :nth-child(2)").click();
+    cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("44");
+    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("0");
     // Moves a player to the bench
     cy.contains("Squad").click();
     cy.contains("Christopher Nkunku")
@@ -163,11 +166,11 @@ describe("Invite User into league and change some league Settings and run throug
       .click();
     cy.contains("Standings").click();
     // Checks if the points got updated
-    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("34");
-    cy.get("tbody > :nth-child(3) > :nth-child(2)").contains("0");
-    cy.get("#matchday").invoke("val", 1).trigger("change");
-    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("34");
-    cy.get("tbody > :nth-child(3) > :nth-child(2)").contains("0");
+    cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("34");
+    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("0");
+    cy.get(".MuiPagination-ul > :nth-child(2)").click();
+    cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("34");
+    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("0");
     // Checks Nkunku button
     cy.contains("Squad").click();
     cy.contains("Christopher Nkunku")
@@ -189,7 +192,7 @@ describe("Invite User into league and change some league Settings and run throug
         cy.contains("Standings").click();
       });
     cy.get("#duplicatePlayers").clear().type(1);
-    cy.contains("Save all Admin Settings").click();
+    cy.contains("Save Admin Settings").click();
     cy.contains("Squad").click();
     // Checks if this user has Lewandowski still
     cy.contains("Robert Lewandowski")
@@ -209,20 +212,23 @@ describe("Invite User into league and change some league Settings and run throug
       .contains("Player not for Sale");
     cy.contains("Money left: 153M");
     cy.contains("Standings").click();
-    cy.get("tbody > :nth-child(2) > :nth-child(2)").contains("34");
-    cy.get("tbody > :nth-child(3) > :nth-child(2)").contains("0");
-    cy.get("tbody > :nth-child(2) > :nth-child(3) > button").click();
+    cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("34");
+    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("0");
+    cy.get(
+      ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root"
+    ).click();
     // Looks at the historical data for one of the users
-    cy.get(':nth-child(6) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(7) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
     cy.get('[alt="starred"]');
-    cy.get(":nth-child(17) > .playerButton > p").contains("Selling for 21.1M");
-    cy.get("#matchday").select("1");
-    cy.get(':nth-child(6) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(":nth-child(18) > .playerButton > p").contains("Selling for 21.1M");
+    cy.get("#matchday").click();
+    cy.get('.MuiList-root > [tabindex="-1"]').click();
+    cy.get(':nth-child(7) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
-    cy.get(':nth-child(16) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(17) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
     cy.contains("19.7 M");
@@ -237,9 +243,9 @@ describe("Invite User into league and change some league Settings and run throug
         cy.reload();
       });
     cy.contains("Leave League").click();
-    cy.contains("Sign Out").click();
+    cy.get("#logout").click();
     // Checks if the league is actually deleted
-    cy.contains("Sign In/Sign Up").click();
+    cy.get("#login").click();
     cy.get("#input-username-for-Sign\\ Up-provider").type("Invite 3");
     cy.get("#input-password-for-Sign\\ Up-provider").type("password");
     cy.contains("Sign in with Sign Up").click();

@@ -5,8 +5,9 @@ import { SquadPlayer as Player } from "../../components/Player";
 import { useState, useEffect } from "react";
 import { push } from "@socialgouv/matomo-next";
 import connect from "../../Modules/database.mjs";
+import { InputLabel, MenuItem, Select } from "@mui/material";
 
-export default function Home({ session, league, starredPercentage }) {
+export default function Home({ session, league, starredPercentage, notify }) {
   const [squad, setSquad] = useState({
     att: [],
     mid: [],
@@ -58,13 +59,14 @@ export default function Home({ session, league, starredPercentage }) {
         players will then get {starredPercentage}% of the regular amount of
         points.
       </p>
-      <label htmlFor="formation">Formation: </label>
-      <select
+      <InputLabel id="formation-label">Formation</InputLabel>
+      <Select
         onChange={(e) => {
           // Used to change the formation
           let newFormation = JSON.parse(e.target.value);
           push(["trackEvent", "New Formation", JSON.stringify(newFormation)]);
           setFormation(newFormation);
+          notify("Saving");
           fetch(`/api/squad/${league}`, {
             method: "POST",
             headers: {
@@ -74,24 +76,23 @@ export default function Home({ session, league, starredPercentage }) {
               formation: newFormation,
             }),
           }).then(async (response) => {
-            if (!response.ok) {
-              alert(await response.text());
-            }
+            notify(await response.text(), response.ok ? "success" : "error");
           });
         }}
         value={JSON.stringify(formation)}
         id="formation"
+        labelId="formation-label"
       >
         {validFormations.map((val) => (
-          <option
+          <MenuItem
             key={JSON.stringify(val)}
             disabled={changeToFormation(val)}
             value={JSON.stringify(val)}
           >
             {val[1]}-{val[2]}-{val[3]}
-          </option>
+          </MenuItem>
         ))}
-      </select>
+      </Select>
       <h2>Attackers</h2>
       {squad["att"].map(
         (
@@ -103,6 +104,7 @@ export default function Home({ session, league, starredPercentage }) {
             league={league}
             starred={e.starred}
             update={getSquad}
+            notify={notify}
           />
         )
       )}
@@ -117,6 +119,7 @@ export default function Home({ session, league, starredPercentage }) {
             league={league}
             starred={e.starred}
             update={getSquad}
+            notify={notify}
           />
         )
       )}
@@ -131,6 +134,7 @@ export default function Home({ session, league, starredPercentage }) {
             league={league}
             starred={e.starred}
             update={getSquad}
+            notify={notify}
           />
         )
       )}
@@ -144,6 +148,7 @@ export default function Home({ session, league, starredPercentage }) {
             key={e.playeruid}
             league={league}
             update={getSquad}
+            notify={notify}
           />
         )
       )}
@@ -158,6 +163,7 @@ export default function Home({ session, league, starredPercentage }) {
             field={field}
             league={league}
             update={getSquad}
+            notify={notify}
           />
         )
       )}

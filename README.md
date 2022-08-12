@@ -26,6 +26,7 @@ This is meant to be an open source self hosted version of the official bundeslig
    7. By Position
 9. Download data as json or csv
 10. See all historical player data(As long as the server was up).
+11. And all of theese features in a Modern UI
 
 ## Production or Installation
 

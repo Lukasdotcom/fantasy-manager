@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import Username from "../components/Username";
 import fallbackImg from "../public/playerFallback.png";
 import Link from "next/link";
+import { Button, Box, useTheme } from "@mui/material";
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
 function InternalPlayer({ data, children, starred }) {
   const [pictureUrl, setPictureUrl] = useState(undefined);
@@ -109,6 +110,7 @@ export function TransferPlayer({
   transferLeft,
   open,
   duplicatePlayers,
+  notify,
 }) {
   const session = useSession();
   const user = session.data ? session.data.user.id : 1;
@@ -122,6 +124,7 @@ export function TransferPlayer({
   }, [uid]);
   // Used to purchase a player
   function buySell() {
+    notify("Buying/Selling");
     push(["trackEvent", "Purchase/Sell", String(league), String(uid)]);
     fetch(`/api/transfer/${league}`, {
       method: "POST",
@@ -132,62 +135,76 @@ export function TransferPlayer({
         playeruid: uid,
       }),
     }).then(async (response) => {
-      if (!response.ok) {
-        alert(await response.text());
-      }
+      notify(await response.text(), response.ok ? "success" : "error");
       transferData();
     });
   }
   let PurchaseButton = (
-    <button disabled={true}>Error Getting Player info</button>
+    <Button variant="outlined" disabled={true}>
+      Error Getting Player info
+    </Button>
   );
   // Checks if the ownership info exists
   if (ownership !== undefined) {
     // Checks if the transfer market is still open
     if (!open) {
       PurchaseButton = (
-        <button disabled={true}>Transfer Market is Closed</button>
+        <Button variant="outlined" disabled={true}>
+          Transfer Market is Closed
+        </Button>
       );
       // Checks if the user is already purchasing the player
     } else if (ownership.filter((e) => e.buyer === user).length > 0) {
       PurchaseButton = (
-        <button disabled={true}>
+        <Button variant="outlined" disabled={true}>
           Buying for{" "}
           {ownership.filter((e) => e.buyer === user)[0].amount / 1000000} M
-        </button>
+        </Button>
       );
       // Checks if the user is already selling the player
     } else if (ownership.filter((e) => e.seller === user).length > 0) {
       PurchaseButton = (
-        <button disabled={true}>
+        <Button variant="outlined" color="error" disabled={true}>
           Selling for{" "}
           {ownership.filter((e) => e.seller === user)[0].amount / 1000000} M
-        </button>
+        </Button>
       );
       // Checks if ther user is out of transfers
     } else if (!transferLeft) {
       PurchaseButton = (
-        <button disabled={true}>No transfer left can&apos;t buy/sell</button>
+        <Button variant="outlined" disabled={true}>
+          No transfer left can&apos;t buy/sell
+        </Button>
       );
       // Checks if the user owns the player and can sell the player
     } else if (ownership.filter((e) => e.owner === user).length > 0) {
       PurchaseButton = (
-        <button onClick={buySell}>Sell for: {data.value / 1000000} M</button>
+        <Button variant="outlined" color="error" onClick={buySell}>
+          Sell for: {data.value / 1000000} M
+        </Button>
       );
       // Checks if the player is still purchasable
     } else if (
       duplicatePlayers <= ownership.filter((e) => !e.transfer).length
     ) {
-      PurchaseButton = <button disabled={true}>Player not for Sale</button>;
+      PurchaseButton = (
+        <Button variant="outlined" disabled={true}>
+          Player not for Sale
+        </Button>
+      );
       // Checks if the player can be bought from the market
     } else if (duplicatePlayers > ownership.length) {
       if (data.value > money) {
         PurchaseButton = (
-          <button disabled={true}>You need {data.value / 1000000} M</button>
+          <Button variant="outlined" disabled={true}>
+            You need {data.value / 1000000} M
+          </Button>
         );
       } else {
         PurchaseButton = (
-          <button onClick={buySell}>Buy for {data.value / 1000000} M</button>
+          <Button variant="outlined" onClick={buySell}>
+            Buy for {data.value / 1000000} M
+          </Button>
         );
       }
       // Finds the cheapest market price and sets the purchase for that
@@ -198,21 +215,23 @@ export function TransferPlayer({
       let cheapestPrice = bestDeal.amount + 100000;
       if (cheapestPrice > money) {
         PurchaseButton = (
-          <button disabled={true}>You need {cheapestPrice / 1000000} M</button>
+          <Button variant="outlined" disabled={true}>
+            You need {cheapestPrice / 1000000} M
+          </Button>
         );
       } else {
         let outbidtext =
           bestDeal.buyer !== 0 ? (
             <>
-              by outbidding <Username id={bestDeal.buyer}></Username>{" "}
+              by outbidding <Username userid={bestDeal.buyer}></Username>{" "}
             </>
           ) : (
             <></>
           );
         PurchaseButton = (
-          <button onClick={buySell}>
+          <Button variant="outlined" onClick={buySell}>
             Buy for {cheapestPrice / 1000000} M {outbidtext}
-          </button>
+          </Button>
         );
       }
     }
@@ -220,22 +239,28 @@ export function TransferPlayer({
     // If no ownership data exists the player must not be owned by anyone
     if (!open) {
       PurchaseButton = (
-        <button disabled={true}>Transfer Market is Closed</button>
+        <Button variant="outlined" disabled={true}>
+          Transfer Market is Closed
+        </Button>
       );
     } else if (data.value > money) {
       PurchaseButton = (
-        <button disabled={true}>You need {data.value / 1000000} M</button>
+        <Button variant="outlined" disabled={true}>
+          You need {data.value / 1000000} M
+        </Button>
       );
     } else {
       PurchaseButton = (
-        <button onClick={buySell}>Buy for {data.value / 1000000} M</button>
+        <Button variant="outlined" onClick={buySell}>
+          Buy for {data.value / 1000000} M
+        </Button>
       );
     }
   }
   return <InternalPlayer data={data}>{PurchaseButton}</InternalPlayer>;
 }
 // Used for the squad. Field should be undefined unless they are on the bench and then it shoud give what positions are still open
-export function SquadPlayer({ uid, update, field, league, starred }) {
+export function SquadPlayer({ uid, update, field, league, starred, notify }) {
   const [data, setData] = useState({});
   // Used to get the data for the player
   useEffect(() => {
@@ -259,8 +284,10 @@ export function SquadPlayer({ uid, update, field, league, starred }) {
   }
   return (
     <InternalPlayer data={data} starred={starred}>
-      <button
+      <Button
+        variant="outlined"
         onClick={() => {
+          notify("Moving");
           push(["trackEvent", "Move Player", league, uid]);
           // Used to move the player
           fetch(`/api/squad/${league}`, {
@@ -273,19 +300,20 @@ export function SquadPlayer({ uid, update, field, league, starred }) {
             }),
           })
             .then(async (response) => {
-              if (!response.ok) {
-                alert(await response.text());
-              }
+              notify(await response.text(), response.ok ? "success" : "error");
             })
             .then(update);
         }}
         disabled={disabled}
       >
         {MoveButton}
-      </button>
+      </Button>
       {(starred === false || starred === 0) && !data.locked && (
-        <button
+        <Button
+          variant="outlined"
+          color="secondary"
           onClick={() => {
+            notify("Starring");
             push(["trackEvent", "Star Player", league, uid]);
             fetch(`/api/squad/${league}`, {
               method: "POST",
@@ -297,21 +325,22 @@ export function SquadPlayer({ uid, update, field, league, starred }) {
               }),
             })
               .then(async (response) => {
-                if (!response.ok) {
-                  alert(await response.text());
-                }
+                notify(
+                  await response.text(),
+                  response.ok ? "success" : "error"
+                );
               })
               .then(update);
           }}
         >
           Star
-        </button>
+        </Button>
       )}
     </InternalPlayer>
   );
 }
 // Used to show the player without any buttons
-export function Player({ uid, children, starred }) {
+export function Player({ uid, children, starred, notify }) {
   const [data, setData] = useState({});
   // Used to get the data for the player
   useEffect(() => {
