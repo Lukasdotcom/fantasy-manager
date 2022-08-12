@@ -22,9 +22,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-      # Installs packages
-      - run: npm run build
+      - run: npm ci
       # Makes sure the code is formatted correctly
       - run: npm run pretty
       # Runs eslint
       - run: npm run lint
+      # Runs cypress
+      - run: npm run start:test & npm run cypress
