@@ -252,9 +252,12 @@ async function update() {
           time - 10,
         ]);
       } else {
-        console.log(`Predicting start of matchday in ${time} seconds`);
-        // Makes sure to wait until the time is done
-        setTimeout(updateData, time * 1000 + 1);
+        // Makes sure that the amount of time left in the transfer is not unknown
+        if (time !== 0) {
+          console.log(`Predicting start of matchday in ${time} seconds`);
+          // Makes sure to wait until the time is done
+          setTimeout(updateData, time * 1000 + 1);
+        }
       }
     } else {
       if (time - 11 > 0) {
@@ -266,8 +269,11 @@ async function update() {
           time - 10,
         ]);
       } else {
-        console.log(`Predicting end of matchday in ${time} seconds`);
-        setTimeout(updateData, time * 1000 + 1);
+        // Makes sure that the amount of time left in the matchday is not unknown
+        if (time !== 0) {
+          console.log(`Predicting end of matchday in ${time} seconds`);
+          setTimeout(updateData, time * 1000 + 1);
+        }
       }
     }
   }
