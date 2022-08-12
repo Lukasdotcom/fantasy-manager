@@ -7,6 +7,17 @@ import { push } from "@socialgouv/matomo-next";
 import { SessionProvider, useSession } from "next-auth/react";
 import connect from "../../Modules/database.mjs";
 import Link from "next/link";
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  MenuItem,
+  Select,
+  Switch,
+  TextField,
+} from "@mui/material";
 
 // Shows the amount of transfers left
 function TransfersLeft({ ownership, allowedTransfers, transferCount }) {
@@ -27,17 +38,19 @@ function TransfersLeft({ ownership, allowedTransfers, transferCount }) {
 function Postion({ position, positions, setPositions }) {
   return (
     <>
-      <label htmlFor={position}> {position}:</label>
-      <input
-        type="checkbox"
-        onChange={(e) => {
-          e.target.checked
-            ? setPositions([...positions, position])
-            : setPositions(positions.filter((e2) => e2 != position));
-        }}
-        checked={positions.includes(position)}
-        id={position}
-      ></input>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={positions.includes(position)}
+            onChange={(e) => {
+              e.target.checked
+                ? setPositions([...positions, position])
+                : setPositions(positions.filter((e2) => e2 != position));
+            }}
+          />
+        }
+        label={position}
+      />
     </>
   );
 }
@@ -46,6 +59,7 @@ export default function Home({
   league,
   allowedTransfers,
   duplicatePlayers,
+  notify,
 }) {
   const positionList = ["gk", "def", "mid", "att"];
   const [players, setPlayers] = useState([]);
@@ -142,116 +156,112 @@ export default function Home({
     }
   }
   return (
-    <>
+    <div
+      className="main-content"
+      onScroll={(e) => {
+        // Checks if scrolled to the bottom
+        const bottom =
+          e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight;
+        // Checks if there are only 2 players left that are not shown and if true requests 10 more players
+        if (bottom < (e.target.scrollHeight / players.length) * 2) {
+          search(false);
+        }
+      }}
+    >
       <Head>
         <title>Transfers</title>
       </Head>
       <Menu session={session} league={league} />
-      <div
-        className="main-content"
-        onScroll={async (e) => {
-          // Checks if scrolled to the bottom
-          const bottom =
-            e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight;
-          // Checks if there are only 2 players left that are not shown and if true requests 10 more players
-          if (bottom < (e.target.scrollHeight / players.length) * 2) {
-            search(false);
-          }
+      <SessionProvider session={session}>
+        <TransfersLeft
+          ownership={ownership}
+          allowedTransfers={allowedTransfers}
+          transferCount={transferCount}
+        />
+      </SessionProvider>
+      <p>Money left: {money / 1000000}M</p>
+      {transferMessage}
+      <TextField
+        onChange={(val) => {
+          setSearchTerm(val.target.value);
         }}
+        val={searchTerm}
+        label="Search Player"
+        id="searchPlayer"
+      ></TextField>
+      <TextField
+        onChange={(val) => {
+          setClubSearch(val.target.value);
+        }}
+        val={clubSearch}
+        id="searchClub"
+        label="Search Club"
+      ></TextField>
+      <br></br>
+      <FormLabel id="orderLabel">Search Order: </FormLabel>
+      <Select
+        value={orderBy}
+        onChange={(val) => setOrderBy(val.target.value)}
+        id="order"
+        labelId="orderLabel"
       >
-        <SessionProvider session={session}>
-          <TransfersLeft
-            ownership={ownership}
-            allowedTransfers={allowedTransfers}
-            transferCount={transferCount}
+        {["value", "total_points", "average_points", "last_match"].map(
+          (val) => (
+            <MenuItem key={val} value={val}>
+              {val}
+            </MenuItem>
+          )
+        )}
+      </Select>
+      <br></br>
+      <FormLabel component="legend">Positions to Search</FormLabel>
+      <FormGroup>
+        {positionList.map((position) => (
+          <Postion
+            key={position}
+            position={position}
+            positions={positions}
+            setPositions={setPositions}
           />
-        </SessionProvider>
-        <p>Money left: {money / 1000000}M</p>
-        {transferMessage}
-        <label htmlFor="search">Search Player Name: </label>
-        <input
-          onChange={(val) => {
-            setSearchTerm(val.target.value);
-          }}
-          val={searchTerm}
-          id="search"
-        ></input>
-        <br></br>
-        <label htmlFor="club">
-          Search Club(Uses the shortname so VFB for VFB Stuttgart):{" "}
-        </label>
-        <input
-          onChange={(val) => {
-            setClubSearch(val.target.value);
-          }}
-          val={clubSearch}
-          id="search"
-        ></input>
-        <br></br>
-        <label htmlFor="order">Order search by:</label>
-        <select
-          value={orderBy}
-          onChange={(val) => setOrderBy(val.target.value)}
-          id="order"
-        >
-          {["value", "total_points", "average_points", "last_match"].map(
-            (val) => (
-              <option key={val}>{val}</option>
-            )
-          )}
-        </select>
-        <br></br>
-        <p>
-          Positions to search:
-          {positionList.map((position) => (
-            <Postion
-              key={position}
-              position={position}
-              positions={positions}
-              setPositions={setPositions}
-            />
-          ))}
-        </p>
-        <p>
-          <label htmlFor="showHidden">
-            {" "}
-            Show Hidden Players(These players will all probably not earn
-            points):
-          </label>
-          <input
-            type="checkbox"
+        ))}
+      </FormGroup>
+      <FormControlLabel
+        control={
+          <Switch
+            id="showHidden"
             onChange={(e) => {
               setShowHidden(e.target.checked);
             }}
             checked={showHidden}
-            id="showHidden"
-          ></input>
-        </p>
-        <p>
-          Yellow background means attendance unknown, red background that the
-          player is not attending, and pink that the player will not earn points
-          anytime soon(Sell these players).
-        </p>
-        <button>
-          <Link href="/download">Download Player Data</Link>
-        </button>
-        <SessionProvider session={session}>
-          {players.map((val) => (
-            <Player
-              key={val}
-              uid={val}
-              money={money}
-              ownership={ownership[val]}
-              league={league}
-              transferLeft={transferCount < allowedTransfers}
-              transferData={transferData}
-              open={open}
-              duplicatePlayers={duplicatePlayers}
-            />
-          ))}
-        </SessionProvider>
-      </div>
-    </>
+          />
+        }
+        label="Show Hidden Players"
+      />
+      <p>
+        Yellow background means attendance unknown, red background that the
+        player is not attending, and purple/pink that the player will not earn
+        points anytime soon(Sell these players).
+      </p>
+      <Link href="/download">
+        <Button>Download Player Data</Button>
+      </Link>
+      <SessionProvider session={session}>
+        {players.map((val) => (
+          <Player
+            key={val}
+            uid={val}
+            money={money}
+            ownership={ownership[val]}
+            league={league}
+            transferLeft={transferCount < allowedTransfers}
+            transferData={transferData}
+            open={open}
+            duplicatePlayers={duplicatePlayers}
+            notify={notify}
+          />
+        ))}
+      </SessionProvider>
+    </div>
   );
 }
 

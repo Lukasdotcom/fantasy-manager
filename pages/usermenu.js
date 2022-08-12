@@ -2,8 +2,9 @@ import { getSession } from "next-auth/react";
 import { useState } from "react";
 import Menu from "../components/Menu";
 import Head from "next/head";
+import { Button, TextField } from "@mui/material";
 // A place to change your username and other settings
-export default function Home({ session, user }) {
+export default function Home({ session, user, notify }) {
   const [username, setUsername] = useState(user.username);
   const [password, setPassword] = useState("");
   return (
@@ -13,18 +14,23 @@ export default function Home({ session, user }) {
       </Head>
       <Menu session={session} />
       <h1>Usermenu</h1>
-      <label htmlFor="username">Edit username: </label>
-      <input
+      <TextField
+        error={username === ""}
+        id="username"
+        variant="outlined"
+        size="small"
+        label="Username"
         onChange={(e) => {
           // Used to change the username
           setUsername(e.target.value);
         }}
         value={username}
-        id="username"
-      ></input>
-      <button
+      />
+      <Button
+        variant="contained"
         onClick={() => {
           if (username !== "") {
+            notify("Saving...");
             fetch(`/api/user`, {
               method: "POST",
               headers: {
@@ -34,30 +40,31 @@ export default function Home({ session, user }) {
                 username,
               }),
             }).then(async (response) => {
-              if (!response.ok) {
-                alert(await response.text());
-              }
+              notify(await response.text(), response.ok ? "success" : "error");
             });
+          } else {
+            notify("You can not have an empty username", "warning");
           }
         }}
       >
         Change Username
-      </button>
+      </Button>
       <br></br>
-      <label htmlFor="password">
-        Edit password(Empty password means that password authentication is
-        disabled):{" "}
-      </label>
-      <input
-        id="password"
+      <TextField
         type="password"
-        value={password}
+        id="password"
+        variant="outlined"
+        size="small"
+        label="Password"
+        helperText="If empty you can disable password auth"
         onChange={(e) => {
           setPassword(e.target.value);
         }}
-      ></input>
-      <button
+      />
+      <Button
+        variant="contained"
         onClick={() => {
+          notify("Saving password");
           // Used to change the users password
           fetch(`/api/user`, {
             method: "POST",
@@ -68,14 +75,12 @@ export default function Home({ session, user }) {
               password: password,
             }),
           }).then(async (response) => {
-            if (!response.ok) {
-              alert(await response.text());
-            }
+            notify(await response.text(), response.ok ? "success" : "error");
           });
         }}
       >
-        Change Password
-      </button>
+        {password === "" ? "Disable Password Auth" : "Update Password"}
+      </Button>
     </>
   );
 }

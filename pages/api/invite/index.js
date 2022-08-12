@@ -34,7 +34,7 @@ export default async function handler(req, res) {
           res.status(200).end("Created Invite Link");
         })
         .catch(() => {
-          res.status(500).end("Invite link taken");
+          res.status(500).end("Invite link Taken");
         });
       break;
     case "GET": // Used to get a list of invite links for a league

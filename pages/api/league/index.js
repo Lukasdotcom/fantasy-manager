@@ -18,8 +18,12 @@ export default async function handler(req, res) {
           res.status(500).end("Failed to create league");
           break;
         }
+        if (req.body.name == "") {
+          res.status(500).end("Invalid league name given");
+          break;
+        }
         const startMoney = parseInt(req.body["Starting Money"]);
-        if (startMoney > 10000) {
+        if (startMoney > 100000) {
           await connection.query(
             "INSERT INTO leagueSettings (leagueName, leagueID, startMoney) VALUES (?, ?, ?)",
             [req.body.name, id, startMoney]

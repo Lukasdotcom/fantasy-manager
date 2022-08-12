@@ -4,6 +4,7 @@ import connect from "../../../Modules/database.mjs";
 import redirect from "../../../Modules/league";
 import { Player, HistoricalPlayer } from "../../../components/Player";
 import { useRouter } from "next/router";
+import { FormLabel, MenuItem, Select } from "@mui/material";
 export default function HistoricalView({
   session,
   user,
@@ -26,23 +27,28 @@ export default function HistoricalView({
         {username}&apos;s Squad{" "}
         {currentMatchday === 0 ? "" : `on matchday ${currentMatchday}`}
       </h1>
-      <label htmlFor="matchday">Select matchday :</label>
-      <select
+      <FormLabel id="matchdayLabel">Select Matchday</FormLabel>
+      <Select
         onChange={(e) => {
-          router.push(`/${league}/${user}/${e.target.value}`);
+          router.push(
+            `/${league}/${user}/${
+              e.target.value === "latest" ? "" : e.target.value
+            }`
+          );
         }}
-        value={currentMatchday === 0 ? "" : currentMatchday}
+        value={currentMatchday === 0 ? "latest" : currentMatchday}
         id="matchday"
+        labelId="matchdayLabel"
       >
         {Array(latestMatchday)
           .fill(0)
           .map((a, index) => (
-            <option key={index + 1} value={index + 1}>
+            <MenuItem key={index + 1} value={index + 1}>
               {index + 1}
-            </option>
+            </MenuItem>
           ))}
-        <option value="">latest</option>
-      </select>
+        <MenuItem value="latest">latest</MenuItem>
+      </Select>
       <h2>Attackers</h2>
       {squad
         .filter((e) => e.position === "att")

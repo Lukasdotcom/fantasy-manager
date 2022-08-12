@@ -1,6 +1,6 @@
 {
   "name": "bundesliga",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "private": true,
   "scripts": {
     "dev": "export NODE_ENV=development; npm install; node scripts/entrypoint.mjs & next dev",
@@ -16,6 +16,9 @@
     "start:no-build": "node scripts/entrypoint.mjs & next start"
   },
   "dependencies": {
+    "@emotion/react": "11.10.0",
+    "@emotion/styled": "11.10.0",
+    "@mui/material": "5.10.0",
     "@socialgouv/matomo-next": "1.4.0",
     "bcryptjs": "2.4.3",
     "csv-stringify": "6.2.0",
