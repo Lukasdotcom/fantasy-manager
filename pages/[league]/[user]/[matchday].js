@@ -44,6 +44,10 @@ export async function getServerSideProps(ctx) {
         [league, user]
       )
       .then((res) => (res.length > 0 ? res[0].matchday : 0)),
+    // Gets the league name
+    connection
+      .query("SELECT * FROM leagueSettings WHERE leagueID=?", [league])
+      .then((res) => (res.length > 0 ? res[0].leagueName : 0)),
   ]);
   connection.end();
   // Checks if the user exists

@@ -51,6 +51,12 @@ export default async function handler(req, res) {
                 "UPDATE leagueSettings SET starredPercentage=? WHERE leagueID=?",
                 [parseInt(settings.starredPercentage), league]
               );
+            if (settings.leagueName !== undefined) {
+              connection.query(
+                "UPDATE leagueSettings SET leagueName=? WHERE leagueID=?",
+                [settings.leagueName, league]
+              );
+            }
           }
           res.status(200).end("Saved Settings");
         } else {

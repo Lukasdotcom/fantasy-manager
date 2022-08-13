@@ -60,6 +60,7 @@ export default function Home({
   allowedTransfers,
   duplicatePlayers,
   notify,
+  leagueName,
 }) {
   const positionList = ["gk", "def", "mid", "att"];
   const [players, setPlayers] = useState([]);
@@ -169,9 +170,10 @@ export default function Home({
       }}
     >
       <Head>
-        <title>Transfers</title>
+        <title>Transfers for {leagueName}</title>
       </Head>
       <Menu session={session} league={league} />
+      <h1>Transfers for {leagueName}</h1>
       <SessionProvider session={session}>
         <TransfersLeft
           ownership={ownership}
