@@ -34,6 +34,7 @@ const Layout = ({ session, league }) => {
     pages.push({ name: "Squad", link: `/${league}/squad` });
     pages.push({ name: "Transfers", link: `/${league}/transfer` });
   }
+  pages.push({ name: "Download", link: `/download` });
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
