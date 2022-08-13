@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 
 // Creates the admin panel
-function AdminPanel({ league, notify }) {
+function AdminPanel({ league, notify, leagueName, setLeagueName }) {
   const [startingMoney, setStartingMoney] = useState(150);
   const [users, setUsers] = useState([]);
   const [transfers, setTransfers] = useState(6);
@@ -50,6 +50,18 @@ function AdminPanel({ league, notify }) {
   return (
     <>
       <h1>Admin Panel</h1>
+      <TextField
+        id="leagueName"
+        variant="outlined"
+        size="small"
+        label="League Name"
+        onChange={(val) => {
+          // Used to change the invite link
+          setLeagueName(val.target.value);
+        }}
+        value={leagueName}
+      />
+      <br></br>
       <TextField
         id="startingMoney"
         variant="outlined"
@@ -162,6 +174,7 @@ function AdminPanel({ league, notify }) {
                 transfers,
                 duplicatePlayers,
                 starredPercentage,
+                leagueName,
               },
             }),
           }).then(async (res) => {
@@ -216,7 +229,9 @@ export default function Home({
   inviteLinks,
   host,
   notify,
+  leagueName,
 }) {
+  const [inputLeagueName, setInputLeagueName] = useState(leagueName);
   // Calculates the current matchday
   let currentMatchday = 0;
   if (Object.values(historicalPoints).length !== 0) {
@@ -239,10 +254,10 @@ export default function Home({
   return (
     <>
       <Head>
-        <title>Standings</title>
+        <title>Standings for {inputLeagueName}</title>
       </Head>
       <Menu session={session} league={league} />
-      <h1>Standings</h1>
+      <h1>Standings for {inputLeagueName}</h1>
       <TableContainer>
         <Table>
           <TableHead>
@@ -344,7 +359,15 @@ export default function Home({
       >
         Add Invite
       </Button>
-      {admin && <AdminPanel user={user} league={league} notify={notify} />}
+      {admin && (
+        <AdminPanel
+          leagueName={inputLeagueName}
+          setLeagueName={setInputLeagueName}
+          user={user}
+          league={league}
+          notify={notify}
+        />
+      )}
     </>
   );
 }

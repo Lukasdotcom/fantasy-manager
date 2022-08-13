@@ -21,6 +21,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("button").contains("Create League").click();
     // Creates invites and deletes the randomly generated one
     cy.contains("Open League").click();
+    cy.contains("Standings for Sample League");
     cy.contains("Add Invite").click();
     cy.get("#invite").type("invite1");
     cy.contains("Add Invite").click();
@@ -29,6 +30,9 @@ describe("Invite User into league and change some league Settings and run throug
     // Changes the default money amount and starred player multiplier
     cy.get("#startingMoney").clear().type(100);
     cy.get("#starredPercentage").clear().type(180);
+    // Changes the name and checks if that worked
+    cy.get("#leagueName").clear().type("New Sample League");
+    cy.contains("Standings for New Sample League");
     cy.contains("Save Admin Settings").click();
     // Signs into User 2 which will join the league through the invite
     cy.get("#logout").click();
@@ -213,12 +217,15 @@ describe("Invite User into league and change some league Settings and run throug
       .children("button")
       .contains("Player not for Sale");
     cy.contains("Money left: 153M");
+    // Checks the standings
     cy.contains("Standings").click();
     cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("34");
     cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("0");
+    // Goes to historical view and checks if the title is correct
     cy.get(
       ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root"
     ).click();
+    cy.contains("Invite 2's Squad from New Sample League");
     // Looks at the historical data for one of the users
     cy.get(':nth-child(7) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
@@ -227,6 +234,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get(":nth-child(18) > .playerButton > p").contains("Selling for 21.1M");
     cy.get("#matchday").click();
     cy.get('.MuiList-root > [tabindex="-1"]').click();
+    cy.contains("Invite 2's Squad on Matchday 1 from New Sample League");
     cy.get(':nth-child(7) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
