@@ -56,6 +56,8 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Buy for 25.8 M").click();
     cy.contains("Buying for 25.8 M");
     cy.contains("Money left: 74.2M");
+    // Makes sure the next match indicator is right
+    cy.contains("WOB in 0 D 2 H");
     // Switches to user 1
     cy.contains("Standings")
       .click()
@@ -226,6 +228,8 @@ describe("Invite User into league and change some league Settings and run throug
       ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root"
     ).click();
     cy.contains("Invite 2's Squad from New Sample League");
+    // Makes sure the team they are playing is correct
+    cy.contains("Next").parent().contains("BVB");
     // Looks at the historical data for one of the users
     cy.get(':nth-child(7) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
@@ -235,6 +239,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#matchday").click();
     cy.get('.MuiList-root > [tabindex="-1"]').click();
     cy.contains("Invite 2's Squad on Matchday 1 from New Sample League");
+    cy.contains("Next").should("not.exist");
     cy.get(':nth-child(7) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );

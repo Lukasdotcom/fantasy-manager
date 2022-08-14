@@ -9,7 +9,23 @@ import Link from "next/link";
 import { Button, CircularProgress } from "@mui/material";
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
 function InternalPlayer({ data, children, starred }) {
+  const [countdown, setCountown] = useState(0);
   const [pictureUrl, setPictureUrl] = useState(undefined);
+  useEffect(() => {
+    const id = setInterval(
+      () => setCountown((countdown) => (countdown > 0 ? countdown - 1 : 0)),
+      60000
+    );
+    return () => {
+      clearInterval(id);
+    };
+  }, []);
+  // Makes sure that the countdown is up to date
+  useEffect(() => {
+    setCountown(
+      data.game ? parseInt((data.game.gameStart - Date.now() / 1000) / 60) : 0
+    );
+  }, [data]);
   let background = "black";
   if (Object.keys(data).length > 0) {
     // Changes the background to the correct color if the player is missing or not known if they are coming
@@ -69,7 +85,7 @@ function InternalPlayer({ data, children, starred }) {
               <p>{data.average_points}</p>
             </div>
             <div>
-              <p>Last Match</p>
+              <p>Last</p>
               <p>
                 {data.last_match}
                 {starred ? " X Star" : ""}
@@ -79,6 +95,19 @@ function InternalPlayer({ data, children, starred }) {
               <p>Value</p>
               <p>{data.value / 1000000} M</p>
             </div>
+            {data.game && (
+              <div>
+                <p>Next</p>
+                <p>
+                  {data.game.opponent}
+                  {countdown > 0
+                    ? ` in ${Math.floor(countdown / 60 / 24)} D ${
+                        Math.floor(countdown / 60) % 24
+                      } H ${Math.floor(countdown) % 60} M`
+                    : ""}
+                </p>
+              </div>
+            )}
           </div>
         </div>
         <div
