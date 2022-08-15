@@ -37,9 +37,10 @@ export default async function handler(req, res) {
         );
         // Makes sure to add 0 point matchdays for every matchday that has already happened.
         await connection
-          .query("SELECT * FROM points WHERE leagueID=? ORDER BY points DESC", [
-            invite.leagueID,
-          ])
+          .query(
+            "SELECT * FROM points WHERE leagueID=? ORDER BY matchday DESC",
+            [invite.leagueID]
+          )
           .then(async (point) => {
             let matchday = 0;
             if (point.length > 0) {

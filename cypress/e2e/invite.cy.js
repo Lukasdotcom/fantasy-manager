@@ -247,12 +247,31 @@ describe("Invite User into league and change some league Settings and run throug
       "Robert Lewandowski"
     );
     cy.contains("19.7 M");
-    // Has both players leave the league
+    // Simulates an empty matchday
+    cy.exec("export NODE_ENV=test; node cypress/e2e/invite5.mjs");
+    // Adds a third user that joins late
+    cy.get("#logout").click();
+    cy.get("#input-username-for-Sign\\ Up-provider").type("Invite 3");
+    cy.get("#input-password-for-Sign\\ Up-provider").type("password");
+    cy.contains("Sign in with Sign Up").click();
+    cy.visit("http://localhost:3000/api/invite/invite1");
+    // Makes sure this user actually has points for matchday 2
+    cy.get(".MuiPagination-ul > :nth-child(3)").click();
+    cy.get(".MuiTableBody-root > :nth-child(3) > :nth-child(2)").contains("0");
+    // Has all players leave the league
     cy.contains("Home").click();
     cy.contains("Leave League")
       .click()
       .then(() => {
         cy.setCookie("next-auth.session-token", user2);
+      })
+      .then(() => {
+        cy.reload();
+      });
+    cy.contains("Leave League")
+      .click()
+      .then(() => {
+        cy.setCookie("next-auth.session-token", user1);
       })
       .then(() => {
         cy.reload();
