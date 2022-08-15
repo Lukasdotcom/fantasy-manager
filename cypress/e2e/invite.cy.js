@@ -258,6 +258,8 @@ describe("Invite User into league and change some league Settings and run throug
     // Makes sure this user actually has points for matchday 2
     cy.get(".MuiPagination-ul > :nth-child(3)").click();
     cy.get(".MuiTableBody-root > :nth-child(3) > :nth-child(2)").contains("0");
+    // Checks if the league settings part is shown
+    cy.contains("Settings");
     // Has all players leave the league
     cy.contains("Home").click();
     cy.contains("Leave League")
