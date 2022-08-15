@@ -29,6 +29,7 @@ This is meant to be an open source self hosted version of the official bundeslig
 11. And all of theese features in a Modern UI
 
 ## Screenshots
+
 <img src="https://raw.githubusercontent.com/Lukasdotcom/Bundesliga/main/screenshots/main.png">
 <img src="https://raw.githubusercontent.com/Lukasdotcom/Bundesliga/main/screenshots/transfers.png">
 
