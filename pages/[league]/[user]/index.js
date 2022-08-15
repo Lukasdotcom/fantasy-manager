@@ -4,7 +4,7 @@ import connect from "../../../Modules/database.mjs";
 import redirect from "../../../Modules/league";
 import { Player, HistoricalPlayer } from "../../../components/Player";
 import { useRouter } from "next/router";
-import { FormLabel, MenuItem, Select } from "@mui/material";
+import { FormLabel, Pagination, PaginationItem } from "@mui/material";
 export default function HistoricalView({
   session,
   user,
@@ -34,34 +34,32 @@ export default function HistoricalView({
         from {leagueName}
       </h1>
       <FormLabel id="matchdayLabel">Select Matchday</FormLabel>
-      <Select
-        onChange={(e) => {
+      <Pagination
+        page={
+          currentMatchday == 0 ? latestMatchday + 1 : parseInt(currentMatchday)
+        }
+        count={latestMatchday + 1}
+        onChange={(e, v) => {
           router.push(
-            `/${league}/${user}/${
-              e.target.value === "latest" ? "" : e.target.value
-            }`
+            `/${league}/${user}/${v === latestMatchday + 1 ? "" : v}`
           );
         }}
-        value={currentMatchday === 0 ? "latest" : currentMatchday}
-        id="matchday"
-        labelId="matchdayLabel"
-      >
-        {Array(latestMatchday)
-          .fill(0)
-          .map((a, index) => (
-            <MenuItem key={index + 1} value={index + 1}>
-              {index + 1}
-            </MenuItem>
-          ))}
-        <MenuItem value="latest">latest</MenuItem>
-      </Select>
+        renderItem={(item) => {
+          if (item.page > latestMatchday) item.page = "Latest";
+          return <PaginationItem {...item} />;
+        }}
+      ></Pagination>
       <h2>Attackers</h2>
       {squad
         .filter((e) => e.position === "att")
         .map((e) => {
           if (currentMatchday === 0)
             return (
-              <Player key={e.playeruid} starred={e.starred} uid={e.playeruid} />
+              <Player
+                key={e.playeruid + "att"}
+                starred={e.starred}
+                uid={e.playeruid}
+              />
             );
           return (
             <HistoricalPlayer
@@ -78,7 +76,11 @@ export default function HistoricalView({
         .map((e) => {
           if (currentMatchday === 0)
             return (
-              <Player key={e.playeruid} starred={e.starred} uid={e.playeruid} />
+              <Player
+                key={e.playeruid + "mid"}
+                starred={e.starred}
+                uid={e.playeruid}
+              />
             );
           return (
             <HistoricalPlayer
@@ -95,7 +97,11 @@ export default function HistoricalView({
         .map((e) => {
           if (currentMatchday === 0)
             return (
-              <Player key={e.playeruid} starred={e.starred} uid={e.playeruid} />
+              <Player
+                key={e.playeruid + "def"}
+                starred={e.starred}
+                uid={e.playeruid}
+              />
             );
           return (
             <HistoricalPlayer
@@ -111,7 +117,7 @@ export default function HistoricalView({
         .filter((e) => e.position === "gk")
         .map((e) => {
           if (currentMatchday === 0)
-            return <Player key={e.playeruid} uid={e.playeruid} />;
+            return <Player key={e.playeruid + "gk"} uid={e.playeruid} />;
           return (
             <HistoricalPlayer key={e.playeruid} uid={e.playeruid} time={time} />
           );
@@ -121,7 +127,7 @@ export default function HistoricalView({
         .filter((e) => e.position === "bench")
         .map((e) => {
           if (currentMatchday === 0)
-            return <Player key={e.playeruid} uid={e.playeruid} />;
+            return <Player key={e.playeruid + "bench"} uid={e.playeruid} />;
           return (
             <HistoricalPlayer key={e.playeruid} uid={e.playeruid} time={time} />
           );
@@ -133,12 +139,16 @@ export default function HistoricalView({
         .map((e) => {
           if (currentMatchday === 0)
             return (
-              <Player key={e.playeruid} uid={e.playeruid}>
+              <Player key={e.playeruid + "buy"} uid={e.playeruid}>
                 <p>Buying for {e.value / 1000000}M</p>
               </Player>
             );
           return (
-            <HistoricalPlayer key={e.playeruid} uid={e.playeruid} time={time}>
+            <HistoricalPlayer
+              key={e.playeruid + "buy"}
+              uid={e.playeruid}
+              time={time}
+            >
               <p>Bought for {e.value / 1000000}M</p>
             </HistoricalPlayer>
           );
@@ -149,12 +159,16 @@ export default function HistoricalView({
         .map((e) => {
           if (currentMatchday === 0)
             return (
-              <Player key={e.playeruid} uid={e.playeruid}>
+              <Player key={e.playeruid + "sell"} uid={e.playeruid}>
                 <p>Selling for {e.value / 1000000}M</p>
               </Player>
             );
           return (
-            <HistoricalPlayer key={e.playeruid} uid={e.playeruid} time={time}>
+            <HistoricalPlayer
+              key={e.playeruid + "sell"}
+              uid={e.playeruid}
+              time={time}
+            >
               <p>Sold for {e.value / 1000000}M</p>
             </HistoricalPlayer>
           );
