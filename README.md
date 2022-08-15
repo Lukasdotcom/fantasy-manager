@@ -28,6 +28,10 @@ This is meant to be an open source self hosted version of the official bundeslig
 10. See all historical player data(As long as the server was up).
 11. And all of theese features in a Modern UI
 
+## Screenshots
+<img src="https://raw.githubusercontent.com/Lukasdotcom/Bundesliga/main/screenshots/main.png">
+<img src="https://raw.githubusercontent.com/Lukasdotcom/Bundesliga/main/screenshots/transfers.png">
+
 ## Production or Installation
 
 There are 2 options to run this Sqlite and Mariadb. If you are unsure I would recommend sqlite it is faster. If you would like to install this without docker-compose you can use the [Dockerless](#dockerless) version.
