@@ -72,7 +72,13 @@ async function startUp() {
     connection.query(
       "CREATE TABLE IF NOT EXISTS historicalTransfers (matchday int, leagueID int, seller int, buyer int, playeruid varchar(25), value int)"
     ),
+    // Used to store club data
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, opponent varchar(3))"
+    ),
   ]);
+  // Unlocks the database
+  connection.query("DELETE FROM data WHERE value1='locked'");
   // Checks the version of the database is out of date
   let oldVersion = await connection.query(
     "SELECT value2 FROM data WHERE value1='version'"

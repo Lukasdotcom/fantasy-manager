@@ -3,6 +3,21 @@ import noAccents from "../Modules/normalize.mjs";
 // Used to update all the data
 export async function updateData(file = "../sample/data1.json") {
   const connection = await connect();
+  // Waits until the database is unlocked to prevent to scripts from updating at once
+  await new Promise(async (res) => {
+    while (
+      await connection
+        .query("SELECT * FROM data WHERE value1='locked'")
+        .then((res) => res.length > 0)
+    ) {
+      await new Promise((res) => setTimeout(res, 1000));
+    }
+    res();
+  });
+  // Locks the database to prevent updates
+  connection.query(
+    "INSERT INTO data (value1, value2) VALUES ('locked', 'locked')"
+  );
   const nowTime = parseInt(Date.now() / 1000);
   connection.query(
     "INSERT INTO data (value1, value2) VALUES('playerUpdate', ?) ON DUPLICATE KEY UPDATE value2=?",
@@ -73,14 +88,35 @@ export async function updateData(file = "../sample/data1.json") {
   // Checks if the transfer market is closing
   if (newTransfer && !oldTransfer) await endMatchday();
   // Goes through all of the players and adds their data to the database
-  const players = data.offerings.items;
+  const players = data.offerings.items.sort(
+    (a, b) =>
+      parseInt(a.player.team.team_code, 36) -
+      parseInt(b.player.team.team_code, 36)
+  );
   await connection.query("UPDATE players SET `exists`=0");
   let index = 0;
+  let club = "";
+  let clubDone = false;
+  const currentTime = parseInt(Date.now() / 1000);
   while (index < players.length) {
     let val = players[index];
     index++;
     // Checks if it is a matchday
     if (newTransfer) {
+      // Updates the club info
+      if (club !== val.player.team.team_code) {
+        club = val.player.team.team_code;
+        await connection.query(
+          "INSERT INTO clubs (club, gameStart, opponent) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE gameStart=?, opponent=?",
+          [
+            club,
+            currentTime + val.player.match_starts_in,
+            val.player.next_opponent.team_code,
+            currentTime + val.player.match_starts_in,
+            val.player.next_opponent.team_code,
+          ]
+        );
+      }
       await connection.query(
         "INSERT INTO players (uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1, club=?, pictureUrl=?, position=?",
         [
@@ -107,6 +143,31 @@ export async function updateData(file = "../sample/data1.json") {
         ]
       );
     } else {
+      // Updates the club info
+      if (club !== val.player.team.team_code) {
+        club = val.player.team.team_code;
+        // Checks if the club is already done
+        clubDone = await connection
+          .query("SELECT * FROM clubs WHERE club=?", [club])
+          .then((res) =>
+            res.length > 0
+              ? val.player.next_opponent.team_code !== res[0].opponent
+              : false
+          );
+        // If the club is not done
+        if (!clubDone) {
+          await connection.query(
+            "INSERT INTO clubs (club, gameStart, opponent) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE gameStart=?, opponent=?",
+            [
+              club,
+              currentTime + val.player.match_starts_in,
+              val.player.next_opponent.team_code,
+              currentTime + val.player.match_starts_in,
+              val.player.next_opponent.team_code,
+            ]
+          );
+        }
+      }
       // Checks if the player already is in the database or not
       const playerExists = await connection.query(
         "SELECT last_match, total_points FROM players WHERE uid=?",
@@ -130,7 +191,8 @@ export async function updateData(file = "../sample/data1.json") {
             val.player.is_locked,
           ]
         );
-      } else {
+        // Makes sure that the club is not done for the matchday
+      } else if (!clubDone) {
         await connection.query(
           "UPDATE players SET value=?, forecast=?, total_points=?, average_points=?, last_match=?, locked=?, `exists`=1 WHERE uid=?",
           [
@@ -145,16 +207,20 @@ export async function updateData(file = "../sample/data1.json") {
             val.player.uid,
           ]
         );
+      } else {
+        await connection.query("UPDATE players SET `exists`=1");
       }
     }
   }
-  connection.end();
   console.log("Downloaded new data");
   // Checks if the matchday is running
   if (!newTransfer) {
     // Checks if the transfer market has just closed or has been closed for a while
     !oldTransfer ? await calcPoints() : await startMatchday();
   }
+  // Unlocks the database
+  connection.query("DELETE FROM data WHERE value1='locked'");
+  connection.end();
 }
 
 // Used to start the matchday

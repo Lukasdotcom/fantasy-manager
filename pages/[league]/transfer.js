@@ -170,7 +170,7 @@ export default function Home({
       }}
     >
       <Head>
-        <title>Transfers for {leagueName}</title>
+        <title>{`Transfers for ` + leagueName}</title>
       </Head>
       <Menu session={session} league={league} />
       <h1>Transfers for {leagueName}</h1>

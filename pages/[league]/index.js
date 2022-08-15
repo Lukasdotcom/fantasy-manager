@@ -254,7 +254,7 @@ export default function Home({
   return (
     <>
       <Head>
-        <title>Standings for {inputLeagueName}</title>
+        <title>{`Standings for ` + inputLeagueName}</title>
       </Head>
       <Menu session={session} league={league} />
       <h1>Standings for {inputLeagueName}</h1>

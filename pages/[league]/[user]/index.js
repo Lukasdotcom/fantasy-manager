@@ -22,9 +22,9 @@ export default function HistoricalView({
     <>
       <Head>
         <title>
-          {username}&apos;s Squad{" "}
-          {currentMatchday === 0 ? "" : `on Matchday ${currentMatchday} `}
-          from {leagueName}
+          {`${username}'s Squad  
+          ${currentMatchday === 0 ? "" : `on Matchday ${currentMatchday} `}
+          from ${leagueName}`}
         </title>
       </Head>
       <Menu session={session} league={league} />

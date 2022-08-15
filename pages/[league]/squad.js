@@ -56,7 +56,7 @@ export default function Home({
   return (
     <>
       <Head>
-        <title>Squad for {leagueName}</title>
+        <title>{`Squad for ` + leagueName}</title>
       </Head>
       <Menu session={session} league={league} />
       <h1>Squad for {leagueName}</h1>
