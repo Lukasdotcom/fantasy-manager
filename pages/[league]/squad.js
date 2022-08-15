@@ -7,7 +7,13 @@ import { push } from "@socialgouv/matomo-next";
 import connect from "../../Modules/database.mjs";
 import { InputLabel, MenuItem, Select } from "@mui/material";
 
-export default function Home({ session, league, starredPercentage, notify }) {
+export default function Home({
+  session,
+  league,
+  starredPercentage,
+  notify,
+  leagueName,
+}) {
   const [squad, setSquad] = useState({
     att: [],
     mid: [],
@@ -50,10 +56,10 @@ export default function Home({ session, league, starredPercentage, notify }) {
   return (
     <>
       <Head>
-        <title>Squad</title>
+        <title>{`Squad for ` + leagueName}</title>
       </Head>
       <Menu session={session} league={league} />
-      <h1>Squad</h1>
+      <h1>Squad for {leagueName}</h1>
       <p>
         You can have one starred Forward, Midfielder, and Defender. These
         players will then get {starredPercentage}% of the regular amount of

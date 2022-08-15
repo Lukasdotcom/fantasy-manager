@@ -12,11 +12,24 @@ export default async function handler(req, res) {
         "SELECT * FROM historicalPlayers WHERE uid=? AND time=?",
         [req.query.uid, parseInt(req.query.time)]
       );
+      if (result.length > 0) {
+        result[0].forecast = "a";
+      }
     } else {
       result = await connection.query(
         `SELECT * FROM players WHERE uid=? LIMIT 1`,
         [req.query.uid]
       );
+      // Adds the game information
+      if (result.length > 0) {
+        result[0].game = await connection
+          .query("SELECT * FROM clubs WHERE club=?", [result[0].club])
+          .then((res) =>
+            res.length > 0
+              ? { opponent: res[0].opponent, gameStart: res[0].gameStart }
+              : undefined
+          );
+      }
     }
     // Tells the user if the updates are still running
     if (result.length > 0) {

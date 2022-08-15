@@ -21,6 +21,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("button").contains("Create League").click();
     // Creates invites and deletes the randomly generated one
     cy.contains("Open League").click();
+    cy.contains("Standings for Sample League");
     cy.contains("Add Invite").click();
     cy.get("#invite").type("invite1");
     cy.contains("Add Invite").click();
@@ -29,6 +30,9 @@ describe("Invite User into league and change some league Settings and run throug
     // Changes the default money amount and starred player multiplier
     cy.get("#startingMoney").clear().type(100);
     cy.get("#starredPercentage").clear().type(180);
+    // Changes the name and checks if that worked
+    cy.get("#leagueName").clear().type("New Sample League");
+    cy.contains("Standings for New Sample League");
     cy.contains("Save Admin Settings").click();
     // Signs into User 2 which will join the league through the invite
     cy.get("#logout").click();
@@ -52,6 +56,8 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Buy for 25.8 M").click();
     cy.contains("Buying for 25.8 M");
     cy.contains("Money left: 74.2M");
+    // Makes sure the next match indicator is right
+    cy.contains("WOB in 0 D 2 H");
     // Switches to user 1
     cy.contains("Standings")
       .click()
@@ -213,12 +219,17 @@ describe("Invite User into league and change some league Settings and run throug
       .children("button")
       .contains("Player not for Sale");
     cy.contains("Money left: 153M");
+    // Checks the standings
     cy.contains("Standings").click();
     cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("34");
     cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("0");
+    // Goes to historical view and checks if the title is correct
     cy.get(
       ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root"
     ).click();
+    cy.contains("Invite 2's Squad from New Sample League");
+    // Makes sure the team they are playing is correct
+    cy.contains("Next").parent().contains("BVB");
     // Looks at the historical data for one of the users
     cy.get(':nth-child(7) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
@@ -227,6 +238,8 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get(":nth-child(18) > .playerButton > p").contains("Selling for 21.1M");
     cy.get("#matchday").click();
     cy.get('.MuiList-root > [tabindex="-1"]').click();
+    cy.contains("Invite 2's Squad on Matchday 1 from New Sample League");
+    cy.contains("Next").should("not.exist");
     cy.get(':nth-child(7) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
@@ -234,12 +247,33 @@ describe("Invite User into league and change some league Settings and run throug
       "Robert Lewandowski"
     );
     cy.contains("19.7 M");
-    // Has both players leave the league
+    // Simulates an empty matchday
+    cy.exec("export NODE_ENV=test; node cypress/e2e/invite5.mjs");
+    // Adds a third user that joins late
+    cy.get("#logout").click();
+    cy.get("#input-username-for-Sign\\ Up-provider").type("Invite 3");
+    cy.get("#input-password-for-Sign\\ Up-provider").type("password");
+    cy.contains("Sign in with Sign Up").click();
+    cy.visit("http://localhost:3000/api/invite/invite1");
+    // Makes sure this user actually has points for matchday 2
+    cy.get(".MuiPagination-ul > :nth-child(3)").click();
+    cy.get(".MuiTableBody-root > :nth-child(3) > :nth-child(2)").contains("0");
+    // Checks if the league settings part is shown
+    cy.contains("Settings");
+    // Has all players leave the league
     cy.contains("Home").click();
     cy.contains("Leave League")
       .click()
       .then(() => {
         cy.setCookie("next-auth.session-token", user2);
+      })
+      .then(() => {
+        cy.reload();
+      });
+    cy.contains("Leave League")
+      .click()
+      .then(() => {
+        cy.setCookie("next-auth.session-token", user1);
       })
       .then(() => {
         cy.reload();

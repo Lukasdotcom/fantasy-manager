@@ -25,7 +25,7 @@
           "external_uid": "DFL-OBJ-00000M",
           "transfer_value": 25800000,
           "statistics": {
-            "total_points": 470,
+            "total_points": 460,
             "average_points": 13,
             "best_value_rank": 17,
             "form": 11,
@@ -41,14 +41,14 @@
           },
           "nickname": "Robert Lewandowski",
           "positions": ["att"],
-          "is_locked": true,
+          "is_locked": false,
           "is_eliminated": false,
           "is_available": true,
           "match_starts_in": 0,
           "total_scores": { "att": 448, "def": 705, "mid": 551, "gk": 842 },
           "team": {
             "uid": "cb93bdb4138cc7c15950",
-            "team_code": "FCB",
+            "team_code": "VFB",
             "image_urls": {
               "default": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png",
               "1x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png?fit=50",
@@ -77,7 +77,7 @@
           "external_uid": "DFL-OBJ-0000IA",
           "transfer_value": 21000000,
           "statistics": {
-            "total_points": 350,
+            "total_points": 330,
             "average_points": 10,
             "best_value_rank": 15,
             "form": 7,
@@ -93,7 +93,7 @@
           },
           "nickname": "Thomas Müller",
           "positions": ["att"],
-          "is_locked": true,
+          "is_locked": false,
           "is_eliminated": false,
           "is_available": true,
           "match_starts_in": 0,
@@ -129,7 +129,7 @@
           "external_uid": "DFL-OBJ-002G3D",
           "transfer_value": 20100000,
           "statistics": {
-            "total_points": 440,
+            "total_points": 420,
             "average_points": 12,
             "best_value_rank": 20,
             "form": 11,
@@ -145,7 +145,7 @@
           },
           "nickname": "Christopher Nkunku",
           "positions": ["mid"],
-          "is_locked": true,
+          "is_locked": false,
           "is_eliminated": false,
           "is_available": true,
           "match_starts_in": 0,
@@ -179,7 +179,7 @@
         "player": {
           "uid": "a4e3b74d3b62fbd6376b",
           "external_uid": "DFL-OBJ-002G8I",
-          "transfer_value": 19700000,
+          "transfer_value": 20700000,
           "statistics": {
             "total_points": 300,
             "average_points": 12,
@@ -197,7 +197,7 @@
           },
           "nickname": "Erling Haaland",
           "positions": ["att"],
-          "is_locked": true,
+          "is_locked": false,
           "is_eliminated": false,
           "is_available": true,
           "match_starts_in": 0,
@@ -249,7 +249,7 @@
           },
           "nickname": "Joshua Kimmich",
           "positions": ["mid"],
-          "is_locked": true,
+          "is_locked": false,
           "is_eliminated": false,
           "is_available": true,
           "match_starts_in": 0,
@@ -301,7 +301,7 @@
           },
           "nickname": "Filip Kostić",
           "positions": ["mid"],
-          "is_locked": true,
+          "is_locked": false,
           "is_eliminated": false,
           "is_available": true,
           "match_starts_in": 0,
@@ -327,5 +327,5 @@
       }
     ]
   },
-  "opening_hour": { "opened": false, "countdown": 119669000 }
+  "opening_hour": { "opened": true, "countdown": 10000000 }
 }

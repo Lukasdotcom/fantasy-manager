@@ -94,7 +94,10 @@ class connectionSqlite {
     );
     if (true) sqlite3.verbose();
     if (statement.slice(0, 6) === "SELECT") {
-      if (logError) console.log(statement);
+      if (logError) {
+        console.log(statement);
+        console.log(prepare);
+      }
       const result = await this.connection.all(statement, prepare);
       return Promise.resolve(result);
     } else {
@@ -107,7 +110,10 @@ class connectionSqlite {
         statement = statement.replace(/ bool /gi, " NUMERIC ");
         statement = statement.replace(/ AUTO_INCREMENT /gi, " AUTOINCREMENT ");
       }
-      if (logError) console.log(statement);
+      if (logError) {
+        console.log(statement);
+        console.log(prepare);
+      }
       await this.connection.run(statement, prepare);
       return Promise.resolve(undefined);
     }

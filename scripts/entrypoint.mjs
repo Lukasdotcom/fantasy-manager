@@ -66,13 +66,19 @@ async function startUp() {
     ),
     // Used to store historical player data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool)"
+      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), total_points int, average_points int, last_match int, `exists` bool)"
     ),
     // Used to store historical transfer data
     connection.query(
       "CREATE TABLE IF NOT EXISTS historicalTransfers (matchday int, leagueID int, seller int, buyer int, playeruid varchar(25), value int)"
     ),
+    // Used to store club data
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, opponent varchar(3))"
+    ),
   ]);
+  // Unlocks the database
+  connection.query("DELETE FROM data WHERE value1='locked'");
   // Checks the version of the database is out of date
   let oldVersion = await connection.query(
     "SELECT value2 FROM data WHERE value1='version'"
@@ -252,9 +258,12 @@ async function update() {
           time - 10,
         ]);
       } else {
-        console.log(`Predicting start of matchday in ${time} seconds`);
-        // Makes sure to wait until the time is done
-        setTimeout(updateData, time * 1000 + 1);
+        // Makes sure that the amount of time left in the transfer is not unknown
+        if (time != 0) {
+          console.log(`Predicting start of matchday in ${time} seconds`);
+          // Makes sure to wait until the time is done
+          setTimeout(updateData, time * 1000 + 1);
+        }
       }
     } else {
       if (time - 11 > 0) {
@@ -266,8 +275,11 @@ async function update() {
           time - 10,
         ]);
       } else {
-        console.log(`Predicting end of matchday in ${time} seconds`);
-        setTimeout(updateData, time * 1000 + 1);
+        // Makes sure that the amount of time left in the matchday is not unknown
+        if (time != 0) {
+          console.log(`Predicting end of matchday in ${time} seconds`);
+          setTimeout(updateData, time * 1000 + 1);
+        }
       }
     }
   }
