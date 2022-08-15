@@ -12,6 +12,9 @@ export default async function handler(req, res) {
         "SELECT * FROM historicalPlayers WHERE uid=? AND time=?",
         [req.query.uid, parseInt(req.query.time)]
       );
+      if (result.length > 0) {
+        result[0].forecast = "a";
+      }
     } else {
       result = await connection.query(
         `SELECT * FROM players WHERE uid=? LIMIT 1`,

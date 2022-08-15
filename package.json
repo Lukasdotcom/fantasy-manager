@@ -1,6 +1,6 @@
 {
   "name": "bundesliga",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "private": true,
   "scripts": {
     "dev": "export NODE_ENV=development; npm install; node scripts/entrypoint.mjs & next dev",
