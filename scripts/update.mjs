@@ -56,6 +56,8 @@ export async function updateData(file = "../sample/data1.json") {
     console.error(
       "Error - Failed to get data(if this happens to often something is wrong)"
     );
+    // Unlocks the database
+    connection.query("DELETE FROM data WHERE value1='locked'");
     connection.end();
     return;
   }
@@ -324,7 +326,7 @@ async function endMatchday() {
     const player = players[counter];
     counter++;
     connection.query(
-      "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, `exists`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureUrl, value, position, total_points, average_points, last_match, `exists`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         time,
         player.uid,
@@ -334,7 +336,6 @@ async function endMatchday() {
         player.pictureUrl,
         player.value,
         player.position,
-        player.forecast,
         player.total_points,
         player.average_points,
         player.last_match,

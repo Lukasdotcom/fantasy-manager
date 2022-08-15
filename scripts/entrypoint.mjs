@@ -66,7 +66,7 @@ async function startUp() {
     ),
     // Used to store historical player data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool)"
+      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), total_points int, average_points int, last_match int, `exists` bool)"
     ),
     // Used to store historical transfer data
     connection.query(
