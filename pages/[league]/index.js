@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 
 // Creates the admin panel
-function AdminPanel({ league, notify, leagueName, setLeagueName }) {
+function AdminPanel({ league, notify, leagueName, setLeagueName, admin }) {
   const [startingMoney, setStartingMoney] = useState(150);
   const [users, setUsers] = useState([]);
   const [transfers, setTransfers] = useState(6);
@@ -47,146 +47,158 @@ function AdminPanel({ league, notify, leagueName, setLeagueName }) {
   useEffect(() => {
     updateData(league);
   }, [league]);
-  return (
-    <>
-      <h1>Admin Panel</h1>
-      <TextField
-        id="leagueName"
-        variant="outlined"
-        size="small"
-        label="League Name"
-        onChange={(val) => {
-          // Used to change the invite link
-          setLeagueName(val.target.value);
-        }}
-        value={leagueName}
-      />
-      <br></br>
-      <TextField
-        id="startingMoney"
-        variant="outlined"
-        size="small"
-        label="Starting Money"
-        type="number"
-        onChange={(val) => {
-          // Used to change the invite link
-          setStartingMoney(val.target.value);
-        }}
-        value={startingMoney}
-      />
-      <br />
-      <TextField
-        id="transfers"
-        variant="outlined"
-        size="small"
-        label="Transfer Amount"
-        type="number"
-        onChange={(val) => {
-          // Used to change the invite link
-          setTransfers(val.target.value);
-        }}
-        value={transfers}
-      />
-      <br />
-      <TextField
-        id="duplicatePlayers"
-        variant="outlined"
-        size="small"
-        helperText="Amount of Squads players can be in"
-        type="number"
-        onChange={(val) => {
-          // Used to change the invite link
-          setDuplicatePlayers(val.target.value);
-        }}
-        value={duplicatePlayers}
-      />
-      <br></br>
-      <TextField
-        id="starredPercentage"
-        variant="outlined"
-        size="small"
-        helperText="Point boost for starred players"
-        InputProps={{
-          endAdornment: <InputAdornment position="end">%</InputAdornment>,
-        }}
-        type="number"
-        onChange={(val) => {
-          // Used to change the invite link
-          setStarredPercentage(val.target.value);
-        }}
-        value={starredPercentage}
-      />
-      <br></br>
-      <Autocomplete
-        multiple
-        id="admins"
-        options={users}
-        freeSolo
-        value={users.filter((e) => e.admin == 1)}
-        renderTags={(value, getTagProps) =>
-          value.map((option, index) => (
-            <UserChip
-              key={option.user}
-              userid={option.user}
-              {...getTagProps({ index })}
-            />
-          ))
-        }
-        onChange={(e, value) => {
-          let admins = value.map((e) => e.user);
-          setUsers((e2) => {
-            // Updates the value for all of the users
-            e2.forEach((e3) => {
-              e3.admin = admins.includes(parseInt(e3.user));
+  if (admin) {
+    return (
+      <>
+        <h1>Admin Panel</h1>
+        <TextField
+          id="leagueName"
+          variant="outlined"
+          size="small"
+          label="League Name"
+          onChange={(val) => {
+            // Used to change the invite link
+            setLeagueName(val.target.value);
+          }}
+          value={leagueName}
+        />
+        <br></br>
+        <TextField
+          id="startingMoney"
+          variant="outlined"
+          size="small"
+          label="Starting Money"
+          type="number"
+          onChange={(val) => {
+            // Used to change the invite link
+            setStartingMoney(val.target.value);
+          }}
+          value={startingMoney}
+        />
+        <br />
+        <TextField
+          id="transfers"
+          variant="outlined"
+          size="small"
+          label="Transfer Amount"
+          type="number"
+          onChange={(val) => {
+            // Used to change the invite link
+            setTransfers(val.target.value);
+          }}
+          value={transfers}
+        />
+        <br />
+        <TextField
+          id="duplicatePlayers"
+          variant="outlined"
+          size="small"
+          helperText="Amount of Squads players can be in"
+          type="number"
+          onChange={(val) => {
+            // Used to change the invite link
+            setDuplicatePlayers(val.target.value);
+          }}
+          value={duplicatePlayers}
+        />
+        <br></br>
+        <TextField
+          id="starredPercentage"
+          variant="outlined"
+          size="small"
+          helperText="Point boost for starred players"
+          InputProps={{
+            endAdornment: <InputAdornment position="end">%</InputAdornment>,
+          }}
+          type="number"
+          onChange={(val) => {
+            // Used to change the invite link
+            setStarredPercentage(val.target.value);
+          }}
+          value={starredPercentage}
+        />
+        <br></br>
+        <Autocomplete
+          multiple
+          id="admins"
+          options={users}
+          freeSolo
+          value={users.filter((e) => e.admin == 1)}
+          renderTags={(value, getTagProps) =>
+            value.map((option, index) => (
+              <UserChip
+                key={option.user}
+                userid={option.user}
+                {...getTagProps({ index })}
+              />
+            ))
+          }
+          onChange={(e, value) => {
+            let admins = value.map((e) => e.user);
+            setUsers((e2) => {
+              // Updates the value for all of the users
+              e2.forEach((e3) => {
+                e3.admin = admins.includes(parseInt(e3.user));
+              });
+              return [...e2];
             });
-            return [...e2];
-          });
-        }}
-        renderOption={(props, option) => (
-          <Box {...props}>
-            <UserChip key={option.user} userid={option.user} />
-          </Box>
-        )}
-        getOptionLabel={(option) => String(option.user)}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            variant="standard"
-            label="Admins"
-            placeholder="New Admin"
-          />
-        )}
-      />
-      <br></br>
-      <Button
-        onClick={() => {
-          // Used to save the data
-          notify("Saving");
-          fetch(`/api/league/${league}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              users,
-              settings: {
-                startingMoney: startingMoney * 1000000,
-                transfers,
-                duplicatePlayers,
-                starredPercentage,
-                leagueName,
+          }}
+          renderOption={(props, option) => (
+            <Box {...props}>
+              <UserChip key={option.user} userid={option.user} />
+            </Box>
+          )}
+          getOptionLabel={(option) => String(option.user)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              variant="standard"
+              label="Admins"
+              placeholder="New Admin"
+            />
+          )}
+        />
+        <br></br>
+        <Button
+          onClick={() => {
+            // Used to save the data
+            notify("Saving");
+            fetch(`/api/league/${league}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
               },
-            }),
-          }).then(async (res) => {
-            notify(await res.text(), res.ok ? "success" : "error");
-          });
-        }}
-        variant="contained"
-      >
-        Save Admin Settings
-      </Button>
-    </>
-  );
+              body: JSON.stringify({
+                users,
+                settings: {
+                  startingMoney: startingMoney * 1000000,
+                  transfers,
+                  duplicatePlayers,
+                  starredPercentage,
+                  leagueName,
+                },
+              }),
+            }).then(async (res) => {
+              notify(await res.text(), res.ok ? "success" : "error");
+            });
+          }}
+          variant="contained"
+        >
+          Save Admin Settings
+        </Button>
+      </>
+    );
+  } else {
+    return (
+      <>
+        <h1>Settings</h1>
+        <p>Starting Money : {startingMoney}</p>
+        <p>Transfer Limit : {transfers}</p>
+        <p>Number of Squads a Player can be in : {duplicatePlayers}</p>
+        <p>Starred Player Percantage : {starredPercentage}%</p>
+      </>
+    );
+  }
 }
 // Used to show all the invites that exist and to delete an individual invite
 function Invite({ link, league, host, remove, notify }) {
@@ -359,15 +371,14 @@ export default function Home({
       >
         Add Invite
       </Button>
-      {admin && (
-        <AdminPanel
-          leagueName={inputLeagueName}
-          setLeagueName={setInputLeagueName}
-          user={user}
-          league={league}
-          notify={notify}
-        />
-      )}
+      <AdminPanel
+        leagueName={inputLeagueName}
+        setLeagueName={setInputLeagueName}
+        user={user}
+        league={league}
+        notify={notify}
+        admin={admin}
+      />
     </>
   );
 }
