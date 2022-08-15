@@ -132,25 +132,32 @@ describe("Invite User into league and change some league Settings and run throug
       .click();
     cy.get("#formation").click();
     cy.contains("4-4-2").click();
-    cy.contains("Erling Haaland")
-      .parent()
-      .parent()
-      .children(".playerButton")
-      .children("button")
-      .click();
     cy.contains("Christopher Nkunku")
       .parent()
       .parent()
       .children(".playerButton")
       .children("button")
       .contains("Move to Bench");
+    // Makes sure the starred percantage is correct
     cy.contains("180%");
+    // Moves Haaland to the field and stars him
+    cy.intercept("/api/player/a4e3b74d3b62fbd6376b").as("loadPlayer");
     cy.contains("Erling Haaland")
       .parent()
       .parent()
       .children(".playerButton")
-      .contains("Star")
+      .children("button")
       .click();
+    // Makes sure that Haaland has loaded
+    cy.wait("@loadPlayer").then(() =>
+      cy
+        .contains("Erling Haaland")
+        .parent()
+        .parent()
+        .children(".playerButton")
+        .contains("Star")
+        .click()
+    );
     cy.contains("Erling Haaland").parent().contains("0 X Star");
     // Sims matchday until all players have played
     cy.exec("export NODE_ENV=test; node cypress/e2e/invite3.mjs");
@@ -236,8 +243,7 @@ describe("Invite User into league and change some league Settings and run throug
     );
     cy.get('[alt="starred"]');
     cy.get(":nth-child(18) > .playerButton > p").contains("Selling for 21.1M");
-    cy.get("#matchday").click();
-    cy.get('.MuiList-root > [tabindex="-1"]').click();
+    cy.get(".MuiPagination-ul > :nth-child(2) > .MuiButtonBase-root").click();
     cy.contains("Invite 2's Squad on Matchday 1 from New Sample League");
     cy.contains("Next").should("not.exist");
     cy.get(':nth-child(7) > [style="width: 70%;"] > :nth-child(1)').contains(
