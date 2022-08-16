@@ -245,21 +245,23 @@ describe("Invite User into league and change some league Settings and run throug
       ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root"
     ).click();
     cy.contains("Invite 2's Squad from New Sample League");
+    cy.contains("Money: 34.5M");
     // Makes sure the team they are playing is correct
     cy.contains("Next").parent().contains("BVB");
     // Looks at the historical data for one of the users
-    cy.get(':nth-child(7) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(8) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
     cy.get('[alt="starred"]');
-    cy.get(":nth-child(18) > .playerButton > p").contains("Selling for 21.1M");
+    cy.get(":nth-child(19) > .playerButton > p").contains("Selling for 21.1M");
     cy.get(".MuiPagination-ul > :nth-child(2) > .MuiButtonBase-root").click();
     cy.contains("Invite 2's Squad on Matchday 1 from New Sample League");
+    cy.contains("Money: 13.4M");
     cy.contains("Next").should("not.exist");
-    cy.get(':nth-child(7) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(8) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
-    cy.get(':nth-child(17) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(18) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
     cy.contains("19.7 M");

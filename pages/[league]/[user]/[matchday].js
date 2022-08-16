@@ -27,7 +27,7 @@ export async function getServerSideProps(ctx) {
   );
   // Calculates the timestamp for this matchday
   const time = timeData[0].time;
-  const [transfers, username, latestMatchday] = await Promise.all([
+  const [transfers, username, latestMatchday, money] = await Promise.all([
     // Gets all transfers at the moment from the user
     connection.query(
       "SELECT * FROM historicalTransfers WHERE leagueID=? AND matchday=? AND (buyer=? OR seller=?)",
@@ -46,8 +46,11 @@ export async function getServerSideProps(ctx) {
       .then((res) => (res.length > 0 ? res[0].matchday : 0)),
     // Gets the league name
     connection
-      .query("SELECT * FROM leagueSettings WHERE leagueID=?", [league])
-      .then((res) => (res.length > 0 ? res[0].leagueName : 0)),
+      .query(
+        "SELECT money FROM points WHERE leagueID=? and user=? and matchday=?",
+        [league, user, matchday]
+      )
+      .then((res) => (res.length > 0 ? res[0].money : 0)),
   ]);
   connection.end();
   // Checks if the user exists
@@ -65,5 +68,6 @@ export async function getServerSideProps(ctx) {
     latestMatchday,
     currentMatchday: matchday,
     time,
+    money,
   });
 }
