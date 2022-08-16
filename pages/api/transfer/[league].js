@@ -220,7 +220,7 @@ export default async function handler(req, res) {
                             [league, seller]
                           );
                           connection.query(
-                            "UPDATE transfers SET buyer=?, value=? WHERE seller=? AND buyer=? AND leagueID=? AND playeruid=?",
+                            "UPDATE transfers SET buyer=?, value=?, position='bench', starred=0 WHERE seller=? AND buyer=? AND leagueID=? AND playeruid=?",
                             [
                               user,
                               purchaseAmount,
