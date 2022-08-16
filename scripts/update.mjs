@@ -72,8 +72,7 @@ export async function updateData(file = "../sample/data1.json") {
       }
     });
   let newTransfer = data.opening_hour.opened;
-  let countdown =
-    data.opening_hour.countdown / 1000 - (data.opening_hour.opened ? 3600 : 0);
+  let countdown = data.opening_hour.countdown / 1000;
   // Defaults to closed if the countdown is less than 0
   if (countdown <= 0) {
     countdown = 0;
