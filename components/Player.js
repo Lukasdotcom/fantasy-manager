@@ -8,7 +8,8 @@ import fallbackImg from "../public/playerFallback.png";
 import Link from "next/link";
 import { Button, CircularProgress } from "@mui/material";
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
-function InternalPlayer({ data, children, starred }) {
+// extraText is shown in parenthesis next to the player name
+function InternalPlayer({ data, children, starred, extraText }) {
   const [countdown, setCountown] = useState(0);
   const [pictureUrl, setPictureUrl] = useState(undefined);
   useEffect(() => {
@@ -66,6 +67,7 @@ function InternalPlayer({ data, children, starred }) {
             ) : (
               ""
             )}
+            {extraText && <i> {extraText}</i>}
             {data.updateRunning === false && (
               <Link href="/error/no-update">
                 <a style={{ color: "red" }}>
@@ -296,7 +298,15 @@ export function TransferPlayer({
   return <InternalPlayer data={data}>{PurchaseButton}</InternalPlayer>;
 }
 // Used for the squad. Field should be undefined unless they are on the bench and then it shoud give what positions are still open
-export function SquadPlayer({ uid, update, field, league, starred, notify }) {
+export function SquadPlayer({
+  uid,
+  update,
+  field,
+  league,
+  starred,
+  notify,
+  status,
+}) {
   const [data, setData] = useState({});
   // Used to get the data for the player
   useEffect(() => {
@@ -318,8 +328,14 @@ export function SquadPlayer({ uid, update, field, league, starred, notify }) {
       MoveButton = "Player has Already Played";
     }
   }
+  let extraText;
+  if (status == "buy") {
+    extraText = "Buying";
+  } else if (status == "sell") {
+    extraText = "Selling";
+  }
   return (
-    <InternalPlayer data={data} starred={starred}>
+    <InternalPlayer data={data} starred={starred} extraText={extraText}>
       <Button
         variant="outlined"
         onClick={() => {

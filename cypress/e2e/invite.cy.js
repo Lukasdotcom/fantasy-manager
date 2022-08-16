@@ -78,6 +78,11 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Buying for 25.9 M");
     cy.contains("Money left: 174.1M");
     cy.contains("Unlimited transfers left");
+    cy.contains("Squad").click();
+    cy.contains("Move to Field").click();
+    cy.contains("Star").click();
+    cy.contains("Move to Bench").click();
+    cy.contains("Buying");
     // Switches to user 2
     cy.contains("Standings")
       .click()
@@ -102,9 +107,18 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Buy for 19.7 M").click();
     cy.contains("You need 19.3 M");
     cy.contains("Money left: 13.4M");
+    // Moves the squad slightly
+    cy.contains("Squad").click();
+    cy.contains("Christopher Nkunku")
+      .parent()
+      .parent()
+      .children(".playerButton")
+      .children("button")
+      .click();
+    cy.contains("Buying");
     // Starts the matchday
     cy.exec("export NODE_ENV=test; node cypress/e2e/invite2.mjs").then(() => {
-      cy.reload();
+      cy.contains("Transfers").click();
     });
     cy.contains("Transfer Market Closed");
     cy.contains("Transfer Market is Closed");
@@ -124,12 +138,6 @@ describe("Invite User into league and change some league Settings and run throug
       .children(".playerButton")
       .children("button")
       .contains("Position is Full");
-    cy.contains("Christopher Nkunku")
-      .parent()
-      .parent()
-      .children(".playerButton")
-      .children("button")
-      .click();
     cy.get("#formation").click();
     cy.contains("4-4-2").click();
     cy.contains("Christopher Nkunku")
@@ -164,10 +172,10 @@ describe("Invite User into league and change some league Settings and run throug
     // Checks that the user points are correct
     cy.contains("Standings").click();
     cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("44");
-    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("0");
+    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("22");
     cy.get(".MuiPagination-ul > :nth-child(2)").click();
     cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("44");
-    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("0");
+    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("22");
     // Moves a player to the bench
     cy.contains("Squad").click();
     cy.contains("Christopher Nkunku")
@@ -180,10 +188,10 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Standings").click();
     // Checks if the points got updated
     cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("34");
-    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("0");
+    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("22");
     cy.get(".MuiPagination-ul > :nth-child(2)").click();
     cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("34");
-    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("0");
+    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("22");
     // Checks Nkunku button
     cy.contains("Squad").click();
     cy.contains("Christopher Nkunku")
@@ -207,12 +215,14 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#duplicatePlayers").clear().type(1);
     cy.contains("Save Admin Settings").click();
     cy.contains("Squad").click();
-    // Checks if this user has Lewandowski still
+    // Checks if this user has Lewandowski still and that he is starred
+    cy.get('[alt="starred"]');
     cy.contains("Robert Lewandowski")
       .parent()
       .parent()
       .children(".playerButton")
       .children("button")
+      .contains("Move to Bench")
       .click();
     // Makes sure that Lewandowski has changed clubs
     cy.contains("VFB");
@@ -229,7 +239,7 @@ describe("Invite User into league and change some league Settings and run throug
     // Checks the standings
     cy.contains("Standings").click();
     cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("34");
-    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("0");
+    cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("22");
     // Goes to historical view and checks if the title is correct
     cy.get(
       ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root"

@@ -37,6 +37,7 @@ export default function Home({
         players[e.position].push({
           playeruid: e.playeruid,
           starred: e.starred,
+          status: e.status,
         });
       });
       setFormation(val.formation);
@@ -111,6 +112,7 @@ export default function Home({
             starred={e.starred}
             update={getSquad}
             notify={notify}
+            status={e.status}
           />
         )
       )}
@@ -126,6 +128,7 @@ export default function Home({
             starred={e.starred}
             update={getSquad}
             notify={notify}
+            status={e.status}
           />
         )
       )}
@@ -141,6 +144,7 @@ export default function Home({
             starred={e.starred}
             update={getSquad}
             notify={notify}
+            status={e.status}
           />
         )
       )}
@@ -155,6 +159,7 @@ export default function Home({
             league={league}
             update={getSquad}
             notify={notify}
+            status={e.status}
           />
         )
       )}
@@ -170,6 +175,7 @@ export default function Home({
             league={league}
             update={getSquad}
             notify={notify}
+            status={e.status}
           />
         )
       )}
