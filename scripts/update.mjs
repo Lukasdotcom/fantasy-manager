@@ -246,8 +246,8 @@ export async function startMatchday() {
     );
     if (e.buyer != 0) {
       await connection.query(
-        "INSERT INTO squad (leagueID, user, playeruid, position) VALUES(?, ?, ?, 'bench')",
-        [e.leagueID, e.buyer, e.playeruid]
+        "INSERT INTO squad (leagueID, user, playeruid, position, starred) VALUES(?, ?, ?, ?, ?)",
+        [e.leagueID, e.buyer, e.playeruid, e.position, e.starred]
       );
     }
     if (e.leagueID !== currentleagueID) {

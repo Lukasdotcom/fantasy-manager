@@ -10,7 +10,7 @@ if (process.env.NODE_ENV !== "test") {
   dotenv.config({ path: ".env.test.local" });
 }
 // Used to tell the program what version of the database to use
-const currentVersion = "1.3.1";
+const currentVersion = "1.4.3";
 const date = new Date();
 let day = date.getDay();
 
@@ -50,7 +50,7 @@ async function startUp() {
     ),
     // Used to store transfers
     connection.query(
-      "CREATE TABLE IF NOT EXISTS transfers (leagueID int, seller int, buyer int, playeruid varchar(25), value int)"
+      "CREATE TABLE IF NOT EXISTS transfers (leagueID int, seller int, buyer int, playeruid varchar(25), value int, position varchar(5) DEFAULT 'bench', starred bool DEFAULT 0)"
     ),
     // Used to store invite links
     connection.query(
@@ -171,6 +171,18 @@ async function startUp() {
         );
       });
       oldVersion = "1.3.1";
+    }
+    if (oldVersion == "1.3.1") {
+      console.log("Updating database to version 1.4.3");
+      await connection.query(
+        "ALTER TABLE transfers ADD position varchar(5) DEFAULT 'bench'"
+      );
+      await connection.query(
+        "ALTER TABLE transfers ADD starred bool DEFAULT 0"
+      );
+      await connection.query("UPDATE transfers SET position='bench'");
+      await connection.query("UPDATE transfers SET starred=0");
+      oldVersion = "1.4.3";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date
