@@ -16,6 +16,7 @@ export default function HistoricalView({
   currentMatchday, // This is the matchday requested to be seen by the user
   time, // Stores the time this is if historical player data needs to be gotten
   leagueName,
+  money,
 }) {
   const router = useRouter();
   return (
@@ -33,6 +34,7 @@ export default function HistoricalView({
         {currentMatchday === 0 ? "" : `on Matchday ${currentMatchday} `}
         from {leagueName}
       </h1>
+      <p>Money: {money / 1000000}M</p>
       <FormLabel id="matchdayLabel">Select Matchday</FormLabel>
       <Pagination
         page={
@@ -181,8 +183,8 @@ export async function getServerSideProps(ctx) {
   const connection = await connect();
   const user = ctx.params.user;
   const league = ctx.params.league;
-  const [squad, transfers, username, latestMatchday, leagueName] =
-    await Promise.all([
+  const [squad, transfers, username, latestMatchday, money] = await Promise.all(
+    [
       // Gets the latest squad of the user
       connection.query("SELECT * FROM squad WHERE leagueID=? AND user=?", [
         league,
@@ -204,11 +206,14 @@ export async function getServerSideProps(ctx) {
           [league, user]
         )
         .then((res) => (res.length > 0 ? res[0].matchday : 0)),
-      // Gets the league name
       connection
-        .query("SELECT * FROM leagueSettings WHERE leagueID=?", [league])
-        .then((res) => (res.length > 0 ? res[0].leagueName : 0)),
-    ]);
+        .query("SELECT money FROM leagueUsers WHERE leagueID=? and user=?", [
+          league,
+          user,
+        ])
+        .then((res) => (res.length > 0 ? res[0].money : 0)),
+    ]
+  );
   connection.end();
   // Checks if the user exists
   if (username === "") {
@@ -224,5 +229,6 @@ export async function getServerSideProps(ctx) {
     league,
     latestMatchday,
     currentMatchday: 0,
+    money,
   });
 }
