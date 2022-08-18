@@ -142,10 +142,16 @@ export function TransferPlayer({
   open,
   duplicatePlayers,
   notify,
+  allOwnership,
 }) {
   const session = useSession();
-  const user = session.data ? session.data.user.id : 1;
+  const user = session.data ? session.data.user.id : -1;
   const [data, setData] = useState({});
+  if (
+    user !== -1 &&
+    Object.values(allOwnership).filter((e) => e.owner === e.user).length > 0
+  )
+    transferLeft = true;
   // Used to get the data for the player
   useEffect(() => {
     async function getData() {
