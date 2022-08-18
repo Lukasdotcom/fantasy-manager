@@ -30,6 +30,8 @@ describe("Invite User into league and change some league Settings and run throug
     // Changes the default money amount and starred player multiplier
     cy.get("#startingMoney").clear().type(100);
     cy.get("#starredPercentage").clear().type(180);
+    // Makes sure that users have unlimited transfers when they have an empty squad
+    cy.get("#transfers").clear().type(1);
     // Changes the name and checks if that worked
     cy.get("#leagueName").clear().type("New Sample League");
     cy.contains("Standings for New Sample League");
