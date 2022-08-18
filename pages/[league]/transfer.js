@@ -198,6 +198,7 @@ export default function Home({
         val={clubSearch}
         id="searchClub"
         label="Search Club"
+        helperText="Use the acronymn ex: FCB, VFB"
       ></TextField>
       <br></br>
       <FormLabel id="orderLabel">Search Order: </FormLabel>
@@ -216,7 +217,9 @@ export default function Home({
         )}
       </Select>
       <br></br>
-      <FormLabel component="legend">Positions to Search</FormLabel>
+      <FormLabel component="legend">
+        Positions to Search(Uncheck to filter out)
+      </FormLabel>
       <FormGroup>
         {positionList.map((position) => (
           <Postion
@@ -242,7 +245,7 @@ export default function Home({
       <p>
         Yellow background means attendance unknown, red background that the
         player is not attending, and purple/pink that the player will not earn
-        points anytime soon(Sell these players).
+        points anytime soon also known as a hidden player(Sell these players).
       </p>
       <Link href="/download">
         <Button>Download Player Data</Button>
