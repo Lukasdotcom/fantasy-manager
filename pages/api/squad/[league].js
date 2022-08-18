@@ -211,7 +211,6 @@ export default async function handler(req, res) {
                               [league, user, e]
                             )
                       );
-                    console.log(e);
                     // Checks if the player is owned by the user
                     if (position.length > 0) {
                       // Checks what position the player is
@@ -289,7 +288,7 @@ export default async function handler(req, res) {
                           [league, user, e]
                         );
                         connection.query(
-                          "UPDATE transfers SET position='bench', starred=0 WHERE leagueID=? and user=? and playeruid=?",
+                          "UPDATE transfers SET position='bench', starred=0 WHERE leagueID=? and buyer=? and playeruid=?",
                           [league, user, e]
                         );
                         console.log(`User ${user} moved player ${e} to bench`);
