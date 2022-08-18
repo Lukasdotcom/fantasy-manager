@@ -84,6 +84,9 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Move to Field").click();
     cy.contains("Star").click();
     cy.contains("Move to Bench").click();
+    // Makes sure the player can be moved back to the bench
+    cy.contains("Move to Field").click();
+    cy.contains("Star").click();
     cy.contains("Buying");
     // Switches to user 2
     cy.contains("Standings")
@@ -110,13 +113,17 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("You need 19.3 M");
     cy.contains("Money left: 13.4M");
     // Moves the squad slightly
+    cy.intercept("/api/player/87963521baf120631131").as("loadNkunku");
     cy.contains("Squad").click();
-    cy.contains("Christopher Nkunku")
-      .parent()
-      .parent()
-      .children(".playerButton")
-      .children("button")
-      .click();
+    cy.wait("@loadNkunku").then(() =>
+      cy
+        .contains("Christopher Nkunku")
+        .parent()
+        .parent()
+        .children(".playerButton")
+        .children("button")
+        .click()
+    );
     cy.contains("Buying");
     // Starts the matchday
     cy.exec("export NODE_ENV=test; node cypress/e2e/invite2.mjs").then(() => {
