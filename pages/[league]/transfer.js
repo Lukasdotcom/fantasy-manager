@@ -256,6 +256,7 @@ export default function Home({
             ownership={ownership[val]}
             league={league}
             transferLeft={transferCount < allowedTransfers}
+            allOwnership={ownership}
             transferData={transferData}
             open={open}
             duplicatePlayers={duplicatePlayers}
