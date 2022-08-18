@@ -9,6 +9,17 @@ export default function Home({ session }) {
       </Head>
       <Menu session={session} />
       <h1>Info</h1>
+      <h2>Community/Help</h2>
+      You can go to the{" "}
+      <a
+        style={{ color: "blue" }}
+        href="https://github.com/Lukasdotcom/Bundesliga/discussions"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        github discussions
+      </a>{" "}
+      to ask questions or find leagues to join.
       <h2>Basics</h2>
       <p>
         First of all this is an open source project that is located on{" "}
