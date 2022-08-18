@@ -105,6 +105,11 @@ export default async function handler(req, res) {
               positionOpen(formation[3], "att"),
             ])
               .then(() => {
+                console.log(
+                  `User ${user} changed formation to ${JSON.stringify(
+                    formation
+                  )}`
+                );
                 connection.query(
                   "UPDATE leagueUsers SET formation=? WHERE leagueID=? and user=?",
                   [JSON.stringify(formation), league, user]
