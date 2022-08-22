@@ -267,6 +267,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Invite 2's Squad on Matchday 1 from New Sample League");
     cy.contains("Money: 13.4M");
     cy.contains("Next").should("not.exist");
+    cy.get('[alt="starred"]');
     cy.get(':nth-child(8) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
