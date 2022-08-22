@@ -365,8 +365,15 @@ async function endMatchday() {
         .then((result) => (result.length > 0 ? result[0].matchday : 1));
     }
     connection.query(
-      "INSERT INTO historicalSquad (matchday, leagueID, user, playeruid, position) VALUES (?, ?, ?, ?, ?)",
-      [matchday, squad.leagueID, squad.user, squad.playeruid, squad.position]
+      "INSERT INTO historicalSquad (matchday, leagueID, user, playeruid, position, starred) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        matchday,
+        squad.leagueID,
+        squad.user,
+        squad.playeruid,
+        squad.position,
+        squad.starred,
+      ]
     );
   }
   connection.end();
