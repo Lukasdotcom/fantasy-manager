@@ -6,7 +6,7 @@ This is meant to be an open source self hosted version of the official bundeslig
 
 ## Features
 
-1. Completly free and open source.
+1. Completely free and open source.
 2. Unlimited users and unlimited leagues.
 3. Customize starting money.
 4. Customize starred player bonus.
@@ -26,7 +26,7 @@ This is meant to be an open source self hosted version of the official bundeslig
    7. By Position
 9. Download data as json or csv
 10. See all historical player data(As long as the server was up).
-11. And all of theese features in a Modern UI
+11. And all of these features in a Modern UI
 
 ## Screenshots
 
