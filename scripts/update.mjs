@@ -483,7 +483,7 @@ export async function checkUpdate() {
     parseInt(result[1].value2) <
     parseInt(Date.now() / 1000) -
       parseInt(
-        result[0].value === "true"
+        result[0].value2 === "true"
           ? process.env.MIN_UPDATE_TIME_TRANSFER
           : process.env.MIN_UPDATE_TIME
       )

@@ -16,6 +16,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.getCookie("next-auth.session-token").then(
       (cookie) => (user1 = cookie.value)
     );
+    cy.contains("Leagues").click();
     cy.get("#startingMoney").clear().type(200);
     cy.get("#name").type("Sample League");
     cy.get("button").contains("Create League").click();
@@ -289,7 +290,7 @@ describe("Invite User into league and change some league Settings and run throug
     // Checks if the league settings part is shown
     cy.contains("Settings");
     // Has all players leave the league
-    cy.contains("Home").click();
+    cy.contains("Leagues").click();
     cy.contains("Leave League")
       .click()
       .then(() => {
@@ -309,7 +310,6 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Leave League").click();
     cy.get("#logout").click();
     // Checks if the league is actually deleted
-    cy.get("#login").click();
     cy.get("#input-username-for-Sign\\ Up-provider").type("Invite 3");
     cy.get("#input-password-for-Sign\\ Up-provider").type("password");
     cy.contains("Sign in with Sign Up").click();
