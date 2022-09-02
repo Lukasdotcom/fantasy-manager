@@ -26,6 +26,7 @@ COPY --from=builder /Bundesliga/Modules ./Modules
 COPY --from=builder /Bundesliga/styles ./styles
 COPY --from=builder /Bundesliga/node_modules ./node_modules
 COPY --from=builder /Bundesliga/package.json ./package.json
+COPY --from=builder /Bundesliga/screenshots ./screenshots
 
 EXPOSE 3000
 

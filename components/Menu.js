@@ -27,7 +27,8 @@ const Layout = ({ session, league }) => {
 
   const pages = [
     { name: "Home", link: "/" },
-    { name: "Info", link: "/info" },
+    { name: "Rules", link: "/rules" },
+    { name: "Leagues", link: "/leagues" },
   ];
   if (league) {
     pages.push({ name: "Standings", link: `/${league}` });
