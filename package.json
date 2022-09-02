@@ -18,7 +18,7 @@
   "dependencies": {
     "@emotion/react": "11.10.4",
     "@emotion/styled": "11.10.4",
-    "@mui/material": "5.10.1",
+    "@mui/material": "5.10.3",
     "@socialgouv/matomo-next": "1.4.0",
     "bcryptjs": "2.4.3",
     "csv-stringify": "6.2.0",
