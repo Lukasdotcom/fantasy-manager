@@ -16,13 +16,13 @@
     "start:no-build": "node scripts/entrypoint.mjs & next start"
   },
   "dependencies": {
-    "@emotion/react": "11.10.0",
-    "@emotion/styled": "11.10.0",
+    "@emotion/react": "11.10.4",
+    "@emotion/styled": "11.10.4",
     "@mui/material": "5.10.1",
     "@socialgouv/matomo-next": "1.4.0",
     "bcryptjs": "2.4.3",
     "csv-stringify": "6.2.0",
-    "dotenv": "16.0.1",
+    "dotenv": "16.0.2",
     "mysql": "2.18.1",
     "next": "12.2.5",
     "next-auth": "4.10.3",
@@ -34,7 +34,7 @@
     "sqlite3": "5.0.11"
   },
   "devDependencies": {
-    "cypress": "10.6.0",
+    "cypress": "10.7.0",
     "eslint": "8.23.0",
     "eslint-config-next": "12.2.5",
     "eslint-plugin-cypress": "2.12.1",
