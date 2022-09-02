@@ -154,6 +154,8 @@ export default function Home({
     });
     if (newLength == length) {
       setFinished(true);
+    } else {
+      setFinished(false);
     }
   }
   return (
@@ -166,6 +168,7 @@ export default function Home({
         // Checks if there are only 2 players left that are not shown and if true requests 10 more players
         if (bottom < (e.target.scrollHeight / players.length) * 2) {
           search(false);
+          setFinished(true);
         }
       }}
     >
