@@ -10,8 +10,7 @@ This is meant to be an open source self hosted version of the official bundeslig
 2. Unlimited users and unlimited leagues.
 3. Customize starting money.
 4. Customize starred player bonus.
-5. Limit transfer amount
-   1. Note all users are allowed unlimited transfers while they have an empty squad
+5. Limit transfer amount(Note all users are allowed unlimited transfers while they have an empty squad).
 6. Ability to allow players to be bought by multiple users in the same league.
 7. Ranking tables for(Only in leagues):
    1. Top points for every matchday
@@ -24,14 +23,16 @@ This is meant to be an open source self hosted version of the official bundeslig
    5. By Club
    6. By Name
    7. By Position
-9. Download data as json or csv
-10. See all historical player data(As long as the server was up).
-11. And all of these features in a Modern UI
+9. Download player data as json or csv
+10. See all historical user data(As long as the server was up).
+11. And all of these features in a Modern Responsive UI
 
 ## Screenshots
 
-<img src="https://raw.githubusercontent.com/Lukasdotcom/Bundesliga/main/screenshots/main.png">
-<img src="https://raw.githubusercontent.com/Lukasdotcom/Bundesliga/main/screenshots/transfers.png">
+![Screenshot of League Page](/screenshots/main.webp?raw=true)
+![Screenshot of Standings Page](/screenshots/standings.webp?raw=true)
+![Screenshot of Squad Page](/screenshots/squad.webp?raw=true)
+![Screenshot of Transfer Page](/screenshots/transfers.webp?raw=true)
 
 ## Production or Installation
 
