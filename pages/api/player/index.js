@@ -52,15 +52,33 @@ export default async function handler(req, res) {
               showHidden
                 ? ""
                 : " (`exists`=1 OR EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND user=? AND leagueID=?)) AND"
-            } (name like ? OR nameAscii like ?) AND club like ? ${positionsSQL} ORDER BY ${order_by} DESC LIMIT ${limit}`,
+            } (name like ? OR nameAscii like ?) AND club like ? ${positionsSQL} AND value>=? AND value<=? ORDER BY ${order_by} DESC LIMIT ${limit}`,
             showHidden
-              ? [searchTerm, searchTerm, clubSearch]
+              ? [
+                  searchTerm,
+                  searchTerm,
+                  clubSearch,
+                  parseInt(req.query.minPrice) > 0
+                    ? parseInt(req.query.minPrice)
+                    : 0,
+                  // Checks if the max price is greater than or equal to 0 otherwise sets it to the maximum int possible
+                  parseInt(req.query.maxPrice) >= 0
+                    ? parseInt(req.query.maxPrice)
+                    : Number.MAX_SAFE_INTEGER,
+                ]
               : [
                   session ? session.user.id : "",
                   req.query.league,
                   searchTerm,
                   searchTerm,
                   clubSearch,
+                  parseInt(req.query.minPrice) > 0
+                    ? parseInt(req.query.minPrice)
+                    : 0,
+                  // Checks if the max price is greater than or equal to 0 otherwise sets it to the maximum int possible
+                  parseInt(req.query.maxPrice) >= 0
+                    ? parseInt(req.query.maxPrice)
+                    : Number.MAX_SAFE_INTEGER,
                 ]
           )
         );
