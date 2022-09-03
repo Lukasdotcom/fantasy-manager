@@ -14,6 +14,37 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import Link from "./Link";
+import { useSession } from "next-auth/react";
+// Returns all the menu items
+function MenuItems({ league, handleCloseNavMenu }) {
+  const { data: session } = useSession();
+  const pages = [
+    { name: "Home", link: "/" },
+    { name: "Rules", link: "/rules" },
+  ];
+  pages.push({ name: "Download", link: `/download` });
+  // Checks if the player is logged in
+  if (session || league) {
+    pages.push({ name: "Leagues", link: "/leagues" });
+  }
+  // Checks if the player should see the league links
+  if (league) {
+    pages.push({ name: "Standings", link: `/${league}` });
+    pages.push({ name: "Squad", link: `/${league}/squad` });
+    pages.push({ name: "Transfers", link: `/${league}/transfer` });
+  }
+  return (
+    <>
+      {pages.map((page) => (
+        <Link href={page.link} key={page.name}>
+          <MenuItem onClick={handleCloseNavMenu}>
+            <Typography textAlign="center">{page.name}</Typography>
+          </MenuItem>
+        </Link>
+      ))}
+    </>
+  );
+}
 // Used to create a menu
 const Layout = ({ session, league }) => {
   const [anchorElNav, setAnchorElNav] = useState(null);
@@ -25,17 +56,6 @@ const Layout = ({ session, league }) => {
     setAnchorElNav(null);
   };
 
-  const pages = [
-    { name: "Home", link: "/" },
-    { name: "Rules", link: "/rules" },
-    { name: "Leagues", link: "/leagues" },
-  ];
-  if (league) {
-    pages.push({ name: "Standings", link: `/${league}` });
-    pages.push({ name: "Squad", link: `/${league}/squad` });
-    pages.push({ name: "Transfers", link: `/${league}/transfer` });
-  }
-  pages.push({ name: "Download", link: `/download` });
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
@@ -68,26 +88,21 @@ const Layout = ({ session, league }) => {
                 display: { xs: "block", sm: "none" },
               }}
             >
-              {pages.map((page) => (
-                <Link href={page.link} key={page.name}>
-                  <MenuItem onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">{page.name}</Typography>
-                  </MenuItem>
-                </Link>
-              ))}
+              <SessionProvider session={session}>
+                <MenuItems
+                  league={league}
+                  handleCloseNavMenu={handleCloseNavMenu}
+                />
+              </SessionProvider>
             </Menu>
           </Box>
           <Box sx={{ flexGrow: 1, display: { xs: "none", sm: "flex" } }}>
-            {pages.map((page) => (
-              <Link href={page.link} key={page.name}>
-                <Button
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  {page.name}
-                </Button>
-              </Link>
-            ))}
+            <SessionProvider session={session}>
+              <MenuItems
+                league={league}
+                handleCloseNavMenu={handleCloseNavMenu}
+              />
+            </SessionProvider>
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>

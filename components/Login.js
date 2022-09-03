@@ -1,6 +1,6 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "./Link";
-import { Icon, IconButton, Tooltip, Avatar, stringAvatar } from "@mui/material";
+import { Icon, IconButton, Tooltip } from "@mui/material";
 import { UserAvatar } from "./Username";
 // A simple sign in and sign out button that also allows you to open preferences
 export default function Layout() {
