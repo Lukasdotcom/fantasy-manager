@@ -44,7 +44,10 @@ function InternalPlayer({ data, children, starred, extraText }) {
       setPictureUrl(data.pictureUrl);
     }
     return (
-      <div className={playerStyles.container} style={{ background }}>
+      <div
+        className={playerStyles.container}
+        style={{ background, height: "120px" }}
+      >
         <div style={{ width: "min(10%, 80px)", textAlign: "center" }}>
           <p>{data.club}</p>
           <p>{data.position}</p>
@@ -56,8 +59,8 @@ function InternalPlayer({ data, children, starred, extraText }) {
             setPictureUrl(fallbackImg);
           }}
           src={pictureUrl}
-          width="130px"
-          height="130px"
+          width="100px"
+          height="100px"
         />
         <div style={{ width: "70%" }}>
           <p>
