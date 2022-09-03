@@ -146,7 +146,9 @@ export default function Home({
         clubSearch
       )}&positions=${encodeURIComponent(
         JSON.stringify(positions)
-      )}&order_by=${orderBy}${showHidden ? "&showHidden=true" : ""}`
+      )}&order_by=${orderBy}${
+        showHidden ? "&showHidden=true" : ""
+      }&league=${league}`
     ).then(async (val) => {
       val = await val.json();
       setPlayers(val);
