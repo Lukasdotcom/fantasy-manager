@@ -15,9 +15,11 @@ import {
   FormLabel,
   MenuItem,
   Select,
+  Slider,
   Switch,
   TextField,
 } from "@mui/material";
+import { Box } from "@mui/system";
 
 // Shows the amount of transfers left
 function TransfersLeft({ ownership, allowedTransfers, transferCount }) {
@@ -61,6 +63,7 @@ export default function Home({
   duplicatePlayers,
   notify,
   leagueName,
+  maxPrice,
 }) {
   const positionList = ["gk", "def", "mid", "att"];
   const [players, setPlayers] = useState([]);
@@ -75,10 +78,11 @@ export default function Home({
   const [timeLeft, setTimeLeft] = useState(0);
   const [open, setOpen] = useState(true);
   const [clubSearch, setClubSearch] = useState("");
+  const [price, setPrice] = useState([0, Math.ceil(maxPrice / 500000) / 2]);
   useEffect(() => {
     search(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm, positions, orderBy, showHidden, clubSearch]);
+  }, [searchTerm, positions, orderBy, showHidden, clubSearch, price]);
   // Used to get the data for a list of transfers and money
   function transferData() {
     fetch(`/api/transfer/${league}`).then(async (val) => {
@@ -148,7 +152,9 @@ export default function Home({
         JSON.stringify(positions)
       )}&order_by=${orderBy}${
         showHidden ? "&showHidden=true" : ""
-      }&league=${league}`
+      }&league=${league}&minPrice=${price[0] * 1000000}&maxPrice=${
+        price[1] * 1000000
+      }`
     ).then(async (val) => {
       val = await val.json();
       setPlayers(val);
@@ -205,6 +211,20 @@ export default function Home({
         label="Search Club"
         helperText="Use the acronymn ex: FCB, VFB"
       ></TextField>
+      <br />
+      <Box sx={{ width: 300, marginLeft: 2 }}>
+        <FormLabel id="valueLabel">
+          Value: {price[0]}M to {price[1]}M
+        </FormLabel>
+        <Slider
+          step={0.5}
+          value={price}
+          onChange={(a, value) => setPrice(value)}
+          id="value"
+          labelId="valueLabel"
+          max={Math.ceil(maxPrice / 500000) / 2}
+        />
+      </Box>
       <br></br>
       <FormLabel id="orderLabel">Search Order: </FormLabel>
       <Select
@@ -289,6 +309,9 @@ export async function getServerSideProps(ctx) {
         ? [result[0].transfers, result[0].duplicatePlayers]
         : [0, 0]
     );
+  const maxPrice = await connection
+    .query("SELECT value FROM players ORDER BY value DESC limit 1")
+    .then((res) => (res.length > 0 ? res[0].value : 0));
   connection.end();
-  return await redirect(ctx, { allowedTransfers, duplicatePlayers });
+  return await redirect(ctx, { allowedTransfers, duplicatePlayers, maxPrice });
 }
