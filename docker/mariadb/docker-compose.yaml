@@ -21,7 +21,7 @@ services:
       #- GITHUB_SECRET=
       - NEXTAUTH_SECRET= # run openssl rand -base64 32 and plug the result into this
       - BCRYPT_ROUNDS=9 # The number of rounds the password should be hashed
-      # Uncomment the MATOMO enviromental variables and fill them out if you want to use matomo analytics
+      # Uncomment the MATOMO enviromental variables and fill them out if you want to use matomo analytics(Analytics support for new features has been dropped since September 2022)
       #- NEXT_PUBLIC_MATOMO_URL=
       #- NEXT_PUBLIC_MATOMO_SITE_ID=
     ports:
