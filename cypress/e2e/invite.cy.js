@@ -250,6 +250,13 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get(".MuiPagination-ul > :nth-child(2)").click();
     cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("34");
     cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("22");
+    // Checks if the historical viewer can see the playerdata
+    cy.get(
+      ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root"
+    ).click();
+    cy.get(':nth-child(8) > [style="width: 70%;"] > :nth-child(1)').contains(
+      "Robert Lewandowski"
+    );
     // Checks Nkunku button
     cy.contains("Squad").click();
     cy.contains("Christopher Nkunku")
