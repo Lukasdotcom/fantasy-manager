@@ -213,7 +213,7 @@ export default function Home({
       ></TextField>
       <br />
       <Box sx={{ width: 300, marginLeft: 2 }}>
-        <FormLabel id="valueLabel">
+        <FormLabel htmlFor="value">
           Value: {price[0]}M to {price[1]}M
         </FormLabel>
         <Slider
@@ -221,17 +221,15 @@ export default function Home({
           value={price}
           onChange={(a, value) => setPrice(value)}
           id="value"
-          labelId="valueLabel"
           max={Math.ceil(maxPrice / 500000) / 2}
         />
       </Box>
       <br></br>
-      <FormLabel id="orderLabel">Search Order: </FormLabel>
+      <FormLabel htmlFor="order">Search Order: </FormLabel>
       <Select
         value={orderBy}
         onChange={(val) => setOrderBy(val.target.value)}
         id="order"
-        labelId="orderLabel"
       >
         {["value", "total_points", "average_points", "last_match"].map(
           (val) => (

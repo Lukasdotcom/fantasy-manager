@@ -66,7 +66,7 @@ export default function Home({
         players will then get {starredPercentage}% of the regular amount of
         points.
       </p>
-      <InputLabel id="formation-label">Formation</InputLabel>
+      <InputLabel htmlFor="formation">Formation</InputLabel>
       <Select
         onChange={(e) => {
           // Used to change the formation
@@ -88,7 +88,6 @@ export default function Home({
         }}
         value={JSON.stringify(formation)}
         id="formation"
-        labelId="formation-label"
       >
         {validFormations.map((val) => (
           <MenuItem

@@ -40,9 +40,8 @@ export default function Home({ session, historicalTimes }) {
       <Menu session={session} />
       <h1>Download Data</h1>
       <p>Here you can download the player data for personal use.</p>
-      <InputLabel id="timeLabel">Time</InputLabel>
+      <InputLabel htmlFor="time">Time</InputLabel>
       <Select
-        labelId="timeLabel"
         id="time"
         value={matchday}
         onChange={(val) => setMatchday(val.target.value)}
