@@ -15,14 +15,17 @@ export default function Username({ userid }) {
 export function UserChip({ userid }) {
   const [username, setUsername] = useState("A");
   useEffect(() => {
-    fetch(`/api/user/${userid}`).then(async (val) => {
-      const newUsername = await val.json();
-      setUsername(newUsername);
-    });
+    if (userid != 0) {
+      fetch(`/api/user/${userid}`).then(async (val) => {
+        const newUsername = await val.json();
+        setUsername(newUsername);
+      });
+    }
   }, [userid]);
+  const theme = useTheme();
+  if (userid == 0) return <p>AI</p>;
   // Cenerates a color based on the name
   const background = stringToColor(userid);
-  const theme = useTheme();
   const text = theme.palette.getContrastText(background);
   return (
     <Chip

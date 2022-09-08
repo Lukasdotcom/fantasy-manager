@@ -22,7 +22,10 @@ export default function Home({ session }) {
         rules), but to not make it first come first serve you can bid on players
         and the user that will pay the most for the player gets the player. You
         can always sell a player for the market price and must always pay at a
-        minimum the market price for a player.
+        minimum the market price for a player. You can cancel the sale of one of
+        your players as long as you have enough money to buy them back for the
+        price that player is bought from you. You can also cancel buying a
+        player but you will only be refunded the value of the player.
       </p>
       <h3>Pricing and Points</h3>
       <p>
