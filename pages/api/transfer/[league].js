@@ -90,170 +90,322 @@ export default async function handler(req, res) {
       // Used to create a new transfer
       case "POST":
         const playeruid = req.body.playeruid;
-        // Gets the value of the player
-        const value = await connection
-          .query("SELECT * FROM players WHERE uid=?", [playeruid])
-          .then((result) => (result.length > 0 ? result[0].value : false));
-        // Promise that returns false if this transfer can not be done and sold when it is a sale and bought when it is a purchase
-        const valid = await new Promise(async (resolve) => {
-          // Checks if the transfer market is still open
-          const transferOpen =
+        const amount = parseInt(req.body.amount);
+        let player = await connection.query(
+          "SELECT * FROM players WHERE uid=?",
+          [playeruid]
+        );
+        // Checks if the player exists
+        if (player.length == 0) {
+          res.status(404).end("Player does not exist");
+          break;
+        }
+        player = player[0];
+        // Says if the user still has transfers left
+        const transferLeft =
+          (await connection
+            .query(
+              "SELECT * FROM transfers WHERE leagueID=? AND (seller=? OR buyer=?)",
+              [league, user, user]
+            )
+            .then((res) => res.length < leagueSettings.transfers)) ||
+          (
+            await connection.query(
+              "SELECT * FROM squad WHERE leagueID=? AND user=?"
+            )
+          ).length == 0;
+        // Checks if this was a purchase
+        if (amount > 0) {
+          // Checks if the player is already owned by the user
+          if (
             (
               await connection.query(
-                "SELECT value2 FROM data WHERE value1='transferOpen'"
+                "SELECT * FROM squad WHERE leagueID=? AND user=? AND playeruid=?",
+                [league, user, playeruid]
               )
-            )[0].value2 === "true";
-          if (transferOpen) {
-            // Checks if the user still can transfer a player
-            const squadSize = (
-              await connection.query(
-                "SELECT * FROM squad WHERE leagueID=? and user=?",
-                [league, user]
-              )
-            ).length;
-            if (squadSize == 0) {
-              resolve(true);
-            } else {
-              const transfers = await connection.query(
-                "SELECT * FROM transfers WHERE leagueID=? and (buyer=? or seller=?)",
-                [league, user, user]
-              );
-              resolve(
-                transfers.filter((e) => e.playeruid == playeruid).length <
-                  leagueSettings.transfers
-              );
-            }
-          } else {
-            resolve(false);
+            ).length > 0
+          ) {
+            res.status(400).end("You already own the player");
+            break;
           }
-        }).then(async (e) => {
-          return e
-            ? await new Promise(async (resolve) => {
-                // Checks if it is a purchase or a sale
-                const playerOwned =
-                  (
-                    await connection.query(
-                      "SELECT * FROM squad WHERE leagueID=? and user=? and playeruid=?",
-                      [league, user, playeruid]
-                    )
-                  ).length > 0;
-                if (playerOwned > 0) {
-                  // Checks if the player is already being sold
-                  const playerBeingSold =
-                    (
-                      await connection.query(
-                        "SELECT * FROM transfers WHERE leagueID=? and playeruid=?",
-                        [league, playeruid]
-                      )
-                    ).length > 0;
-                  if (!playerBeingSold) {
-                    connection.query(
-                      "INSERT INTO transfers (leagueID, seller, buyer, playeruid, value) VALUES(?, ?, 0, ?, ?)",
-                      [league, user, playeruid, value]
-                    );
-                    connection.query(
-                      "UPDATE leagueUsers SET money=? WHERE leagueID=? and user=?",
-                      [money + value, league, user]
-                    );
-                  }
-                  resolve("sold");
-                } else {
-                  if (value === false) {
-                    resolve("Player does not exist");
-                  } else {
-                    const transfers = await connection.query(
-                      "SELECT * FROM transfers WHERE leagueID=? and playeruid=?",
-                      [league, playeruid]
-                    );
-                    // Checks if the player is already being purchase by the user
-                    if (transfers.filter((e) => e.buyer === user).length > 0) {
-                      resolve("Bought");
-                    } else {
-                      const squads = await connection.query(
-                        "SELECT * FROM squad WHERE leagueID=? and playeruid=?",
-                        [league, playeruid]
-                      );
-                      // Gets all the players that will still be in the squad after the transfer
-                      const playersInSquad = squads.filter(
-                        (e) =>
-                          transfers.filter((e2) => e.user === e2.seller)
-                            .length == 0
-                      ).length;
-                      // Checks if the player can still be bought from the ai
-                      if (
-                        playersInSquad + transfers.length <
-                        leagueSettings.duplicatePlayers
-                      ) {
-                        // Makes sure the user has enough money
-                        if (value <= money) {
-                          connection.query(
-                            "UPDATE leagueUsers SET money=money-? WHERE leagueID=? and user=?",
-                            [value, league, user]
-                          );
-                          connection.query(
-                            "INSERT INTO transfers (leagueID, seller, buyer, playeruid, value) VALUES(?, 0, ?, ?, ?)",
-                            [league, user, playeruid, value]
-                          );
-                          resolve("bought");
-                        } else {
-                          resolve("Not enough money");
-                        }
-                        // Checks if the player can be bought by overbidding another user
-                      } else if (transfers.length > 0) {
-                        // Sorts all the transfers so the cheapest one can be found
-                        transfers.sort((a, b) => a.value - b.value);
-                        let purchaseAmount = transfers[0].value + 100000;
-                        let seller = transfers[0].seller;
-                        let buyer = transfers[0].buyer;
-                        // Checks if the user has enough money
-                        if (purchaseAmount <= money) {
-                          connection.query(
-                            "UPDATE leagueUsers SET money=money-? WHERE leagueID=? and user=?",
-                            [purchaseAmount, league, user]
-                          );
-                          connection.query(
-                            "UPDATE leagueUsers SET money=money+? WHERE leagueID=? and user=?",
-                            [purchaseAmount - 100000, league, buyer]
-                          );
-                          connection.query(
-                            "UPDATE leagueUsers SET money=money+100000 WHERE leagueID=? and user=?",
-                            [league, seller]
-                          );
-                          connection.query(
-                            "UPDATE transfers SET buyer=?, value=?, position='bench', starred=0 WHERE seller=? AND buyer=? AND leagueID=? AND playeruid=?",
-                            [
-                              user,
-                              purchaseAmount,
-                              seller,
-                              buyer,
-                              league,
-                              playeruid,
-                            ]
-                          );
-                          resolve("bought");
-                        } else {
-                          resolve("Not enough money");
-                        }
-                      } else {
-                        resolve("Not for sale");
-                      }
-                    }
-                  }
-                }
-              })
-            : e;
-        });
-        if (valid === false) {
-          res.status(400).end("No transfers left");
-        } else if (["bought", "sold"].includes(valid)) {
-          console.log(`User ${user} succesfully ${valid} player ${playeruid}`);
-          res.status(200).end(`Succesfully ${valid} player`);
-        } else {
-          console.warn(
-            `User ${user} failed to buy/sell player ${playeruid} due to ${valid}`
+          // Checks if the player is already being purchased
+          const purchaseTransfer = await connection.query(
+            "SELECT * FROM transfers WHERE buyer=? AND playeruid=? AND leagueID=?",
+            [user, playeruid, league]
           );
-          res.status(400).end(valid);
+          if (purchaseTransfer.length > 0) {
+            // Makes sure the bid is greater than or equal to the current purchase amount
+            if (purchaseTransfer[0].value > amount) {
+              res
+                .status(400)
+                .end("You can not bid lower than your current purchase amount");
+              break;
+            }
+            connection.query(
+              "UPDATE transfers SET max=? WHERE buyer=? AND playeruid=? AND leagueID=?",
+              [amount, user, playeruid, league]
+            );
+            res.status(200).end(`Updated max bid to ${amount / 1000000}M`);
+            break;
+          }
+          // Checks if the user still has transfes left
+          if (!transferLeft) {
+            res.status(400).end("You are out of transfers");
+            break;
+          }
+          // Checks if the player can still be bought from the AI
+          if (
+            (
+              await connection.query(
+                "SELECT * FROM squad WHERE leagueID=? AND playeruid=?",
+                [league, playeruid]
+              )
+            ).length +
+              (
+                await connection.query(
+                  "SELECT * FROM transfers WHERE seller=0 AND playeruid=? AND leagueID=?",
+                  [playeruid, league]
+                )
+              ).length <
+            leagueSettings.duplicatePlayers
+          ) {
+            // Checks if the user has enough money.
+            if (amount < player.value) {
+              res
+                .status(400)
+                .end("You can not buy player for less than player's value");
+              break;
+            }
+            if (money < player.value) {
+              res.status(400).end("You do not have enough money");
+              break;
+            }
+            connection.query(
+              "INSERT INTO transfers (leagueID, seller, buyer, playeruid, value, max) VALUES (?, 0, ?, ?, ?, ?)",
+              [league, user, playeruid, player.value, amount]
+            );
+            connection.query(
+              "UPDATE leagueUsers SET money=? WHERE leagueID=? AND user=?",
+              [money - player.value, league, user]
+            );
+            console.log(
+              `Player ${playeruid} bought for ${player.value} with max bid of ${amount}`
+            );
+            res.status(200).end("Bought player");
+            break;
+          }
+          // Checks if the player can even be bought from anyone
+          if (
+            (
+              await connection.query(
+                "SELECT * FROM squad WHERE leagueID=? AND playeruid=?",
+                [league, playeruid]
+              )
+            ).length -
+              (await connection.query(
+                "SELECT * FROM transfers WHERE leagueID=? AND playeruid=? AND seller!=0",
+                [league, playeruid]
+              )) <
+            leagueSettings.duplicatePlayers
+          ) {
+            // Increments all the offers by 100000 until someone drops their transfer
+            while (true) {
+              let cheapest = await connection.query(
+                "SELECT * FROM transfers WHERE leagueID=? AND playeruid=? ORDER BY value ASC LIMIT 1",
+                [league, playeruid]
+              );
+              await new Promise((res) => {
+                setTimeout(res, 100);
+              });
+              // Checks if the player still wants to pay that amount
+              if (cheapest[0].value >= amount) {
+                res.status(400).end("Not enough money offered");
+                break;
+              }
+              if (cheapest[0].value + 100000 > money) {
+                res.status(400).end("You do not have enough money.");
+                break;
+              }
+              // Checks if that player wnats to increment the offer and if they can afford it
+              if (
+                cheapest[0].max > cheapest[0].value &&
+                (await connection
+                  .query(
+                    "SELECT money FROM leagueUsers WHERE leagueID=? AND user=?",
+                    [league, cheapest[0].buyer]
+                  )
+                  .then((res) => (res.length > 0 ? res[0].money : 0))) >= 100000
+              ) {
+                console.log(
+                  `User ${cheapest[0].buyer} increased bid to ${
+                    cheapest[0].value + 100000
+                  } for ${playeruid} due to automatic bid increase`
+                );
+                // Increases the bidding amount by 100k for that bid
+                await Promise.all([
+                  connection.query(
+                    "UPDATE leagueUsers SET money=money-100000 WHERE user=? AND leagueID=?",
+                    [cheapest[0].buyer, league]
+                  ),
+                  connection.query(
+                    "UPDATE leagueUsers SET money=money+100000 WHERE user=? AND leagueID=?",
+                    [cheapest[0].seller, league]
+                  ),
+                  connection.query(
+                    "UPDATE transfers SET value=value+100000 WHERE leagueID=? AND buyer=? AND playeruid=?",
+                    [league, cheapest[0].buyer, playeruid]
+                  ),
+                ]);
+              } else {
+                // Moves transfer to the new bidder
+                await Promise.all([
+                  connection.query(
+                    "UPDATE leagueUsers SET money=money+? WHERE user=? AND leagueID=?",
+                    [cheapest[0].value, cheapest[0].buyer, league]
+                  ),
+                  connection.query(
+                    "UPDATE leagueUsers SET money=money-? WHERE user=? AND leagueID=?",
+                    [cheapest[0].value + 100000, user, league]
+                  ),
+                  connection.query(
+                    "UPDATE leagueUsers SET money=money+100000 WHERE user=? AND leagueID=?",
+                    [cheapest[0].seller, league]
+                  ),
+                  connection.query(
+                    "UPDATE transfers SET value=value+100000, position='bench', starred=0, buyer=? WHERE leagueID=? AND buyer=? AND playeruid=?",
+                    [user, league, cheapest[0].buyer, playeruid]
+                  ),
+                ]);
+                console.log(
+                  `User ${user} outbidded ${cheapest[0].buyer} with ${
+                    cheapest[0].value + 100000
+                  } for ${playeruid}`
+                );
+                res
+                  .status(200)
+                  .end(
+                    `Bought player for ${
+                      (cheapest[0].value + 100000) / 1000000
+                    }M`
+                  );
+                break;
+              }
+            }
+            break;
+          } else {
+            res.status(400).end("Player not for sale");
+            break;
+          }
+          // Checks if this is a sale
+        } else if (amount < 0) {
+          // Checks if the player is already being sold
+          if (
+            (
+              await connection.query(
+                "SELECT * FROM transfers WHERE leagueID=? AND seller=? AND playeruid=?",
+                [league, user, player]
+              )
+            ).length > 0
+          ) {
+            res.status(200).end("You are already selling the player");
+            break;
+          }
+          // Checks if the player is owned by the user
+          if (
+            (
+              await connection.query(
+                "SELECT * FROM squad WHERE leagueID=? AND user=? AND playeruid=?",
+                [league, user, playeruid]
+              )
+            ).length == 0
+          ) {
+            res.status(400).end("You don't own this player");
+            break;
+          }
+          // Checks if the user still has a transfer left
+          if (!transferLeft) {
+            res.status(400).end("You are out of transfers");
+            break;
+          }
+          // Sells the player
+          let playerValue = player.value;
+          connection.query(
+            "INSERT INTO transfers (leagueID, seller, buyer, playeruid, value, max) VALUES (?, ?, 0, ?, ?, ?)",
+            [league, user, playeruid, playerValue, playerValue]
+          );
+          connection.query(
+            "UPDATE leagueUsers SET money=money+? WHERE leagueID=? AND user=?",
+            [playerValue, league, user]
+          );
+          console.log(`${user} is selling ${playeruid} for ${playerValue}`);
+          res.status(200).end(`Sold player for ${playerValue / 1000000}M`);
+          break;
+          // Cancels the transaction
+        } else {
+          // Trys to find the transaction
+          const transfer = await connection.query(
+            "SELECT * FROM transfers WHERE leagueID=? AND (seller=? OR buyer=?) AND playeruid=?",
+            [league, user, user, playeruid]
+          );
+          if (transfer.length == 0) {
+            res.status(404).end("Nonexistant transfer can not be cancelled");
+            break;
+          }
+          // Checks if it was a sale
+          if (transfer[0].seller == user) {
+            const sale = transfer[0];
+            if (money < sale.value) {
+              res
+                .status(400)
+                .end(
+                  `You need to have ${money / 1000000}M to cancel the transfer`
+                );
+              break;
+            }
+            // Removes the transaction and refunds all the money
+            connection.query(
+              "UPDATE leagueUsers SET money=money-? WHERE leagueID=? AND user=?",
+              [sale.value, league, user]
+            );
+            connection.query(
+              "UPDATE leagueUsers SET money=money+? WHERE leagueID=? AND user=?",
+              [sale.value, league, sale.buyer]
+            );
+            connection.query(
+              "DELETE FROM transfers WHERE leagueID=? AND seller=? AND playeruid=?",
+              [league, user, playeruid]
+            );
+            res.status(200).end("Cancelled transaction");
+            console.log(
+              `User ${user} cancelled sale of ${playeruid} to ${sale.buyer} for ${sale.value}`
+            );
+            break;
+          }
+          if (transfer[0].buyer == user) {
+            const purchase = transfer[0];
+            // Removes the canceller from the transaction and refunds them the value of the player
+            connection.query(
+              "UPDATE leagueUsers SET money=money+? WHERE leagueID=? AND user=?",
+              [player.value, league, user]
+            );
+            await connection.query(
+              "UPDATE transfers SET max=?, buyer=0 WHERE leagueID=? AND buyer=? AND playeruid=?",
+              [purchase.value, league, user, playeruid]
+            );
+            connection.query(
+              "DELETE FROM transfers WHERE leagueID=? AND buyer=0 AND seller=0 AND playeruid=?",
+              [league, playeruid]
+            );
+            res.status(200).end("Cancelled transaction");
+            console.log(
+              `User ${user} cancelled purchase of ${playeruid} from ${purchase.buyer} for ${player.value}`
+            );
+            break;
+          }
         }
+        // This will run if something went wrong
+        console.log("A transfer failed to finish");
+        res.status(500).end("An unknown error happened");
         break;
       default:
         res.status(405).end(`Method ${req.method} Not Allowed`);

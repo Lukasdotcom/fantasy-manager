@@ -4,8 +4,11 @@ describe("Invite User into league and change some league Settings and run throug
   });
   // Used to signup change username and password and login again
   it("invite", () => {
+    let user1Money = 200;
+    let user2Money = 100;
     let user1;
     let user2;
+    let matchdays = [];
     // Signs in
     cy.visit("http://localhost:3000");
     cy.get("#login").click();
@@ -55,31 +58,66 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Admin Panel").should("not.exist");
     // Purchases Lewandoski for 25.8 million
     cy.contains("Transfer").click();
-    cy.contains("Money left: 100M");
-    cy.contains("Buy for 25.8 M").click();
-    cy.contains("Buying for 25.8 M");
-    cy.contains("Money left: 74.2M");
+    cy.contains(`Money left: ${user2Money}M`);
+    cy.contains("Lewandowski").parent().parent().contains("Buy").click();
+    cy.get("#amount").clear().type("26");
+    user2Money -= 25.8;
+    cy.contains("Buy for").click();
+    cy.contains("Lewandowski")
+      .parent()
+      .parent()
+      .contains("Edit Purchase")
+      .click();
+    cy.get(".MuiTableBody-root > .MuiTableRow-root > :nth-child(3)").contains(
+      "25.8M"
+    );
+    cy.get("#close").click();
+    cy.contains(`Money left: ${user2Money}M`);
     // Makes sure the next match indicator is right
     cy.contains("WOB in 0 D 2 H");
     // Switches to user 1
     cy.contains("Standings")
       .click()
       .then(() => {
-        cy.setCookie("next-auth.session-token", user1);
-      })
-      .then(() => {
-        cy.reload();
+        cy.setCookie("next-auth.session-token", user1).then(() => {
+          cy.reload();
+        });
       });
     // Gives other user admin rights
     cy.get("#admins").click();
     cy.get("#admins-option-1").click();
     cy.contains("Save Admin Settings").click();
-    // Outbides Lewandoski purchase
+    // Trys to outbid Lewandoski purchase
     cy.contains("Transfer").click();
-    cy.contains("Money left: 200M");
-    cy.contains("Buy for 25.9 M by outbidding Invite 2").click();
-    cy.contains("Buying for 25.9 M");
-    cy.contains("Money left: 174.1M");
+    cy.contains(`Money left: ${user1Money}M`);
+    cy.contains("Lewandowski").parent().parent().contains("Buy").click();
+    cy.get("#amount").clear().type("26");
+    user2Money -= 0.2;
+    cy.contains("Buy for").click();
+    cy.contains(`Money left: ${user1Money}M`);
+    // Then actually outbids
+    cy.contains("Lewandowski").parent().parent().contains("Buy").click();
+    cy.get("#amount").clear().type("26.1");
+    user2Money += 26;
+    user1Money -= 26.1;
+    cy.contains("Buy for").click();
+    cy.contains(`Money left: ${user1Money}M`);
+    // Then cancels the transaction
+    cy.contains("Lewandowski")
+      .parent()
+      .parent()
+      .contains("Edit Purchase")
+      .click();
+    cy.contains("Cancel Purchase").click();
+    user1Money += 25.8;
+    user1Money = Math.floor(user1Money * 10) / 10;
+    cy.contains(`Money left: ${user1Money}M`);
+    // Then buys the player again
+    cy.contains("Lewandowski").parent().parent().contains("Buy").click();
+    user1Money -= 25.8;
+    user1Money = Math.ceil(user1Money * 10) / 10;
+    cy.contains("Buy for").click();
+    cy.contains(`Money left: ${user1Money}M`);
     cy.contains("Unlimited transfers left");
     cy.contains("Squad").click();
     cy.contains("Move to Field").click();
@@ -93,26 +131,36 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Standings")
       .click()
       .then(() => {
-        cy.setCookie("next-auth.session-token", user2);
-      })
-      .then(() => {
-        cy.reload();
+        cy.setCookie("next-auth.session-token", user2).then(() => {
+          cy.reload();
+        });
       });
     // Changes the amount of times a player can be in a squad and buys lewandowski
     cy.get("#duplicatePlayers").clear().type(2);
     cy.contains("Save Admin Settings").click();
     cy.contains("Transfer").click();
     cy.contains("Unlimited transfers left");
-    cy.contains("Money left: 100M");
-    cy.contains("Buy for 25.8 M").click();
-    cy.contains("Buying for 25.8 M");
-    cy.contains("Money left: 74.2M");
+    cy.contains(`Money left: ${user2Money}`);
+    cy.contains("Lewandowski").parent().parent().contains("Buy").click();
+    user2Money -= 25.8;
+    cy.contains("Buy for").click();
+    cy.contains(`Money left: ${user2Money}`);
     // Buys players until out of money
-    cy.contains("Buy for 21 M").click();
-    cy.contains("Buy for 20.1 M").click();
-    cy.contains("Buy for 19.7 M").click();
-    cy.contains("You need 19.3 M");
-    cy.contains("Money left: 13.4M");
+    cy.contains("Thomas").parent().parent().contains("Buy").click();
+    user2Money -= 21;
+    cy.contains("Buy for").click();
+    cy.contains("Nkunku").parent().parent().contains("Buy").click();
+    user2Money -= 20.1;
+    cy.contains("Buy for").click();
+    cy.contains("Haaland").parent().parent().contains("Buy").click();
+    user2Money -= 19.7;
+    user2Money = Math.floor(user2Money * 10) / 10;
+    cy.contains("Buy for").click();
+    cy.contains(`Money left: ${user2Money}`);
+    cy.contains("Kimmich").parent().parent().contains("View Transfers").click();
+    cy.contains("Buy for").should("not.exist");
+    cy.get("#close").click();
+    cy.contains(`Money left: ${user2Money}`);
     // Moves the squad slightly
     cy.intercept("/api/player/87963521baf120631131").as("loadNkunku");
     cy.contains("Squad").click();
@@ -210,12 +258,18 @@ describe("Invite User into league and change some league Settings and run throug
       .children(".playerButton")
       .children("button")
       .contains("Player has Already Played");
+    matchdays.push({ invite1: user1Money, invite2: user2Money });
     // Starts the transfer period and sells Muller
     cy.exec("export NODE_ENV=test; node cypress/e2e/invite4.mjs");
+    cy.intercept("/api/player/ef5112a9f971a1e40966").as("loadRobert");
     cy.contains("Transfer").click();
-    cy.contains("Sell for: 21 M").click();
+    cy.wait("@loadRobert").then(() =>
+      cy.contains("Lewandowski").parent().parent().contains("Sell").click()
+    );
+    user2Money += 25.8;
+    cy.get(".MuiPaper-root > .MuiButton-root").click();
     // Switches user and sets the duplicate players setting to 1
-    cy.contains("Money left: 34.4M")
+    cy.contains(`Money left: ${user2Money}`)
       .then(() => {
         cy.setCookie("next-auth.session-token", user1);
       })
@@ -238,14 +292,13 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("VFB");
     // Purchases Mueller and checks if Nkunku is purchasable
     cy.contains("Transfer").click();
-    cy.contains("Buy for 21.1 M").click();
     cy.contains("Christopher Nkunku")
       .parent()
       .parent()
       .children(".playerButton")
       .children("button")
-      .contains("Player not for Sale");
-    cy.contains("Money left: 153M");
+      .contains("View Transfers");
+    cy.contains(`Money left: ${user1Money}`);
     // Checks the standings
     cy.contains("Standings").click();
     cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("34");
@@ -255,7 +308,7 @@ describe("Invite User into league and change some league Settings and run throug
       ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root"
     ).click();
     cy.contains("Invite 2's Squad from New Sample League");
-    cy.contains("Money: 34.5M");
+    cy.contains(`Money: ${user2Money}M`);
     // Makes sure the team they are playing is correct
     cy.contains("Next").parent().contains("BVB");
     // Looks at the historical data for one of the users
@@ -263,10 +316,10 @@ describe("Invite User into league and change some league Settings and run throug
       "Robert Lewandowski"
     );
     cy.get('[alt="starred"]');
-    cy.get(":nth-child(19) > .playerButton > p").contains("Selling for 21.1M");
+    cy.get(":nth-child(19) > .playerButton > p").contains("Selling for 25.8M");
     cy.get(".MuiPagination-ul > :nth-child(2) > .MuiButtonBase-root").click();
     cy.contains("Invite 2's Squad on Matchday 1 from New Sample League");
-    cy.contains("Money: 13.4M");
+    cy.contains(`Money: ${matchdays[0].invite2}M`);
     cy.contains("Next").should("not.exist");
     cy.get('[alt="starred"]');
     cy.get(':nth-child(8) > [style="width: 70%;"] > :nth-child(1)').contains(
@@ -276,6 +329,7 @@ describe("Invite User into league and change some league Settings and run throug
       "Robert Lewandowski"
     );
     cy.contains("19.7 M");
+    matchdays.push({ invite1: user1Money, invite2: user2Money });
     // Simulates an empty matchday
     cy.exec("export NODE_ENV=test; node cypress/e2e/invite5.mjs");
     // Adds a third user that joins late

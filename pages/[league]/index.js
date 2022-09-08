@@ -108,7 +108,7 @@ function AdminPanel({ league, notify, leagueName, setLeagueName, admin }) {
           size="small"
           helperText="Point boost for starred players"
           InputProps={{
-            endAdornment: <InputAdornment position="end">%</InputAdornment>,
+            endadornment: <InputAdornment position="end">%</InputAdornment>,
           }}
           type="number"
           onChange={(val) => {
