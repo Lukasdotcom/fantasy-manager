@@ -102,10 +102,9 @@ const options = {
         // Gets the id from the database
         if (account.provider === "google" || account.provider === "github") {
           const connection = await connect();
-          token.name = await connection.query(
-            "SELECT id FROM users WHERE email=?",
-            [token.email]
-          ).then((res) => res.length > 0 ? res[0].id : 0);
+          token.name = await connection
+            .query("SELECT id FROM users WHERE email=?", [token.email])
+            .then((res) => (res.length > 0 ? res[0].id : 0));
           connection.end();
         }
       }
