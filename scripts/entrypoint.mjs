@@ -281,6 +281,10 @@ async function update() {
           console.log(`Predicting start of matchday in ${time} seconds`);
           // Makes sure to wait until the time is done
           setTimeout(updateData, time * 1000 + 1);
+          connection3.query(
+            "UPDATE data SET value2=? WHERE value1='countdown'",
+            [time - 10]
+          );
         }
       }
     } else {
@@ -297,6 +301,10 @@ async function update() {
         if (time != 0) {
           console.log(`Predicting end of matchday in ${time} seconds`);
           setTimeout(updateData, time * 1000 + 1);
+          connection3.query(
+            "UPDATE data SET value2=? WHERE value1='countdown'",
+            [time - 10]
+          );
         }
       }
     }

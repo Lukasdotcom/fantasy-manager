@@ -20,11 +20,6 @@ export async function getServerSideProps(ctx) {
       notFound: true,
     };
   }
-  // Gets the latest squad of the user
-  const squad = await connection.query(
-    "SELECT * FROM historicalSquad WHERE leagueID=? AND user=? AND matchday=?",
-    [league, user, matchday]
-  );
   // Calculates the timestamp for this matchday
   const time = timeData[0].time;
   const [transfers, username, latestMatchday, money] = await Promise.all([
@@ -52,6 +47,23 @@ export async function getServerSideProps(ctx) {
       )
       .then((res) => (res.length > 0 ? res[0].money : 0)),
   ]);
+  // Checks if it is the latest matchday and that the matchday is running because then the historicalSquad table does not have the squad data for the player
+  const historicalSquadExists = !(
+    latestMatchday == matchday &&
+    connection
+      .query("SELECT value2 FROM data WHERE value1='transferOpen'")
+      .then((result) => result[0].value2 !== "true")
+  );
+  // Gets the squad of the user on that matchday
+  const squad = historicalSquadExists
+    ? await connection.query(
+        "SELECT * FROM historicalSquad WHERE leagueID=? AND user=? AND matchday=?",
+        [league, user, matchday]
+      )
+    : await connection.query(
+        "SELECT * FROM squad WHERE leagueID=? AND user=?",
+        [league, user]
+      );
   connection.end();
   // Checks if the user exists
   if (username === "") {
