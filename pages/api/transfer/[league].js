@@ -189,7 +189,7 @@ export default async function handler(req, res) {
               [money - player.value, league, user]
             );
             console.log(
-              `Player ${playeruid} bought for ${player.value} with max bid of ${amount}`
+              `Player ${playeruid} bought for ${player.value} with max bid of ${amount} by user ${user}`
             );
             res.status(200).end("Bought player");
             break;
@@ -284,7 +284,7 @@ export default async function handler(req, res) {
                 res
                   .status(200)
                   .end(
-                    `Bought player for ${
+                    `User ${user} bought player for ${
                       (cheapest[0].value + 100000) / 1000000
                     }M`
                   );
