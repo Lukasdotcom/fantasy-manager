@@ -31,7 +31,7 @@ const options = {
           if (!finished) {
             if (bcrypt.compareSync(credentials.password, e.password)) {
               finished = true;
-              result = { email: e.id };
+              result = { name: e.id };
             }
           }
         });
@@ -66,7 +66,9 @@ const options = {
         );
         let result = null;
         if (users.length > 0) {
-          result = { email: users[0].id };
+          result = {
+            name: users[0].id,
+          };
         }
         connection.end();
         return Promise.resolve(result);
@@ -75,7 +77,7 @@ const options = {
   ],
   callbacks: {
     async signIn({ account, profile, user }) {
-      // Will make sure that if this was sign in with google only a verified user loggs in.
+      // Will make sure that if this was sign in with google only a verified user logs in.
       if (account.provider === "google" || account.provider === "github") {
         const connection = await connect();
         // Checks if the user has already registered and if no then the user is created
@@ -94,55 +96,34 @@ const options = {
       }
       return user;
     },
-    // Used to find the users id and username
-    async session({ session }) {
-      // Checks if the user is logged in
-      if (!session) return Promise.resolve(session);
-      if (!session.user) return Promise.resolve(session);
-      // Checks if this is signed in through google/github or not
-      if (parseInt(session.user.email) > 0) {
-        const connection = await connect();
-        // Normal sign in
-        const id = session.user.email;
-        const [email, username] = await connection
-          .query("SELECT * FROM users WHERE id=?", [id])
-          .then((result) => {
-            if (result.length > 0) {
-              return [result[0].email, result[0].username];
-            } else {
-              return ["", ""];
-            }
-          });
-        connection.end();
-        if (username == "") return Promise.resolve(undefined);
-        session.user = {
-          id,
-          username,
-          email,
-        };
-        return Promise.resolve(session);
-      } else {
-        // Sign in with google
-        const email = session.user.email;
-        const connection = await connect();
-        const [id, username] = await connection
-          .query("SELECT * FROM users WHERE email=?", [email])
-          .then((result) => {
-            if (result.length > 0) {
-              return [result[0].id, result[0].username];
-            } else {
-              return ["", ""];
-            }
-          });
-        connection.end();
-        if (id == "") return Promise.resolve(undefined);
-        session.user = {
-          id,
-          username,
-          email,
-        };
-        return Promise.resolve(session);
+    async jwt({ token, account }) {
+      // Makes sure that the id is in the name parameter
+      if (account) {
+        // Gets the id from the database
+        if (account.provider === "google" || account.provider === "github") {
+          const connection = await connect();
+          token.name = await connection.query(
+            "SELECT id FROM users WHERE email=?",
+            [account.email]
+          );
+          connection.end();
+        }
       }
+      return token;
+    },
+    // Uses the users id and then returns the data for the user
+    async session({ session }) {
+      if (session && session.user.name) {
+        const connection = await connect();
+        session.user = await connection
+          .query("SELECT * FROM users WHERE id=?", [session.user.name])
+          .then((res) => (res.length > 0 ? res[0] : undefined));
+        connection.end();
+        if (session.user !== undefined) {
+          return session;
+        }
+      }
+      return undefined;
     },
   },
 };
