@@ -1,0 +1,44 @@
+name: Cypress tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  cypress-run:
+    name: Cypress run
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      # Installs packages
+      - run: npm ci
+      # Makes sure the code is formatted correctly
+      - run: npm run pretty
+      # Runs eslint
+      - run: npm run lint
+      # Runs cypress
+      - name: Cypress run
+        start: npm run start:test
+        uses: cypress-io/github-action@v4
+        with:
+          record: true
+          tag: node-${{ matrix.node }}
+          config-file: cypress.config.json
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 600
+        env:
+          # pass the Dashboard record key as an environment variable
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # pass GitHub token to allow accurately detecting a build vs a re-run build
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # pass the project ID from the secrets through environment variable
+          CYPRESS_PROJECT_ID: ${{ secrets.PROJECT_ID }}
