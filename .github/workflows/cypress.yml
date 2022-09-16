@@ -27,13 +27,13 @@ jobs:
       - run: npm run lint
       # Runs cypress
       - name: Cypress run
-        start: npm run start:test
         uses: cypress-io/github-action@v4
         with:
+          start: npm run start:test
           record: true
           tag: node-${{ matrix.node }}
-          config-file: cypress.config.json
-          wait-on: 'http://localhost:3000'
+          config-file: cypress.config.js
+          wait-on: "http://localhost:3000"
           wait-on-timeout: 600
         env:
           # pass the Dashboard record key as an environment variable

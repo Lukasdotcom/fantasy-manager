@@ -128,13 +128,9 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Star").click();
     cy.contains("Buying");
     // Switches to user 2
-    cy.contains("Standings")
-      .click()
-      .then(() => {
-        cy.setCookie("next-auth.session-token", user2).then(() => {
-          cy.reload();
-        });
-      });
+    cy.setCookie("next-auth.session-token", user2).then(() => {
+      cy.contains("Standings").click();
+    });
     // Changes the amount of times a player can be in a squad and buys lewandowski
     cy.get("#duplicatePlayers").clear().type(2);
     cy.contains("Save Admin Settings").click();

@@ -23,8 +23,9 @@ describe("User", () => {
     // Signs out
     cy.get("#logout").click();
     // Trys to sign in with the wrong password and username
-    cy.visit("http://localhost:3000");
-    cy.get("#login").click();
+    cy.visit("http://localhost:3000").then(() => {
+      cy.get("#login").click();
+    });
     cy.get("#input-username-for-Sign\\ In-provider").type("Sample User");
     cy.get("#input-password-for-Sign\\ In-provider").type("Sample Password");
     cy.contains("Sign in with Sign In").click();
