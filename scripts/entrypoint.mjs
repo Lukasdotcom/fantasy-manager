@@ -10,7 +10,7 @@ if (process.env.NODE_ENV !== "test") {
   dotenv.config({ path: ".env.test.local" });
 }
 // Used to tell the program what version of the database to use
-const currentVersion = "1.5.0";
+const currentVersion = "1.5.1";
 const date = new Date();
 let day = date.getDay();
 
@@ -26,7 +26,7 @@ async function startUp() {
   await Promise.all([
     // Used to store the users
     connection.query(
-      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, email varchar(255), username varchar(255), password varchar(60))"
+      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), google varchar(255) DEFAULT '', github varchar(255) DEFAULT '')"
     ),
     // Used to store the players data
     connection.query(
@@ -189,6 +189,20 @@ async function startUp() {
       await connection.query("ALTER TABLE transfers ADD max int");
       await connection.query("UPDATE transfers SET max=value");
       oldVersion = "1.5.0";
+    }
+    if (oldVersion == "1.5.0") {
+      console.log("Updating database to version 1.5.1");
+      await connection.query(
+        "ALTER TABLE users ADD google varchar(255) DEFAULT ''"
+      );
+      await connection.query(
+        "ALTER TABLE users ADD github varchar(255) DEFAULT ''"
+      );
+      await connection.query(
+        "UPDATE users SET google=users.email, github=users.email"
+      );
+      await connection.query("ALTER TABLE users DROP COLUMN email");
+      oldVersion = "1.5.1";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date

@@ -22,8 +22,8 @@ const options = {
         // Goes through every user that has the email or username that was given and has password authentication enabled
         const connection = await connect();
         const users = await connection.query(
-          "SELECT * FROM users WHERE (email=? OR username=?) AND password!=''",
-          [credentials.username, credentials.username]
+          "SELECT * FROM users WHERE username=? AND password!=''",
+          [credentials.username]
         );
         let finished = false;
         let result = null;
@@ -56,12 +56,12 @@ const options = {
           credentials.password,
           parseInt(process.env.BCRYPT_ROUNDS)
         );
-        connection.query(
-          "INSERT INTO users (username, password, email) VALUES(?, ?, '')",
+        await connection.query(
+          "INSERT INTO users (username, password) VALUES(?, ?)",
           [credentials.username, password]
         );
         const users = await connection.query(
-          "SELECT * FROM users WHERE (username=? AND password=?) AND email=''",
+          "SELECT * FROM users WHERE (username=? AND password=?)",
           [credentials.username, password]
         );
         let result = null;
@@ -82,11 +82,13 @@ const options = {
         const connection = await connect();
         // Checks if the user has already registered and if no then the user is created
         const registered = await connection
-          .query("SELECT * FROM users WHERE email=?", [profile.email])
+          .query(`SELECT * FROM users WHERE ${account.provider}=?`, [
+            profile.email,
+          ])
           .then((res) => res.length !== 0);
         if (!registered) {
           connection.query(
-            "INSERT INTO users (email, username, password) VALUES (?, ?, '')",
+            `INSERT INTO users (${account.provider}, username, password) VALUES (?, ?, '')`,
             [profile.email, profile.name]
           );
         }
@@ -103,7 +105,9 @@ const options = {
         if (account.provider === "google" || account.provider === "github") {
           const connection = await connect();
           token.name = await connection
-            .query("SELECT id FROM users WHERE email=?", [token.email])
+            .query(`SELECT id FROM users WHERE ${account.provider}=?`, [
+              token.email,
+            ])
             .then((res) => (res.length > 0 ? res[0].id : 0));
           connection.end();
         }
@@ -117,6 +121,7 @@ const options = {
         session.user = await connection
           .query("SELECT * FROM users WHERE id=?", [session.user.name])
           .then((res) => (res.length > 0 ? res[0] : undefined));
+        session.user.password = session.user.password !== "";
         connection.end();
         if (session.user !== undefined) {
           return session;
