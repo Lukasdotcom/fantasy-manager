@@ -134,6 +134,9 @@ const options = {
     async session({ session }) {
       if (session && session.user.name) {
         const connection = await connect();
+        connection.query("UPDATE users SET active=1 WHERE id=? AND active=0", [
+          session.user.name,
+        ]);
         session.user = await connection
           .query("SELECT * FROM users WHERE id=?", [session.user.name])
           .then((res) => (res.length > 0 ? res[0] : undefined));
