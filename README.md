@@ -93,3 +93,12 @@ Read the contributing guidelines.
 ## How to get Bundesliga Api
 
 Make an account on fantasy.bundesliga.com and then look at your cookies and one of the cookies is called acess_token and that is the api key for bundesliga
+
+## Analytics
+
+This service collects some simple analytics when you host this service that currently includes only the following information. This is collected daily.
+
+1. serverID - This is a random id that is generated the first time the server boots.
+2. version - The version of the server.
+3. users - The number of users.
+4. activeUsers - The number of users that were logged in on that day.

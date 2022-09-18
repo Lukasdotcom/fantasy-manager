@@ -92,6 +92,7 @@ class connectionSqlite {
       /on duplicate key update/gi,
       "ON CONFLICT DO UPDATE SET"
     );
+    statement = statement.replace(/insert ignore/gi, "INSERT OR IGNORE");
     if (true) sqlite3.verbose();
     if (statement.slice(0, 6) === "SELECT") {
       if (logError) {

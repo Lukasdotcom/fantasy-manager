@@ -9,6 +9,7 @@ if (process.env.NODE_ENV !== "test") {
 } else {
   dotenv.config({ path: ".env.test.local" });
 }
+const analyticsDomain = "https://bundesliga.lschaefer.xyz";
 // Used to tell the program what version of the database to use
 const currentVersion = "1.5.1";
 const date = new Date();
@@ -26,7 +27,7 @@ async function startUp() {
   await Promise.all([
     // Used to store the users
     connection.query(
-      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '')"
+      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, active bool DEFAULT 0, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '')"
     ),
     // Used to store the players data
     connection.query(
@@ -76,7 +77,16 @@ async function startUp() {
     connection.query(
       "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, opponent varchar(3))"
     ),
+    // Used to store analytics data
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS analytics (serverID varchar(10), day int, version varchar(10), users int, activeUsers int)"
+    ),
   ]);
+  // Checks if the server hash has been created and if not makes one
+  await connection.query(
+    "INSERT IGNORE INTO data (value1, value2) VALUES ('serverID', ?)",
+    [String(Math.random() * 8980989890)]
+  );
   // Unlocks the database
   connection.query("DELETE FROM data WHERE value1='locked'");
   // Checks the version of the database is out of date
@@ -192,6 +202,7 @@ async function startUp() {
     }
     if (oldVersion == "1.5.0") {
       console.log("Updating database to version 1.5.1");
+      await connection.query("ALTER TABLE users ADD active bool DEFAULT 0");
       await connection.query("ALTER TABLE users ADD throttle int DEFAULT 30");
       await connection.query(
         "ALTER TABLE users ADD google varchar(255) DEFAULT ''"
@@ -254,13 +265,44 @@ async function startUp() {
 startUp();
 async function update() {
   const connection3 = await connect();
-  // Updates the throttle requests that are left
+  // Increases the throttle attempts left by 1
   connection3.query("UPDATE users SET throttle=throttle+1 WHERE throttle<30");
   const newDate = new Date();
-  // Increases the throttle attempts left by 1
   // Checks if a new day is happening
-  if (day != newDate.getDay()) {
+  if (day == newDate.getDay()) {
     day = newDate.getDay();
+    // Gathers the analytics data
+    const users = await connection3.query("SELECT * FROM users");
+    const JSONbody = JSON.stringify({
+      serverID: await connection3
+        .query("SELECT value2 FROM data WHERE value1='serverID'")
+        .then((res) => res[0].value2),
+      users: users.length,
+      activeUsers: users.filter((e) => e.active).length,
+      version: version.version,
+    });
+    if (
+      process.env.NODE_ENV !== "development" &&
+      process.env.NODE_ENV !== "test"
+    ) {
+      // Sends the analytics data to the analytics server
+      fetch(`${analyticsDomain}/api/analytics`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSONbody,
+      });
+    }
+    // Sends the analytics data to the server
+    fetch(`http://localhost:3000/api/analytics`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSONbody,
+    });
+    connection3.query("UPDATE users SET active=0");
     console.log("Downloading new data for today");
     updateData();
     // Checks if an update was requested
