@@ -125,6 +125,10 @@ export default function Home({ session, user, notify, providers }) {
       <p>
         Password Auth is currently {passwordExists ? "enabled" : "disabled"}
       </p>
+      <p>
+        It is recommended against using password authorization unless strictly
+        neccessary.
+      </p>
       <TextField
         type="password"
         id="password"
