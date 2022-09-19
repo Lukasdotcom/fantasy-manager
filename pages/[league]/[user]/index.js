@@ -6,7 +6,6 @@ import { Player, HistoricalPlayer } from "../../../components/Player";
 import { useRouter } from "next/router";
 import { FormLabel, Pagination, PaginationItem } from "@mui/material";
 export default function HistoricalView({
-  session,
   user,
   username,
   squad,
@@ -28,7 +27,7 @@ export default function HistoricalView({
           from ${leagueName}`}
         </title>
       </Head>
-      <Menu session={session} league={league} />
+      <Menu league={league} />
       <h1>
         {username}&apos;s Squad{" "}
         {currentMatchday === 0 ? "" : `on Matchday ${currentMatchday} `}

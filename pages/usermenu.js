@@ -76,7 +76,7 @@ function ProviderShow({ provider, notify, user }) {
   }
 }
 // A place to change your username and other settings
-export default function Home({ session, user, notify, providers }) {
+export default function Home({ user, notify, providers }) {
   const [username, setUsername] = useState(user.username);
   const [password, setPassword] = useState("");
   const [passwordExists, setPasswordExists] = useState(user.password);
@@ -85,7 +85,7 @@ export default function Home({ session, user, notify, providers }) {
       <Head>
         <title>Usermenu</title>
       </Head>
-      <Menu session={session} />
+      <Menu />
       <h1>Usermenu</h1>
       <TextField
         error={username === ""}

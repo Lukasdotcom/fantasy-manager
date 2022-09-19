@@ -213,6 +213,7 @@ async function startUp() {
       await connection.query(
         "UPDATE users SET google=users.email, github=users.email"
       );
+      await connection.query("DELETE FROM data WHERE value1='updateProgram'");
       await connection.query("ALTER TABLE users DROP COLUMN email");
       oldVersion = "1.5.1";
     }
@@ -231,36 +232,6 @@ async function startUp() {
   // Makes sure to check if an update is neccessary every 10 seconds
   setInterval(update, 10000);
   updateData();
-  // Checks if this is the latest version and if it does adds data
-  async function updateInfo() {
-    if (
-      process.env.NODE_ENV === "development" ||
-      process.env.NODE_ENV === "test"
-    ) {
-      console.log("Skipping update check due to being development enviroment");
-      return;
-    }
-    console.log("Checking for updates");
-    const releases = await fetch(
-      "https://api.github.com/repos/lukasdotcom/Bundesliga/releases"
-    ).then((res) => (res.ok ? res.json() : {}));
-    if (releases[0] === undefined || releases[0].tag_name === undefined) {
-      console.log("Failed to get version data from github api");
-      return;
-    }
-    const connection2 = await connect();
-    if (version.version !== releases[0].tag_name) {
-      connection2.query(
-        "INSERT INTO data (value1, value2) VALUES('updateProgram', ?) ON DUPLICATE KEY UPDATE value2=?",
-        [releases[0].html_url, releases[0].html_url]
-      );
-    } else {
-      connection2.query("DELETE FROM data WHERE value1='updateProgram'");
-    }
-    connection2.end();
-  }
-  updateInfo();
-  setInterval(updateInfo, 3600000 * 24);
 }
 startUp();
 async function update() {
@@ -269,7 +240,7 @@ async function update() {
   connection3.query("UPDATE users SET throttle=throttle+1 WHERE throttle<30");
   const newDate = new Date();
   // Checks if a new day is happening
-  if (day == newDate.getDay()) {
+  if (day != newDate.getDay()) {
     day = newDate.getDay();
     // Gathers the analytics data
     const users = await connection3.query("SELECT * FROM users");

@@ -1,13 +1,13 @@
 import Menu from "../../components/Menu";
 import Head from "next/head";
 import BugReport from "../../components/BugReport";
-export default function Home({ session }) {
+export default function Home() {
   return (
     <>
       <Head>
         <title>No Update Error</title>
       </Head>
-      <Menu session={session} />
+      <Menu league={undefined} />
       <h1>No Update Error</h1>
       <h2>What is Wrong</h2>
       <p>

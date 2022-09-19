@@ -8,7 +8,6 @@ import connect from "../../Modules/database.mjs";
 import { InputLabel, MenuItem, Select } from "@mui/material";
 
 export default function Home({
-  session,
   league,
   starredPercentage,
   notify,
@@ -59,7 +58,7 @@ export default function Home({
       <Head>
         <title>{`Squad for ` + leagueName}</title>
       </Head>
-      <Menu session={session} league={league} />
+      <Menu league={league} />
       <h1>Squad for {leagueName}</h1>
       <p>
         You can have one starred Forward, Midfielder, and Defender. These

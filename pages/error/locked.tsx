@@ -1,12 +1,12 @@
 import Menu from "../../components/Menu";
 import Head from "next/head";
-export default function Home({ session }) {
+export default function Home({}) {
   return (
     <>
       <Head>
         <title>Locked Error</title>
       </Head>
-      <Menu session={session} />
+      <Menu league={undefined} />
       <h1>Locked Error</h1>
       <h2>What is Wrong</h2>
       <p>
