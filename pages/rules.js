@@ -1,13 +1,13 @@
 import Menu from "../components/Menu";
 import Head from "next/head";
 import BugReport from "../components/BugReport";
-export default function Home({ session }) {
+export default function Home() {
   return (
     <>
       <Head>
         <title>Rules</title>
       </Head>
-      <Menu session={session} />
+      <Menu />
       <h1>Rules</h1>
       <h2>Transfers</h2>
       <p>

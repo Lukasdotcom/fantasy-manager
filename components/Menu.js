@@ -3,7 +3,6 @@ import Login from "./Login";
 import {
   Icon,
   MenuItem,
-  Button,
   Container,
   Menu,
   Typography,
@@ -46,7 +45,7 @@ function MenuItems({ league, handleCloseNavMenu }) {
   );
 }
 // Used to create a menu
-const Layout = ({ session, league }) => {
+const Layout = ({ league }) => {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -88,7 +87,7 @@ const Layout = ({ session, league }) => {
                 display: { xs: "block", sm: "none" },
               }}
             >
-              <SessionProvider session={session}>
+              <SessionProvider>
                 <MenuItems
                   league={league}
                   handleCloseNavMenu={handleCloseNavMenu}
@@ -97,7 +96,7 @@ const Layout = ({ session, league }) => {
             </Menu>
           </Box>
           <Box sx={{ flexGrow: 1, display: { xs: "none", sm: "flex" } }}>
-            <SessionProvider session={session}>
+            <SessionProvider>
               <MenuItems
                 league={league}
                 handleCloseNavMenu={handleCloseNavMenu}
@@ -106,7 +105,7 @@ const Layout = ({ session, league }) => {
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <SessionProvider session={session}>
+            <SessionProvider>
               <Login />
             </SessionProvider>
           </Box>

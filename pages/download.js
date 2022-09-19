@@ -12,7 +12,7 @@ import Head from "next/head";
 import { useState } from "react";
 import Menu from "../components/Menu";
 import connect from "../Modules/database.mjs";
-export default function Home({ session, historicalTimes }) {
+export default function Home({ historicalTimes }) {
   const [matchday, setMatchday] = useState(0);
   const [showHidden, setShowHidden] = useState(false);
   // Tracks the kind of download
@@ -37,7 +37,7 @@ export default function Home({ session, historicalTimes }) {
       <Head>
         <title>Download</title>
       </Head>
-      <Menu session={session} />
+      <Menu />
       <h1>Download Data</h1>
       <p>Here you can download the player data for personal use.</p>
       <InputLabel htmlFor="time">Time</InputLabel>

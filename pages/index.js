@@ -5,8 +5,10 @@ import MainImage from "../screenshots/main.webp";
 import TransferImage from "../screenshots/transfers.webp";
 import StandingsImage from "../screenshots/standings.webp";
 import SquadImage from "../screenshots/squad.webp";
-import { Pagination } from "@mui/material";
+import { Alert, AlertTitle, Pagination } from "@mui/material";
 import { useEffect, useState } from "react";
+import version from "./../package.json" assert { type: "json" };
+
 // Turns the number into the correct screenshot
 function CurrentPicture({ picture }) {
   switch (picture) {
@@ -82,13 +84,13 @@ function Carrousel() {
     </>
   );
 }
-export default function Home({ session }) {
+export default function Home({ update }) {
   return (
     <>
       <Head>
         <title>Bundesliga Fantasy</title>
       </Head>
-      <Menu session={session} />
+      <Menu />
       <h1>Bundesliga Fantasy Manager</h1>
       <p>
         A modern open source Fantasy Bundesliga Manager. The source code is
@@ -155,6 +157,67 @@ export default function Home({ session }) {
       to ask questions or find leagues to join.
       <h2>Screenshots</h2>
       <Carrousel />
+      {update.type !== undefined && (
+        <Alert severity={update.type} className="notification">
+          <AlertTitle>{update.title}</AlertTitle>
+          <a href={update.link} rel="noreferrer" target="_blank">
+            {update.text}
+          </a>
+        </Alert>
+      )}
     </>
   );
+}
+
+export async function getStaticProps() {
+  // Checks if this is running in a non production setup
+  if (
+    process.env.NODE_ENV === "development" ||
+    process.env.NODE_ENV === "test"
+  ) {
+    return {
+      props: {
+        update: {
+          type: "info",
+          title: "Not for Production",
+          text: "This is the development or testing version of this software. Do not use in production.",
+        },
+      },
+    };
+  }
+  // Checks if this is the latest version and if it does adds data
+  console.log("Checking for updates");
+  const releases = await fetch(
+    "https://api.github.com/repos/lukasdotcom/Bundesliga/releases"
+  ).then((res) => (res.ok ? res.json() : {}));
+  if (releases[0] === undefined || releases[0].tag_name === undefined) {
+    console.log("Failed to get version data from github api.");
+    return {
+      props: {
+        update: {
+          type: "error",
+          title: "Failure",
+          text: "Failing to check for updates.",
+          link: "/error/update",
+        },
+      },
+      // Checks at max every day
+      revalidate: 30, // In seconds
+    };
+  }
+  let update = {};
+  if (version.version !== releases[0].tag_name) {
+    update = {
+      type: "warning",
+      title: "Out of Date",
+      text: "New Update Available for more info Click Here",
+      link: releases[0].html_url,
+    };
+  }
+
+  return {
+    props: { update },
+    // Checks at max every day
+    revalidate: 3600 * 24,
+  };
 }

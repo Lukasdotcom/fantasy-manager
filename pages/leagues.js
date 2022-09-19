@@ -5,8 +5,7 @@ import { leagueList } from "./api/league";
 import Link from "../components/Link";
 import Menu from "../components/Menu";
 import { push } from "@socialgouv/matomo-next";
-import connect from "../Modules/database.mjs";
-import { AlertTitle, Alert, TextField, Button } from "@mui/material";
+import { TextField, Button } from "@mui/material";
 // Used to create a new League
 function MakeLeague({ getLeagueData, notify }) {
   const [leagueName, setLeagueName] = useState("");
@@ -124,40 +123,26 @@ function Leagues({ leagueData, notify }) {
     return <></>;
   }
 }
-export default function Home({ session, leagueData, versionData, notify }) {
+export default function Home({ session, leagueData, notify }) {
   return (
     <>
       <Head>
         <title>Leagues</title>
       </Head>
-      <Menu session={session} />
+      <Menu />
       <h1>Bundesliga Fantasy Manager</h1>
-      <SessionProvider session={session}>
+      <SessionProvider>
         <Leagues leagueData={leagueData} notify={notify} />
       </SessionProvider>
-      {versionData !== null && (
-        <Alert severity="warning" className="notification">
-          <AlertTitle>Out of Date</AlertTitle>
-          <a href={versionData} rel="noreferrer" target="_blank">
-            New Update Available for more info Click Here
-          </a>
-        </Alert>
-      )}
     </>
   );
 }
 
 export async function getServerSideProps(ctx) {
-  const connection = await connect();
-  const versionData = await connection
-    .query("SELECT value2 FROM data WHERE value1='updateProgram'")
-    .then((result) => (result.length === 0 ? null : result[0].value2));
-  connection.end();
   const session = getSession(ctx);
   if (await session) {
     return {
       props: {
-        versionData: await versionData,
         leagueData: JSON.parse(
           JSON.stringify(await leagueList((await session).user.id))
         ),
