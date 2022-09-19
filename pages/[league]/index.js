@@ -234,7 +234,6 @@ function Invite({ link, league, host, remove, notify }) {
 export default function Home({
   user,
   admin,
-  session,
   league,
   standings,
   historicalPoints,
@@ -268,7 +267,7 @@ export default function Home({
       <Head>
         <title>{`Standings for ` + inputLeagueName}</title>
       </Head>
-      <Menu session={session} league={league} />
+      <Menu league={league} />
       <h1>Standings for {inputLeagueName}</h1>
       <TableContainer>
         <Table>

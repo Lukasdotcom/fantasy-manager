@@ -57,7 +57,6 @@ function Postion({ position, positions, setPositions }) {
   );
 }
 export default function Home({
-  session,
   league,
   allowedTransfers,
   duplicatePlayers,
@@ -183,9 +182,9 @@ export default function Home({
       <Head>
         <title>{`Transfers for ` + leagueName}</title>
       </Head>
-      <Menu session={session} league={league} />
+      <Menu league={league} />
       <h1>Transfers for {leagueName}</h1>
-      <SessionProvider session={session}>
+      <SessionProvider>
         <TransfersLeft
           ownership={ownership}
           allowedTransfers={allowedTransfers}
@@ -273,7 +272,7 @@ export default function Home({
       <Link href="/download">
         <Button>Download Player Data</Button>
       </Link>
-      <SessionProvider session={session}>
+      <SessionProvider>
         {players.map((val) => (
           <Player
             key={val}
