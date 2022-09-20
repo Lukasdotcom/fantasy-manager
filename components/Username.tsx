@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Avatar, Chip, useTheme } from "@mui/material";
+interface Props {
+  userid: number;
+}
 // Simply just shows the name of the user given there userid
-export default function Username({ userid }) {
+export default function Username({ userid }: Props) {
   const [username, setUsername] = useState("");
   useEffect(() => {
     fetch(`/api/user/${userid}`).then(async (val) => {
@@ -12,7 +15,7 @@ export default function Username({ userid }) {
   return <>{username}</>;
 }
 // Creates a simple chip for the user
-export function UserChip({ userid }) {
+export function UserChip({ userid }: Props) {
   const [username, setUsername] = useState("A");
   useEffect(() => {
     if (userid != 0) {
@@ -41,7 +44,7 @@ export function UserChip({ userid }) {
   );
 }
 // Shows an avatar for the user with a color based on the name
-export function UserAvatar({ userid }) {
+export function UserAvatar({ userid }: Props) {
   const [username, setUsername] = useState("A");
   useEffect(() => {
     fetch(`/api/user/${userid}`).then(async (val) => {
@@ -63,14 +66,14 @@ export function UserAvatar({ userid }) {
     </Avatar>
   );
 }
-
-function stringToColor(string) {
-  let hash = string * 67280021310721;
+// This turns a number into a random color.
+function stringToColor(string: number) {
+  let hash = string * 67280021310722;
   let i;
   let color = "#";
   for (i = 0; i < 3; i += 1) {
     const value = hash % 256;
-    hash = parseInt(hash / 256);
+    hash = parseInt((hash / 256).toString());
     color += `00${value.toString(16)}`.slice(-2);
   }
   return color;

@@ -1,13 +1,14 @@
 import Menu from "../../components/Menu";
 import Head from "next/head";
 import BugReport from "../../components/BugReport";
+import Link from "../../components/Link";
 export default function Home() {
   return (
     <>
       <Head>
         <title>Failure to get Version Data</title>
       </Head>
-      <Menu league={undefined} />
+      <Menu />
       <h1>Failure to get Version Data</h1>
       <h2>What is Wrong</h2>
       <p>
@@ -19,14 +20,13 @@ export default function Home() {
         This error is not critical at all and just means that this website can
         not check if this is actually the latest version. You should just
         manually check the{" "}
-        <a
-          style={{ color: "blue" }}
+        <Link
           href="https://github.com/Lukasdotcom/Bundesliga/releases"
           rel="noopener noreferrer"
           target="_blank"
         >
           github releases.
-        </a>
+        </Link>
         There you can see if this is the latest version of the software.
       </p>
       <BugReport />

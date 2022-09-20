@@ -12,6 +12,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useRouter } from "next/router";
+import { AppProps } from "next/app";
 const MATOMO_URL = process.env.NEXT_PUBLIC_MATOMO_URL;
 const MATOMO_SITE_ID = process.env.NEXT_PUBLIC_MATOMO_SITE_ID;
 // Used to create the theme for the website
@@ -20,31 +21,33 @@ export const theme = createTheme({
     mode: "dark",
   },
 });
-function MyApp({ Component, pageProps }) {
+interface Notification {
+  message?: string;
+  severity?: Severity;
+}
+type Severity = "error" | "info" | "warning";
+function MyApp({ Component, pageProps }: AppProps) {
   // Used to start up matomo analytics
   useEffect(() => {
-    init({ url: MATOMO_URL, siteId: MATOMO_SITE_ID });
+    init({ url: String(MATOMO_URL), siteId: String(MATOMO_SITE_ID) });
   }, []);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<Notification>({});
   // Used to send notification
-  function notify(message, severity = "info") {
-    setNotifications([
-      ...notifications,
-      {
-        id: parseInt(Math.random() * 100000),
-        message: message,
-        severity: severity,
-        autoHideDuration: severity === "error" ? 10000 : 4000,
-      },
-    ]);
+  function notify(message: string, severity: Severity = "info") {
+    setNotifications({
+      message: message,
+      severity: severity,
+    });
   }
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
   // Checks if the page is loading
   useEffect(() => {
-    const handleStart = (url) => url !== router.asPath && setLoading(true);
-    const handleComplete = (url) => url === router.asPath && setLoading(false);
+    const handleStart = (url: string) =>
+      url !== router.asPath && setLoading(true);
+    const handleComplete = (url: string) =>
+      url === router.asPath && setLoading(false);
 
     router.events.on("routeChangeStart", handleStart);
     router.events.on("routeChangeComplete", handleComplete);
@@ -56,29 +59,26 @@ function MyApp({ Component, pageProps }) {
       router.events.off("routeChangeError", handleComplete);
     };
   });
+  // Clears the notification on close
+  function handleClose() {
+    setNotifications({});
+  }
   return (
     <>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <GlobalStyles styles={{ Button: { m: "5px" } }} />
-        {notifications.map((notification) => {
-          function handleClose(event, reason) {
-            setNotifications(
-              notifications.filter((e) => e.id !== notification.id)
-            );
-          }
-          return (
-            <Snackbar key={notification.id} open={true} onClose={handleClose}>
-              <Alert
-                onClose={handleClose}
-                severity={notification.severity}
-                sx={{ width: "100%" }}
-              >
-                {notification.message}
-              </Alert>
-            </Snackbar>
-          );
-        })}
+        {notifications.message && (
+          <Snackbar open={true} onClose={handleClose}>
+            <Alert
+              onClose={handleClose}
+              severity={notifications.severity}
+              sx={{ width: "100%" }}
+            >
+              {notifications.message}
+            </Alert>
+          </Snackbar>
+        )}
         {/* Adds loading screen whenever a new page is being opened */}
         <Backdrop open={loading}>
           <CircularProgress />

@@ -1,7 +1,13 @@
 import { Dialog, DialogTitle, Icon, IconButton } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { MouseEventHandler } from "react";
+interface Props {
+  children: JSX.Element;
+  onClose: MouseEventHandler;
+  title: string;
+  open: boolean;
+}
 // A simple dialog
-export default function Home({ children, onClose, title, open }) {
+export default function Home({ children, onClose, title, open }: Props) {
   return (
     <Dialog open={open}>
       <DialogTitle sx={{ m: 0, p: 2 }}>
@@ -26,14 +32,3 @@ export default function Home({ children, onClose, title, open }) {
     </Dialog>
   );
 }
-const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  "& .MuiDialogContent-root": {
-    padding: theme.spacing(2),
-  },
-  "& .MuiDialogContent-root": {
-    padding: theme.spacing(2),
-  },
-  "& .MuiDialogActions-root": {
-    padding: theme.spacing(1),
-  },
-}));

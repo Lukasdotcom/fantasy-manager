@@ -7,7 +7,7 @@ export default function Home() {
       <Head>
         <title>No Update Error</title>
       </Head>
-      <Menu league={undefined} />
+      <Menu />
       <h1>No Update Error</h1>
       <h2>What is Wrong</h2>
       <p>
