@@ -3,10 +3,10 @@
   "version": "1.5.1",
   "private": true,
   "scripts": {
-    "dev": "export NODE_ENV=development; npm install; node scripts/entrypoint.mjs & next dev",
+    "dev": "export NODE_ENV=development APP_ENV=development; npm install; node scripts/entrypoint.mjs & next dev",
     "build": "npm ci; next build",
-    "start": "export NODE_ENV=production; npm run start2",
-    "start:test": "export NODE_ENV=test; npm run start2",
+    "start": "export NODE_ENV=production APP_ENV=production; npm run start2",
+    "start:test": "export NODE_ENV=test APP_ENV=test; npm run start2",
     "start2": "node scripts/entrypoint.mjs & next build; next start",
     "lint": "next lint --max-warnings 0",
     "pretty": "prettier --check .",

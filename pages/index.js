@@ -183,7 +183,7 @@ export default function Home({ update }) {
 
 export async function getStaticProps() {
   // Checks if this is running in a non production setup
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.APP_ENV === "development" || process.env.APP_ENV === "test") {
     return {
       props: {
         update: {

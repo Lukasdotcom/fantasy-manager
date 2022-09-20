@@ -2,7 +2,7 @@ import { createConnection } from "mysql";
 import dotenv from "dotenv";
 import { open } from "sqlite";
 import sqlite3 from "sqlite3";
-if (process.env.NODE_ENV !== "test") {
+if (process.env.APP_ENV !== "test") {
   dotenv.config({ path: ".env.local" });
 } else {
   dotenv.config({ path: ".env.test.local" });

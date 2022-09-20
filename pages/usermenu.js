@@ -87,6 +87,10 @@ export default function Home({ user, notify, providers }) {
       </Head>
       <Menu />
       <h1>Usermenu</h1>
+      <p>
+        Note it might take up to 1 minute for the Username to update for
+        everyone
+      </p>
       <TextField
         error={username === ""}
         id="username"

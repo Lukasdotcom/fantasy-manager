@@ -52,6 +52,30 @@ export default async function handler(req, res) {
     }
     // Checks if the player exists
     if (result.length > 0) {
+      // Tells the browser how long to cache if not a development
+      if (
+        process.env.APP_ENV !== "development" &&
+        process.env.APP_ENV !== "test"
+      ) {
+        const timeLeft =
+          connection
+            .query("SELECT * FROM data WHERE value1='playerUpdate'")
+            .then((res) => (res.length > 0 ? res[0].value2 : Math.max())) -
+          parseInt(Date.now() / 1000) +
+          parseInt(
+            connection
+              .query(
+                "SELECT * FROM data WHERE value1='transferOpen' AND value2='true'"
+              )
+              .then((res) => res.length > 0)
+              ? process.env.MIN_UPDATE_TIME_TRANSFER
+              : process.env.MIN_UPDATE_TIME
+          );
+        res.setHeader(
+          "Cache-Control",
+          `public, max-age=${parseInt(req.query.time) > 0 ? 604800 : timeLeft}`
+        );
+      }
       res.status(200).json(result[0]);
     } else {
       res.status(404).end("Player not found");
