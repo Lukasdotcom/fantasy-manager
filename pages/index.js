@@ -50,15 +50,15 @@ function CurrentPicture({ picture }) {
           width={960}
         ></Image>
       );
-      case 5:
-        return (
-          <Image
-            alt="Screenshot of Transfers"
-            src={Transfer2Image}
-            height={540}
-            width={960}
-          ></Image>
-        );
+    case 5:
+      return (
+        <Image
+          alt="Screenshot of Transfers"
+          src={Transfer2Image}
+          height={540}
+          width={960}
+        ></Image>
+      );
     default:
       return (
         <Image
