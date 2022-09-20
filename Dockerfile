@@ -14,6 +14,7 @@ COPY .eslintrc.json .eslintrc.json
 COPY next.config.js next.config.js
 COPY package-lock.json package-lock.json
 COPY package.json package.json
+COPY tsconfig.json tsconfig.json
 RUN npm ci
 # Sets the default configuration
 ENV NEXTAUTH_SECRET=hkf9eUXAZKjw99/hZ4Rrw7aNe47qxB+QuojMwmxbFqA=
