@@ -4,13 +4,11 @@ import Image from "next/image";
 import { push } from "@socialgouv/matomo-next";
 import { useSession } from "next-auth/react";
 import fallbackImg from "../public/playerFallback.png";
-import Link from "next/link";
+import Link from "./Link";
 import {
   Button,
   CircularProgress,
   InputAdornment,
-  ListItem,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -19,7 +17,7 @@ import {
   TableRow,
   TextField,
 } from "@mui/material";
-import Dialog from "../components/Dialog";
+import Dialog from "./Dialog";
 import { UserChip } from "./Username";
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
 // extraText is shown in parenthesis next to the player name
@@ -86,11 +84,8 @@ function InternalPlayer({ data, children, starred, extraText }) {
             )}
             {extraText && <i> {extraText}</i>}
             {data.updateRunning === false && (
-              <Link href="/error/no-update">
-                <a style={{ color: "red" }}>
-                  {" "}
-                  Player Data not updating click for details
-                </a>
+              <Link color={"#ff0000"} href="/error/no-update">
+                Player Data not updating click for details
               </Link>
             )}
           </p>

@@ -11,11 +11,15 @@ import {
   Box,
   AppBar,
 } from "@mui/material";
-import { useState } from "react";
+import { MouseEvent, MouseEventHandler, useState } from "react";
 import Link from "./Link";
 import { useSession } from "next-auth/react";
+interface MenuItemsInterface {
+  league: undefined | Number;
+  handleCloseNavMenu: MouseEventHandler;
+}
 // Returns all the menu items
-function MenuItems({ league, handleCloseNavMenu }) {
+function MenuItems({ league, handleCloseNavMenu }: MenuItemsInterface) {
   const { data: session } = useSession();
   const pages = [
     { name: "Home", link: "/" },
@@ -35,7 +39,7 @@ function MenuItems({ league, handleCloseNavMenu }) {
   return (
     <>
       {pages.map((page) => (
-        <Link href={page.link} key={page.name}>
+        <Link styled={false} href={page.link} key={page.name}>
           <MenuItem onClick={handleCloseNavMenu}>
             <Typography textAlign="center">{page.name}</Typography>
           </MenuItem>
@@ -44,10 +48,13 @@ function MenuItems({ league, handleCloseNavMenu }) {
     </>
   );
 }
+interface MainInterface {
+  league?: number;
+}
 // Used to create a menu
-const Layout = ({ league }) => {
-  const [anchorElNav, setAnchorElNav] = useState(null);
-  const handleOpenNavMenu = (event) => {
+const Layout = ({ league }: MainInterface) => {
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+  const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
 

@@ -6,7 +6,7 @@ import { TransferPlayer as Player } from "../../components/Player";
 import { push } from "@socialgouv/matomo-next";
 import { SessionProvider, useSession } from "next-auth/react";
 import connect from "../../Modules/database.mjs";
-import Link from "next/link";
+import Link from "../../components/Link";
 import {
   Button,
   Checkbox,

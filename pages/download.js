@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { push } from "@socialgouv/matomo-next";
 import Head from "next/head";
+import Link from "../components/Link";
 import { useState } from "react";
 import Menu from "../components/Menu";
 import connect from "../Modules/database.mjs";
@@ -74,14 +75,18 @@ export default function Home({ historicalTimes }) {
             download("json");
           }}
         >
-          <a href={downloadLink("json")}>Download as JSON</a>
+          <Link disableNext={true} href={downloadLink("json")}>
+            Download as JSON
+          </Link>
         </Button>
         <Button
           onClick={() => {
             download("csv");
           }}
         >
-          <a href={downloadLink("csv")}>Download as CSV</a>
+          <Link disableNext={true} href={downloadLink("csv")}>
+            Download as CSV
+          </Link>
         </Button>
       </ButtonGroup>
     </>
