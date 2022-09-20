@@ -32,7 +32,8 @@ This is meant to be an open source self hosted version of the official bundeslig
 ![Screenshot of League Page](/screenshots/main.webp?raw=true)
 ![Screenshot of Standings Page](/screenshots/standings.webp?raw=true)
 ![Screenshot of Squad Page](/screenshots/squad.webp?raw=true)
-![Screenshot of Transfer Page](/screenshots/transfers.webp?raw=true)
+![Screenshot of Transfer Page](/screenshots/transfers1.webp?raw=true)
+![Screenshot of Transfer Page](/screenshots/transfers2.webp?raw=true)
 
 ## Production or Installation
 

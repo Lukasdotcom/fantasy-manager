@@ -2,7 +2,8 @@ import Head from "next/head";
 import Menu from "../components/Menu";
 import Image from "next/image";
 import MainImage from "../screenshots/main.webp";
-import TransferImage from "../screenshots/transfers.webp";
+import Transfer1Image from "../screenshots/transfers1.webp";
+import Transfer2Image from "../screenshots/transfers2.webp";
 import StandingsImage from "../screenshots/standings.webp";
 import SquadImage from "../screenshots/squad.webp";
 import { Alert, AlertTitle, Pagination } from "@mui/material";
@@ -36,14 +37,23 @@ function CurrentPicture({ picture }) {
           alt="Screenshot of Squad"
           src={SquadImage}
           height={540}
-          width={303}
+          width={960}
         ></Image>
       );
     case 4:
       return (
         <Image
           alt="Screenshot of Transfers"
-          src={TransferImage}
+          src={Transfer1Image}
+          height={540}
+          width={960}
+        ></Image>
+      );
+    case 5:
+      return (
+        <Image
+          alt="Screenshot of Transfers"
+          src={Transfer2Image}
           height={540}
           width={960}
         ></Image>
@@ -61,7 +71,7 @@ function CurrentPicture({ picture }) {
 }
 // Shows all the screenshots and allows the user to pick screenshots they would like to see
 function Carrousel() {
-  const pictures = 4;
+  const pictures = 5;
   const [picture, setPicture] = useState(1);
   useEffect(() => {
     const interval = setInterval(() => {
