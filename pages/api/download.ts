@@ -1,23 +1,34 @@
 import connect from "../../Modules/database.mjs";
 import { stringify } from "csv-stringify/sync";
-
-export default async function handler(req, res) {
+import { NextApiRequest, NextApiResponse } from "next";
+interface players {
+  value: number;
+}
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const connection = await connect();
   let extraText = "";
   // Checks if the player wants to show all the hidden ones
   if (req.query.showHidden !== "true") {
     extraText += " WHERE `exists`=1";
   }
+  if (typeof req.query.time !== "string" && req.query.time !== undefined) {
+    res.status(400).end("Invalid time");
+    return;
+  }
+  const time = req.query.time ? parseInt(req.query.time) : 0;
   const data =
-    parseInt(req.query.time) > 0
+    time > 0
       ? (
           await connection.query(`SELECT * FROM historicalPlayers${extraText}`)
-        ).map((e) => {
+        ).map((e: players) => {
           e.value = e.value / 1000000;
           return e;
         })
       : (await connection.query(`SELECT * FROM players${extraText}`)).map(
-          (e) => {
+          (e: players) => {
             e.value = e.value / 1000000;
             return e;
           }
@@ -54,7 +65,7 @@ export default async function handler(req, res) {
     `A ${
       req.query.type === "csv" ? "csv" : "json"
     } download was requested for ${
-      parseInt(req.query.time) > 0 ? parseInt(req.query.time) : "latest"
+      req.query.time ? parseInt(req.query.time) : "latest"
     } time`
   );
   connection.end();
