@@ -6,7 +6,7 @@ export default function Home({}) {
       <Head>
         <title>Locked Error</title>
       </Head>
-      <Menu league={undefined} />
+      <Menu />
       <h1>Locked Error</h1>
       <h2>What is Wrong</h2>
       <p>

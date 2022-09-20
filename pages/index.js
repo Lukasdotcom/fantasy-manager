@@ -8,6 +8,7 @@ import SquadImage from "../screenshots/squad.webp";
 import { Alert, AlertTitle, Pagination } from "@mui/material";
 import { useEffect, useState } from "react";
 import version from "./../package.json" assert { type: "json" };
+import Link from "../components/Link";
 
 // Turns the number into the correct screenshot
 function CurrentPicture({ picture }) {
@@ -95,14 +96,13 @@ export default function Home({ update }) {
       <p>
         A modern open source Fantasy Bundesliga Manager. The source code is
         available on{" "}
-        <a
-          style={{ color: "blue" }}
+        <Link
           href="https://github.com/Lukasdotcom/Bundesliga"
           rel="noopener noreferrer"
           target="_blank"
         >
           github.
-        </a>
+        </Link>
         The goal of this is to be the best place to play a fantasy bundesliga
         manager with your friends. The rules are located in the rules tab in the
         menu. To play you must have an account which is free to do in the log in
@@ -146,23 +146,25 @@ export default function Home({ update }) {
       </ol>
       <h2>Community</h2>
       You can go to the{" "}
-      <a
-        style={{ color: "blue" }}
+      <Link
         href="https://github.com/Lukasdotcom/Bundesliga/discussions"
         rel="noopener noreferrer"
         target="_blank"
       >
         github discussions
-      </a>{" "}
+      </Link>{" "}
       to ask questions or find leagues to join.
       <h2>Screenshots</h2>
       <Carrousel />
       {update.type !== undefined && (
         <Alert severity={update.type} className="notification">
           <AlertTitle>{update.title}</AlertTitle>
-          <a href={update.link} rel="noreferrer" target="_blank">
-            {update.text}
-          </a>
+          {update.link === undefined && update.text}
+          {update.link !== undefined && (
+            <Link href={update.link} rel="noreferrer" target="_blank">
+              {update.text}
+            </Link>
+          )}
         </Alert>
       )}
     </>
@@ -171,10 +173,7 @@ export default function Home({ update }) {
 
 export async function getStaticProps() {
   // Checks if this is running in a non production setup
-  if (
-    process.env.NODE_ENV === "development" ||
-    process.env.NODE_ENV === "test"
-  ) {
+  if (process.env.NODE_ENV === "development") {
     return {
       props: {
         update: {
