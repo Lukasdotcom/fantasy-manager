@@ -4,7 +4,7 @@ import version from "./../package.json" assert { type: "json" };
 import dotenv from "dotenv";
 import { unlink } from "fs";
 import noAccents from "../Modules/normalize.mjs";
-if (process.env.NODE_ENV !== "test") {
+if (process.env.APP_ENV !== "test") {
   dotenv.config({ path: ".env.local" });
 } else {
   dotenv.config({ path: ".env.test.local" });
@@ -16,7 +16,7 @@ const date = new Date();
 let day = date.getDay();
 
 async function startUp() {
-  if (process.env.NODE_ENV === "test") {
+  if (process.env.APP_ENV === "test") {
     await new Promise((res) => {
       unlink(process.env.SQLITE, function () {
         res();
@@ -253,8 +253,8 @@ async function update() {
       version: version.version,
     });
     if (
-      process.env.NODE_ENV !== "development" &&
-      process.env.NODE_ENV !== "test"
+      process.env.APP_ENV !== "development" &&
+      process.env.APP_ENV !== "test"
     ) {
       // Sends the analytics data to the analytics server
       fetch(`${analyticsDomain}/api/analytics`, {

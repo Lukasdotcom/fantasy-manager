@@ -25,7 +25,7 @@ export async function updateData(file = "../sample/data1.json") {
   );
   // Gets the player data
   const data =
-    process.env.NODE_ENV !== "test"
+    process.env.APP_ENV !== "test"
       ? await fetch(
           "https://fantasy.bundesliga.com/api/player_transfers/init",
           {
