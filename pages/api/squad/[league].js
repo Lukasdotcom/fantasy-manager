@@ -1,6 +1,6 @@
 import { getSession } from "next-auth/react";
 import connect from "../../../Modules/database.mjs";
-import { calcPoints } from "../../../scripts/update.mjs";
+import { calcPoints } from "../../../scripts/calcPoints.mjs";
 
 export default async function handler(req, res) {
   const session = await getSession({ req });

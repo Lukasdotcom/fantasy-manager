@@ -1,5 +1,5 @@
 import connect from "../../../Modules/database.mjs";
-import { checkUpdate } from "../../../scripts/update.mjs";
+import { checkUpdate } from "../../../scripts/checkUpdate";
 // Used to return a dictionary on the data for a player
 export default async function handler(req, res) {
   if (req.method == "GET") {
@@ -58,9 +58,9 @@ export default async function handler(req, res) {
         process.env.APP_ENV !== "test"
       ) {
         const timeLeft =
-          connection
+          (await connection
             .query("SELECT * FROM data WHERE value1='playerUpdate'")
-            .then((res) => (res.length > 0 ? res[0].value2 : Math.max())) -
+            .then((res) => (res.length > 0 ? res[0].value2 : Math.max()))) -
           parseInt(Date.now() / 1000) +
           parseInt(
             connection

@@ -1,5 +1,6 @@
 import connect from "../Modules/database.mjs";
-import { checkUpdate, updateData } from "./update.mjs";
+import { updateData } from "./update.mjs";
+import { checkUpdate } from "./checkUpdate.mjs";
 import version from "./../package.json" assert { type: "json" };
 import dotenv from "dotenv";
 import { unlink } from "fs";
