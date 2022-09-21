@@ -258,13 +258,18 @@ describe("Invite User into league and change some league Settings and run throug
       "Robert Lewandowski"
     );
     // Checks Nkunku button
-    cy.contains("Squad").click();
-    cy.contains("Christopher Nkunku")
-      .parent()
-      .parent()
-      .children(".playerButton")
-      .children("button")
-      .contains("Player has Already Played");
+    cy.contains("Squad")
+      .click()
+      .then(() =>
+        cy
+          .contains("Christopher Nkunku")
+          .parent()
+          .parent()
+          .children(".playerButton")
+          .children("button")
+          .contains("Player has Already Played")
+      );
+
     matchdays.push({ invite1: user1Money, invite2: user2Money });
     // Starts the transfer period and sells Muller
     cy.exec("export APP_ENV=test; node cypress/e2e/invite4.mjs");
