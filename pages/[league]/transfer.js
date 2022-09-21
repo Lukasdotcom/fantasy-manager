@@ -13,6 +13,7 @@ import {
   FormControlLabel,
   FormGroup,
   FormLabel,
+  LinearProgress,
   MenuItem,
   Select,
   Slider,
@@ -68,6 +69,7 @@ export default function Home({
   const [players, setPlayers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [finished, setFinished] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [positions, setPositions] = useState(positionList);
   const [money, setMoney] = useState(0);
   const [ownership, setOwnership] = useState({});
@@ -114,6 +116,9 @@ export default function Home({
   useEffect(transferData, [league]);
   // Used to search the isNew is used to check if it should reload everything back from the start
   async function search(isNew) {
+    if (loading) {
+      return;
+    }
     let length = -1;
     if (!isNew) {
       if (finished) {
@@ -122,6 +127,7 @@ export default function Home({
         length = players.length;
       }
     } else {
+      setPlayers([]);
       push(["trackEvent", "Search Transfer", "Search Term", searchTerm]);
       push([
         "trackEvent",
@@ -140,6 +146,7 @@ export default function Home({
       setFinished(false);
     }
     // Gets the data and returns the amount of players found
+    setLoading(true);
     const newLength = await fetch(
       `/api/player?${
         isNew ? "" : `limit=${players.length + 10}`
@@ -159,6 +166,7 @@ export default function Home({
       setPlayers(val);
       return val.length;
     });
+    setLoading(false);
     if (newLength == length) {
       setFinished(true);
     } else {
@@ -289,6 +297,7 @@ export default function Home({
           />
         ))}
       </SessionProvider>
+      {loading && <LinearProgress />}
     </div>
   );
 }
