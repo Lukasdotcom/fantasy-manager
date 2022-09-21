@@ -23,7 +23,7 @@ export default function Layout() {
   return (
     <>
       <Tooltip title="Open Usermenu">
-        <Link id="usermenu" href="/usermenu">
+        <Link id="usermenu" href="/usermenu" styled={false}>
           <IconButton onClick={() => {}}>
             <UserAvatar userid={session.user.id} />
           </IconButton>
