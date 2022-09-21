@@ -68,7 +68,7 @@ const Layout = ({ league }: MainInterface) => {
         <Toolbar disableGutters>
           <Icon>sports_soccer</Icon>
 
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", sm: "none" } }}>
+          <Box sx={{ flexGrow: 1, display: { sm: "flex", md: "none" } }}>
             <IconButton
               size="large"
               onClick={handleOpenNavMenu}
@@ -91,7 +91,7 @@ const Layout = ({ league }: MainInterface) => {
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{
-                display: { xs: "block", sm: "none" },
+                display: { sm: "block", md: "none" },
               }}
             >
               <SessionProvider>
@@ -102,7 +102,7 @@ const Layout = ({ league }: MainInterface) => {
               </SessionProvider>
             </Menu>
           </Box>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", sm: "flex" } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             <SessionProvider>
               <MenuItems
                 league={league}
