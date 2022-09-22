@@ -69,7 +69,7 @@ export default function Home({
   const [players, setPlayers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [finished, setFinished] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [positions, setPositions] = useState(positionList);
   const [money, setMoney] = useState(0);
   const [ownership, setOwnership] = useState({});
