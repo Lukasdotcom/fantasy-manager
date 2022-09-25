@@ -294,11 +294,7 @@ describe("Invite User into league and change some league Settings and run throug
         .contains("Star")
         .click()
     );
-    cy.contains("Erling Haaland")
-      .parent()
-      .parent()
-      .parent()
-      .contains("0 X Star");
+    cy.contains("Erling Haaland").parent().parent().parent().contains("0");
     // Sims matchday until all players have played
     cy.exec("export APP_ENV=test; node cypress/e2e/invite3.mjs");
     // Checks that the user points are correct
@@ -378,6 +374,11 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Squad").click();
     // Checks if this user has Lewandowski still and that he is starred
     cy.get('[alt="starred"]');
+    cy.contains("Robert Lewandowski")
+      .parent()
+      .parent()
+      .parent()
+      .contains("12 X Star");
     cy.contains("Robert Lewandowski")
       .parent()
       .parent()
