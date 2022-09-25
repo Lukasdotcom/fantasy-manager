@@ -22,12 +22,10 @@ export default async function handler(req, res) {
         ]);
         res
           .status(200)
-          .end(
-            req.body.password === ""
-              ? "Disabled password auth"
-              : "Changed password"
-          );
-        console.log(`User ${id} changed password`);
+          .end(password === "" ? "Disabled password auth" : "Changed password");
+        console.log(
+          `User ${id} ${password === "" ? "disabled" : "changed"} password`
+        );
         connection.end();
       } else if (
         req.body.provider === "google" ||

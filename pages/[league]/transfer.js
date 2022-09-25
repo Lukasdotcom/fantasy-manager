@@ -6,13 +6,14 @@ import { TransferPlayer as Player } from "../../components/Player";
 import { push } from "@socialgouv/matomo-next";
 import { SessionProvider, useSession } from "next-auth/react";
 import connect from "../../Modules/database.mjs";
-import Link from "next/link";
+import Link from "../../components/Link";
 import {
   Button,
   Checkbox,
   FormControlLabel,
   FormGroup,
   FormLabel,
+  LinearProgress,
   MenuItem,
   Select,
   Slider,
@@ -57,7 +58,6 @@ function Postion({ position, positions, setPositions }) {
   );
 }
 export default function Home({
-  session,
   league,
   allowedTransfers,
   duplicatePlayers,
@@ -69,6 +69,7 @@ export default function Home({
   const [players, setPlayers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [finished, setFinished] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [positions, setPositions] = useState(positionList);
   const [money, setMoney] = useState(0);
   const [ownership, setOwnership] = useState({});
@@ -115,6 +116,9 @@ export default function Home({
   useEffect(transferData, [league]);
   // Used to search the isNew is used to check if it should reload everything back from the start
   async function search(isNew) {
+    if (loading) {
+      return;
+    }
     let length = -1;
     if (!isNew) {
       if (finished) {
@@ -123,6 +127,7 @@ export default function Home({
         length = players.length;
       }
     } else {
+      setPlayers([]);
       push(["trackEvent", "Search Transfer", "Search Term", searchTerm]);
       push([
         "trackEvent",
@@ -141,6 +146,7 @@ export default function Home({
       setFinished(false);
     }
     // Gets the data and returns the amount of players found
+    setLoading(true);
     const newLength = await fetch(
       `/api/player?${
         isNew ? "" : `limit=${players.length + 10}`
@@ -160,6 +166,7 @@ export default function Home({
       setPlayers(val);
       return val.length;
     });
+    setLoading(false);
     if (newLength == length) {
       setFinished(true);
     } else {
@@ -183,9 +190,9 @@ export default function Home({
       <Head>
         <title>{`Transfers for ` + leagueName}</title>
       </Head>
-      <Menu session={session} league={league} />
+      <Menu league={league} />
       <h1>Transfers for {leagueName}</h1>
-      <SessionProvider session={session}>
+      <SessionProvider>
         <TransfersLeft
           ownership={ownership}
           allowedTransfers={allowedTransfers}
@@ -273,7 +280,7 @@ export default function Home({
       <Link href="/download">
         <Button>Download Player Data</Button>
       </Link>
-      <SessionProvider session={session}>
+      <SessionProvider>
         {players.map((val) => (
           <Player
             key={val}
@@ -290,6 +297,7 @@ export default function Home({
           />
         ))}
       </SessionProvider>
+      {loading && <LinearProgress />}
     </div>
   );
 }

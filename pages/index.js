@@ -2,11 +2,15 @@ import Head from "next/head";
 import Menu from "../components/Menu";
 import Image from "next/image";
 import MainImage from "../screenshots/main.webp";
-import TransferImage from "../screenshots/transfers.webp";
+import Transfer1Image from "../screenshots/transfers1.webp";
+import Transfer2Image from "../screenshots/transfers2.webp";
 import StandingsImage from "../screenshots/standings.webp";
 import SquadImage from "../screenshots/squad.webp";
-import { Pagination } from "@mui/material";
+import { Alert, AlertTitle, Pagination } from "@mui/material";
 import { useEffect, useState } from "react";
+import version from "./../package.json" assert { type: "json" };
+import Link from "../components/Link";
+
 // Turns the number into the correct screenshot
 function CurrentPicture({ picture }) {
   switch (picture) {
@@ -34,14 +38,23 @@ function CurrentPicture({ picture }) {
           alt="Screenshot of Squad"
           src={SquadImage}
           height={540}
-          width={303}
+          width={960}
         ></Image>
       );
     case 4:
       return (
         <Image
           alt="Screenshot of Transfers"
-          src={TransferImage}
+          src={Transfer1Image}
+          height={540}
+          width={960}
+        ></Image>
+      );
+    case 5:
+      return (
+        <Image
+          alt="Screenshot of Transfers"
+          src={Transfer2Image}
           height={540}
           width={960}
         ></Image>
@@ -59,7 +72,7 @@ function CurrentPicture({ picture }) {
 }
 // Shows all the screenshots and allows the user to pick screenshots they would like to see
 function Carrousel() {
-  const pictures = 4;
+  const pictures = 5;
   const [picture, setPicture] = useState(1);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -82,25 +95,24 @@ function Carrousel() {
     </>
   );
 }
-export default function Home({ session }) {
+export default function Home({ update }) {
   return (
     <>
       <Head>
         <title>Bundesliga Fantasy</title>
       </Head>
-      <Menu session={session} />
+      <Menu />
       <h1>Bundesliga Fantasy Manager</h1>
       <p>
         A modern open source Fantasy Bundesliga Manager. The source code is
         available on{" "}
-        <a
-          style={{ color: "blue" }}
+        <Link
           href="https://github.com/Lukasdotcom/Bundesliga"
           rel="noopener noreferrer"
           target="_blank"
         >
           github.
-        </a>
+        </Link>
         The goal of this is to be the best place to play a fantasy bundesliga
         manager with your friends. The rules are located in the rules tab in the
         menu. To play you must have an account which is free to do in the log in
@@ -144,17 +156,77 @@ export default function Home({ session }) {
       </ol>
       <h2>Community</h2>
       You can go to the{" "}
-      <a
-        style={{ color: "blue" }}
+      <Link
         href="https://github.com/Lukasdotcom/Bundesliga/discussions"
         rel="noopener noreferrer"
         target="_blank"
       >
         github discussions
-      </a>{" "}
+      </Link>{" "}
       to ask questions or find leagues to join.
       <h2>Screenshots</h2>
       <Carrousel />
+      {update.type !== undefined && (
+        <Alert severity={update.type} className="notification">
+          <AlertTitle>{update.title}</AlertTitle>
+          {update.link === undefined && update.text}
+          {update.link !== undefined && (
+            <Link href={update.link} rel="noreferrer" target="_blank">
+              {update.text}
+            </Link>
+          )}
+        </Alert>
+      )}
     </>
   );
+}
+
+export async function getStaticProps() {
+  // Checks if this is running in a non production setup
+  if (process.env.APP_ENV === "development" || process.env.APP_ENV === "test") {
+    return {
+      props: {
+        update: {
+          type: "info",
+          title: "Not for Production",
+          text: "This is the development or testing version of this software. Do not use in production.",
+        },
+      },
+    };
+  }
+  // Checks if this is the latest version and if it does adds data
+  console.log("Checking for updates");
+  const releases = await fetch(
+    "https://api.github.com/repos/lukasdotcom/Bundesliga/releases"
+  ).then((res) => (res.ok ? res.json() : {}));
+  if (releases[0] === undefined || releases[0].tag_name === undefined) {
+    console.log("Failed to get version data from github api.");
+    return {
+      props: {
+        update: {
+          type: "error",
+          title: "Failure",
+          text: "Failing to check for updates.",
+          link: "/error/update",
+        },
+      },
+      // Checks at max every day
+      revalidate: 30, // In seconds
+    };
+  }
+  let update = {};
+  if (version.version !== releases[0].tag_name) {
+    update = {
+      type: "warning",
+      title: "Out of Date",
+      text: "New Update Available for more info Click Here",
+      link: releases[0].html_url,
+    };
+  }
+
+  return {
+    props: { update },
+    // Checks at max every day
+    revalidate: 3600 * 24,
+  };
 }

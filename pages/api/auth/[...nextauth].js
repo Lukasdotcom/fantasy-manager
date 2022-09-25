@@ -25,16 +25,32 @@ const options = {
           "SELECT * FROM users WHERE username=? AND password!=''",
           [credentials.username]
         );
+        const unthrottledUsers = users.filter((e) => e.throttle > 0);
         let finished = false;
         let result = null;
-        users.forEach((e) => {
+        unthrottledUsers.forEach((e) => {
+          // Loops through every available user until the password is correct
           if (!finished) {
+            // Checks if the password is correct
             if (bcrypt.compareSync(credentials.password, e.password)) {
               finished = true;
               result = { name: e.id };
+            } else {
+              // Lowers the throttle by 1
+              connection.query(
+                "UPDATE users SET throttle=throttle-1 WHERE id=?",
+                [e.id]
+              );
             }
           }
         });
+        // Checks if all the users are throttled
+        if (unthrottledUsers.length == 0 && users.length > 0) {
+          users.forEach((e) => {
+            console.log(`User id ${e.id} is locked`);
+          });
+          return "/error/locked";
+        }
         connection.end();
         return Promise.resolve(result);
       },
@@ -118,10 +134,14 @@ const options = {
     async session({ session }) {
       if (session && session.user.name) {
         const connection = await connect();
+        connection.query("UPDATE users SET active=1 WHERE id=? AND active=0", [
+          session.user.name,
+        ]);
         session.user = await connection
           .query("SELECT * FROM users WHERE id=?", [session.user.name])
           .then((res) => (res.length > 0 ? res[0] : undefined));
         session.user.password = session.user.password !== "";
+        session.user.active = session.user.active == 1;
         connection.end();
         if (session.user !== undefined) {
           return session;

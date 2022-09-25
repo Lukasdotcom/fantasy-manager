@@ -1,6 +1,6 @@
 describe("User", () => {
   before(() => {
-    cy.exec("export NODE_ENV=test; node cypress/e2e/user.mjs");
+    cy.exec("export APP_ENV=test; node cypress/e2e/user.mjs");
   });
   // Used to signup change username and password and login again
   it("signup", () => {
@@ -16,7 +16,7 @@ describe("User", () => {
     cy.get("#username").clear();
     cy.get("#username").type("New Sample Username");
     cy.contains("Change Username").click();
-    cy.get('[href="/usermenu"]').click();
+    cy.get("#usermenu").click();
     cy.get("#username").should("value", "New Sample Username");
     cy.get("#password").type("New Password");
     cy.contains("Update Password").click();

@@ -1,3 +1,7 @@
+# Typescript
+
+I am very slowly converting this project to typescript. If you create a new file make it typescript and if you want to you can convert js files to typescript.
+
 # Todos before making a pull request
 
 - [ ] Run `npm run format` to format everything with prettier.

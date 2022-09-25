@@ -3,7 +3,6 @@ import Login from "./Login";
 import {
   Icon,
   MenuItem,
-  Button,
   Container,
   Menu,
   Typography,
@@ -12,11 +11,15 @@ import {
   Box,
   AppBar,
 } from "@mui/material";
-import { useState } from "react";
+import { MouseEvent, MouseEventHandler, useState } from "react";
 import Link from "./Link";
 import { useSession } from "next-auth/react";
+interface MenuItemsInterface {
+  league: undefined | Number;
+  handleCloseNavMenu: MouseEventHandler;
+}
 // Returns all the menu items
-function MenuItems({ league, handleCloseNavMenu }) {
+function MenuItems({ league, handleCloseNavMenu }: MenuItemsInterface) {
   const { data: session } = useSession();
   const pages = [
     { name: "Home", link: "/" },
@@ -36,7 +39,7 @@ function MenuItems({ league, handleCloseNavMenu }) {
   return (
     <>
       {pages.map((page) => (
-        <Link href={page.link} key={page.name}>
+        <Link styled={false} href={page.link} key={page.name}>
           <MenuItem onClick={handleCloseNavMenu}>
             <Typography textAlign="center">{page.name}</Typography>
           </MenuItem>
@@ -45,10 +48,13 @@ function MenuItems({ league, handleCloseNavMenu }) {
     </>
   );
 }
+interface MainInterface {
+  league?: number;
+}
 // Used to create a menu
-const Layout = ({ session, league }) => {
-  const [anchorElNav, setAnchorElNav] = useState(null);
-  const handleOpenNavMenu = (event) => {
+const Layout = ({ league }: MainInterface) => {
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+  const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
 
@@ -62,7 +68,7 @@ const Layout = ({ session, league }) => {
         <Toolbar disableGutters>
           <Icon>sports_soccer</Icon>
 
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", sm: "none" } }}>
+          <Box sx={{ flexGrow: 1, display: { sm: "flex", md: "none" } }}>
             <IconButton
               size="large"
               onClick={handleOpenNavMenu}
@@ -85,10 +91,10 @@ const Layout = ({ session, league }) => {
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{
-                display: { xs: "block", sm: "none" },
+                display: { sm: "block", md: "none" },
               }}
             >
-              <SessionProvider session={session}>
+              <SessionProvider>
                 <MenuItems
                   league={league}
                   handleCloseNavMenu={handleCloseNavMenu}
@@ -96,8 +102,8 @@ const Layout = ({ session, league }) => {
               </SessionProvider>
             </Menu>
           </Box>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", sm: "flex" } }}>
-            <SessionProvider session={session}>
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+            <SessionProvider>
               <MenuItems
                 league={league}
                 handleCloseNavMenu={handleCloseNavMenu}
@@ -106,7 +112,7 @@ const Layout = ({ session, league }) => {
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <SessionProvider session={session}>
+            <SessionProvider>
               <Login />
             </SessionProvider>
           </Box>

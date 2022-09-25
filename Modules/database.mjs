@@ -2,7 +2,7 @@ import { createConnection } from "mysql";
 import dotenv from "dotenv";
 import { open } from "sqlite";
 import sqlite3 from "sqlite3";
-if (process.env.NODE_ENV !== "test") {
+if (process.env.APP_ENV !== "test") {
   dotenv.config({ path: ".env.local" });
 } else {
   dotenv.config({ path: ".env.test.local" });
@@ -92,6 +92,7 @@ class connectionSqlite {
       /on duplicate key update/gi,
       "ON CONFLICT DO UPDATE SET"
     );
+    statement = statement.replace(/insert ignore/gi, "INSERT OR IGNORE");
     if (true) sqlite3.verbose();
     if (statement.slice(0, 6) === "SELECT") {
       if (logError) {

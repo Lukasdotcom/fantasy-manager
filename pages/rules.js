@@ -1,13 +1,14 @@
 import Menu from "../components/Menu";
 import Head from "next/head";
 import BugReport from "../components/BugReport";
-export default function Home({ session }) {
+import Link from "../components/Link";
+export default function Home() {
   return (
     <>
       <Head>
         <title>Rules</title>
       </Head>
-      <Menu session={session} />
+      <Menu />
       <h1>Rules</h1>
       <h2>Transfers</h2>
       <p>
@@ -30,14 +31,13 @@ export default function Home({ session }) {
       <h3>Pricing and Points</h3>
       <p>
         The points are calculated by the way{" "}
-        <a
-          style={{ color: "blue" }}
+        <Link
           href="https://fantasy.bundesliga.com/page/scoring_rules"
           rel="noopener noreferrer"
           target="_blank"
         >
           shown here
-        </a>
+        </Link>
         . Player pricing changes based on the performance of the player. Price
         increase:
         <br />
@@ -96,14 +96,13 @@ export default function Home({ session }) {
         But if you want something close to an app you can install a PWA. This
         will look like a regular app but won&apos;t cost me anything to offer.
         To install this click{" "}
-        <a
-          style={{ color: "blue" }}
+        <Link
           href="https://web.dev/learn/pwa/installation/"
           rel="noopener noreferrer"
           target="_blank"
         >
           here for the steps on how to install a PWA
-        </a>
+        </Link>
         .
       </p>
       <BugReport />
