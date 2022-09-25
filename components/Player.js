@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import fallbackImg from "../public/playerFallback.png";
 import Link from "./Link";
 import {
+  Box,
   Button,
   CircularProgress,
   InputAdornment,
@@ -21,7 +22,8 @@ import Dialog from "./Dialog";
 import { UserChip } from "./Username";
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
 // extraText is shown in parenthesis next to the player name
-function InternalPlayer({ data, children, starred, extraText }) {
+// condensed is which type of condensed view should be shown (transfer, squad, or historical)
+function InternalPlayer({ data, children, starred, extraText, condensed }) {
   const [countdown, setCountown] = useState(0);
   const [pictureUrl, setPictureUrl] = useState(undefined);
   useEffect(() => {
@@ -93,7 +95,10 @@ function InternalPlayer({ data, children, starred, extraText }) {
               </Link>
             )}
           </p>
-          <div className={playerStyles.innerContainer}>
+          <Box
+            className={playerStyles.innerContainer}
+            sx={{ display: { xs: "none", sm: "flex" } }}
+          >
             <div>
               <p>Total</p>
               <p>{data.total_points}</p>
@@ -106,7 +111,7 @@ function InternalPlayer({ data, children, starred, extraText }) {
               <p>Last</p>
               <p>
                 {data.last_match}
-                {starred ? " X Star" : ""}
+                {starred && countdown == 0 ? " X Star" : ""}
               </p>
             </div>
             <div>
@@ -126,7 +131,48 @@ function InternalPlayer({ data, children, starred, extraText }) {
                 </p>
               </div>
             )}
-          </div>
+          </Box>
+          <Box
+            className={playerStyles.innerContainer}
+            sx={{ display: { xs: "flex", sm: "none" } }}
+          >
+            {condensed == "transfer" && (
+              <div>
+                <p>Total</p>
+                <p>{data.total_points}</p>
+              </div>
+            )}
+            <div>
+              <p>Average</p>
+              <p>{data.average_points}</p>
+            </div>
+            <div>
+              <p>Last</p>
+              <p>
+                {data.last_match}
+                {starred && countdown == 0 ? " X Star" : ""}
+              </p>
+            </div>
+            {condensed != "squad" && (
+              <div>
+                <p>Value</p>
+                <p>{data.value / 1000000} M</p>
+              </div>
+            )}
+            {data.game && (
+              <div>
+                <p>Next</p>
+                <p>
+                  {data.game.opponent}
+                  {countdown > 0 && condensed == "squad"
+                    ? ` in ${Math.floor(countdown / 60 / 24)}D ${
+                        Math.floor(countdown / 60) % 24
+                      }H ${Math.floor(countdown) % 60}M`
+                    : ""}
+                </p>
+              </div>
+            )}
+          </Box>
         </div>
         <div
           className="playerButton"
@@ -326,7 +372,7 @@ export function TransferPlayer({
     }
   }
   return (
-    <InternalPlayer data={data}>
+    <InternalPlayer data={data} condensed={"transfer"}>
       <Dialog
         onClose={() => setFocused(false)}
         open={focused}
@@ -425,7 +471,12 @@ export function SquadPlayer({
     extraText = "Selling";
   }
   return (
-    <InternalPlayer data={data} starred={starred} extraText={extraText}>
+    <InternalPlayer
+      data={data}
+      starred={starred}
+      extraText={extraText}
+      condensed={"squad"}
+    >
       <Button
         variant="outlined"
         onClick={() => {
@@ -492,7 +543,7 @@ export function Player({ uid, children, starred }) {
     getData();
   }, [uid]);
   return (
-    <InternalPlayer data={data} starred={starred}>
+    <InternalPlayer data={data} starred={starred} condensed={"historical"}>
       {" "}
       {children}
     </InternalPlayer>
@@ -509,7 +560,7 @@ export function HistoricalPlayer({ uid, time, children, starred }) {
     getData();
   }, [uid, time]);
   return (
-    <InternalPlayer data={data} starred={starred}>
+    <InternalPlayer data={data} starred={starred} condensed={"historical"}>
       {" "}
       {children}
     </InternalPlayer>
