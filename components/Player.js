@@ -64,19 +64,23 @@ function InternalPlayer({ data, children, starred, extraText }) {
           <p>{data.club}</p>
           <p>{data.position}</p>
         </div>
-        <Image
-          alt=""
-          onError={() => {
-            // If the picture does not exist a fallback picture is used
-            setPictureUrl(fallbackImg);
-          }}
-          src={pictureUrl}
-          width="100px"
-          height="100px"
-        />
+        <Link styled={false} href={`/player/${data.uid}`}>
+          <Image
+            alt=""
+            onError={() => {
+              // If the picture does not exist a fallback picture is used
+              setPictureUrl(fallbackImg);
+            }}
+            src={pictureUrl}
+            width="100px"
+            height="100px"
+          />
+        </Link>
         <div style={{ width: "70%" }}>
           <p>
-            {data.name}
+            <Link styled={false} href={`/player/${data.uid}`}>
+              {data.name}
+            </Link>
             {starred ? (
               <Image alt="starred" src="/star.svg" width="20px" height="20px" />
             ) : (
@@ -478,7 +482,7 @@ export function SquadPlayer({
   );
 }
 // Used to show the player without any buttons
-export function Player({ uid, children, starred, notify }) {
+export function Player({ uid, children, starred }) {
   const [data, setData] = useState({});
   // Used to get the data for the player
   useEffect(() => {

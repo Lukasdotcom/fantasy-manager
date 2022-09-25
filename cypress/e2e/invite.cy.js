@@ -59,11 +59,19 @@ describe("Invite User into league and change some league Settings and run throug
     // Purchases Lewandoski for 25.8 million
     cy.contains("Transfer").click();
     cy.contains(`Money left: ${user2Money}M`);
-    cy.contains("Lewandowski").parent().parent().contains("Buy").click();
+    cy.contains("Lewandowski")
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .contains("Buy")
+      .click();
     cy.get("#amount").clear().type("26");
     user2Money -= 25.8;
     cy.contains("Buy for").click();
     cy.contains("Lewandowski")
+      .parent()
+      .parent()
       .parent()
       .parent()
       .contains("Edit Purchase")
@@ -90,13 +98,25 @@ describe("Invite User into league and change some league Settings and run throug
     // Trys to outbid Lewandoski purchase
     cy.contains("Transfer").click();
     cy.contains(`Money left: ${user1Money}M`);
-    cy.contains("Lewandowski").parent().parent().contains("Buy").click();
+    cy.contains("Lewandowski")
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .contains("Buy")
+      .click();
     cy.get("#amount").clear().type("26");
     user2Money -= 0.2;
     cy.contains("Buy for").click();
     cy.contains(`Money left: ${user1Money}M`);
     // Then actually outbids
-    cy.contains("Lewandowski").parent().parent().contains("Buy").click();
+    cy.contains("Lewandowski")
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .contains("Buy")
+      .click();
     cy.get("#amount").clear().type("26.1");
     user2Money += 26;
     user1Money -= 26.1;
@@ -106,6 +126,8 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Lewandowski")
       .parent()
       .parent()
+      .parent()
+      .parent()
       .contains("Edit Purchase")
       .click();
     cy.contains("Cancel Purchase").click();
@@ -113,7 +135,13 @@ describe("Invite User into league and change some league Settings and run throug
     user1Money = Math.floor(user1Money * 10) / 10;
     cy.contains(`Money left: ${user1Money}M`);
     // Then buys the player again
-    cy.contains("Lewandowski").parent().parent().contains("Buy").click();
+    cy.contains("Lewandowski")
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .contains("Buy")
+      .click();
     user1Money -= 25.8;
     user1Money = Math.ceil(user1Money * 10) / 10;
     cy.contains("Buy for").click();
@@ -141,23 +169,53 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Transfer").click();
     cy.contains("Unlimited transfers left");
     cy.contains(`Money left: ${user2Money}`);
-    cy.contains("Lewandowski").parent().parent().contains("Buy").click();
+    cy.contains("Lewandowski")
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .contains("Buy")
+      .click();
     user2Money -= 25.8;
     cy.contains("Buy for").click();
     cy.contains(`Money left: ${user2Money}`);
     // Buys players until out of money
-    cy.contains("Thomas").parent().parent().contains("Buy").click();
+    cy.contains("Thomas")
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .contains("Buy")
+      .click();
     user2Money -= 21;
     cy.contains("Buy for").click();
-    cy.contains("Nkunku").parent().parent().contains("Buy").click();
+    cy.contains("Nkunku")
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .contains("Buy")
+      .click();
     user2Money -= 20.1;
     cy.contains("Buy for").click();
-    cy.contains("Haaland").parent().parent().contains("Buy").click();
+    cy.contains("Haaland")
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .contains("Buy")
+      .click();
     user2Money -= 19.7;
     user2Money = Math.floor(user2Money * 10) / 10;
     cy.contains("Buy for").click();
     cy.contains(`Money left: ${user2Money}`);
-    cy.contains("Kimmich").parent().parent().contains("View Transfers").click();
+    cy.contains("Kimmich")
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .contains("View Transfers")
+      .click();
     cy.contains("Buy for").should("not.exist");
     cy.get("#close").click();
     cy.contains(`Money left: ${user2Money}`);
@@ -167,6 +225,8 @@ describe("Invite User into league and change some league Settings and run throug
     cy.wait("@loadNkunku").then(() =>
       cy
         .contains("Christopher Nkunku")
+        .parent()
+        .parent()
         .parent()
         .parent()
         .children(".playerButton")
@@ -187,10 +247,14 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Robert Lewandowski")
       .parent()
       .parent()
+      .parent()
+      .parent()
       .children(".playerButton")
       .children("button")
       .click();
     cy.contains("Erling Haaland")
+      .parent()
+      .parent()
       .parent()
       .parent()
       .children(".playerButton")
@@ -199,6 +263,8 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#formation").click();
     cy.contains("4-4-2").click();
     cy.contains("Christopher Nkunku")
+      .parent()
+      .parent()
       .parent()
       .parent()
       .children(".playerButton")
@@ -211,6 +277,8 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Erling Haaland")
       .parent()
       .parent()
+      .parent()
+      .parent()
       .children(".playerButton")
       .children("button")
       .click();
@@ -220,11 +288,17 @@ describe("Invite User into league and change some league Settings and run throug
         .contains("Erling Haaland")
         .parent()
         .parent()
+        .parent()
+        .parent()
         .children(".playerButton")
         .contains("Star")
         .click()
     );
-    cy.contains("Erling Haaland").parent().contains("0 X Star");
+    cy.contains("Erling Haaland")
+      .parent()
+      .parent()
+      .parent()
+      .contains("0 X Star");
     // Sims matchday until all players have played
     cy.exec("export APP_ENV=test; node cypress/e2e/invite3.mjs");
     // Checks that the user points are correct
@@ -237,6 +311,8 @@ describe("Invite User into league and change some league Settings and run throug
     // Moves a player to the bench
     cy.contains("Squad").click();
     cy.contains("Christopher Nkunku")
+      .parent()
+      .parent()
       .parent()
       .parent()
       .children(".playerButton")
@@ -265,6 +341,8 @@ describe("Invite User into league and change some league Settings and run throug
           .contains("Christopher Nkunku")
           .parent()
           .parent()
+          .parent()
+          .parent()
           .children(".playerButton")
           .children("button")
           .contains("Player has Already Played")
@@ -276,7 +354,14 @@ describe("Invite User into league and change some league Settings and run throug
     cy.intercept("/api/player/ef5112a9f971a1e40966").as("loadRobert");
     cy.contains("Transfer").click();
     cy.wait("@loadRobert").then(() =>
-      cy.contains("Lewandowski").parent().parent().contains("Sell").click()
+      cy
+        .contains("Lewandowski")
+        .parent()
+        .parent()
+        .parent()
+        .parent()
+        .contains("Sell")
+        .click()
     );
     user2Money += 25.8;
     cy.get(".MuiPaper-root > .MuiButton-root").click();
@@ -296,6 +381,8 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Robert Lewandowski")
       .parent()
       .parent()
+      .parent()
+      .parent()
       .children(".playerButton")
       .children("button")
       .contains("Move to Bench")
@@ -305,6 +392,8 @@ describe("Invite User into league and change some league Settings and run throug
     // Purchases Mueller and checks if Nkunku is purchasable
     cy.contains("Transfer").click();
     cy.contains("Christopher Nkunku")
+      .parent()
+      .parent()
       .parent()
       .parent()
       .children(".playerButton")

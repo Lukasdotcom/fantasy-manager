@@ -276,6 +276,8 @@ export default function Home({
         Yellow background means attendance unknown, red background that the
         player is not attending, and purple/pink that the player will not earn
         points anytime soon also known as a hidden player(Sell these players).
+        You can click on the player name or picture for more detailed info and
+        historical information.
       </p>
       <Link href="/download">
         <Button>Download Player Data</Button>
