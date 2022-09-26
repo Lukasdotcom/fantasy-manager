@@ -115,7 +115,6 @@ export default function Home({ player, times, uid }: props) {
     count--;
     if (count > 0) {
       if (rows[String(time)] === undefined) {
-        count = 0;
         fetch(`/api/player/${uid}?time=${time}`)
           .then((e) => e.json())
           .then((data) => {
