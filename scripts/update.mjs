@@ -210,7 +210,9 @@ export async function updateData(file = "../sample/data1.json") {
           ]
         );
       } else {
-        await connection.query("UPDATE players SET `exists`=1");
+        await connection.query("UPDATE players SET `exists`=1 WHERE uid=?", [
+          val.player.uid,
+        ]);
       }
     }
   }
