@@ -216,7 +216,7 @@ export default function Home({ player, times, uid }: props) {
         <TablePagination
           rowsPerPageOptions={[1, 5, 10, 25, 5000]}
           component="div"
-          count={times.length}
+          count={times.length + 1}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
