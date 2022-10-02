@@ -111,7 +111,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
               <p>Last</p>
               <p>
                 {data.last_match}
-                {starred && countdown == 0 ? " X Star" : ""}
+                {starred && countdown <= 0 ? " X Star" : ""}
               </p>
             </div>
             <div>
@@ -150,7 +150,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
               <p>Last</p>
               <p>
                 {data.last_match}
-                {starred && countdown == 0 ? " X Star" : ""}
+                {starred && countdown <= 0 ? " X Star" : ""}
               </p>
             </div>
             {condensed != "squad" && (
