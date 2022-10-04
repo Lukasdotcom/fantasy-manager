@@ -210,8 +210,8 @@ export async function getStaticProps() {
           link: "/error/update",
         },
       },
-      // Checks at max every day
-      revalidate: 30, // In seconds
+      // Checks at max every hour
+      revalidate: 3600, // In seconds
     };
   }
   let update = {};
