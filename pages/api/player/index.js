@@ -18,10 +18,9 @@ export default async function handler(req, res) {
     // Creates the sql for all the positions
     let positions = ["att", "mid", "def", "gk"];
     if (req.query.positions != undefined) {
-      positions =
-        JSON.parse(req.query.positions).forEach != undefined
-          ? JSON.parse(req.query.positions)
-          : positions;
+      positions = Array.isArray(JSON.parse(req.query.positions))
+        ? JSON.parse(req.query.positions)
+        : positions;
     }
     let positionsSQL = "";
     positions.forEach((e) => {
