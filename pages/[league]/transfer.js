@@ -156,7 +156,7 @@ export default function Home({
         clubSearch
       )}&positions=${encodeURIComponent(
         JSON.stringify(positions)
-      )}&order_by=${orderBy}${
+      )}&order_by=${encodeURIComponent(orderBy)}${
         showHidden ? "&showHidden=true" : ""
       }&league=${league}&minPrice=${price[0] * 1000000}&maxPrice=${
         price[1] * 1000000
