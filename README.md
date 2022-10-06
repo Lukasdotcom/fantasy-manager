@@ -44,7 +44,7 @@ There are 2 options to run this Sqlite and Mariadb. If you are unsure I would re
 1. First download this file and edit the file to your preferences.
 
 ```
-wget 'https://raw.githubusercontent.com/Lukasdotcom/Bundesliga/main/docker/docker-compose.yaml'
+wget 'https://raw.githubusercontent.com/Lukasdotcom/bundesliga-manager/main/docker/docker-compose.yaml'
 ```
 
 2. Then run this.
@@ -58,7 +58,7 @@ docker-compose up
 1. First download this file and edit the file to your preferences.
 
 ```
-wget 'https://raw.githubusercontent.com/Lukasdotcom/Bundesliga/main/docker/mariadb/docker-compose.yaml'
+wget 'https://raw.githubusercontent.com/Lukasdotcom/bundesliga-manager/main/docker/mariadb/docker-compose.yaml'
 ```
 
 2. Then run this.
@@ -77,7 +77,7 @@ Required Tools:
 1. First clone this git repository
 
 ```
-git clone https://github.com/lukasdotcom/Bundesliga
+git clone https://github.com/lukasdotcom/bundesliga-manager
 ```
 
 2. Then copy the .env.sample file located in the docker folder. Edit the values like mentioned in the file and then put the contents into a file called .env.local in the root folder of the project
