@@ -4,13 +4,16 @@ a {
 }
 
 .center {
-  font-size: 10vh;
-  height: 80vh;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+.center h1 {
+  font-size: 100px;
+  margin-top: 30vh;
+  margin-bottom: 5px;
 }
 
 .main-content {
