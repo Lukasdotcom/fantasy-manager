@@ -107,7 +107,7 @@ export default function Home({ update }) {
         A modern open source Fantasy Bundesliga Manager. The source code is
         available on{" "}
         <Link
-          href="https://github.com/Lukasdotcom/Bundesliga"
+          href="https://github.com/Lukasdotcom/bundesliga-manager"
           rel="noopener noreferrer"
           target="_blank"
         >
@@ -157,7 +157,7 @@ export default function Home({ update }) {
       <h2>Community</h2>
       You can go to the{" "}
       <Link
-        href="https://github.com/Lukasdotcom/Bundesliga/discussions"
+        href="https://github.com/Lukasdotcom/bundesliga-manager/discussions"
         rel="noopener noreferrer"
         target="_blank"
       >
@@ -197,7 +197,7 @@ export async function getStaticProps() {
   // Checks if this is the latest version and if it does adds data
   console.log("Checking for updates");
   const releases = await fetch(
-    "https://api.github.com/repos/lukasdotcom/Bundesliga/releases"
+    "https://api.github.com/repos/lukasdotcom/bundesliga-manager/releases"
   ).then((res) => (res.ok ? res.json() : {}));
   if (releases[0] === undefined || releases[0].tag_name === undefined) {
     console.log("Failed to get version data from github api.");
