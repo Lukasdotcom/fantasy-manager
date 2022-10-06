@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_REGISTRY: docker.io
-      DOCKER_IMAGE: lukasdotcom/bundesliga-manager
+      DOCKER_IMAGE: lukasdotcom/bundesliga
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       DOCKER_TARGET_PLATFORM: linux/arm64,linux/amd64

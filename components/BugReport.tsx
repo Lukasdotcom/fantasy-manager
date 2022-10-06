@@ -8,7 +8,7 @@ export default function BugReport() {
       <p>
         All bugs can be reported on{" "}
         <Link
-          href="https://github.com/Lukasdotcom/bundesliga-manager/issues/new?assignees=&labels=&template=bug_report.md&title="
+          href="https://github.com/Lukasdotcom/Bundesliga/issues/new?assignees=&labels=&template=bug_report.md&title="
           rel="noopener noreferrer"
           target="_blank"
         >
