@@ -77,7 +77,7 @@ Required Tools:
 1. First clone this git repository
 
 ```
-git clone https://github.com/lukasdotcom/bundesliga-manager
+git clone -b stable https://github.com/lukasdotcom/bundesliga-manager
 ```
 
 2. Then copy the .env.sample file located in the docker folder. Edit the values like mentioned in the file and then put the contents into a file called .env.local in the root folder of the project
@@ -85,6 +85,12 @@ git clone https://github.com/lukasdotcom/bundesliga-manager
 
 ```
 npm run start
+```
+
+4. To update this just run the command below in the git repository. Then stop the website and start it up again.
+
+```
+git pull
 ```
 
 ## Development
