@@ -46,6 +46,7 @@ export async function updateData(file = "../sample/data1.json") {
             }),
           }
         )
+          .catch((e) => "FAILURE")
           .then(async (val) => {
             if (val.ok) {
               return await val.json();
@@ -53,7 +54,7 @@ export async function updateData(file = "../sample/data1.json") {
               return "FAILURE";
             }
           })
-          .catch((e) => "FAILURE")
+          .catch(() => "FAILURE")
       : (await import(file, { assert: { type: "json" } })).default;
   // Checks if there was a failure somewhere
   if (data === "FAILURE") {
