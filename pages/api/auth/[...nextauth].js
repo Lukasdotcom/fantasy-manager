@@ -142,12 +142,13 @@ const options = {
           .then((res) => (res.length > 0 ? res[0] : undefined));
         session.user.password = session.user.password !== "";
         session.user.active = session.user.active == 1;
+        session.user.admin = session.user.admin == 1;
         connection.end();
         if (session.user !== undefined) {
           return session;
         }
       }
-      return undefined;
+      return null;
     },
   },
 };

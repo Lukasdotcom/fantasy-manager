@@ -13,6 +13,7 @@ declare module "next-auth" {
       active: Boolean;
       google: string;
       github: string;
+      admin: Boolean;
     };
   }
 }

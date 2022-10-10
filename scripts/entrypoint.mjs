@@ -12,7 +12,7 @@ if (process.env.APP_ENV !== "test") {
 }
 const analyticsDomain = "https://bundesliga.lschaefer.xyz";
 // Used to tell the program what version of the database to use
-const currentVersion = "1.5.1";
+const currentVersion = "1.7.0";
 const date = new Date();
 let day = date.getDay();
 
@@ -28,7 +28,7 @@ async function startUp() {
   await Promise.all([
     // Used to store the users
     connection.query(
-      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, active bool DEFAULT 0, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '')"
+      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, active bool DEFAULT 0, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '', admin bool DEFAULT false)"
     ),
     // Used to store the players data
     connection.query(
@@ -218,11 +218,26 @@ async function startUp() {
       await connection.query("ALTER TABLE users DROP COLUMN email");
       oldVersion = "1.5.1";
     }
+    if (oldVersion == "1.5.1") {
+      console.log("Updating database to version 1.7.0");
+      await connection.query("ALTER TABLE users ADD admin bool DEFAULT 0");
+      await connection.query("UPDATE users SET admin=0");
+      oldVersion = "1.7.0";
+    }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date
     if (oldVersion !== currentVersion) {
       console.error("Database is corrupted or is too old");
     }
+  }
+  // Makes sure that the admin user is the correct user
+  const adminUser = parseInt(process.env.ADMIN);
+  connection.query("UPDATE users SET admin=0");
+  if (adminUser > 0) {
+    console.log(`User ${adminUser} is the admin user`);
+    connection.query("UPDATE users SET admin=1 WHERE id=?", [adminUser]);
+  } else {
+    console.log("Admin user is disabled");
   }
   // Updated version of database in table
   connection.query(
