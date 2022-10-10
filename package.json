@@ -1,6 +1,6 @@
 {
   "name": "bundesliga-manager",
-  "version": "1.6.3",
+  "version": "1.7.0",
   "private": true,
   "scripts": {
     "dev": "export NODE_ENV=development APP_ENV=development; npm install; node scripts/entrypoint.mjs & next dev",

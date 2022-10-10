@@ -211,7 +211,7 @@ export async function getStaticProps() {
         },
       },
       // Checks at max every hour
-      revalidate: 3600, // In seconds
+      revalidate: 3600 * 24, // In seconds
     };
   }
   let update = {};
