@@ -1,7 +1,7 @@
 version: "2.1"
 services:
   bundesliga:
-    image: lukasdotcom/bundesliga:1 # Change 1 to nightly if you want to be using the bleeding edge and latest if you want the last stable release. Major versions may have trouble between upgrades read the release before upping the major version.
+    image: lukasdotcom/bundesliga-manager:1 # Change 1 to nightly if you want to be using the bleeding edge and latest if you want the last stable release. Major versions may have trouble between upgrades read the release before upping the major version.
     container_name: bundesliga
     links:
       - db
@@ -24,6 +24,8 @@ services:
       # Uncomment the MATOMO enviromental variables and fill them out if you want to use matomo analytics(Analytics support for new features has been dropped since September 2022)
       #- NEXT_PUBLIC_MATOMO_URL=
       #- NEXT_PUBLIC_MATOMO_SITE_ID=
+      # The admin user is whatever id is given, the default is no admin user, and the count starts at 1
+      #ADMIN=1
     ports:
       - 80:3000
     restart: always

@@ -3,7 +3,10 @@ export default function Home() {
   return (
     <>
       <Menu />
-      <h1 className="center">404</h1>
+      <div className="center">
+        <h1>404</h1>
+        <p>Page Not Found</p>
+      </div>
     </>
   );
 }

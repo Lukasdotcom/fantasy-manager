@@ -1,16 +1,16 @@
-name: Docker Build/Publish Development
+# This will be removed once the bundesliga image is removed
+name: Docker Build/Publish Release
 
 on:
-  schedule:
-    - cron: "0 2 * * 0"
-  workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       DOCKER_REGISTRY: docker.io
-      DOCKER_IMAGE: lukasdotcom/bundesliga-manager
+      DOCKER_IMAGE: lukasdotcom/bundesliga
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       DOCKER_TARGET_PLATFORM: linux/arm64,linux/amd64
@@ -37,4 +37,4 @@ jobs:
       - name: Run Buildx (push image)
         if: success()
         run: |
-          docker buildx build --platform ${{ steps.prepare.outputs.docker_platform }} --tag ${{ steps.prepare.outputs.docker_image }}:development --file development/Dockerfile --push .
+          docker buildx build --platform ${{ steps.prepare.outputs.docker_platform }} --tag ${{ steps.prepare.outputs.docker_image }}:latest --tag ${{ steps.prepare.outputs.docker_image }}:${{github.event.release.tag_name}} --tag ${{ steps.prepare.outputs.docker_image }}:1 --file ./Dockerfile --push .

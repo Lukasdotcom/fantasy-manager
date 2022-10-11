@@ -18,16 +18,14 @@ export default async function handler(req, res) {
             )
           ).length > 0
         ) {
-          if (req.body.users !== undefined) {
-            if (req.body.users.forEach !== undefined) {
-              // Updates all the users from admin to not admin
-              req.body.users.forEach((e) => {
-                connection.query(
-                  "UPDATE leagueUsers SET admin=? WHERE leagueID=? and user=?",
-                  [e.admin, league, e.user]
-                );
-              });
-            }
+          if (Array.isArray(req.body.users)) {
+            // Updates all the users from admin to not admin
+            req.body.users.forEach((e) => {
+              connection.query(
+                "UPDATE leagueUsers SET admin=? WHERE leagueID=? and user=?",
+                [e.admin, league, e.user]
+              );
+            });
           }
           if (req.body.settings !== undefined) {
             const settings = req.body.settings;

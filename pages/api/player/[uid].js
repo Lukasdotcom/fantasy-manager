@@ -63,11 +63,11 @@ export default async function handler(req, res) {
             .then((res) => (res.length > 0 ? res[0].value2 : Math.max()))) -
           parseInt(Date.now() / 1000) +
           parseInt(
-            connection
+            (await connection
               .query(
                 "SELECT * FROM data WHERE value1='transferOpen' AND value2='true'"
               )
-              .then((res) => res.length > 0)
+              .then((res) => res.length > 0))
               ? process.env.MIN_UPDATE_TIME_TRANSFER
               : process.env.MIN_UPDATE_TIME
           );
