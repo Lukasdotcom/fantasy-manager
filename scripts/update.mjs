@@ -17,7 +17,7 @@ export async function updateData(file = "../sample/data1.json") {
   });
   // Locks the database to prevent updates
   connection.query(
-    "INSERT INTO data (value1, value2) VALUES ('locked', 'locked')"
+    "INSERT IGNORE INTO data (value1, value2) VALUES ('locked', 'locked')"
   );
   const nowTime = parseInt(Date.now() / 1000);
   connection.query(
