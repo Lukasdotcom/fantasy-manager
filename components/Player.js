@@ -10,6 +10,7 @@ import {
   Button,
   CircularProgress,
   InputAdornment,
+  Paper,
   Table,
   TableBody,
   TableCell,
@@ -20,6 +21,7 @@ import {
 } from "@mui/material";
 import Dialog from "./Dialog";
 import { UserChip } from "./Username";
+import { useTheme } from "@emotion/react";
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
 // extraText is shown in parenthesis next to the player name
 // condensed is which type of condensed view should be shown (transfer, squad, or historical)
@@ -41,24 +43,27 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
       data.game ? parseInt((data.game.gameStart - Date.now() / 1000) / 60) : 0
     );
   }, [data]);
+  const theme = useTheme();
+  const dark = theme.palette.mode === "dark";
   let background = "black";
   if (Object.keys(data).length > 0) {
     // Changes the background to the correct color if the player is missing or not known if they are coming
     if (data.forecast == "u") {
-      background = "rgb(50, 50, 0)";
+      background = dark ? "rgb(50, 50, 0)" : "rgb(255, 255, 200)";
     } else if (data.forecast == "m") {
-      background = "rgb(50, 0, 0)";
+      background = dark ? "rgb(50, 0, 0)" : "rgb(255, 150, 150)";
     }
     // Checks if the player exists
     if (data.exists === 0) {
-      background = "rgb(91, 30, 50)";
+      background = dark ? "rgb(50, 0, 50)" : "rgb(255, 200, 255)";
     }
     // Checks if the player has a picture url set
     if (pictureUrl === undefined) {
       setPictureUrl(data.pictureUrl);
     }
     return (
-      <div
+      <Paper
+        elevation={1}
         className={playerStyles.container}
         style={{ background, height: "120px" }}
       >
@@ -183,7 +188,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
         >
           {children}
         </div>
-      </div>
+      </Paper>
     );
   } else {
     return (
