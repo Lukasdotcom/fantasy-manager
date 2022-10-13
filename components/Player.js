@@ -45,7 +45,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
   }, [data]);
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
-  let background = "black";
+  let background;
   if (Object.keys(data).length > 0) {
     // Changes the background to the correct color if the player is missing or not known if they are coming
     if (data.forecast == "u") {
