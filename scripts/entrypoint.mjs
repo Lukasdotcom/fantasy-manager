@@ -232,7 +232,7 @@ async function startUp() {
   }
   // Makes sure that the admin user is the correct user
   const adminUser = parseInt(process.env.ADMIN);
-  connection.query("UPDATE users SET admin=0");
+  await connection.query("UPDATE users SET admin=0");
   if (adminUser > 0) {
     console.log(`User ${adminUser} is the admin user`);
     connection.query("UPDATE users SET admin=1 WHERE id=?", [adminUser]);

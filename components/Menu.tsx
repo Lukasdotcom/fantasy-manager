@@ -28,6 +28,9 @@ function MenuItems({ league, handleCloseNavMenu }: MenuItemsInterface) {
   pages.push({ name: "Download", link: `/download` });
   // Checks if the player is logged in
   if (session || league) {
+    if (session?.user.admin) {
+      pages.push({ name: "Admin", link: "/admin" });
+    }
     pages.push({ name: "Leagues", link: "/leagues" });
   }
   // Checks if the player should see the league links
