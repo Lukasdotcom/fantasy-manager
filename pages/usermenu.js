@@ -2,7 +2,7 @@ import { getSession } from "next-auth/react";
 import { useState } from "react";
 import Menu from "../components/Menu";
 import Head from "next/head";
-import { Button, TextField } from "@mui/material";
+import { Button, Icon, TextField, useTheme } from "@mui/material";
 // Shows the ways to connect and disconnect from a provider
 function ProviderShow({ provider, notify, user }) {
   const [email, setEmail] = useState(user[provider]);
@@ -76,10 +76,11 @@ function ProviderShow({ provider, notify, user }) {
   }
 }
 // A place to change your username and other settings
-export default function Home({ user, notify, providers }) {
+export default function Home({ user, notify, providers, setColorMode }) {
   const [username, setUsername] = useState(user.username);
   const [password, setPassword] = useState("");
   const [passwordExists, setPasswordExists] = useState(user.password);
+  const theme = useTheme();
   return (
     <>
       <Head>
@@ -87,6 +88,18 @@ export default function Home({ user, notify, providers }) {
       </Head>
       <Menu />
       <h1>Usermenu</h1>
+      <Button
+        variant="contained"
+        onClick={() => {
+          setColorMode(theme.palette.mode === "dark" ? "light" : "dark");
+          localStorage.theme = theme.palette.mode === "dark" ? "light" : "dark";
+        }}
+      >
+        Switch to {theme.palette.mode === "dark" ? "Light" : "Dark"} Mode{" "}
+        <Icon>
+          {theme.palette.mode === "dark" ? "light_mode" : "dark_mode"}
+        </Icon>
+      </Button>
       <p>
         Note it might take up to 1 minute for the Username to update for
         everyone

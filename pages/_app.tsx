@@ -10,17 +10,12 @@ import {
   GlobalStyles,
   Backdrop,
   CircularProgress,
+  useMediaQuery,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { AppProps } from "next/app";
 const MATOMO_URL = process.env.NEXT_PUBLIC_MATOMO_URL;
 const MATOMO_SITE_ID = process.env.NEXT_PUBLIC_MATOMO_SITE_ID;
-// Used to create the theme for the website
-export const theme = createTheme({
-  palette: {
-    mode: "dark",
-  },
-});
 interface Notification {
   message?: string;
   severity?: Severity;
@@ -63,6 +58,23 @@ function MyApp({ Component, pageProps }: AppProps) {
   function handleClose() {
     setNotifications({});
   }
+  // Used to create the theme for the website and starts of in dark to not blind dark theme users
+  const [colorMode, setColorMode] = useState<"light" | "dark">("dark");
+  const prefersDark = useMediaQuery("(prefers-color-scheme: dark)");
+  // Sets the color scheme based on preferences)
+  useEffect(() => {
+    // Uses lo
+    if (localStorage.theme === "dark" || localStorage.theme === "light") {
+      setColorMode(localStorage.theme);
+    } else {
+      setColorMode(prefersDark ? "dark" : "light");
+    }
+  }, [prefersDark]);
+  const theme = createTheme({
+    palette: {
+      mode: colorMode,
+    },
+  });
   return (
     <>
       <ThemeProvider theme={theme}>
@@ -83,8 +95,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <Backdrop open={loading}>
           <CircularProgress />
         </Backdrop>
-
-        <Component {...pageProps} notify={notify} />
+        <Component {...pageProps} notify={notify} setColorMode={setColorMode} />
       </ThemeProvider>
       <SessionProvider>
         <UserMatomo />
