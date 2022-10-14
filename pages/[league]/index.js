@@ -2,7 +2,7 @@ import Menu from "../../components/Menu";
 import redirect from "../../Modules/league";
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import { UserChip } from "../../components/Username";
+import { stringToColor, UserChip } from "../../components/Username";
 import { push } from "@socialgouv/matomo-next";
 import { getSession } from "next-auth/react";
 import connect from "../../Modules/database.mjs";
@@ -22,6 +22,17 @@ import {
   Autocomplete,
   Box,
 } from "@mui/material";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
 
 // Creates the admin panel
 function AdminPanel({ league, notify, leagueName, setLeagueName, admin }) {
@@ -231,6 +242,80 @@ function Invite({ link, league, host, remove, notify }) {
     </p>
   );
 }
+// Used to generate the graph of the historical points
+function Graph({ historicalPoints }) {
+  const [usernames, setUsernames] = useState(Object.keys(historicalPoints));
+  useEffect(() => {
+    Object.keys(historicalPoints).forEach((e, index) => {
+      fetch(`/api/user/${e}`).then(async (val) => {
+        const newUsername = await val.json();
+        setUsernames((val) => {
+          val[index] = newUsername;
+          // Makes sure that the component updates after the state is changed
+          return JSON.parse(JSON.stringify(val));
+        });
+      });
+    });
+  }, [historicalPoints]);
+  ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+  );
+  const options = {
+    maintainAspectRatio: false,
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Points over Time",
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: "Matchday",
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: "Points",
+        },
+      },
+    },
+  };
+  // Adds a label for every matchday
+  const labels = Array(Object.values(historicalPoints)[0].length)
+    .fill(0)
+    .map((e, index) => index + 1);
+  const datasets = [];
+  // Adds every dataset
+  Object.keys(historicalPoints).forEach((e, index) => {
+    let counter = 0;
+    datasets.push({
+      label: usernames[index],
+      data: historicalPoints[e].map((e) => {
+        counter += e;
+        return counter;
+      }),
+      borderColor: stringToColor(String(e)),
+    });
+  });
+  const data = {
+    labels,
+    datasets,
+  };
+  return <Line options={options} data={data} />;
+}
 export default function Home({
   user,
   admin,
@@ -321,6 +406,11 @@ export default function Home({
       >
         <PaginationItem type="last">adsadsdasdas</PaginationItem>
       </Pagination>
+      {Object.values(historicalPoints).length > 0 && (
+        <div style={{ height: "min(max(50vh, 50vw), 50vh)", width: "100%" }}>
+          <Graph historicalPoints={historicalPoints} />
+        </div>
+      )}
       <h1>Invite Links</h1>
       {invites.map((val) => (
         <Invite
