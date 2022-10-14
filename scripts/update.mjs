@@ -112,16 +112,29 @@ export async function updateData(file = "../sample/data1.json") {
       // Updates the club info
       if (club !== val.player.team.team_code) {
         club = val.player.team.team_code;
-        await connection.query(
-          "INSERT INTO clubs (club, gameStart, opponent) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE gameStart=?, opponent=?",
-          [
-            club,
-            currentTime + val.player.match_starts_in,
-            val.player.next_opponent.team_code,
-            currentTime + val.player.match_starts_in,
-            val.player.next_opponent.team_code,
-          ]
-        );
+        // Makes sure to only update the match starts in stat if it is greater than 0
+        if (val.player.match_starts_in > 0) {
+          await connection.query(
+            "INSERT INTO clubs (club, gameStart, opponent) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE gameStart=?, opponent=?",
+            [
+              club,
+              currentTime + val.player.match_starts_in,
+              val.player.next_opponent.team_code,
+              currentTime + val.player.match_starts_in,
+              val.player.next_opponent.team_code,
+            ]
+          );
+        } else {
+          await connection.query(
+            "INSERT INTO clubs (club, gameStart, opponent) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?",
+            [
+              club,
+              currentTime + val.player.match_starts_in,
+              val.player.next_opponent.team_code,
+              val.player.next_opponent.team_code,
+            ]
+          );
+        }
       }
       await connection.query(
         "INSERT INTO players (uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1, club=?, pictureUrl=?, position=?",
@@ -162,16 +175,28 @@ export async function updateData(file = "../sample/data1.json") {
           );
         // If the club is not done
         if (!clubDone) {
-          await connection.query(
-            "INSERT INTO clubs (club, gameStart, opponent) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE gameStart=?, opponent=?",
-            [
-              club,
-              currentTime + val.player.match_starts_in,
-              val.player.next_opponent.team_code,
-              currentTime + val.player.match_starts_in,
-              val.player.next_opponent.team_code,
-            ]
-          );
+          if (val.player.match_starts_in > 0) {
+            await connection.query(
+              "INSERT INTO clubs (club, gameStart, opponent) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE gameStart=?, opponent=?",
+              [
+                club,
+                currentTime + val.player.match_starts_in,
+                val.player.next_opponent.team_code,
+                currentTime + val.player.match_starts_in,
+                val.player.next_opponent.team_code,
+              ]
+            );
+          } else {
+            await connection.query(
+              "INSERT INTO clubs (club, gameStart, opponent) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?",
+              [
+                club,
+                currentTime + val.player.match_starts_in,
+                val.player.next_opponent.team_code,
+                val.player.next_opponent.team_code,
+              ]
+            );
+          }
         }
       }
       // Checks if the player already is in the database or not

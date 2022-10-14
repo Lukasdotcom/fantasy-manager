@@ -63,7 +63,9 @@ export default function Home({
       <p>
         You can have one starred Forward, Midfielder, and Defender. These
         players will then get {starredPercentage}% of the regular amount of
-        points.
+        points. Note that the outlined players are probably in a game(this waits
+        120 minutes after the game starts so if there is excess extra time or
+        the game ends early this will be wrong).
       </p>
       <InputLabel htmlFor="formation">Formation</InputLabel>
       <Select
