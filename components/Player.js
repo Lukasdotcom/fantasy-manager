@@ -49,13 +49,13 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
   if (Object.keys(data).length > 0) {
     // Changes the background to the correct color if the player is missing or not known if they are coming
     if (data.forecast == "u") {
-      background = dark ? "rgb(50, 50, 0)" : "rgb(255, 255, 200)";
+      background = dark ? "rgb(50, 50, 0)" : "rgb(255, 255, 220)";
     } else if (data.forecast == "m") {
-      background = dark ? "rgb(50, 0, 0)" : "rgb(255, 150, 150)";
+      background = dark ? "rgb(50, 0, 0)" : "rgb(255, 200, 200)";
     }
     // Checks if the player exists
     if (data.exists === 0) {
-      background = dark ? "rgb(50, 0, 50)" : "rgb(255, 200, 255)";
+      background = dark ? "rgb(50, 0, 50)" : "rgb(255, 235, 255)";
     }
     // Checks if the player has a picture url set
     if (pictureUrl === undefined) {
