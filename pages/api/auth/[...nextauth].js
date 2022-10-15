@@ -140,11 +140,11 @@ const options = {
         session.user = await connection
           .query("SELECT * FROM users WHERE id=?", [session.user.name])
           .then((res) => (res.length > 0 ? res[0] : undefined));
-        session.user.password = session.user.password !== "";
-        session.user.active = session.user.active == 1;
-        session.user.admin = session.user.admin == 1;
         connection.end();
         if (session.user !== undefined) {
+          session.user.password = session.user.password !== "";
+          session.user.active = session.user.active == 1;
+          session.user.admin = session.user.admin == 1;
           return session;
         }
       }

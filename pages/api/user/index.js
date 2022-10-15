@@ -3,10 +3,10 @@ import connect from "../../../Modules/database.mjs";
 
 // Used to change a users username
 export default async function handler(req, res) {
+  const session = await getSession({ req });
+  const id = session.user.id;
   switch (req.method) {
     case "POST":
-      const session = await getSession({ req });
-      const id = session.user.id;
       if (!session) {
         res.status(401).end("Not logged in");
       } else if (req.body.password !== undefined) {
@@ -79,6 +79,29 @@ export default async function handler(req, res) {
         res.status(200).end("Changed username");
         console.log(`User ${id} changed username to ${req.body.username}`);
         connection.end();
+      }
+      break;
+    // Used to delete the user
+    case "DELETE":
+      if (!session) {
+        res.status(401).end("Not logged in");
+        // Makes sure the user passed the correct id
+      } else if (req.body.user === id) {
+        const connection = await connect();
+        // Checks if the user is in any leagues
+        const anyLeagues = await connection
+          .query("SELECT * FROM leagueUsers WHERE user=? LIMIT 1", [id])
+          .then((e) => e.length > 0);
+        if (anyLeagues) {
+          res.status(401).end("You can not be in any leagues");
+        } else {
+          console.log(`User ${id} was deleted`);
+          await connection.query("DELETE FROM users WHERE id=?", [id]);
+          res.status(200).end("Deleted user succesfully");
+        }
+        connection.end();
+      } else {
+        res.status(400).end("Please pass the user id under user.");
       }
       break;
     default:
