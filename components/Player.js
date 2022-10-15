@@ -61,16 +61,17 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
     if (pictureUrl === undefined) {
       setPictureUrl(data.pictureUrl);
     }
-    // Checks if the game has started less than 115 minutes ago
+    // Checks if the game has started less than 115 minutes ago and that this is the squad view
     const gameRunning = countdown < 0 && countdown > -120;
-    const border = gameRunning
-      ? {
-          border: 5,
-          borderColor: dark
-            ? "rgba(255, 255, 255, 0.12)"
-            : "rgba(0, 0, 0, 0.12)",
-        }
-      : {};
+    const border =
+      gameRunning && condensed === "squad"
+        ? {
+            border: 5,
+            borderColor: dark
+              ? "rgba(255, 255, 255, 0.12)"
+              : "rgba(0, 0, 0, 0.12)",
+          }
+        : {};
     return (
       <Paper
         elevation={1}
