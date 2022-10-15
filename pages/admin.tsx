@@ -53,7 +53,7 @@ function compareSemanticVersions(key: string, a: any, b: any) {
   return a1.length - b1.length;
 }
 export default function Home({ analytics }: props) {
-  const [graphLength, setGraphLength] = useState(100);
+  const [graphLength, setGraphLength] = useState(Math.sqrt(30));
   // Sorts the analytics by version number
   const sortedAnalytics = analytics.sort((a, b) =>
     compareSemanticVersions("version", a, b)
