@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useContext, useEffect, useState } from "react";
 import { getSession, SessionProvider, useSession } from "next-auth/react";
-import { leagueList } from "./api/league";
+import { leagueList, LeagueListResult } from "./api/league";
 import Link from "../components/Link";
 import Menu from "../components/Menu";
 import { push } from "@socialgouv/matomo-next";
@@ -17,8 +17,16 @@ import {
   DialogActions,
 } from "@mui/material";
 import { NotifyContext } from "../Modules/context";
+import {
+  GetServerSideProps,
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
+interface MakeLeagueProps {
+  getLeagueData: () => Promise<void>;
+}
 // Used to create a new League
-function MakeLeague({ getLeagueData }) {
+function MakeLeague({ getLeagueData }: MakeLeagueProps) {
   const notify = useContext(NotifyContext);
   const [leagueName, setLeagueName] = useState("");
   const [startingMoney, setStartingMoney] = useState(150);
@@ -73,8 +81,17 @@ function MakeLeague({ getLeagueData }) {
     </>
   );
 }
+interface LeaveLeagueProps {
+  leagueID: number;
+  leagueName: string;
+  getLeagueData: () => Promise<void>;
+}
 // Used to leave a league
-function LeaveLeague({ leagueID, leagueName, getLeagueData }) {
+function LeaveLeague({
+  leagueID,
+  leagueName,
+  getLeagueData,
+}: LeaveLeagueProps) {
   const notify = useContext(NotifyContext);
   const [confirmation, setConfirmation] = useState("");
   const [open, setOpen] = useState(false);
@@ -107,7 +124,7 @@ function LeaveLeague({ leagueID, leagueName, getLeagueData }) {
         style={{ margin: "5px" }}
         variant="outlined"
         color="error"
-        id={leagueID}
+        id={String(leagueID)}
         onClick={handleOpen}
       >
         Leave League
@@ -165,12 +182,17 @@ function LeaveLeague({ leagueID, leagueName, getLeagueData }) {
     </>
   );
 }
+interface LeaguesProps {
+  leagueData: LeagueListResult[];
+}
 // Used to list all the leagues you are part of and to add a league
-function Leagues({ leagueData }) {
+function Leagues({ leagueData }: LeaguesProps) {
   const notify = useContext(NotifyContext);
   const { data: session } = useSession();
   const [leagueList, setLeagueList] = useState(leagueData);
-  const [favoriteLeague, setFavoriteLeague] = useState(undefined);
+  const [favoriteLeague, setFavoriteLeague] = useState<
+    LeagueListResult | undefined
+  >(undefined);
   // Gets the favorite league
   useEffect(() => {
     // Only updates this when favorite league is undefined and in a session
@@ -187,8 +209,8 @@ function Leagues({ leagueData }) {
     );
   }, [session, leagueList, favoriteLeague]);
   // Used to update the favorite
-  async function updateFavorite(val) {
-    let leagueID = "none";
+  async function updateFavorite(val: LeagueListResult | undefined) {
+    let leagueID = 0;
     if (val) {
       leagueID = val.leagueID;
     }
@@ -199,7 +221,7 @@ function Leagues({ leagueData }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        favorite: leagueID,
+        favorite: leagueID === 0 ? "none" : leagueID,
       }),
     });
     notify(await response.text(), response.ok ? "success" : "error");
@@ -264,7 +286,9 @@ function Leagues({ leagueData }) {
     return <p>You shouldn&apos;t be here. Log in please.</p>;
   }
 }
-export default function Home({ leagueData }) {
+export default function Home({
+  leagueData,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
       <Head>
@@ -278,15 +302,14 @@ export default function Home({ leagueData }) {
     </>
   );
 }
-
-export async function getServerSideProps(ctx) {
-  const session = getSession(ctx);
-  if (await session) {
+export const getServerSideProps: GetServerSideProps = async (
+  ctx: GetServerSidePropsContext
+) => {
+  const session = await getSession(ctx);
+  if (session) {
     return {
       props: {
-        leagueData: JSON.parse(
-          JSON.stringify(await leagueList((await session).user.id))
-        ),
+        leagueData: await leagueList(session.user.id),
       },
     };
   } else {
@@ -299,4 +322,4 @@ export async function getServerSideProps(ctx) {
       },
     };
   }
-}
+};

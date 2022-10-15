@@ -6,13 +6,26 @@ import Transfer1Image from "../screenshots/transfers1.webp";
 import Transfer2Image from "../screenshots/transfers2.webp";
 import StandingsImage from "../screenshots/standings.webp";
 import SquadImage from "../screenshots/squad.webp";
-import { Alert, AlertTitle, Pagination } from "@mui/material";
+import { Alert, AlertColor, AlertTitle, Pagination } from "@mui/material";
 import { useEffect, useState } from "react";
 import version from "./../package.json" assert { type: "json" };
 import Link from "../components/Link";
-
+import { GetStaticProps, InferGetStaticPropsType } from "next";
+interface InnerUpdateType {
+  type: AlertColor;
+  title: string;
+  text: string;
+  link?: string;
+}
+type UpdateType = InnerUpdateType | undefined;
+interface CurrentPictureProps {
+  picture: number;
+}
+interface Props {
+  update: UpdateType;
+}
 // Turns the number into the correct screenshot
-function CurrentPicture({ picture }) {
+function CurrentPicture({ picture }: CurrentPictureProps) {
   switch (picture) {
     case 1:
       return (
@@ -95,7 +108,10 @@ function Carrousel() {
     </>
   );
 }
-export default function Home({ update }) {
+export default function Home({
+  update,
+}: // For some reason the inference does not work here
+InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <>
       <Head>
@@ -166,7 +182,7 @@ export default function Home({ update }) {
       to ask questions or find leagues to join.
       <h2>Screenshots</h2>
       <Carrousel />
-      {update.type !== undefined && (
+      {update !== "undefined" && (
         <Alert severity={update.type} className="notification">
           <AlertTitle>{update.title}</AlertTitle>
           {update.link === undefined && update.text}
@@ -180,53 +196,63 @@ export default function Home({ update }) {
     </>
   );
 }
-
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps = async () => {
+  let update: UpdateType = undefined;
   // Checks if this is running in a non production setup
   if (process.env.APP_ENV === "development" || process.env.APP_ENV === "test") {
-    return {
-      props: {
-        update: {
-          type: "info",
-          title: "Not for Production",
-          text: "This is the development or testing version of this software. Do not use in production.",
-        },
-      },
-    };
-  }
-  // Checks if this is the latest version and if it does adds data
-  console.log("Checking for updates");
-  const releases = await fetch(
-    "https://api.github.com/repos/lukasdotcom/bundesliga-manager/releases"
-  ).then((res) => (res.ok ? res.json() : {}));
-  if (releases[0] === undefined || releases[0].tag_name === undefined) {
-    console.log("Failed to get version data from github api.");
-    return {
-      props: {
-        update: {
-          type: "error",
-          title: "Failure",
-          text: "Failing to check for updates.",
-          link: "/error/update",
-        },
-      },
-      // Checks at max every hour
-      revalidate: 3600 * 24, // In seconds
-    };
-  }
-  let update = {};
-  if (version.version !== releases[0].tag_name) {
     update = {
-      type: "warning",
-      title: "Out of Date",
-      text: "New Update Available for more info Click Here",
-      link: releases[0].html_url,
+      type: "info",
+      title: "Not for Production",
+      text: "This is the development or testing version of this software. Do not use in production.",
     };
+  } else {
+    // Checks if this is the latest version and if it does adds data
+    console.log("Checking for updates");
+    interface release {
+      url: string;
+      assets_url: string;
+      upload_url: string;
+      html_url: string;
+      id: number;
+      tag_name: string;
+      name: string;
+      draft: boolean;
+      prerelease: boolean;
+      body: string;
+    }
+    const releases: release[] | [] = await fetch(
+      "https://api.github.com/repos/lukasdotcom/bundesliga-manager/releases"
+    ).then((res) => (res.ok ? res.json() : []));
+    // Finds the first release that is not a draft or a prerelease and the same major version
+    let counter = 0;
+    while (
+      counter < releases.length &&
+      !releases[counter].prerelease &&
+      !releases[counter].draft &&
+      releases[0].tag_name.slice(0, 2) !== "1."
+    ) {
+      counter += 1;
+    }
+    if (counter >= releases.length) {
+      console.log("Failed to get version data from github api.");
+      update = {
+        type: "error",
+        title: "Failure",
+        text: "Failing to check for updates.",
+        link: "/error/update",
+      };
+    } else if (version.version !== releases[0].tag_name) {
+      update = {
+        type: "warning",
+        title: "Out of Date",
+        text: "New Update Available for more info Click Here",
+        link: releases[0].html_url,
+      };
+    }
   }
-
   return {
     props: { update },
     // Checks at max every day
     revalidate: 3600 * 24,
   };
-}
+};
