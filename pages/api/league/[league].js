@@ -122,10 +122,9 @@ export default async function handler(req, res) {
           connection.query("DELETE FROM historicalTransfers WHERE leagueID=?", [
             league,
           ]);
-          connection.query("DELETE FROM historicalSquads WHERE leagueID=?", [
+          connection.query("DELETE FROM historicalSquad WHERE leagueID=?", [
             league,
           ]);
-          connection.end();
           console.log(`League ${league} is now empty and is being deleted`);
         }
         res.status(200).end("Left league");
