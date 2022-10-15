@@ -2,7 +2,7 @@ import Menu from "../../components/Menu";
 import redirect from "../../Modules/league";
 import Head from "next/head";
 import { SquadPlayer as Player } from "../../components/Player";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { push } from "@socialgouv/matomo-next";
 import connect from "../../Modules/database.mjs";
 import {
@@ -14,14 +14,15 @@ import {
 } from "@mui/material";
 import { getLeagueInfo } from "../api/squad/[league]";
 import { getSession } from "next-auth/react";
+import { NotifyContext } from "../../Modules/context";
 
 export default function Home({
   league,
   starredPercentage,
-  notify,
   leagueName,
   leagueInfo,
 }) {
+  const notify = useContext(NotifyContext);
   // Turns the leagueInfo data into the data for the starting state
   let players = { att: [], mid: [], def: [], gk: [], bench: [] };
   leagueInfo.players.forEach((e) => {
@@ -124,7 +125,6 @@ export default function Home({
             league={league}
             starred={e.starred}
             update={getSquad}
-            notify={notify}
             status={e.status}
           />
         )
@@ -140,7 +140,6 @@ export default function Home({
             league={league}
             starred={e.starred}
             update={getSquad}
-            notify={notify}
             status={e.status}
           />
         )
@@ -156,7 +155,6 @@ export default function Home({
             league={league}
             starred={e.starred}
             update={getSquad}
-            notify={notify}
             status={e.status}
           />
         )
@@ -171,7 +169,6 @@ export default function Home({
             key={e.playeruid}
             league={league}
             update={getSquad}
-            notify={notify}
             status={e.status}
           />
         )
@@ -201,7 +198,6 @@ export default function Home({
               field={field}
               league={league}
               update={getSquad}
-              notify={notify}
               status={e.status}
             />
           )
@@ -223,7 +219,7 @@ export async function getServerSideProps(ctx) {
   const leagueInfo = await getLeagueInfo(
     ctx.query.league,
     session?.user?.id ? session?.user?.id : -1
-  ).catch((e) => {});
+  ).catch(() => {});
   connection.end();
   return await redirect(ctx, { starredPercentage, leagueInfo });
 }

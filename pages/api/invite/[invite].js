@@ -60,7 +60,7 @@ export default async function handler(req, res) {
               matchday--;
             }
             console.log(
-              `Player ${session.user.id} joined league ${invite.leagueID}`
+              `User ${session.user.id} joined league ${invite.leagueID}`
             );
           });
       }

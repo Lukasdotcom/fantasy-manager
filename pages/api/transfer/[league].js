@@ -337,7 +337,9 @@ export default async function handler(req, res) {
             "UPDATE leagueUsers SET money=money+? WHERE leagueID=? AND user=?",
             [playerValue, league, user]
           );
-          console.log(`${user} is selling ${playeruid} for ${playerValue}`);
+          console.log(
+            `User ${user} is selling ${playeruid} for ${playerValue}`
+          );
           res.status(200).end(`Sold player for ${playerValue / 1000000}M`);
           break;
           // Cancels the transaction
