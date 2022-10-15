@@ -332,18 +332,17 @@ describe("Invite User into league and change some league Settings and run throug
     // Checks Nkunku button
     cy.contains("Squad")
       .click()
-      .then(() =>
-        cy
-          .contains("Christopher Nkunku")
+      .then(() => {
+        cy.contains("Squad for");
+        cy.contains("Christopher Nkunku")
           .parent()
           .parent()
           .parent()
           .parent()
           .children(".playerButton")
           .children("button")
-          .contains("Player has Already Played")
-      );
-
+          .contains("Player has Already Played");
+      });
     matchdays.push({ invite1: user1Money, invite2: user2Money });
     // Starts the transfer period and sells Muller
     cy.exec("export APP_ENV=test; node cypress/e2e/invite4.mjs");
@@ -361,8 +360,24 @@ describe("Invite User into league and change some league Settings and run throug
     );
     user2Money += 25.8;
     cy.get(".MuiPaper-root > .MuiButton-root").click();
+    cy.contains(`Money left: ${user2Money}`);
+    cy.contains("Squad").click();
+    // Goes to the squad and moves Lewandowski to the bench and makes sure lewandowski is hidden when showSelling is disabled
+    cy.contains("Squad for");
+    cy.contains("Robert Lewandowski")
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .children(".playerButton")
+      .children("button")
+      .contains("Move to Bench")
+      .click();
+    cy.contains("Robert Lewandowski");
+    cy.get("#showSelling").click();
     // Switches user and sets the duplicate players setting to 1
-    cy.contains(`Money left: ${user2Money}`)
+    cy.contains("Robert Lewandowski")
+      .should("not.exist")
       .then(() => {
         cy.setCookie("next-auth.session-token", user1);
       })
@@ -414,7 +429,7 @@ describe("Invite User into league and change some league Settings and run throug
     // Makes sure the team they are playing is correct
     cy.contains("Next").parent().contains("BVB");
     // Looks at the historical data for one of the users
-    cy.get(':nth-child(8) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(13) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
     cy.get('[alt="starred"]');
@@ -424,7 +439,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains(`Money: ${matchdays[0].invite2}M`);
     cy.contains("Next").should("not.exist");
     cy.get('[alt="starred"]');
-    cy.get(':nth-child(8) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(13) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
     cy.get(':nth-child(18) > [style="width: 70%;"] > :nth-child(1)').contains(
@@ -472,6 +487,6 @@ describe("Invite User into league and change some league Settings and run throug
     cy.visit("http://localhost:3000/api/invite/invite1", {
       failOnStatusCode: false,
     });
-    cy.get(".center").contains("404");
+    cy.get(".center").contains("404"); //*/
   });
 });

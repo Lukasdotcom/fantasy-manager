@@ -85,18 +85,16 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
           <p>{data.club}</p>
           <p>{data.position}</p>
         </div>
-        <Link styled={false} href={`/player/${data.uid}`}>
-          <Image
-            alt=""
-            onError={() => {
-              // If the picture does not exist a fallback picture is used
-              setPictureUrl(fallbackImg);
-            }}
-            src={pictureUrl}
-            width="100px"
-            height="100px"
-          />
-        </Link>
+        <Image
+          alt=""
+          onError={() => {
+            // If the picture does not exist a fallback picture is used
+            setPictureUrl(fallbackImg);
+          }}
+          src={pictureUrl}
+          width="100px"
+          height="100px"
+        />
         <div style={{ width: "70%" }}>
           <p>
             <Link styled={false} href={`/player/${data.uid}`}>

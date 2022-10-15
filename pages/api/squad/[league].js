@@ -1,20 +1,67 @@
 import { getSession } from "next-auth/react";
 import connect from "../../../Modules/database.mjs";
 import { calcPoints } from "../../../scripts/calcPoints.mjs";
+// An array of valid formations
+const validFormations = [
+  [1, 3, 5, 2],
+  [1, 3, 4, 3],
+  [1, 4, 4, 2],
+  [1, 4, 3, 3],
+  [1, 4, 5, 1],
+  [1, 5, 3, 2],
+  [1, 5, 4, 1],
+];
+
+// Used to get the league info
+export const getLeagueInfo = async (league, user) => {
+  const connection = await connect();
+  // Checks if the league exists
+  const result = await connection.query(
+    "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
+    [league, user]
+  );
+  if (result.length > 0) {
+    const formation = JSON.parse(result[0].formation);
+    // Gets all the players on the team
+    let players1 = await connection.query(
+      "SELECT playeruid, position, starred FROM squad WHERE leagueID=? and user=?",
+      [league, user]
+    );
+    // Checks if a player is being sold
+    players1 = await Promise.all(
+      players1.map(async (player) => {
+        player.status = await connection
+          .query(
+            "SELECT * FROM transfers WHERE leagueID=? AND playeruid=? AND seller=?",
+            [league, player.playeruid, user]
+          )
+          .then((res) => (res.length > 0 ? "sell" : ""));
+        return player;
+      })
+    );
+    // Gets all the purchases
+    let players2 = await connection.query(
+      "SELECT playeruid, position, starred FROM transfers WHERE leagueID=? AND buyer=?",
+      [league, user]
+    );
+    // Reformats the player data
+    players2.map((player) => {
+      player.status = "buy";
+      return player;
+    });
+    // Merges the 2 lists
+    const players = [...players1, ...players2];
+    connection.end();
+    return { formation, players, validFormations };
+  } else {
+    connection.end();
+    throw "League not found";
+  }
+};
 
 export default async function handler(req, res) {
   const session = await getSession({ req });
   const league = req.query.league;
-  // An array of valid formations
-  const validFormations = [
-    [1, 3, 5, 2],
-    [1, 3, 4, 3],
-    [1, 4, 4, 2],
-    [1, 4, 3, 3],
-    [1, 4, 5, 1],
-    [1, 5, 3, 2],
-    [1, 5, 4, 1],
-  ];
   const connection = await connect();
   if (!session) {
     res.status(401).end("Not logged in");
@@ -23,50 +70,16 @@ export default async function handler(req, res) {
     switch (req.method) {
       // Used to return a dictionary of all formations and your current squad and formation
       case "GET":
-        await new Promise(async (resolve) => {
-          // Checks if the league exists
-          const result = await connection.query(
-            "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
-            [league, user]
-          );
-          if (result.length > 0) {
-            const formation = JSON.parse(result[0].formation);
-            // Gets all the players on the team
-            let players1 = await connection.query(
-              "SELECT playeruid, position, starred FROM squad WHERE leagueID=? and user=?",
-              [league, user]
-            );
-            // Checks if a player is being sold
-            players1 = await Promise.all(
-              players1.map(async (player) => {
-                player.status = await connection
-                  .query(
-                    "SELECT * FROM transfers WHERE leagueID=? AND playeruid=? AND seller=?",
-                    [league, player.playeruid, user]
-                  )
-                  .then((res) => (res.length > 0 ? "sell" : ""));
-                return player;
-              })
-            );
-            // Gets all the purchases
-            let players2 = await connection.query(
-              "SELECT playeruid, position, starred FROM transfers WHERE leagueID=? AND buyer=?",
-              [league, user]
-            );
-            // Reformats the player data
-            players2.map((player) => {
-              player.status = "buy";
-              return player;
-            });
-            // Merges the 2 lists
-            const players = [...players1, ...players2];
-            res.status(200).json({ formation, players, validFormations });
-            resolve();
-          } else {
-            res.status(404).end("League not found");
-            resolve();
-          }
-        });
+        await getLeagueInfo(league, user)
+          .then((e) => res.status(200).json(e))
+          .catch((e) => {
+            // Checks if it was the league not found error
+            if (e === "League not found") {
+              res.status(404).end(e);
+            } else {
+              throw e;
+            }
+          });
         break;
       case "POST":
         // Checks if there are enough spots for a position

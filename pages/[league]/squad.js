@@ -2,26 +2,41 @@ import Menu from "../../components/Menu";
 import redirect from "../../Modules/league";
 import Head from "next/head";
 import { SquadPlayer as Player } from "../../components/Player";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { push } from "@socialgouv/matomo-next";
 import connect from "../../Modules/database.mjs";
-import { InputLabel, MenuItem, Select } from "@mui/material";
+import {
+  FormControlLabel,
+  InputLabel,
+  MenuItem,
+  Select,
+  Switch,
+} from "@mui/material";
+import { getLeagueInfo } from "../api/squad/[league]";
+import { getSession } from "next-auth/react";
 
 export default function Home({
   league,
   starredPercentage,
   notify,
   leagueName,
+  leagueInfo,
 }) {
-  const [squad, setSquad] = useState({
-    att: [],
-    mid: [],
-    def: [],
-    gk: [],
-    bench: [],
+  // Turns the leagueInfo data into the data for the starting state
+  let players = { att: [], mid: [], def: [], gk: [], bench: [] };
+  leagueInfo.players.forEach((e) => {
+    players[e.position].push({
+      playeruid: e.playeruid,
+      starred: e.starred,
+      status: e.status,
+    });
   });
-  const [formation, setFormation] = useState([1, 4, 4, 2]);
-  const [validFormations, setValidFormations] = useState([[1, 4, 4, 2]]);
+  const [showSelling, setShowSelling] = useState(true);
+  const [squad, setSquad] = useState(players);
+  const [formation, setFormation] = useState(leagueInfo.formation);
+  const [validFormations, setValidFormations] = useState(
+    leagueInfo.validFormations
+  );
   const field = {
     att: squad.att.length < formation[3],
     mid: squad.mid.length < formation[2],
@@ -44,8 +59,6 @@ export default function Home({
       setValidFormations(val.validFormations);
     });
   }
-  // Gets the players squad
-  useEffect(getSquad, [league]);
   // Checks if the player can change to the formation
   function changeToFormation(newFormation) {
     let defenders = newFormation[1] - squad["def"].length;
@@ -164,21 +177,35 @@ export default function Home({
         )
       )}
       <h2>Bench</h2>
-      {squad["bench"].map(
-        (
-          e // Used to get the players for the bench
-        ) => (
-          <Player
-            uid={e.playeruid}
-            key={e.playeruid}
-            field={field}
-            league={league}
-            update={getSquad}
-            notify={notify}
-            status={e.status}
+      <FormControlLabel
+        control={
+          <Switch
+            id="showSelling"
+            onChange={(e) => {
+              setShowSelling(e.target.checked);
+            }}
+            checked={showSelling}
           />
-        )
-      )}
+        }
+        label="Show Players that are being sold"
+      />
+      {squad["bench"]
+        .filter((e) => showSelling || e.status !== "sell")
+        .map(
+          (
+            e // Used to get the players for the bench
+          ) => (
+            <Player
+              uid={e.playeruid}
+              key={e.playeruid}
+              field={field}
+              league={league}
+              update={getSquad}
+              notify={notify}
+              status={e.status}
+            />
+          )
+        )}
     </>
   );
 }
@@ -186,11 +213,17 @@ export default function Home({
 // Gets the users session
 export async function getServerSideProps(ctx) {
   const connection = await connect();
+  const session = await getSession(ctx);
   const starredPercentage = await connection
     .query("SELECT starredPercentage FROM leagueSettings WHERE leagueID=?", [
       ctx.query.league,
     ])
     .then((res) => (res.length > 0 ? res[0].starredPercentage : 150));
+  // Gets the league info
+  const leagueInfo = await getLeagueInfo(
+    ctx.query.league,
+    session?.user?.id ? session?.user?.id : -1
+  );
   connection.end();
-  return await redirect(ctx, { starredPercentage });
+  return await redirect(ctx, { starredPercentage, leagueInfo });
 }
