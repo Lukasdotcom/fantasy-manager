@@ -8,7 +8,7 @@
     "start": "export NODE_ENV=production APP_ENV=production; npm run start2",
     "start:test": "export NODE_ENV=test APP_ENV=test; npm run start2",
     "start2": "node scripts/entrypoint.mjs & next build; next start",
-    "lint": "next lint --max-warnings 0",
+    "lint": "eslint . --max-warnings 0",
     "pretty": "prettier --check .",
     "format": "prettier --write .",
     "cypress:open": "cypress open",
@@ -43,6 +43,7 @@
     "eslint": "8.25.0",
     "eslint-config-next": "12.3.1",
     "eslint-plugin-cypress": "2.12.1",
+    "eslint-plugin-unused-imports": "2.0.0",
     "prettier": "2.7.1",
     "wait-on": "6.0.1"
   }
