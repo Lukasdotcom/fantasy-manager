@@ -326,7 +326,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get(
       ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root"
     ).click();
-    cy.get(':nth-child(8) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(9) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
     // Checks Nkunku button
@@ -439,10 +439,10 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains(`Money: ${matchdays[0].invite2}M`);
     cy.contains("Next").should("not.exist");
     cy.get('[alt="starred"]');
-    cy.get(':nth-child(13) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(14) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
-    cy.get(':nth-child(18) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(19) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
     cy.contains("19.7 M");
