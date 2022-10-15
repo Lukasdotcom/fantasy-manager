@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getSession, SessionProvider, useSession } from "next-auth/react";
 import { leagueList } from "./api/league";
 import Link from "../components/Link";
@@ -16,8 +16,10 @@ import {
   DialogContentText,
   DialogActions,
 } from "@mui/material";
+import { NotifyContext } from "../Modules/context";
 // Used to create a new League
-function MakeLeague({ getLeagueData, notify }) {
+function MakeLeague({ getLeagueData }) {
+  const notify = useContext(NotifyContext);
   const [leagueName, setLeagueName] = useState("");
   const [startingMoney, setStartingMoney] = useState(150);
   return (
@@ -72,7 +74,8 @@ function MakeLeague({ getLeagueData, notify }) {
   );
 }
 // Used to leave a league
-function LeaveLeague({ leagueID, leagueName, getLeagueData, notify }) {
+function LeaveLeague({ leagueID, leagueName, getLeagueData }) {
+  const notify = useContext(NotifyContext);
   const [confirmation, setConfirmation] = useState("");
   const [open, setOpen] = useState(false);
   // Handles the opening of the dialog
@@ -163,7 +166,8 @@ function LeaveLeague({ leagueID, leagueName, getLeagueData, notify }) {
   );
 }
 // Used to list all the leagues you are part of and to add a league
-function Leagues({ leagueData, notify }) {
+function Leagues({ leagueData }) {
+  const notify = useContext(NotifyContext);
   const { data: session } = useSession();
   const [leagueList, setLeagueList] = useState(leagueData);
   const [favoriteLeague, setFavoriteLeague] = useState(undefined);
@@ -232,7 +236,6 @@ function Leagues({ leagueData, notify }) {
               leagueName={val.leagueName}
               leagueID={val.leagueID}
               getLeagueData={getLeagueData}
-              notify={notify}
             />
             <IconButton
               style={{ margin: "5px" }}
@@ -254,14 +257,14 @@ function Leagues({ leagueData, notify }) {
         >
           Clear Favorite League<Icon>delete</Icon>
         </Button>
-        <MakeLeague getLeagueData={getLeagueData} notify={notify} />
+        <MakeLeague getLeagueData={getLeagueData} />
       </>
     );
   } else {
     return <p>You shouldn&apos;t be here. Log in please.</p>;
   }
 }
-export default function Home({ leagueData, notify }) {
+export default function Home({ leagueData }) {
   return (
     <>
       <Head>
@@ -270,7 +273,7 @@ export default function Home({ leagueData, notify }) {
       <Menu />
       <h1>Bundesliga Fantasy Manager</h1>
       <SessionProvider>
-        <Leagues leagueData={leagueData} notify={notify} />
+        <Leagues leagueData={leagueData} />
       </SessionProvider>
     </>
   );

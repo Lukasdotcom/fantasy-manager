@@ -1,5 +1,6 @@
 import playerStyles from "../styles/Player.module.css";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { NotifyContext } from "../Modules/context";
 import Image from "next/image";
 import { push } from "@socialgouv/matomo-next";
 import { useSession } from "next-auth/react";
@@ -221,9 +222,9 @@ export function TransferPlayer({
   transferLeft,
   open,
   duplicatePlayers,
-  notify,
   allOwnership,
 }) {
+  const notify = useContext(NotifyContext);
   const session = useSession();
   const user = session.data ? session.data.user.id : -1;
   const [data, setData] = useState({});
@@ -452,15 +453,8 @@ export function TransferPlayer({
   );
 }
 // Used for the squad. Field should be undefined unless they are on the bench and then it shoud give what positions are still open
-export function SquadPlayer({
-  uid,
-  update,
-  field,
-  league,
-  starred,
-  notify,
-  status,
-}) {
+export function SquadPlayer({ uid, update, field, league, starred, status }) {
+  const notify = useContext(NotifyContext);
   const [data, setData] = useState({});
   // Used to get the data for the player
   useEffect(() => {

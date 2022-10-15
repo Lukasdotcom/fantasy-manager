@@ -61,7 +61,6 @@ export default function Home({
   league,
   allowedTransfers,
   duplicatePlayers,
-  notify,
   leagueName,
   maxPrice,
 }) {
@@ -295,7 +294,6 @@ export default function Home({
             transferData={transferData}
             open={open}
             duplicatePlayers={duplicatePlayers}
-            notify={notify}
           />
         ))}
       </SessionProvider>

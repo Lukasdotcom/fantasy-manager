@@ -1,7 +1,7 @@
 import Menu from "../../components/Menu";
 import redirect from "../../Modules/league";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { stringToColor, UserChip } from "../../components/Username";
 import { push } from "@socialgouv/matomo-next";
 import { getSession } from "next-auth/react";
@@ -33,9 +33,11 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { NotifyContext } from "../../Modules/context";
 
 // Creates the admin panel
-function AdminPanel({ league, notify, leagueName, setLeagueName, admin }) {
+function AdminPanel({ league, leagueName, setLeagueName, admin }) {
+  const notify = useContext(NotifyContext);
   const [startingMoney, setStartingMoney] = useState(150);
   const [users, setUsers] = useState([]);
   const [transfers, setTransfers] = useState(6);
@@ -212,7 +214,8 @@ function AdminPanel({ league, notify, leagueName, setLeagueName, admin }) {
   }
 }
 // Used to show all the invites that exist and to delete an individual invite
-function Invite({ link, league, host, remove, notify }) {
+function Invite({ link, league, host, remove }) {
+  const notify = useContext(NotifyContext);
   return (
     <p>
       Link: {`${host}/api/invite/${link}`}
@@ -324,9 +327,9 @@ export default function Home({
   historicalPoints,
   inviteLinks,
   host,
-  notify,
   leagueName,
 }) {
+  const notify = useContext(NotifyContext);
   const [inputLeagueName, setInputLeagueName] = useState(leagueName);
   // Calculates the current matchday
   let currentMatchday = 0;
@@ -418,7 +421,6 @@ export default function Home({
           key={val}
           link={val}
           league={league}
-          notify={notify}
           remove={() => {
             setInvites(invites.filter((e) => e != val));
           }}
@@ -465,7 +467,6 @@ export default function Home({
         setLeagueName={setInputLeagueName}
         user={user}
         league={league}
-        notify={notify}
         admin={admin}
       />
     </>

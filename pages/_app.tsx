@@ -97,11 +97,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <Backdrop open={loading}>
             <CircularProgress />
           </Backdrop>
-          <Component
-            {...pageProps}
-            notify={notify}
-            setColorMode={setColorMode}
-          />
+          <Component {...pageProps} setColorMode={setColorMode} />
         </ThemeProvider>
       </NotifyContext.Provider>
       <SessionProvider>
