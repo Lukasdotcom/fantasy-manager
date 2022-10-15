@@ -51,6 +51,22 @@ export default async function handler(req, res) {
           res.status(200).end(`Connected to ${req.body.provider}`);
         }
         connection.end();
+        // Used to update the league favorite
+      } else if (req.body.favorite) {
+        const connection = await connect();
+        // Checks if a possible favorite is given otherwise favorites are cleared
+        if (parseInt(req.body.favorite) > 0) {
+          connection.query("UPDATE users SET favoriteLeague=? WHERE id=?", [
+            parseInt(req.body.favorite),
+            id,
+          ]);
+        } else {
+          connection.query("UPDATE users SET favoriteLeague=null WHERE id=?", [
+            id,
+          ]);
+        }
+        connection.end();
+        res.status(200).end("Updated favorite");
       } else if (req.body.username === undefined) {
         // Used to connect and disconnect from OAuth providers
         res.status(500).end("No username given");

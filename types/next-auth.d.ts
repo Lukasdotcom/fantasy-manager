@@ -14,6 +14,7 @@ declare module "next-auth" {
       google: string;
       github: string;
       admin: Boolean;
+      favoriteLeague: null | number;
     };
   }
 }
