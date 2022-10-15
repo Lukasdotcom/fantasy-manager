@@ -142,7 +142,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
                 <p>Next</p>
                 <p>
                   {data.game.opponent}
-                  {countdown > 0
+                  {countdown >= 0
                     ? ` in ${Math.floor(countdown / 60 / 24)} D ${
                         Math.floor(countdown / 60) % 24
                       } H ${Math.floor(countdown) % 60} M`
