@@ -5,7 +5,17 @@ import { leagueList } from "./api/league";
 import Link from "../components/Link";
 import Menu from "../components/Menu";
 import { push } from "@socialgouv/matomo-next";
-import { TextField, Button, IconButton, Icon } from "@mui/material";
+import {
+  TextField,
+  Button,
+  IconButton,
+  Icon,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from "@mui/material";
 // Used to create a new League
 function MakeLeague({ getLeagueData, notify }) {
   const [leagueName, setLeagueName] = useState("");
@@ -62,29 +72,94 @@ function MakeLeague({ getLeagueData, notify }) {
   );
 }
 // Used to leave a league
-function LeaveLeague({ leagueID, getLeagueData, notify }) {
+function LeaveLeague({ leagueID, leagueName, getLeagueData, notify }) {
+  const [confirmation, setConfirmation] = useState("");
+  const [open, setOpen] = useState(false);
+  // Handles the opening of the dialog
+  function handleOpen() {
+    setConfirmation("");
+    setOpen(true);
+  }
+  // Handles the closing of the dialog
+  function handleClose() {
+    setOpen(false);
+  }
+  // Handles the closing of the dialog if it was confirmed
+  async function deleteLeague() {
+    setOpen(false);
+    notify("Leaving");
+    push(["trackEvent", "League", "Leave", leagueID]);
+    const response = await fetch(`/api/league/${leagueID}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    notify(await response.text(), response.ok ? "success" : "error");
+    getLeagueData();
+  }
   return (
-    <Button
-      style={{ margin: "5px" }}
-      variant="outlined"
-      color="error"
-      id={leagueID}
-      onClick={async (e) => {
-        notify("Leaving");
-        push(["trackEvent", "League", "Leave", leagueID]);
-        const response = await fetch(`/api/league/${leagueID}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        notify(await response.text(), response.ok ? "success" : "error");
-        getLeagueData();
-      }}
-      className="red-button"
-    >
-      Leave League
-    </Button>
+    <>
+      <Button
+        style={{ margin: "5px" }}
+        variant="outlined"
+        color="error"
+        id={leagueID}
+        onClick={handleOpen}
+      >
+        Leave League
+      </Button>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          <Icon color="warning">warning</Icon>
+          {" Are you sure you want to leave?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Leaving a league <b>will permanently delete</b> all the data that
+            you generated in the league. Please confirm that you want to do this
+            by typing the name of the league in the box below. The name is:
+            <b>{leagueName}</b>.
+          </DialogContentText>
+          <TextField
+            error={leagueName !== confirmation}
+            label="Enter league name here"
+            variant="standard"
+            margin="dense"
+            fullWidth
+            size="small"
+            placeholder={leagueName}
+            onChange={(e) => {
+              setConfirmation(e.target.value);
+            }}
+            value={confirmation}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleClose}
+            variant="outlined"
+            color="error"
+            autoFocus
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={deleteLeague}
+            variant="contained"
+            color="error"
+            disabled={leagueName !== confirmation}
+          >
+            Leave League
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
 // Used to list all the leagues you are part of and to add a league
@@ -94,17 +169,19 @@ function Leagues({ leagueData, notify }) {
   const [favoriteLeague, setFavoriteLeague] = useState(undefined);
   // Gets the favorite league
   useEffect(() => {
-    // Only updates this when favorite league is undefined
+    // Only updates this when favorite league is undefined and in a session
     if (favoriteLeague || !session) {
       return;
     }
-    const favoriteLeague = leagueList.filter(
+    const newFavoriteLeague = leagueList.filter(
       (e) => e.leagueID === session.user.favoriteLeague
     );
     setFavoriteLeague(
-      favoriteLeague.length > 0 ? favoriteLeague[0] : undefined
+      newFavoriteLeague.length > 0
+        ? JSON.parse(JSON.stringify(newFavoriteLeague[0]))
+        : undefined
     );
-  }, [session, leagueList]);
+  }, [session, leagueList, favoriteLeague]);
   // Used to update the favorite
   async function updateFavorite(val) {
     let leagueID = "none";
@@ -152,6 +229,7 @@ function Leagues({ leagueData, notify }) {
               </Button>
             </Link>
             <LeaveLeague
+              leagueName={val.leagueName}
               leagueID={val.leagueID}
               getLeagueData={getLeagueData}
               notify={notify}

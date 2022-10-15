@@ -465,6 +465,12 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Leave League")
       .click()
       .then(() => {
+        cy.get(".MuiDialogContent-root > .MuiFormControl-root").type(
+          "New Sample League"
+        );
+        cy.get(".MuiDialogActions-root > .MuiButton-contained").click();
+      })
+      .then(() => {
         cy.setCookie("next-auth.session-token", user2);
       })
       .then(() => {
@@ -473,12 +479,22 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Leave League")
       .click()
       .then(() => {
+        cy.get(".MuiDialogContent-root > .MuiFormControl-root").type(
+          "New Sample League"
+        );
+        cy.get(".MuiDialogActions-root > .MuiButton-contained").click();
+      })
+      .then(() => {
         cy.setCookie("next-auth.session-token", user1);
       })
       .then(() => {
         cy.reload();
       });
     cy.contains("Leave League").click();
+    cy.get(".MuiDialogContent-root > .MuiFormControl-root").type(
+      "New Sample League"
+    );
+    cy.get(".MuiDialogActions-root > .MuiButton-contained").click();
     cy.get("#logout").click();
     // Checks if the league is actually deleted
     cy.get("#input-username-for-Sign\\ Up-provider").type("Invite 3");
