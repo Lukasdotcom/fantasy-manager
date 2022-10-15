@@ -11,16 +11,17 @@ import {
   Backdrop,
   CircularProgress,
   useMediaQuery,
+  AlertColor,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { AppProps } from "next/app";
+import { NotifyContext } from "../Modules/context";
 const MATOMO_URL = process.env.NEXT_PUBLIC_MATOMO_URL;
 const MATOMO_SITE_ID = process.env.NEXT_PUBLIC_MATOMO_SITE_ID;
 interface Notification {
   message?: string;
-  severity?: Severity;
+  severity?: AlertColor;
 }
-type Severity = "error" | "info" | "warning";
 function MyApp({ Component, pageProps }: AppProps) {
   // Used to start up matomo analytics
   useEffect(() => {
@@ -28,7 +29,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, []);
   const [notifications, setNotifications] = useState<Notification>({});
   // Used to send notification
-  function notify(message: string, severity: Severity = "info") {
+  function notify(message: string, severity: AlertColor = "info") {
     setNotifications({
       message: message,
       severity: severity,
@@ -77,26 +78,32 @@ function MyApp({ Component, pageProps }: AppProps) {
   });
   return (
     <>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <GlobalStyles styles={{ Button: { m: "5px" } }} />
-        {notifications.message && (
-          <Snackbar open={true} onClose={handleClose}>
-            <Alert
-              onClose={handleClose}
-              severity={notifications.severity}
-              sx={{ width: "100%" }}
-            >
-              {notifications.message}
-            </Alert>
-          </Snackbar>
-        )}
-        {/* Adds loading screen whenever a new page is being opened */}
-        <Backdrop open={loading}>
-          <CircularProgress />
-        </Backdrop>
-        <Component {...pageProps} notify={notify} setColorMode={setColorMode} />
-      </ThemeProvider>
+      <NotifyContext.Provider value={notify}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <GlobalStyles styles={{ Button: { m: "5px" } }} />
+          {notifications.message && (
+            <Snackbar open={true} onClose={handleClose}>
+              <Alert
+                onClose={handleClose}
+                severity={notifications.severity}
+                sx={{ width: "100%" }}
+              >
+                {notifications.message}
+              </Alert>
+            </Snackbar>
+          )}
+          {/* Adds loading screen whenever a new page is being opened */}
+          <Backdrop open={loading}>
+            <CircularProgress />
+          </Backdrop>
+          <Component
+            {...pageProps}
+            notify={notify}
+            setColorMode={setColorMode}
+          />
+        </ThemeProvider>
+      </NotifyContext.Provider>
       <SessionProvider>
         <UserMatomo />
       </SessionProvider>
