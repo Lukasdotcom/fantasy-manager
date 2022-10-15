@@ -21,6 +21,11 @@ interface MenuItemsInterface {
 // Returns all the menu items
 function MenuItems({ league, handleCloseNavMenu }: MenuItemsInterface) {
   const { data: session } = useSession();
+  if (!league && session) {
+    league = session.user.favoriteLeague
+      ? session.user.favoriteLeague
+      : undefined;
+  }
   const pages = [
     { name: "Home", link: "/" },
     { name: "Rules", link: "/rules" },

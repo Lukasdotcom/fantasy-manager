@@ -28,7 +28,7 @@ async function startUp() {
   await Promise.all([
     // Used to store the users
     connection.query(
-      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, active bool DEFAULT 0, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '', admin bool DEFAULT false)"
+      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, active bool DEFAULT 0, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '', admin bool DEFAULT false, favoriteLeague int)"
     ),
     // Used to store the players data
     connection.query(
@@ -221,6 +221,7 @@ async function startUp() {
     if (oldVersion == "1.5.1") {
       console.log("Updating database to version 1.7.0");
       await connection.query("ALTER TABLE users ADD admin bool DEFAULT 0");
+      await connection.query("ALTER TABLE users ADD favoriteLeague int");
       await connection.query("UPDATE users SET admin=0");
       oldVersion = "1.7.0";
     }

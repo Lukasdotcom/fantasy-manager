@@ -1,11 +1,11 @@
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getSession, SessionProvider, useSession } from "next-auth/react";
 import { leagueList } from "./api/league";
 import Link from "../components/Link";
 import Menu from "../components/Menu";
 import { push } from "@socialgouv/matomo-next";
-import { TextField, Button } from "@mui/material";
+import { TextField, Button, IconButton, Icon } from "@mui/material";
 // Used to create a new League
 function MakeLeague({ getLeagueData, notify }) {
   const [leagueName, setLeagueName] = useState("");
@@ -90,7 +90,40 @@ function LeaveLeague({ leagueID, getLeagueData, notify }) {
 // Used to list all the leagues you are part of and to add a league
 function Leagues({ leagueData, notify }) {
   const { data: session } = useSession();
-  const [legueList, setLeagueList] = useState(leagueData);
+  const [leagueList, setLeagueList] = useState(leagueData);
+  const [favoriteLeague, setFavoriteLeague] = useState(undefined);
+  // Gets the favorite league
+  useEffect(() => {
+    // Only updates this when favorite league is undefined
+    if (favoriteLeague || !session) {
+      return;
+    }
+    const favoriteLeague = leagueList.filter(
+      (e) => e.leagueID === session.user.favoriteLeague
+    );
+    setFavoriteLeague(
+      favoriteLeague.length > 0 ? favoriteLeague[0] : undefined
+    );
+  }, [session, leagueList]);
+  // Used to update the favorite
+  async function updateFavorite(val) {
+    let leagueID = "none";
+    if (val) {
+      leagueID = val.leagueID;
+    }
+    notify("Updaing Favorite");
+    const response = await fetch("/api/user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        favorite: leagueID,
+      }),
+    });
+    notify(await response.text(), response.ok ? "success" : "error");
+    setFavoriteLeague(val);
+  }
   if (session) {
     // Used to get a list of all the leagues
     const getLeagueData = async () => {
@@ -100,7 +133,16 @@ function Leagues({ leagueData, notify }) {
     return (
       <>
         <h1>Leagues</h1>
-        {legueList.map((val) => (
+        <p>
+          Your favorited league will be available in the menu when you are not
+          in a league. Note that the menu only updates on a page navigation or
+          reload.
+        </p>
+        {favoriteLeague && (
+          <p>Your favorite league is: {favoriteLeague.leagueName}.</p>
+        )}
+        {!favoriteLeague && <p>You have no favorite league.</p>}
+        {leagueList.map((val) => (
           // Makes a link for every league
           <div key={val.leagueID}>
             <strong>{val.leagueName}</strong>
@@ -114,16 +156,34 @@ function Leagues({ leagueData, notify }) {
               getLeagueData={getLeagueData}
               notify={notify}
             />
+            <IconButton
+              style={{ margin: "5px" }}
+              color="secondary"
+              onClick={() => updateFavorite(val)}
+            >
+              <Icon>
+                {favoriteLeague && favoriteLeague.leagueID === val.leagueID
+                  ? "star"
+                  : "star_outline"}
+              </Icon>
+            </IconButton>
           </div>
         ))}
+        <Button
+          color="error"
+          variant="outlined"
+          onClick={() => updateFavorite(undefined)}
+        >
+          Clear Favorite League<Icon>delete</Icon>
+        </Button>
         <MakeLeague getLeagueData={getLeagueData} notify={notify} />
       </>
     );
   } else {
-    return <></>;
+    return <p>You shouldn&apos;t be here. Log in please.</p>;
   }
 }
-export default function Home({ session, leagueData, notify }) {
+export default function Home({ leagueData, notify }) {
   return (
     <>
       <Head>
