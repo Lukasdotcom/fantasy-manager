@@ -7,7 +7,6 @@ COPY components components
 COPY Modules Modules
 COPY pages pages
 COPY public public
-COPY screenshots screenshots
 COPY scripts scripts
 COPY styles styles
 COPY .eslintrc.json .eslintrc.json
