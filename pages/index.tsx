@@ -1,12 +1,13 @@
 import Head from "next/head";
 import Menu from "../components/Menu";
 import Image from "next/image";
-import MainImage from "../screenshots/main.webp";
-import Transfer1Image from "../screenshots/transfers1.webp";
-import Transfer2Image from "../screenshots/transfers2.webp";
-import StandingsImage from "../screenshots/standings.webp";
-import SquadImage from "../screenshots/squad.webp";
-import { Alert, AlertColor, AlertTitle, Pagination } from "@mui/material";
+import {
+  Alert,
+  AlertColor,
+  AlertTitle,
+  Pagination,
+  useTheme,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import version from "./../package.json" assert { type: "json" };
 import Link from "../components/Link";
@@ -26,66 +27,42 @@ interface Props {
 }
 // Turns the number into the correct screenshot
 function CurrentPicture({ picture }: CurrentPictureProps) {
-  switch (picture) {
-    case 1:
-      return (
-        <Image
-          alt="Screenshot of Main Page"
-          src={MainImage}
-          height={540}
-          width={960}
-        ></Image>
-      );
-    case 2:
-      return (
-        <Image
-          alt="Screenshot of Standings"
-          src={StandingsImage}
-          height={540}
-          width={960}
-        ></Image>
-      );
-    case 3:
-      return (
-        <Image
-          alt="Screenshot of Squad"
-          src={SquadImage}
-          height={540}
-          width={960}
-        ></Image>
-      );
-    case 4:
-      return (
-        <Image
-          alt="Screenshot of Transfers"
-          src={Transfer1Image}
-          height={540}
-          width={960}
-        ></Image>
-      );
-    case 5:
-      return (
-        <Image
-          alt="Screenshot of Transfers"
-          src={Transfer2Image}
-          height={540}
-          width={960}
-        ></Image>
-      );
-    default:
-      return (
-        <Image
-          alt="Screenshot of Main Page"
-          src={MainImage}
-          height={540}
-          width={960}
-        ></Image>
-      );
+  // Gets the name of the picture
+  function picturePicker(picture: number) {
+    switch (picture) {
+      case 1:
+        return "Main";
+      case 2:
+        return "Standings";
+      case 3:
+        return "Squad";
+      case 4:
+        return "Transfer";
+      case 5:
+        return "LeagueAdmin";
+      default:
+        return "Usermenu";
+    }
   }
+  const theme = useTheme();
+  const name = picturePicker(picture);
+  const actualSrc =
+    "/screenshots/" +
+    name +
+    (theme.palette.mode === "dark" ? "Dark" : "Light") +
+    ".webp";
+  return (
+    <Image
+      alt={"Screenshot of " + name + " page"}
+      src={actualSrc}
+      height={540}
+      width={960}
+    />
+  );
 }
 // Shows all the screenshots and allows the user to pick screenshots they would like to see
 function Carrousel() {
-  const pictures = 5;
+  const pictures = 6;
   const [picture, setPicture] = useState(1);
   useEffect(() => {
     const interval = setInterval(() => {
