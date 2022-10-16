@@ -145,7 +145,10 @@ InferGetStaticPropsType<typeof getStaticProps>) {
         </ol>
         <li>Download player data as json or csv</li>
         <li>See all historical user data(As long as the server was up).</li>
-        <li>And all of these features in a Modern Responsive UI available in a light and dark theme.</li>
+        <li>
+          And all of these features in a Modern Responsive UI available in a
+          light and dark theme.
+        </li>
       </ol>
       <h2>Community</h2>
       You can go to the{" "}

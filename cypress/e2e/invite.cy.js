@@ -173,28 +173,13 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Buy for").click();
     cy.contains(`Money left: ${user2Money}`);
     // Buys players until out of money
-    cy.contains("Thomas")
-      .parent()
-      .parent()
-      .parent()
-      .contains("Buy")
-      .click();
+    cy.contains("Thomas").parent().parent().parent().contains("Buy").click();
     user2Money -= 21;
     cy.contains("Buy for").click();
-    cy.contains("Nkunku")
-      .parent()
-      .parent()
-      .parent()
-      .contains("Buy")
-      .click();
+    cy.contains("Nkunku").parent().parent().parent().contains("Buy").click();
     user2Money -= 20.1;
     cy.contains("Buy for").click();
-    cy.contains("Haaland")
-      .parent()
-      .parent()
-      .parent()
-      .contains("Buy")
-      .click();
+    cy.contains("Haaland").parent().parent().parent().contains("Buy").click();
     user2Money -= 19.7;
     user2Money = Math.floor(user2Money * 10) / 10;
     cy.contains("Buy for").click();
