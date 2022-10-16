@@ -62,7 +62,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
     if (pictureUrl === undefined) {
       setPictureUrl(data.pictureUrl);
     }
-    // Checks if the game has started less than 115 minutes ago and that this is the squad view
+    // Checks if the game has started less than 120 minutes ago and that this is the squad view
     const gameRunning = countdown < 0 && countdown > -120;
     const border =
       gameRunning && condensed === "squad"
@@ -70,7 +70,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
             border: 5,
             borderColor: dark
               ? "rgba(255, 255, 255, 0.12)"
-              : "rgba(0, 0, 0, 0.12)",
+              : "rgba(0, 0, 0, 0.5)",
           }
         : {};
     return (
