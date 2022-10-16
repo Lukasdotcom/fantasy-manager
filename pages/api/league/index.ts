@@ -1,7 +1,11 @@
+import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import connect from "../../../Modules/database.mjs";
 
-export default async function handler(req, res) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const session = await getSession({ req });
   if (session) {
     const connection = await connect();
@@ -65,10 +69,14 @@ export default async function handler(req, res) {
     res.status(401).end("Not logged in");
   }
 }
+export interface LeagueListResult {
+  leagueName: string;
+  leagueID: number;
+}
 // A Promise that gets all of the leagues a user is in
-export async function leagueList(user) {
+export async function leagueList(user: number) {
   const connection = await connect();
-  const leagues = await connection.query(
+  const leagues: LeagueListResult[] = await connection.query(
     "SELECT leagueName, leagueID FROM leagueSettings WHERE EXISTS (SELECT * FROM leagueUsers WHERE user=? and leagueUsers.leagueID = leagueSettings.leagueID)",
     [user]
   );
