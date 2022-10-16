@@ -1,5 +1,5 @@
 import MuiLink from "@mui/material/Link";
-import Link from "next/link";
+import NextLink from "next/link";
 import { forwardRef } from "react";
 interface Props {
   // The attributes for styling
@@ -18,7 +18,7 @@ interface Props {
  * Used to create a link.
  * @param {string} href - The link to where this goes. The only required attribute.
  * @param {boolean} styled - If this element should be styled or inherit the color.
- * @param {boolean} disableNext - You can set this to true if you want to disable the nextjs link stuff(for downloads).
+ * @param {boolean} disableNext - You can set this to true if you want to disable the nextjs link stuff(for downloads). This is automatically done for external links
  */
 const Home = forwardRef<HTMLAnchorElement, Props>(function Home(props, ref) {
   const { href, styled = true, children, disableNext, ...other } = props;
@@ -38,11 +38,12 @@ const Home = forwardRef<HTMLAnchorElement, Props>(function Home(props, ref) {
     );
   } else {
     return (
-      <MuiLink ref={ref} {...other}>
-        <Link href={href}>{children}</Link>
-      </MuiLink>
+      <NextLink ref={ref} href={href}>
+        <MuiLink {...other} sx={{ cursor: "pointer" }}>
+          {children}
+        </MuiLink>
+      </NextLink>
     );
   }
 });
 export default Home;
-//
