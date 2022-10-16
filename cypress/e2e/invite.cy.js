@@ -63,14 +63,12 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .parent()
       .parent()
-      .parent()
       .contains("Buy")
       .click();
     cy.get("#amount").clear().type("26");
     user2Money -= 25.8;
     cy.contains("Buy for").click();
     cy.contains("Lewandowski")
-      .parent()
       .parent()
       .parent()
       .parent()
@@ -102,7 +100,6 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .parent()
       .parent()
-      .parent()
       .contains("Buy")
       .click();
     cy.get("#amount").clear().type("26");
@@ -111,7 +108,6 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains(`Money left: ${user1Money}M`);
     // Then actually outbids
     cy.contains("Lewandowski")
-      .parent()
       .parent()
       .parent()
       .parent()
@@ -127,7 +123,6 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .parent()
       .parent()
-      .parent()
       .contains("Edit Purchase")
       .click();
     cy.contains("Cancel Purchase").click();
@@ -136,7 +131,6 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains(`Money left: ${user1Money}M`);
     // Then buys the player again
     cy.contains("Lewandowski")
-      .parent()
       .parent()
       .parent()
       .parent()
@@ -173,7 +167,6 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .parent()
       .parent()
-      .parent()
       .contains("Buy")
       .click();
     user2Money -= 25.8;
@@ -181,7 +174,6 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains(`Money left: ${user2Money}`);
     // Buys players until out of money
     cy.contains("Thomas")
-      .parent()
       .parent()
       .parent()
       .parent()
@@ -193,13 +185,11 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .parent()
       .parent()
-      .parent()
       .contains("Buy")
       .click();
     user2Money -= 20.1;
     cy.contains("Buy for").click();
     cy.contains("Haaland")
-      .parent()
       .parent()
       .parent()
       .parent()
@@ -213,7 +203,6 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .parent()
       .parent()
-      .parent()
       .contains("View Transfers")
       .click();
     cy.contains("Buy for").should("not.exist");
@@ -222,17 +211,14 @@ describe("Invite User into league and change some league Settings and run throug
     // Moves the squad slightly
     cy.intercept("/api/player/87963521baf120631131").as("loadNkunku");
     cy.contains("Squad").click();
-    cy.wait("@loadNkunku").then(() =>
-      cy
-        .contains("Christopher Nkunku")
-        .parent()
-        .parent()
-        .parent()
-        .parent()
-        .children(".playerButton")
-        .children("button")
-        .click()
-    );
+    cy.contains("Squad for");
+    cy.contains("Christopher Nkunku")
+      .parent()
+      .parent()
+      .parent()
+      .children(".playerButton")
+      .children("button")
+      .click();
     cy.contains("Buying");
     // Starts the matchday
     cy.exec("export APP_ENV=test; node cypress/e2e/invite2.mjs").then(() => {
@@ -248,12 +234,10 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .parent()
       .parent()
-      .parent()
       .children(".playerButton")
       .children("button")
       .click();
     cy.contains("Erling Haaland")
-      .parent()
       .parent()
       .parent()
       .parent()
@@ -263,7 +247,6 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#formation").click();
     cy.contains("4-4-2").click();
     cy.contains("Christopher Nkunku")
-      .parent()
       .parent()
       .parent()
       .parent()
@@ -278,7 +261,6 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .parent()
       .parent()
-      .parent()
       .children(".playerButton")
       .children("button")
       .click();
@@ -286,7 +268,6 @@ describe("Invite User into league and change some league Settings and run throug
     cy.wait("@loadPlayer").then(() =>
       cy
         .contains("Erling Haaland")
-        .parent()
         .parent()
         .parent()
         .parent()
@@ -307,7 +288,6 @@ describe("Invite User into league and change some league Settings and run throug
     // Moves a player to the bench
     cy.contains("Squad").click();
     cy.contains("Christopher Nkunku")
-      .parent()
       .parent()
       .parent()
       .parent()
@@ -338,7 +318,6 @@ describe("Invite User into league and change some league Settings and run throug
           .parent()
           .parent()
           .parent()
-          .parent()
           .children(".playerButton")
           .children("button")
           .contains("Player has Already Played");
@@ -354,7 +333,6 @@ describe("Invite User into league and change some league Settings and run throug
         .parent()
         .parent()
         .parent()
-        .parent()
         .contains("Sell")
         .click()
     );
@@ -365,7 +343,6 @@ describe("Invite User into league and change some league Settings and run throug
     // Goes to the squad and moves Lewandowski to the bench and makes sure lewandowski is hidden when showSelling is disabled
     cy.contains("Squad for");
     cy.contains("Robert Lewandowski")
-      .parent()
       .parent()
       .parent()
       .parent()
@@ -398,7 +375,6 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .parent()
       .parent()
-      .parent()
       .children(".playerButton")
       .children("button")
       .contains("Move to Bench")
@@ -408,7 +384,6 @@ describe("Invite User into league and change some league Settings and run throug
     // Purchases Mueller and checks if Nkunku is purchasable
     cy.contains("Transfer").click();
     cy.contains("Christopher Nkunku")
-      .parent()
       .parent()
       .parent()
       .parent()
