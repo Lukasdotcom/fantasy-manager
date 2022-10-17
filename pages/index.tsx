@@ -210,7 +210,7 @@ export const getStaticProps: GetStaticProps = async () => {
     ) {
       counter += 1;
     }
-    console.log(releases[0].tag_name)
+    console.log(releases[0].tag_name);
     if (counter >= releases.length) {
       console.log("Failed to get version data from github api.");
       update = {
