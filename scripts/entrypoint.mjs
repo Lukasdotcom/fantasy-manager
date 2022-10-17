@@ -280,7 +280,7 @@ async function update() {
           "Content-Type": "application/json",
         },
         body: JSONbody,
-      });
+      }).catch(() => {});
     }
     // Sends the analytics data to the server
     fetch(`http://localhost:3000/api/analytics`, {
