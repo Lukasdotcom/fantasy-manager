@@ -18,12 +18,9 @@ interface InnerUpdateType {
   text: string;
   link?: string;
 }
-type UpdateType = InnerUpdateType | undefined;
+type UpdateType = InnerUpdateType | {};
 interface CurrentPictureProps {
   picture: number;
-}
-interface Props {
-  update: UpdateType;
 }
 // Turns the number into the correct screenshot
 function CurrentPicture({ picture }: CurrentPictureProps) {
@@ -162,7 +159,7 @@ InferGetStaticPropsType<typeof getStaticProps>) {
       to ask questions or find leagues to join.
       <h2>Screenshots</h2>
       <Carrousel />
-      {update !== "undefined" && (
+      {update.type && (
         <Alert severity={update.type} className="notification">
           <AlertTitle>{update.title}</AlertTitle>
           {update.link === undefined && update.text}
@@ -177,7 +174,7 @@ InferGetStaticPropsType<typeof getStaticProps>) {
   );
 }
 export const getStaticProps: GetStaticProps = async () => {
-  let update: UpdateType = undefined;
+  let update: UpdateType = {};
   // Checks if this is running in a non production setup
   if (process.env.APP_ENV === "development" || process.env.APP_ENV === "test") {
     update = {
@@ -213,6 +210,7 @@ export const getStaticProps: GetStaticProps = async () => {
     ) {
       counter += 1;
     }
+    console.log(releases[0].tag_name)
     if (counter >= releases.length) {
       console.log("Failed to get version data from github api.");
       update = {
