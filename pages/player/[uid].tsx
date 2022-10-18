@@ -240,6 +240,14 @@ export default function Home({ player, times, uid }: props) {
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const connection = await connect();
   const uid = ctx.params ? ctx.params.uid : "";
+  // This makes the program wait until all updates are completed
+  while (
+    await connection
+      .query("SELECT * FROM data WHERE value1='locked'")
+      .then((res) => res.length > 0)
+  ) {
+    await new Promise((res) => setTimeout(res, 500));
+  }
   const player = await connection.query("SELECT * FROM players WHERE uid=?", [
     uid,
   ]);
