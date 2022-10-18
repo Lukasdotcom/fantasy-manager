@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:19-alpine
 ENV NODE_ENV=development
 RUN mkdir /app
 WORKDIR /app

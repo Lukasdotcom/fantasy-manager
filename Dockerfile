@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:19-alpine
 # Used to build the project
 ENV NODE_ENV production
 RUN mkdir app
