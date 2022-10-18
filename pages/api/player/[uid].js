@@ -17,16 +17,13 @@ export default async function handler(req, res) {
       }
     } else {
       // This makes the program wait until all updates are completed
-      await new Promise(async (res) => {
-        while (
-          await connection
-            .query("SELECT * FROM data WHERE value1='locked'")
-            .then((res) => res.length > 0)
-        ) {
-          await new Promise((res) => setTimeout(res, 100));
-        }
-        res();
-      });
+      while (
+        await connection
+          .query("SELECT * FROM data WHERE value1='locked'")
+          .then((res) => res.length > 0)
+      ) {
+        await new Promise((res) => setTimeout(res, 500));
+      }
       result = await connection.query(
         `SELECT * FROM players WHERE uid=? LIMIT 1`,
         [req.query.uid]
