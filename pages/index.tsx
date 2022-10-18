@@ -162,9 +162,9 @@ InferGetStaticPropsType<typeof getStaticProps>) {
       {update.type && (
         <Alert severity={update.type} className="notification">
           <AlertTitle>{update.title}</AlertTitle>
-          {update.link === undefined && update.text}
-          {update.link !== undefined && (
-            <Link href={update.link} rel="noreferrer" target="_blank">
+          {update.link === undefined && <p>{update.text}</p>}
+          {update.link && (
+            <Link href={update.link} rel="noreferrer">
               {update.text}
             </Link>
           )}
