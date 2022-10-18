@@ -13,6 +13,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  useTheme,
 } from "@mui/material";
 interface props {
   uid: string;
@@ -96,6 +97,7 @@ export default function Home({ player, times, uid }: props) {
   );
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  // Sets the starting value to crazy high time and sets it to the starting amount
   const [rows, setRows] = useState<Record<string, Data>>({
     "9999999999999999": {
       time: 0,
@@ -146,6 +148,8 @@ export default function Home({ player, times, uid }: props) {
       clearInterval(id);
     };
   }, []);
+  const theme = useTheme();
+  const dark = theme.palette.mode === "dark";
   return (
     <>
       <Head>
@@ -192,7 +196,13 @@ export default function Home({ player, times, uid }: props) {
                   return (
                     <TableRow
                       style={
-                        row.exists == 0 ? { background: "rgb(91, 30, 50)" } : {}
+                        row.exists == 0
+                          ? {
+                              background: dark
+                                ? "rgb(50, 0, 50)"
+                                : "rgb(255, 235, 255)",
+                            }
+                          : {}
                       }
                       hover
                       role="checkbox"
