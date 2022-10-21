@@ -2,7 +2,7 @@ import Menu from "../components/Menu";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head.js";
 import { getSession } from "next-auth/react";
-import connect from "../Modules/database.mjs";
+import connect from "../Modules/database";
 import React, { useState } from "react";
 import {
   Chart as ChartJS,

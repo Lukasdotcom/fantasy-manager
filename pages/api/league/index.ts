@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-import connect from "../../../Modules/database.mjs";
+import connect from "../../../Modules/database";
 
 export default async function handler(
   req: NextApiRequest,

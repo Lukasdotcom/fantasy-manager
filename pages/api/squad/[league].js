@@ -1,6 +1,6 @@
 import { getSession } from "next-auth/react";
-import connect from "../../../Modules/database.mjs";
-import { calcPoints } from "../../../scripts/calcPoints.mjs";
+import connect from "../../../Modules/database";
+import { calcPoints } from "../../../scripts/calcPoints";
 // An array of valid formations
 const validFormations = [
   [1, 3, 5, 2],

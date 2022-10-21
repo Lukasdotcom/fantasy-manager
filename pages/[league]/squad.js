@@ -4,7 +4,7 @@ import Head from "next/head";
 import { SquadPlayer as Player } from "../../components/Player";
 import { useContext, useState } from "react";
 import { push } from "@socialgouv/matomo-next";
-import connect from "../../Modules/database.mjs";
+import connect from "../../Modules/database";
 import {
   FormControlLabel,
   InputLabel,

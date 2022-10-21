@@ -1,4 +1,4 @@
-import connect from "../../../Modules/database.mjs";
+import connect from "../../../Modules/database";
 import { checkUpdate } from "../../../scripts/checkUpdate";
 // Used to return a dictionary on the data for a player
 export default async function handler(req, res) {

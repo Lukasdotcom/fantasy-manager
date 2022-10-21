@@ -9,7 +9,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import version from "./../package.json" assert { type: "json" };
+import version from "./../package.json";
 import Link from "../components/Link";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 interface InnerUpdateType {

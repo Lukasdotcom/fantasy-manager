@@ -1,10 +1,10 @@
-import connect from "../Modules/database.mjs";
-import { updateData } from "./update.mjs";
-import { checkUpdate } from "./checkUpdate.mjs";
-import version from "./../package.json" assert { type: "json" };
+import connect, { data } from "../Modules/database";
+import { updateData } from "./update";
+import { checkUpdate } from "./checkUpdate";
+import version from "./../package.json";
 import dotenv from "dotenv";
 import { unlink } from "fs";
-import noAccents from "../Modules/normalize.mjs";
+import noAccents from "../Modules/normalize";
 if (process.env.APP_ENV !== "test") {
   dotenv.config({ path: ".env.local" });
 } else {
@@ -18,8 +18,13 @@ let day = date.getDay();
 
 async function startUp() {
   if (process.env.APP_ENV === "test") {
-    await new Promise((res) => {
-      unlink(process.env.SQLITE, function () {
+    await new Promise<void>((res) => {
+      // Makes sure that the sqlite file is defined
+      if (process.env.SQLITE === undefined) {
+        res();
+        return;
+      }
+      unlink(process.env.SQLITE, () => {
         res();
       });
     });
@@ -91,11 +96,12 @@ async function startUp() {
   // Unlocks the database
   connection.query("DELETE FROM data WHERE value1='locked'");
   // Checks the version of the database is out of date
-  let oldVersion = await connection.query(
+  let getOldVersion: data[] = await connection.query(
     "SELECT value2 FROM data WHERE value1='version'"
   );
-  if (oldVersion.length > 0) {
-    oldVersion = oldVersion[0].value2;
+  let oldVersion = "";
+  if (getOldVersion.length > 0) {
+    oldVersion = getOldVersion[0].value2;
     if (oldVersion == "0.1.1") {
       console.log(
         "This version does not have a supported upgrade path to 1.*.*. Due to only me using this program in these versions."
@@ -232,9 +238,9 @@ async function startUp() {
     }
   }
   // Makes sure that the admin user is the correct user
-  const adminUser = parseInt(process.env.ADMIN);
   await connection.query("UPDATE users SET admin=0");
-  if (adminUser > 0) {
+  if (process.env.ADMIN !== undefined) {
+    const adminUser = parseInt(process.env.ADMIN);
     console.log(`User ${adminUser} is the admin user`);
     connection.query("UPDATE users SET admin=1 WHERE id=?", [adminUser]);
   } else {
@@ -311,10 +317,9 @@ async function update() {
   const countdown = await connection3.query(
     "SELECT value2 FROM data WHERE value1='countdown'"
   );
-  const transferOpen =
-    (await connection3.query(
-      "SELECT value2 FROM data WHERE value1='transferOpen'"
-    )) === "true";
+  const transferOpen = await connection3
+    .query("SELECT value2 FROM data WHERE value1='transferOpen'")
+    .then((res: data[]) => (res.length > 0 ? res[0].value2 === "true" : false));
   if (countdown.length > 0) {
     const time = countdown[0].value2;
     // Updates the countdown
@@ -360,7 +365,10 @@ async function update() {
   // Updates the latest update check value
   connection3.query(
     "INSERT INTO data (value1, value2) VALUES('lastUpdateCheck', ?) ON DUPLICATE KEY UPDATE value2=?",
-    [String(parseInt(Date.now() / 1000)), String(parseInt(Date.now() / 1000))]
+    [
+      String(Math.floor(Date.now() / 1000)),
+      String(Math.floor(Date.now() / 1000)),
+    ]
   );
   connection3.end();
 }

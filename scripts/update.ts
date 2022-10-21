@@ -1,11 +1,11 @@
-import connect from "../Modules/database.mjs";
-import noAccents from "../Modules/normalize.mjs";
-import { calcPoints } from "./calcPoints.mjs";
+import connect from "../Modules/database";
+import noAccents from "../Modules/normalize";
+import { calcPoints } from "./calcPoints";
 // Used to update all the data
 export async function updateData(file = "../sample/data1.json") {
   const connection = await connect();
   // Waits until the database is unlocked to prevent to scripts from updating at once
-  await new Promise(async (res) => {
+  await new Promise<void>(async (res) => {
     while (
       await connection
         .query("SELECT * FROM data WHERE value1='locked'")
@@ -19,7 +19,7 @@ export async function updateData(file = "../sample/data1.json") {
   connection.query(
     "INSERT IGNORE INTO data (value1, value2) VALUES ('locked', 'locked')"
   );
-  const nowTime = parseInt(Date.now() / 1000);
+  const nowTime = Math.floor(Date.now() / 1000);
   connection.query(
     "INSERT INTO data (value1, value2) VALUES('playerUpdate', ?) ON DUPLICATE KEY UPDATE value2=?",
     [nowTime, nowTime]
@@ -46,7 +46,6 @@ export async function updateData(file = "../sample/data1.json") {
             }),
           }
         )
-          .catch((e) => "FAILURE")
           .then(async (val) => {
             if (val.ok) {
               return await val.json();
@@ -55,7 +54,7 @@ export async function updateData(file = "../sample/data1.json") {
             }
           })
           .catch(() => "FAILURE")
-      : (await import(file, { assert: { type: "json" } })).default;
+      : (await import(file)).default;
   // Checks if there was a failure somewhere
   if (data === "FAILURE") {
     console.error(
@@ -93,9 +92,41 @@ export async function updateData(file = "../sample/data1.json") {
   );
   // Checks if the transfer market is closing
   if (newTransfer && !oldTransfer) await endMatchday();
+  // Note that this is not complete.
+  interface playerData {
+    transfer_value: number;
+    player: {
+      uid: string;
+      transfer_value: number;
+      statistics: {
+        total_points: number;
+        average_points: number;
+        best_value_rank: number;
+        form: number;
+        popularity: number;
+        last_match_points: number;
+      };
+      image_urls: {
+        default: string;
+      };
+      nickname: string;
+      positions: string[];
+      is_locked: boolean;
+      match_starts_in: number;
+      team: {
+        team_code: string;
+      };
+      next_opponent: {
+        team_code: string;
+      };
+    };
+    attendance: {
+      forecast: "attending" | "unknown" | "missing";
+    };
+  }
   // Goes through all of the players and adds their data to the database
-  const players = data.offerings.items.sort(
-    (a, b) =>
+  const players: playerData[] = data.offerings.items.sort(
+    (a: playerData, b: playerData) =>
       parseInt(a.player.team.team_code, 36) -
       parseInt(b.player.team.team_code, 36)
   );
@@ -103,7 +134,7 @@ export async function updateData(file = "../sample/data1.json") {
   let index = 0;
   let club = "";
   let clubDone = false;
-  const currentTime = parseInt(Date.now() / 1000);
+  const currentTime = Math.floor(Date.now() / 1000);
   while (index < players.length) {
     let val = players[index];
     index++;
@@ -346,7 +377,7 @@ async function endMatchday() {
   // Calculates all the points
   await calcPoints();
   const connection = await connect();
-  const time = parseInt(Date.now() / 1000);
+  const time = Math.floor(Date.now() / 1000);
   // Makes sure all the points have the right time set for them
   connection.query("UPDATE points SET time=? WHERE time IS NULL", [time]);
   // Copies all the player data to the historical player data

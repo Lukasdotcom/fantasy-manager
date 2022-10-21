@@ -1,5 +1,5 @@
 import { getSession } from "next-auth/react";
-import connect from "../../../Modules/database.mjs";
+import connect from "../../../Modules/database";
 
 // Used to change a users username
 export default async function handler(req, res) {

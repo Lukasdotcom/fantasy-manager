@@ -1,5 +1,5 @@
 import { getSession } from "next-auth/react";
-import connect from "../../../Modules/database.mjs";
+import connect from "../../../Modules/database";
 // Used to return a list of UIDs of players that are searched for
 export default async function handler(req, res) {
   if (req.method == "GET") {

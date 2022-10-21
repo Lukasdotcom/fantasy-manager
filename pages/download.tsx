@@ -12,7 +12,7 @@ import Head from "next/head";
 import Link from "../components/Link";
 import { useState } from "react";
 import Menu from "../components/Menu";
-import connect from "../Modules/database.mjs";
+import connect from "../Modules/database";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 
 type fileTypes = "json" | "csv";

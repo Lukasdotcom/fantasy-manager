@@ -1,19 +1,26 @@
-import connect from "../Modules/database.mjs";
+import connect from "../Modules/database";
 
 export async function checkUpdate() {
   const connection = await connect();
   // Checks if matchdays are currently happening and if it is a matchday checks if the update time has passed
+  interface dbResult {
+    value1: string;
+    value2: string;
+  }
   // If it is not a matchday it is checked if the update time for that has passed
-  const result = await connection.query(
+  const result: dbResult[] = await connection.query(
     "SELECT value2 FROM data WHERE value1='transferOpen' or value1='playerUpdate' ORDER BY value1 DESC"
   );
+  if (result.length < 2) {
+    return;
+  }
   if (
     parseInt(result[1].value2) <
-    parseInt(Date.now() / 1000) -
+    Date.now() / 1000 -
       parseInt(
         result[0].value2 === "true"
-          ? process.env.MIN_UPDATE_TIME_TRANSFER
-          : process.env.MIN_UPDATE_TIME
+          ? String(process.env.MIN_UPDATE_TIME_TRANSFER)
+          : String(process.env.MIN_UPDATE_TIME)
       )
   ) {
     connection.query(

@@ -3,24 +3,26 @@
   "version": "1.7.0",
   "private": true,
   "scripts": {
-    "dev": "export NODE_ENV=development APP_ENV=development; npm install; node scripts/entrypoint.mjs & next dev",
-    "build": "npm ci; next build",
+    "dev": "export NODE_ENV=development APP_ENV=development; npm install; npm run build:ts; node scripts/entrypoint.js & next dev",
+    "build": "npm ci; npm run build:ts; next build;",
     "start": "export NODE_ENV=production APP_ENV=production; npm run start2",
     "start:test": "export NODE_ENV=test APP_ENV=test; npm run start2",
-    "start2": "node scripts/entrypoint.mjs & next build; next start",
+    "start2": "npm run build:ts; node scripts/entrypoint.js & next build; next start",
     "lint": "eslint . --max-warnings 0",
     "pretty": "prettier --check .",
     "format": "prettier --write .",
     "cypress:open": "cypress open",
     "cypress": "wait-on http://127.0.0.1:3000; cypress run",
-    "start:no-build": "node scripts/entrypoint.mjs & next start"
+    "build:ts": "tsc -p tsconfig2.json;",
+    "start:no-build": "node scripts/entrypoint.js & next start"
   },
   "dependencies": {
     "@emotion/react": "11.10.4",
     "@emotion/styled": "11.10.4",
     "@mui/material": "5.10.10",
     "@socialgouv/matomo-next": "1.4.0",
-    "@types/node": "18.7.18",
+    "@types/mysql": "2.15.21",
+    "@types/node": "18.11.3",
     "@types/react": "18.0.21",
     "bcryptjs": "2.4.3",
     "chart.js": "3.9.1",
@@ -37,6 +39,9 @@
     "sqlite": "4.1.2",
     "sqlite3": "5.1.2",
     "typescript": "4.8.4"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "devDependencies": {
     "cypress": "10.10.0",

@@ -1,6 +1,6 @@
 // This is very similar to https://github.com/tyxla/remove-accents/blob/master/index.js but with less characters to improve performance
 // List of characters to change
-const characterMap = {
+const characterMap: Record<string, string> = {
   á: "a",
   ą: "a",
   ä: "a",
@@ -31,12 +31,12 @@ const characterMap = {
   ý: "y",
   ž: "z",
 };
-function matcher(match) {
+function matcher(match: string): string {
   return characterMap[match];
 }
 // This function will remove accents and other non ascii symbols
-export default function noAccents(word) {
+export default function noAccents(word: string) {
   const chars = Object.keys(characterMap).join("|");
   const allAccents = new RegExp(chars, "g");
-  return word.replaceAll(allAccents, matcher);
+  return word.replaceAll(allAccents, (e) => matcher(e));
 }
