@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { TransferPlayer as Player } from "../../components/Player";
 import { push } from "@socialgouv/matomo-next";
 import { SessionProvider, useSession } from "next-auth/react";
-import connect from "../../Modules/database.mjs";
+import connect from "../../Modules/database";
 import Link from "../../components/Link";
 import {
   Button,

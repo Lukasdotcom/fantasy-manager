@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from "react";
 import { stringToColor, UserChip } from "../../components/Username";
 import { push } from "@socialgouv/matomo-next";
 import { getSession } from "next-auth/react";
-import connect from "../../Modules/database.mjs";
+import connect from "../../Modules/database";
 import Link from "../../components/Link";
 import {
   Table,

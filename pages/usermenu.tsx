@@ -11,7 +11,7 @@ import {
 import { Session } from "next-auth";
 import { NotifyContext, NotifyType } from "../Modules/context";
 import { Providers } from "../types/providers";
-import connect from "../Modules/database.mjs";
+import connect from "../Modules/database";
 import { useRouter } from "next/router";
 interface ProviderProps {
   provider: Providers;

@@ -1,4 +1,4 @@
-import connect from "../../../Modules/database.mjs";
+import connect from "../../../Modules/database";
 import redirect from "../../../Modules/league";
 import HistoricalView from "./index.js";
 export default function Home(props) {

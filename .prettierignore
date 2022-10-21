@@ -1,3 +1,6 @@
 .next
 .cache
 node_modules
+# Ignores compiled js files
+scripts/*.js
+Modules/*.js

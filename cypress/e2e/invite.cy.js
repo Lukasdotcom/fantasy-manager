@@ -1,6 +1,6 @@
 describe("Invite User into league and change some league Settings and run through a matchday.", () => {
   before(() => {
-    cy.exec("export APP_ENV=test; node cypress/e2e/invite1.mjs");
+    cy.exec("export APP_ENV=test; node cypress/e2e/invite1.js");
   });
   // Used to signup change username and password and login again
   it("invite", () => {
@@ -206,7 +206,7 @@ describe("Invite User into league and change some league Settings and run throug
       .click();
     cy.contains("Buying");
     // Starts the matchday
-    cy.exec("export APP_ENV=test; node cypress/e2e/invite2.mjs").then(() => {
+    cy.exec("export APP_ENV=test; node cypress/e2e/invite2.js").then(() => {
       cy.contains("Transfers").click();
     });
     cy.contains("Transfer Market Closed");
@@ -262,7 +262,7 @@ describe("Invite User into league and change some league Settings and run throug
     );
     cy.contains("Erling Haaland").parent().parent().parent().contains("0");
     // Sims matchday until all players have played
-    cy.exec("export APP_ENV=test; node cypress/e2e/invite3.mjs");
+    cy.exec("export APP_ENV=test; node cypress/e2e/invite3.js");
     // Checks that the user points are correct
     cy.contains("Standings").click();
     cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("44");
@@ -309,7 +309,7 @@ describe("Invite User into league and change some league Settings and run throug
       });
     matchdays.push({ invite1: user1Money, invite2: user2Money });
     // Starts the transfer period and sells Muller
-    cy.exec("export APP_ENV=test; node cypress/e2e/invite4.mjs");
+    cy.exec("export APP_ENV=test; node cypress/e2e/invite4.js");
     cy.intercept("/api/player/ef5112a9f971a1e40966").as("loadRobert");
     cy.contains("Transfer").click();
     cy.wait("@loadRobert").then(() =>
@@ -408,7 +408,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("19.7 M");
     matchdays.push({ invite1: user1Money, invite2: user2Money });
     // Simulates an empty matchday
-    cy.exec("export APP_ENV=test; node cypress/e2e/invite5.mjs");
+    cy.exec("export APP_ENV=test; node cypress/e2e/invite5.js");
     // Adds a third user that joins late
     cy.get("#logout").click();
     cy.get("#input-username-for-Sign\\ Up-provider").type("Invite 3");

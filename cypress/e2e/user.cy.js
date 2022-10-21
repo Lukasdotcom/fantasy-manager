@@ -1,6 +1,6 @@
 describe("User", () => {
   before(() => {
-    cy.exec("export APP_ENV=test; node cypress/e2e/user.mjs");
+    cy.exec("export APP_ENV=test; node cypress/e2e/user.js");
   });
   // Used to signup change username and password and login again
   it("signup", () => {

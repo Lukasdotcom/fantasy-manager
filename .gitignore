@@ -41,3 +41,8 @@ docker-compose.yaml
 public/*.js
 !.env.test.local
 !docker/mariadb/docker-compose.yaml
+
+# Ignores compiled js files
+scripts/*.js
+Modules/*.js
+tsconfig2.tsbuildinfo

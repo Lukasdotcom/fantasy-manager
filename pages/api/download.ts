@@ -1,4 +1,4 @@
-import connect from "../../Modules/database.mjs";
+import connect from "../../Modules/database";
 import { stringify } from "csv-stringify/sync";
 import { NextApiRequest, NextApiResponse } from "next";
 interface players {

@@ -1,6 +1,6 @@
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { getSession } from "next-auth/react";
-import connect from "./database.mjs";
+import connect, { leagueSettings } from "./database";
 // Used to get information about the redirect for the league runs on every league page
 export default async function redirect(
   ctx: GetServerSidePropsContext,
@@ -11,7 +11,7 @@ export default async function redirect(
   const connection = await connect();
   if (session) {
     // Checks if the user is in the league or not
-    const leagueInfo = await connection.query(
+    const leagueInfo: leagueSettings[] = await connection.query(
       "SELECT * FROM leagueSettings WHERE leagueID=? and EXISTS (SELECT * FROM leagueUsers WHERE user=? and leagueUsers.leagueID = leagueSettings.leagueID)",
       [league, session.user.id]
     );

@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Menu from "../../../components/Menu";
-import connect from "../../../Modules/database.mjs";
+import connect from "../../../Modules/database";
 import redirect from "../../../Modules/league";
 import { Player, HistoricalPlayer } from "../../../components/Player";
 import { useRouter } from "next/router";

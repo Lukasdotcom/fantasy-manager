@@ -1,7 +1,7 @@
 import Menu from "../../components/Menu";
 import { GetServerSideProps } from "next";
 import Head from "next/head.js";
-import connect from "../../Modules/database.mjs";
+import connect from "../../Modules/database";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
