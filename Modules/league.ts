@@ -1,11 +1,11 @@
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
+import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { getSession } from "next-auth/react";
 import connect, { leagueSettings } from "./database";
 // Used to get information about the redirect for the league runs on every league page
-export default async function redirect(
+const redirect = async (
   ctx: GetServerSidePropsContext,
-  data: GetServerSideProps
-) {
+  data: { [key: string]: any }
+): Promise<GetServerSidePropsResult<{ [key: string]: any }>> => {
   const league = parseInt(String(ctx.params?.league));
   const session = await getSession(ctx);
   const connection = await connect();
@@ -51,4 +51,5 @@ export default async function redirect(
       };
     }
   }
-}
+};
+export default redirect;
