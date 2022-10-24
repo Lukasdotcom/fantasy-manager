@@ -23,7 +23,7 @@
     "@socialgouv/matomo-next": "1.4.0",
     "@types/mysql": "2.15.21",
     "@types/node": "18.11.3",
-    "@types/react": "18.0.21",
+    "@types/react": "18.0.22",
     "bcryptjs": "2.4.3",
     "chart.js": "3.9.1",
     "csv-stringify": "6.2.0",
