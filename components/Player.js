@@ -1,5 +1,6 @@
 import playerStyles from "../styles/Player.module.css";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { NotifyContext } from "../Modules/context";
 import Image from "next/image";
 import { push } from "@socialgouv/matomo-next";
 import { useSession } from "next-auth/react";
@@ -10,6 +11,7 @@ import {
   Button,
   CircularProgress,
   InputAdornment,
+  Paper,
   Table,
   TableBody,
   TableCell,
@@ -20,6 +22,7 @@ import {
 } from "@mui/material";
 import Dialog from "./Dialog";
 import { UserChip } from "./Username";
+import { useTheme } from "@emotion/react";
 // Used to create the layout for a player card that shows some simple details on a player just requires the data of the player to be passed into it and you can pass a custom button as a child of the component
 // extraText is shown in parenthesis next to the player name
 // condensed is which type of condensed view should be shown (transfer, squad, or historical)
@@ -28,7 +31,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
   const [pictureUrl, setPictureUrl] = useState(undefined);
   useEffect(() => {
     const id = setInterval(
-      () => setCountown((countdown) => (countdown > 0 ? countdown - 1 : 0)),
+      () => setCountown((countdown) => countdown - 1),
       60000
     );
     return () => {
@@ -41,43 +44,59 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
       data.game ? parseInt((data.game.gameStart - Date.now() / 1000) / 60) : 0
     );
   }, [data]);
-  let background = "black";
+  const theme = useTheme();
+  const dark = theme.palette.mode === "dark";
+  let background;
   if (Object.keys(data).length > 0) {
     // Changes the background to the correct color if the player is missing or not known if they are coming
     if (data.forecast == "u") {
-      background = "rgb(50, 50, 0)";
+      background = dark ? "rgb(50, 50, 0)" : "rgb(255, 255, 220)";
     } else if (data.forecast == "m") {
-      background = "rgb(50, 0, 0)";
+      background = dark ? "rgb(50, 0, 0)" : "rgb(255, 200, 200)";
     }
     // Checks if the player exists
     if (data.exists === 0) {
-      background = "rgb(91, 30, 50)";
+      background = dark ? "rgb(50, 0, 50)" : "rgb(255, 235, 255)";
     }
     // Checks if the player has a picture url set
     if (pictureUrl === undefined) {
       setPictureUrl(data.pictureUrl);
     }
+    // Checks if the game has started less than 120 minutes ago and that this is the squad view
+    const gameRunning = countdown < 0 && countdown > -120;
+    const border =
+      gameRunning && condensed === "squad"
+        ? {
+            border: 5,
+            borderColor: dark
+              ? "rgba(255, 255, 255, 0.12)"
+              : "rgba(0, 0, 0, 0.5)",
+          }
+        : {};
     return (
-      <div
+      <Paper
+        elevation={1}
         className={playerStyles.container}
-        style={{ background, height: "120px" }}
+        sx={{
+          background,
+          height: "120px",
+          ...border,
+        }}
       >
         <div style={{ width: "min(10%, 80px)", textAlign: "center" }}>
           <p>{data.club}</p>
           <p>{data.position}</p>
         </div>
-        <Link styled={false} href={`/player/${data.uid}`}>
-          <Image
-            alt=""
-            onError={() => {
-              // If the picture does not exist a fallback picture is used
-              setPictureUrl(fallbackImg);
-            }}
-            src={pictureUrl}
-            width="100px"
-            height="100px"
-          />
-        </Link>
+        <Image
+          alt=""
+          onError={() => {
+            // If the picture does not exist a fallback picture is used
+            setPictureUrl(fallbackImg);
+          }}
+          src={pictureUrl}
+          width="100px"
+          height="100px"
+        />
         <div style={{ width: "70%" }}>
           <p>
             <Link styled={false} href={`/player/${data.uid}`}>
@@ -123,7 +142,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
                 <p>Next</p>
                 <p>
                   {data.game.opponent}
-                  {countdown > 0
+                  {countdown >= 0
                     ? ` in ${Math.floor(countdown / 60 / 24)} D ${
                         Math.floor(countdown / 60) % 24
                       } H ${Math.floor(countdown) % 60} M`
@@ -183,7 +202,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
         >
           {children}
         </div>
-      </div>
+      </Paper>
     );
   } else {
     return (
@@ -203,9 +222,9 @@ export function TransferPlayer({
   transferLeft,
   open,
   duplicatePlayers,
-  notify,
   allOwnership,
 }) {
+  const notify = useContext(NotifyContext);
   const session = useSession();
   const user = session.data ? session.data.user.id : -1;
   const [data, setData] = useState({});
@@ -269,6 +288,26 @@ export function TransferPlayer({
       </Button>
     </>
   );
+  const SellText = (
+    <>
+      <TextField
+        id="amount"
+        variant="outlined"
+        size="small"
+        label="Min Sale Amount"
+        type="number"
+        endadornment={<InputAdornment position="end">M</InputAdornment>}
+        onChange={(val) => {
+          // Used to change the invite link
+          setAmount(val.target.value);
+        }}
+        value={amount}
+      />
+      <Button color="error" onClick={() => buySell(amount * -1)}>
+        Sell for min of {amount}
+      </Button>
+    </>
+  );
   // This will contain the input for everything you can do
   let Actions = <></>;
   // Checks if the ownership info exists
@@ -299,6 +338,7 @@ export function TransferPlayer({
       ButtonColor = "error";
       Actions = (
         <>
+          {SellText}
           <Button
             color="secondary"
             onClick={() => {
@@ -316,18 +356,7 @@ export function TransferPlayer({
     } else if (ownership.filter((e) => e.owner === user).length > 0) {
       ButtonText = "Sell";
       ButtonColor = "error";
-      Actions = (
-        <>
-          <Button
-            color="error"
-            onClick={() => {
-              buySell(data.value * -1);
-            }}
-          >
-            Sell
-          </Button>
-        </>
-      );
+      Actions = <>{SellText}</>;
       // Checks if the player is still purchasable
     } else if (
       duplicatePlayers <= ownership.filter((e) => !e.transfer).length
@@ -410,11 +439,23 @@ export function TransferPlayer({
         {ownership &&
           ownership
             .filter((e) => !e.transfer)
-            .map((e) => <UserChip key={e.owner} userid={e.owner} />)}
+            .map((e) => (
+              <UserChip
+                sx={{ margin: "10px" }}
+                key={e.owner}
+                userid={e.owner}
+              />
+            ))}
         {ownership &&
           ownership
             .filter((e) => e.seller != 0 && e.transfer)
-            .map((e) => <UserChip key={e.seller} userid={e.seller} />)}
+            .map((e) => (
+              <UserChip
+                sx={{ margin: "10px" }}
+                key={e.seller}
+                userid={e.seller}
+              />
+            ))}
         {Actions}
       </Dialog>
       <Button
@@ -434,15 +475,8 @@ export function TransferPlayer({
   );
 }
 // Used for the squad. Field should be undefined unless they are on the bench and then it shoud give what positions are still open
-export function SquadPlayer({
-  uid,
-  update,
-  field,
-  league,
-  starred,
-  notify,
-  status,
-}) {
+export function SquadPlayer({ uid, update, field, league, starred, status }) {
+  const notify = useContext(NotifyContext);
   const [data, setData] = useState({});
   // Used to get the data for the player
   useEffect(() => {

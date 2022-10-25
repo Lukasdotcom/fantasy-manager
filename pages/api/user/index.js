@@ -1,12 +1,12 @@
 import { getSession } from "next-auth/react";
-import connect from "../../../Modules/database.mjs";
+import connect from "../../../Modules/database";
 
 // Used to change a users username
 export default async function handler(req, res) {
+  const session = await getSession({ req });
+  const id = session.user.id;
   switch (req.method) {
     case "POST":
-      const session = await getSession({ req });
-      const id = session.user.id;
       if (!session) {
         res.status(401).end("Not logged in");
       } else if (req.body.password !== undefined) {
@@ -51,6 +51,22 @@ export default async function handler(req, res) {
           res.status(200).end(`Connected to ${req.body.provider}`);
         }
         connection.end();
+        // Used to update the league favorite
+      } else if (req.body.favorite) {
+        const connection = await connect();
+        // Checks if a possible favorite is given otherwise favorites are cleared
+        if (parseInt(req.body.favorite) > 0) {
+          connection.query("UPDATE users SET favoriteLeague=? WHERE id=?", [
+            parseInt(req.body.favorite),
+            id,
+          ]);
+        } else {
+          connection.query("UPDATE users SET favoriteLeague=null WHERE id=?", [
+            id,
+          ]);
+        }
+        connection.end();
+        res.status(200).end("Updated favorite");
       } else if (req.body.username === undefined) {
         // Used to connect and disconnect from OAuth providers
         res.status(500).end("No username given");
@@ -63,6 +79,29 @@ export default async function handler(req, res) {
         res.status(200).end("Changed username");
         console.log(`User ${id} changed username to ${req.body.username}`);
         connection.end();
+      }
+      break;
+    // Used to delete the user
+    case "DELETE":
+      if (!session) {
+        res.status(401).end("Not logged in");
+        // Makes sure the user passed the correct id
+      } else if (req.body.user === id) {
+        const connection = await connect();
+        // Checks if the user is in any leagues
+        const anyLeagues = await connection
+          .query("SELECT * FROM leagueUsers WHERE user=? LIMIT 1", [id])
+          .then((e) => e.length > 0);
+        if (anyLeagues) {
+          res.status(401).end("You can not be in any leagues");
+        } else {
+          console.log(`User ${id} was deleted`);
+          await connection.query("DELETE FROM users WHERE id=?", [id]);
+          res.status(200).end("Deleted user succesfully");
+        }
+        connection.end();
+      } else {
+        res.status(400).end("Please pass the user id under user.");
       }
       break;
     default:

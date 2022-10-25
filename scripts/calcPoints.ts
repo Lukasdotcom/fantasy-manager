@@ -1,4 +1,4 @@
-import connect from "../Modules/database.mjs";
+import connect, { leagueSettings, points } from "../Modules/database";
 
 // Used to calculate the points for every user
 export async function calcPoints() {
@@ -29,9 +29,9 @@ export async function calcPoints() {
           "SELECT points FROM points WHERE leagueID=? and user=? ORDER BY matchday DESC LIMIT 1",
           [e.leagueID, e.user]
         )
-        .then((result) => result[0].points),
+        .then((result: points[]) => result[0].points),
       // Calculates the amont of points the user should have for the matchday
-      new Promise(async (res) => {
+      new Promise<number>(async (res) => {
         res(
           // Calculates points for non starred players
           (await connection
@@ -39,7 +39,7 @@ export async function calcPoints() {
               "SELECT SUM(last_match) FROM players WHERE EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND position!='bench' AND leagueID=? AND user=? AND starred=0)",
               [e.leagueID, e.user]
             )
-            .then((result) => {
+            .then((result: number[]) => {
               const value = Object.values(result[0])[0];
               return value ? value : 0;
             })) +
@@ -50,7 +50,7 @@ export async function calcPoints() {
                   "SELECT SUM(last_match) FROM players WHERE EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND position!='bench' AND leagueID=? AND user=? AND starred=1)",
                   [e.leagueID, e.user]
                 )
-                .then((result) => {
+                .then((result: number[]) => {
                   const value = Object.values(result[0])[0];
                   return value ? value : 0;
                 })) *
@@ -59,7 +59,7 @@ export async function calcPoints() {
                     "SELECT starredPercentage FROM leagueSettings WHERE leagueID=?",
                     [e.leagueID]
                   )
-                  .then((res) =>
+                  .then((res: leagueSettings[]) =>
                     res.length > 0 ? res[0].starredPercentage / 100 : 1.5
                   ))
             )

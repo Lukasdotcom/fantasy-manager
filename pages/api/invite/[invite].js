@@ -1,5 +1,5 @@
 import { getSession } from "next-auth/react";
-import connect from "../../../Modules/database.mjs";
+import connect from "../../../Modules/database";
 // Used to join a league
 export default async function handler(req, res) {
   const session = await getSession({ req });
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
               matchday--;
             }
             console.log(
-              `Player ${session.user.id} joined league ${invite.leagueID}`
+              `User ${session.user.id} joined league ${invite.leagueID}`
             );
           });
       }

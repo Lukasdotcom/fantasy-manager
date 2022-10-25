@@ -1,4 +1,4 @@
-import connect from "../../../Modules/database.mjs";
+import connect from "../../../Modules/database";
 import redirect from "../../../Modules/league";
 import HistoricalView from "./index.js";
 export default function Home(props) {
@@ -64,6 +64,18 @@ export async function getServerSideProps(ctx) {
         "SELECT * FROM squad WHERE leagueID=? AND user=?",
         [league, user]
       );
+  // Calculates the value of the squad
+  const values = await Promise.all(
+    squad.map((e) =>
+      connection
+        .query("SELECT value FROM players WHERE uid=?", [e.playeruid])
+        .then((e) => (e.length > 0 ? e[0].value : 0))
+    )
+  );
+  let value = money;
+  values.forEach((e) => {
+    value += e;
+  });
   connection.end();
   // Checks if the user exists
   if (username === "") {
@@ -81,5 +93,6 @@ export async function getServerSideProps(ctx) {
     currentMatchday: matchday,
     time,
     money,
+    value,
   });
 }

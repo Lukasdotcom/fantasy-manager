@@ -2,8 +2,8 @@ import Menu from "../components/Menu";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head.js";
 import { getSession } from "next-auth/react";
-import connect from "../Modules/database.mjs";
-import React from "react";
+import connect from "../Modules/database";
+import React, { useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,6 +16,7 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { Slider, Typography } from "@mui/material";
 
 interface props {
   analytics: analyticsData[];
@@ -52,6 +53,7 @@ function compareSemanticVersions(key: string, a: any, b: any) {
   return a1.length - b1.length;
 }
 export default function Home({ analytics }: props) {
+  const [graphLength, setGraphLength] = useState(Math.sqrt(30));
   // Sorts the analytics by version number
   const sortedAnalytics = analytics.sort((a, b) =>
     compareSemanticVersions("version", a, b)
@@ -93,14 +95,15 @@ export default function Home({ analytics }: props) {
     },
   };
   // Adds all the unique dates to a list
-  const labels: number[] = [];
+  const fullLabels: number[] = [];
   analytics.forEach((e) => {
     const date = e.day;
-    if (!labels.includes(date)) {
-      labels.push(date);
+    if (!fullLabels.includes(date)) {
+      fullLabels.push(date);
     }
   });
-  labels.sort();
+  fullLabels.sort();
+  const labels = fullLabels.slice(calculateValue(graphLength) * -1);
   const historicalVersionColor = [
     (a: number) => `rgba(102, 187, 106, ${a})`,
     (a: number) => `rgba(41, 182, 246, ${a})`,
@@ -172,6 +175,16 @@ export default function Home({ analytics }: props) {
     }),
     datasets: [...datasetActive, ...datasetInActive],
   };
+  // This is used to give the scale a logarithmic values
+  function calculateValue(value: number) {
+    return Math.floor(value ** 2);
+  }
+  // Handles when the graph slider changes
+  function graphLengthChange(e: Event, value: number | number[]) {
+    if (typeof value === "number") {
+      setGraphLength(value);
+    }
+  }
   return (
     <>
       <Head>
@@ -182,6 +195,19 @@ export default function Home({ analytics }: props) {
       <div style={{ height: "min(max(50vh, 50vw), 80vh)", width: "100%" }}>
         <Line options={options} data={data} />
       </div>
+      <Typography id="graph-length" gutterBottom>
+        Graph Data Length: {calculateValue(graphLength)} Days
+      </Typography>
+      <Slider
+        value={graphLength}
+        min={1}
+        step={Math.floor(Math.sqrt(Math.max(fullLabels.length, 30))) / 100}
+        max={Math.sqrt(Math.max(fullLabels.length, 30))}
+        scale={calculateValue}
+        onChange={graphLengthChange}
+        valueLabelDisplay="auto"
+        aria-labelledby="non-linear-slider"
+      />
     </>
   );
 }
@@ -203,11 +229,9 @@ export const getServerSideProps: GetServerSideProps = async (
   }
   if (user.user.admin) {
     // Used to find the amount of historical data to get
-    const oldestTime = Math.floor(Date.now() / 1000 / 86400) - 100;
     const connection = await connect();
     const analytics = await connection.query(
-      "SELECT * FROM analytics WHERE day>? ORDER By day ASC",
-      [oldestTime]
+      "SELECT * FROM analytics ORDER By day ASC"
     );
     connection.end();
     return {

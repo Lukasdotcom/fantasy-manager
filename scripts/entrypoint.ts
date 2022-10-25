@@ -1,10 +1,10 @@
-import connect from "../Modules/database.mjs";
-import { updateData } from "./update.mjs";
-import { checkUpdate } from "./checkUpdate.mjs";
-import version from "./../package.json" assert { type: "json" };
+import connect, { data } from "../Modules/database";
+import { updateData } from "./update";
+import { checkUpdate } from "./checkUpdate";
+import version from "./../package.json";
 import dotenv from "dotenv";
 import { unlink } from "fs";
-import noAccents from "../Modules/normalize.mjs";
+import noAccents from "../Modules/normalize";
 if (process.env.APP_ENV !== "test") {
   dotenv.config({ path: ".env.local" });
 } else {
@@ -18,8 +18,13 @@ let day = date.getDay();
 
 async function startUp() {
   if (process.env.APP_ENV === "test") {
-    await new Promise((res) => {
-      unlink(process.env.SQLITE, function () {
+    await new Promise<void>((res) => {
+      // Makes sure that the sqlite file is defined
+      if (process.env.SQLITE === undefined) {
+        res();
+        return;
+      }
+      unlink(process.env.SQLITE, () => {
         res();
       });
     });
@@ -28,7 +33,7 @@ async function startUp() {
   await Promise.all([
     // Used to store the users
     connection.query(
-      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, active bool DEFAULT 0, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '', admin bool DEFAULT false)"
+      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, active bool DEFAULT 0, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '', admin bool DEFAULT false, favoriteLeague int)"
     ),
     // Used to store the players data
     connection.query(
@@ -91,11 +96,12 @@ async function startUp() {
   // Unlocks the database
   connection.query("DELETE FROM data WHERE value1='locked'");
   // Checks the version of the database is out of date
-  let oldVersion = await connection.query(
+  let getOldVersion: data[] = await connection.query(
     "SELECT value2 FROM data WHERE value1='version'"
   );
-  if (oldVersion.length > 0) {
-    oldVersion = oldVersion[0].value2;
+  let oldVersion = "";
+  if (getOldVersion.length > 0) {
+    oldVersion = getOldVersion[0].value2;
     if (oldVersion == "0.1.1") {
       console.log(
         "This version does not have a supported upgrade path to 1.*.*. Due to only me using this program in these versions."
@@ -221,6 +227,7 @@ async function startUp() {
     if (oldVersion == "1.5.1") {
       console.log("Updating database to version 1.7.0");
       await connection.query("ALTER TABLE users ADD admin bool DEFAULT 0");
+      await connection.query("ALTER TABLE users ADD favoriteLeague int");
       await connection.query("UPDATE users SET admin=0");
       oldVersion = "1.7.0";
     }
@@ -231,9 +238,9 @@ async function startUp() {
     }
   }
   // Makes sure that the admin user is the correct user
-  const adminUser = parseInt(process.env.ADMIN);
   await connection.query("UPDATE users SET admin=0");
-  if (adminUser > 0) {
+  if (process.env.ADMIN !== undefined) {
+    const adminUser = parseInt(process.env.ADMIN);
     console.log(`User ${adminUser} is the admin user`);
     connection.query("UPDATE users SET admin=1 WHERE id=?", [adminUser]);
   } else {
@@ -279,7 +286,7 @@ async function update() {
           "Content-Type": "application/json",
         },
         body: JSONbody,
-      });
+      }).catch(() => {});
     }
     // Sends the analytics data to the server
     fetch(`http://localhost:3000/api/analytics`, {
@@ -310,10 +317,9 @@ async function update() {
   const countdown = await connection3.query(
     "SELECT value2 FROM data WHERE value1='countdown'"
   );
-  const transferOpen =
-    (await connection3.query(
-      "SELECT value2 FROM data WHERE value1='transferOpen'"
-    )) === "true";
+  const transferOpen = await connection3
+    .query("SELECT value2 FROM data WHERE value1='transferOpen'")
+    .then((res: data[]) => (res.length > 0 ? res[0].value2 === "true" : false));
   if (countdown.length > 0) {
     const time = countdown[0].value2;
     // Updates the countdown
@@ -359,7 +365,10 @@ async function update() {
   // Updates the latest update check value
   connection3.query(
     "INSERT INTO data (value1, value2) VALUES('lastUpdateCheck', ?) ON DUPLICATE KEY UPDATE value2=?",
-    [String(parseInt(Date.now() / 1000)), String(parseInt(Date.now() / 1000))]
+    [
+      String(Math.floor(Date.now() / 1000)),
+      String(Math.floor(Date.now() / 1000)),
+    ]
   );
   connection3.end();
 }

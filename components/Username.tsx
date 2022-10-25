@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Avatar, Chip, useTheme } from "@mui/material";
+import { Avatar, Chip, SxProps, useTheme, Theme } from "@mui/material";
 interface Props {
   userid: number;
 }
@@ -14,11 +14,14 @@ export default function Username({ userid }: Props) {
   }, [userid]);
   return <>{username}</>;
 }
+interface UserChipProps extends Props {
+  sx?: SxProps<Theme>;
+}
 // Creates a simple chip for the user
-export function UserChip({ userid }: Props) {
+export function UserChip({ userid, sx }: UserChipProps) {
   const [username, setUsername] = useState("A");
   useEffect(() => {
-    if (userid != 0) {
+    if (userid > 0) {
       fetch(`/api/user/${userid}`).then(async (val) => {
         const newUsername = await val.json();
         setUsername(newUsername);
@@ -27,11 +30,13 @@ export function UserChip({ userid }: Props) {
   }, [userid]);
   const theme = useTheme();
   if (userid == 0) return <p>AI</p>;
+  if (userid == -1) return <p>No one</p>;
   // Cenerates a color based on the name
   const background = stringToColor(userid);
   const text = theme.palette.getContrastText(background);
   return (
     <Chip
+      sx={sx}
       avatar={
         <Avatar sx={{ bgcolor: background, color: text }}>
           {`${username.split(" ")[0][0]}${
@@ -67,7 +72,7 @@ export function UserAvatar({ userid }: Props) {
   );
 }
 // This turns a number into a random color.
-function stringToColor(string: number) {
+export function stringToColor(string: number) {
   let hash = string * 67280021310722;
   let i;
   let color = "#";

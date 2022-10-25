@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { TransferPlayer as Player } from "../../components/Player";
 import { push } from "@socialgouv/matomo-next";
 import { SessionProvider, useSession } from "next-auth/react";
-import connect from "../../Modules/database.mjs";
+import connect from "../../Modules/database";
 import Link from "../../components/Link";
 import {
   Button,
@@ -61,7 +61,6 @@ export default function Home({
   league,
   allowedTransfers,
   duplicatePlayers,
-  notify,
   leagueName,
   maxPrice,
 }) {
@@ -274,9 +273,9 @@ export default function Home({
       />
       <p>
         Yellow background means attendance unknown, red background that the
-        player is not attending, and purple/pink that the player will not earn
-        points anytime soon also known as a hidden player(Sell these players).
-        You can click on the player name or picture for more detailed info and
+        player is not attending, and purple that the player will not earn points
+        anytime soon also known as a hidden player(Sell these players). You can
+        click on the player name or picture for more detailed info and
         historical information.
       </p>
       <Link href="/download">
@@ -295,7 +294,6 @@ export default function Home({
             transferData={transferData}
             open={open}
             duplicatePlayers={duplicatePlayers}
-            notify={notify}
           />
         ))}
       </SessionProvider>

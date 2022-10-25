@@ -1,7 +1,7 @@
 import Menu from "../../components/Menu";
 import { GetServerSideProps } from "next";
 import Head from "next/head.js";
-import connect from "../../Modules/database.mjs";
+import connect from "../../Modules/database";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
@@ -13,6 +13,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  useTheme,
 } from "@mui/material";
 interface props {
   uid: string;
@@ -96,6 +97,7 @@ export default function Home({ player, times, uid }: props) {
   );
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  // Sets the starting value to crazy high time and sets it to the starting amount
   const [rows, setRows] = useState<Record<string, Data>>({
     "9999999999999999": {
       time: 0,
@@ -146,6 +148,8 @@ export default function Home({ player, times, uid }: props) {
       clearInterval(id);
     };
   }, []);
+  const theme = useTheme();
+  const dark = theme.palette.mode === "dark";
   return (
     <>
       <Head>
@@ -171,7 +175,7 @@ export default function Home({ player, times, uid }: props) {
       </p>
       <h2>Historical Data Table</h2>
       <p>
-        All the ones with a pink background mean the player was not in the
+        All the ones with a purple background mean the player was not in the
         bundesliga during these matchdays.
       </p>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -192,7 +196,13 @@ export default function Home({ player, times, uid }: props) {
                   return (
                     <TableRow
                       style={
-                        row.exists == 0 ? { background: "rgb(91, 30, 50)" } : {}
+                        row.exists == 0
+                          ? {
+                              background: dark
+                                ? "rgb(50, 0, 50)"
+                                : "rgb(255, 235, 255)",
+                            }
+                          : {}
                       }
                       hover
                       role="checkbox"
@@ -230,6 +240,14 @@ export default function Home({ player, times, uid }: props) {
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const connection = await connect();
   const uid = ctx.params ? ctx.params.uid : "";
+  // This makes the program wait until all updates are completed
+  while (
+    await connection
+      .query("SELECT * FROM data WHERE value1='locked'")
+      .then((res) => res.length > 0)
+  ) {
+    await new Promise((res) => setTimeout(res, 500));
+  }
   const player = await connection.query("SELECT * FROM players WHERE uid=?", [
     uid,
   ]);

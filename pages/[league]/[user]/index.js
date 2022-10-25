@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Menu from "../../../components/Menu";
-import connect from "../../../Modules/database.mjs";
+import connect from "../../../Modules/database";
 import redirect from "../../../Modules/league";
 import { Player, HistoricalPlayer } from "../../../components/Player";
 import { useRouter } from "next/router";
@@ -16,6 +16,7 @@ export default function HistoricalView({
   time, // Stores the time this is if historical player data needs to be gotten
   leagueName,
   money,
+  value,
 }) {
   const router = useRouter();
   return (
@@ -34,6 +35,7 @@ export default function HistoricalView({
         from {leagueName}
       </h1>
       <p>Money: {money / 1000000}M</p>
+      {value && <p>Team Value(Including Money): {value / 1000000}M</p>}
       <FormLabel id="matchdayLabel">Select Matchday</FormLabel>
       <Pagination
         page={

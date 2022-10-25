@@ -1,3 +1,4 @@
+// eslint-disable-next-line unused-imports/no-unused-imports
 import NextAuth from "next-auth";
 
 declare module "next-auth" {
@@ -14,6 +15,7 @@ declare module "next-auth" {
       google: string;
       github: string;
       admin: Boolean;
+      favoriteLeague: null | number;
     };
   }
 }

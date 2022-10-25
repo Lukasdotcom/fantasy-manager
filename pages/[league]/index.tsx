@@ -1,11 +1,11 @@
 import Menu from "../../components/Menu";
 import redirect from "../../Modules/league";
 import Head from "next/head";
-import { useEffect, useState } from "react";
-import { UserChip } from "../../components/Username";
+import { SyntheticEvent, useContext, useEffect, useState } from "react";
+import { stringToColor, UserChip } from "../../components/Username";
 import { push } from "@socialgouv/matomo-next";
 import { getSession } from "next-auth/react";
-import connect from "../../Modules/database.mjs";
+import connect, { invite } from "../../Modules/database";
 import Link from "../../components/Link";
 import {
   Table,
@@ -20,17 +20,47 @@ import {
   TextField,
   InputAdornment,
   Autocomplete,
-  Box,
+  BoxTypeMap,
+  Slider,
 } from "@mui/material";
-
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+import { NotifyContext } from "../../Modules/context";
+import { GetServerSideProps, GetServerSidePropsContext } from "next";
+import { Box } from "@mui/system";
+interface AdminPanelProps {
+  league: number;
+  leagueName: string;
+  setLeagueName: (name: string) => void;
+  admin: boolean;
+}
 // Creates the admin panel
-function AdminPanel({ league, notify, leagueName, setLeagueName, admin }) {
+function AdminPanel({
+  league,
+  leagueName,
+  setLeagueName,
+  admin,
+}: AdminPanelProps) {
+  const notify = useContext(NotifyContext);
   const [startingMoney, setStartingMoney] = useState(150);
-  const [users, setUsers] = useState([]);
+  interface userData {
+    user: number;
+    admin: boolean;
+  }
+  const [users, setUsers] = useState<userData[]>([]);
   const [transfers, setTransfers] = useState(6);
   const [duplicatePlayers, setDuplicatePlayers] = useState(1);
-  const [starredPercentage, setStarredPercentage] = useState(150);
-  function updateData(league) {
+  const [starredPercentage, setStarredPercentage] = useState(150.0);
+  function updateData(league: number) {
     fetch(`/api/league/${league}`).then(async (res) => {
       if (res.ok) {
         const result = await res.json();
@@ -71,7 +101,7 @@ function AdminPanel({ league, notify, leagueName, setLeagueName, admin }) {
           type="number"
           onChange={(val) => {
             // Used to change the invite link
-            setStartingMoney(val.target.value);
+            setStartingMoney(parseInt(val.target.value));
           }}
           value={startingMoney}
         />
@@ -83,8 +113,8 @@ function AdminPanel({ league, notify, leagueName, setLeagueName, admin }) {
           label="Transfer Amount"
           type="number"
           onChange={(val) => {
-            // Used to change the invite link
-            setTransfers(val.target.value);
+            // Used to change the transfer limit
+            setTransfers(parseInt(val.target.value));
           }}
           value={transfers}
         />
@@ -96,8 +126,8 @@ function AdminPanel({ league, notify, leagueName, setLeagueName, admin }) {
           helperText="Amount of Squads players can be in"
           type="number"
           onChange={(val) => {
-            // Used to change the invite link
-            setDuplicatePlayers(val.target.value);
+            // Used to change the amount of duplicate players
+            setDuplicatePlayers(parseInt(val.target.value));
           }}
           value={duplicatePlayers}
         />
@@ -108,47 +138,56 @@ function AdminPanel({ league, notify, leagueName, setLeagueName, admin }) {
           size="small"
           helperText="Point boost for starred players"
           InputProps={{
-            endadornment: <InputAdornment position="end">%</InputAdornment>,
+            endAdornment: <InputAdornment position="end">%</InputAdornment>,
           }}
           type="number"
           onChange={(val) => {
             // Used to change the invite link
-            setStarredPercentage(val.target.value);
+            setStarredPercentage(parseFloat(val.target.value));
           }}
           value={starredPercentage}
         />
         <br></br>
         <Autocomplete
+          sx={{ width: "99%" }}
           multiple
           id="admins"
           options={users}
           freeSolo
-          value={users.filter((e) => e.admin == 1)}
+          value={users.filter((e) => e.admin)}
           renderTags={(value, getTagProps) =>
-            value.map((option, index) => (
+            value.map((option: userData, index) => (
               <UserChip
-                key={option.user}
                 userid={option.user}
                 {...getTagProps({ index })}
+                key={option.user}
               />
             ))
           }
-          onChange={(e, value) => {
-            let admins = value.map((e) => e.user);
+          onChange={(
+            e: SyntheticEvent<Element, Event>,
+            value: (string | userData)[]
+          ): void => {
+            let admins = value.map((e) => (typeof e === "string" ? e : e.user));
             setUsers((e2) => {
               // Updates the value for all of the users
               e2.forEach((e3) => {
-                e3.admin = admins.includes(parseInt(e3.user));
+                e3.admin = admins.includes(e3.user);
               });
               return [...e2];
             });
           }}
-          renderOption={(props, option) => (
-            <Box {...props}>
-              <UserChip key={option.user} userid={option.user} />
-            </Box>
-          )}
-          getOptionLabel={(option) => String(option.user)}
+          renderOption={(props, option) => {
+            const newprops = props as BoxTypeMap;
+            return (
+              <Box {...newprops} key={option.user}>
+                <UserChip userid={option.user} />
+              </Box>
+            );
+          }}
+          getOptionLabel={(option) =>
+            typeof option === "string" ? option : String(option.user)
+          }
           renderInput={(params) => (
             <TextField
               {...params}
@@ -200,8 +239,15 @@ function AdminPanel({ league, notify, leagueName, setLeagueName, admin }) {
     );
   }
 }
+interface InviteProps {
+  link: string;
+  league: number;
+  host: string | undefined;
+  remove: () => void;
+}
 // Used to show all the invites that exist and to delete an individual invite
-function Invite({ link, league, host, remove, notify }) {
+function Invite({ link, league, host, remove }: InviteProps) {
+  const notify = useContext(NotifyContext);
   return (
     <p>
       Link: {`${host}/api/invite/${link}`}
@@ -231,17 +277,126 @@ function Invite({ link, league, host, remove, notify }) {
     </p>
   );
 }
+// Used to generate the graph of the historical points
+function Graph({ historicalPoints }: { historicalPoints: historialData }) {
+  const [usernames, setUsernames] = useState(Object.keys(historicalPoints));
+  const [dataRange, setDataRange] = useState<number[]>([
+    1,
+    Object.values(historicalPoints)[0].length,
+  ]);
+  useEffect(() => {
+    Object.keys(historicalPoints).forEach((e, index) => {
+      fetch(`/api/user/${e}`).then(async (val) => {
+        const newUsername = await val.json();
+        setUsernames((val) => {
+          val[index] = newUsername;
+          // Makes sure that the component updates after the state is changed
+          return JSON.parse(JSON.stringify(val));
+        });
+      });
+    });
+  }, [historicalPoints]);
+  ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+  );
+  const options: any = {
+    maintainAspectRatio: false,
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Points over Time",
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: "Matchday",
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: "Points",
+        },
+      },
+    },
+  };
+  // Adds a label for every matchday
+  const labels = Array(dataRange[1] - dataRange[0] + 1)
+    .fill(0)
+    .map((e, index) => index + dataRange[0]);
+  const datasets: any[] = [];
+  // Adds every dataset
+  Object.keys(historicalPoints).forEach((e, index) => {
+    let counter = 0;
+    datasets.push({
+      label: usernames[index],
+      data: historicalPoints[e]
+        // Filters out the data that is outside of the range specified
+        .slice(dataRange[0] - 1, dataRange[1] + 1)
+        .map((e) => {
+          counter += e;
+          return counter;
+        }),
+      borderColor: stringToColor(parseInt(e)),
+    });
+  });
+  const data = {
+    labels,
+    datasets,
+  };
+  return (
+    <div
+      style={{
+        height: "min(max(50vh, 50vw), 50vh)",
+        width: "95%",
+        margin: "2%",
+      }}
+    >
+      <Line options={options} data={data} />
+      <Slider
+        getAriaLabel={() => "Standings Range"}
+        value={dataRange}
+        onChange={(e, value) => {
+          typeof value === "number" ? "" : setDataRange(value);
+        }}
+        valueLabelDisplay="auto"
+        max={Object.values(historicalPoints)[0].length}
+        min={1}
+      />
+    </div>
+  );
+}
+interface Props {
+  admin: boolean;
+  standings: standingsData[];
+  historicalPoints: historialData;
+  inviteLinks: string[];
+  host: string | undefined;
+  leagueName: string;
+  league: number;
+}
 export default function Home({
-  user,
   admin,
   league,
   standings,
   historicalPoints,
   inviteLinks,
   host,
-  notify,
   leagueName,
-}) {
+}: Props) {
+  const notify = useContext(NotifyContext);
   const [inputLeagueName, setInputLeagueName] = useState(leagueName);
   // Calculates the current matchday
   let currentMatchday = 0;
@@ -252,15 +407,17 @@ export default function Home({
   const [invites, setInvites] = useState(inviteLinks);
   const [newInvite, setnewInvite] = useState("");
   // Orders the players in the correct order by points
+  let newStandings: { user: number; points: number }[] = [];
   if (matchday <= currentMatchday) {
-    standings = [];
-    Object.keys(historicalPoints).forEach((e) => {
-      standings.push({
-        user: e,
-        points: historicalPoints[String(e)][matchday - 1],
+    Object.keys(historicalPoints).forEach((e: string) => {
+      newStandings.push({
+        user: parseInt(e),
+        points: historicalPoints[e][matchday - 1],
       });
     });
-    standings.sort((a, b) => b.points - a.points);
+    newStandings.sort((a, b) => b.points - a.points);
+  } else {
+    newStandings = standings;
   }
   return (
     <>
@@ -269,7 +426,7 @@ export default function Home({
       </Head>
       <Menu league={league} />
       <h1>Standings for {inputLeagueName}</h1>
-      <TableContainer>
+      <TableContainer sx={{ width: "95%" }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -283,8 +440,8 @@ export default function Home({
             </TableRow>
           </TableHead>
           <TableBody>
-            {standings.map((val) => (
-              <TableRow key={val.user}>
+            {newStandings.map((val) => (
+              <TableRow key={val.user + "m" + matchday}>
                 <TableCell>
                   <UserChip userid={val.user} />
                 </TableCell>
@@ -315,12 +472,14 @@ export default function Home({
           setmatchday(v);
         }}
         renderItem={(item) => {
-          if (item.page > currentMatchday) item.page = "All";
-          return <PaginationItem {...item} />;
+          const page =
+            item.page && item.page > currentMatchday ? "All" : item.page;
+          return <PaginationItem {...item} page={page} />;
         }}
-      >
-        <PaginationItem type="last">adsadsdasdas</PaginationItem>
-      </Pagination>
+      ></Pagination>
+      {Object.values(historicalPoints).length > 0 && (
+        <Graph historicalPoints={historicalPoints} />
+      )}
       <h1>Invite Links</h1>
       {invites.map((val) => (
         <Invite
@@ -328,7 +487,6 @@ export default function Home({
           key={val}
           link={val}
           league={league}
-          notify={notify}
           remove={() => {
             setInvites(invites.filter((e) => e != val));
           }}
@@ -373,85 +531,94 @@ export default function Home({
       <AdminPanel
         leagueName={inputLeagueName}
         setLeagueName={setInputLeagueName}
-        user={user}
         league={league}
-        notify={notify}
         admin={admin}
       />
     </>
   );
 }
-
+interface historialData {
+  [Key: string]: number[];
+}
+interface standingsData {
+  user: number;
+  points: number;
+}
 // Gets the users session
-export async function getServerSideProps(ctx) {
+export const getServerSideProps: GetServerSideProps = async (
+  ctx: GetServerSidePropsContext
+) => {
   // Gets the user id
   const session = await getSession(ctx);
   const user = session ? session.user.id : -1;
   // Gets the leaderboard for the league
-  const standings = new Promise(async (resolve) => {
+  const standings = new Promise<standingsData[]>(async (resolve) => {
     const connection = await connect();
     resolve(
       await connection.query(
         "SELECT user, points FROM leagueUsers WHERE leagueId=?",
-        [ctx.params.league]
+        [ctx.params?.league]
       )
     );
     connection.end();
-  }).then((val) =>
-    JSON.parse(JSON.stringify(val.sort((a, b) => b.points - a.points)))
-  );
+  }).then((val: standingsData[]) => val.sort((a, b) => b.points - a.points));
   // Gets the historical amount of points for every matchday in the league
-  const historicalPoints = new Promise(async (resolve) => {
+  const historicalPoints = new Promise<historialData>(async (resolve) => {
     const connection = await connect();
-    const results = await connection.query(
+    interface historialPlayerData {
+      user: number;
+      points: number;
+      matchday: number;
+    }
+    const results: historialPlayerData[] = await connection.query(
       "SELECT user, points, matchday FROM points WHERE leagueId=? ORDER BY matchday ASC",
-      [ctx.params.league]
+      [ctx.params?.league]
     );
     connection.end();
     // Reformats the result into a dictionary that has an entry for each user and each entry for that user is an array of all the points the user has earned in chronological order.
     if (results.length > 0) {
-      let points = {};
-      results.forEach((element) => {
+      let points: historialData = {};
+      results.forEach((element: historialPlayerData) => {
         if (points[element.user]) {
-          points[element.user].push(element.points);
+          points[String(element.user)].push(element.points);
         } else {
-          points[element.user] = [element.points];
+          points[String(element.user)] = [element.points];
         }
       });
       resolve(points);
     } else {
       resolve({});
     }
-  }).then((val) => JSON.parse(JSON.stringify(val)));
-  const inviteLinks = new Promise(async (resolve) => {
+  });
+  const inviteLinks = new Promise<string[]>(async (resolve) => {
     // Gets an array of invite links for this league
     const connection = await connect();
-    const results = await connection.query(
-      "SELECT inviteID FROM invite WHERE leagueId=?",
-      [ctx.params.league]
+    const results: invite[] = await connection.query(
+      "SELECT * FROM invite WHERE leagueId=?",
+      [ctx.params?.league]
     );
     connection.end();
     // Turns the result into a list of valid invite links
-    let inviteLinks = [];
+    let inviteLinks: string[] = [];
     results.forEach((val) => {
       inviteLinks.push(val.inviteID);
     });
     resolve(inviteLinks);
   }).then((val) => JSON.parse(JSON.stringify(val)));
   // Checks if the user is an admin
-  const admin = new Promise(async (res) => {
+  const admin = new Promise<boolean>(async (res) => {
     const connection = await connect();
     const result = await connection.query(
       "SELECT admin FROM leagueUsers WHERE admin=1 AND leagueID=? AND user=?",
-      [ctx.params.league, user]
+      [ctx.params?.league, user]
     );
     res(result.length > 0);
   });
-  return await redirect(ctx, {
+  return redirect(ctx, {
     admin: await admin,
     standings: await standings,
     historicalPoints: await historicalPoints,
     inviteLinks: await inviteLinks,
     host: ctx.req.headers.host,
   });
-}
+};

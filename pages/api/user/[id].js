@@ -1,4 +1,4 @@
-import connect from "../../../Modules/database.mjs";
+import connect from "../../../Modules/database";
 
 // Used to return the username of a selected user
 export default async function handler(req, res) {

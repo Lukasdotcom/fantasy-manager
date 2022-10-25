@@ -6,7 +6,7 @@ I am very slowly converting this project to typescript. If you create a new file
 
 - [ ] Run `npm run format` to format everything with prettier.
 - [ ] Run `npm run lint` and fix all errors and new warnings.
-- [ ] Made sure that all database changes have update code in entrypoint.mjs.
+- [ ] Made sure that all database changes have update code in entrypoint.ts.
 - [ ] Made sure to test your changes whith [cypress](#cypress) by running `npm run start:test` and in another terminal `npm run cypress`. If this fails and you don't know why look in the [cypress section](#cypress).
 - [ ] If you added any features it would be great if you tested them with cypress(Not required).
 
@@ -76,12 +76,14 @@ git clone https://github.com/lukasdotcom/Bundesliga
 
 ## FAQs
 
-- Q: Why is the cypress test failing
+- Q: Why is the cypress test failing?
 - A: If you made any major UI changes it may cause the test to fail. You may have to change the tests slightly(For help with making tests go to [How to Make Tests](#how-to-make-tests)). Otherwise there should be a video and a picture in the cypress/videos or cypress/screenshots directories.
+- Q: Where are the types for the database?
+- A: There is an interface for every table in the database located in the same file as the database connector.
 
 ## How to Make Tests
 
 1. First run `npm run start:test` to start a testing server.
 2. Secondly run `npm run cypress:open` to open cypress itself.
 3. The tests will be located in the cypress/e2e folder.
-4. If you want to load custom data into the db on the player values and points put the data into the sample folder and load it like shown in the invite2.mjs file in the cypress/e2e direcotory.
+4. If you want to load custom data into the db on the player values and points put the data into the sample folder and load it like shown in the invite2.js file in the cypress/e2e direcotory.

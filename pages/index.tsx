@@ -1,78 +1,65 @@
 import Head from "next/head";
 import Menu from "../components/Menu";
 import Image from "next/image";
-import MainImage from "../screenshots/main.webp";
-import Transfer1Image from "../screenshots/transfers1.webp";
-import Transfer2Image from "../screenshots/transfers2.webp";
-import StandingsImage from "../screenshots/standings.webp";
-import SquadImage from "../screenshots/squad.webp";
-import { Alert, AlertTitle, Pagination } from "@mui/material";
+import {
+  Alert,
+  AlertColor,
+  AlertTitle,
+  Pagination,
+  useTheme,
+} from "@mui/material";
 import { useEffect, useState } from "react";
-import version from "./../package.json" assert { type: "json" };
+import version from "./../package.json";
 import Link from "../components/Link";
-
+import { GetStaticProps, InferGetStaticPropsType } from "next";
+interface InnerUpdateType {
+  type: AlertColor;
+  title: string;
+  text: string;
+  link?: string;
+}
+type UpdateType = InnerUpdateType | {};
+interface CurrentPictureProps {
+  picture: number;
+}
 // Turns the number into the correct screenshot
-function CurrentPicture({ picture }) {
-  switch (picture) {
-    case 1:
-      return (
-        <Image
-          alt="Screenshot of Main Page"
-          src={MainImage}
-          height={540}
-          width={960}
-        ></Image>
-      );
-    case 2:
-      return (
-        <Image
-          alt="Screenshot of Standings"
-          src={StandingsImage}
-          height={540}
-          width={960}
-        ></Image>
-      );
-    case 3:
-      return (
-        <Image
-          alt="Screenshot of Squad"
-          src={SquadImage}
-          height={540}
-          width={960}
-        ></Image>
-      );
-    case 4:
-      return (
-        <Image
-          alt="Screenshot of Transfers"
-          src={Transfer1Image}
-          height={540}
-          width={960}
-        ></Image>
-      );
-    case 5:
-      return (
-        <Image
-          alt="Screenshot of Transfers"
-          src={Transfer2Image}
-          height={540}
-          width={960}
-        ></Image>
-      );
-    default:
-      return (
-        <Image
-          alt="Screenshot of Main Page"
-          src={MainImage}
-          height={540}
-          width={960}
-        ></Image>
-      );
+function CurrentPicture({ picture }: CurrentPictureProps) {
+  // Gets the name of the picture
+  function picturePicker(picture: number) {
+    switch (picture) {
+      case 1:
+        return "Main";
+      case 2:
+        return "Standings";
+      case 3:
+        return "Squad";
+      case 4:
+        return "Transfer";
+      case 5:
+        return "LeagueAdmin";
+      default:
+        return "Usermenu";
+    }
   }
+  const theme = useTheme();
+  const name = picturePicker(picture);
+  const actualSrc =
+    "/screenshots/" +
+    name +
+    (theme.palette.mode === "dark" ? "Dark" : "Light") +
+    ".webp";
+  return (
+    <Image
+      alt={"Screenshot of " + name + " page"}
+      src={actualSrc}
+      height={540}
+      width={960}
+    />
+  );
 }
 // Shows all the screenshots and allows the user to pick screenshots they would like to see
 function Carrousel() {
-  const pictures = 5;
+  const pictures = 6;
   const [picture, setPicture] = useState(1);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -95,7 +82,10 @@ function Carrousel() {
     </>
   );
 }
-export default function Home({ update }) {
+export default function Home({
+  update,
+}: // For some reason the inference does not work here
+InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <>
       <Head>
@@ -152,7 +142,10 @@ export default function Home({ update }) {
         </ol>
         <li>Download player data as json or csv</li>
         <li>See all historical user data(As long as the server was up).</li>
-        <li>And all of these features in a Modern Responsive UI.</li>
+        <li>
+          And all of these features in a Modern Responsive UI available in a
+          light and dark theme.
+        </li>
       </ol>
       <h2>Community</h2>
       You can go to the{" "}
@@ -166,12 +159,12 @@ export default function Home({ update }) {
       to ask questions or find leagues to join.
       <h2>Screenshots</h2>
       <Carrousel />
-      {update.type !== undefined && (
+      {update.type && (
         <Alert severity={update.type} className="notification">
           <AlertTitle>{update.title}</AlertTitle>
-          {update.link === undefined && update.text}
-          {update.link !== undefined && (
-            <Link href={update.link} rel="noreferrer" target="_blank">
+          {update.link === undefined && <p>{update.text}</p>}
+          {update.link && (
+            <Link href={update.link} rel="noreferrer">
               {update.text}
             </Link>
           )}
@@ -180,53 +173,63 @@ export default function Home({ update }) {
     </>
   );
 }
-
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps = async () => {
+  let update: UpdateType = {};
   // Checks if this is running in a non production setup
   if (process.env.APP_ENV === "development" || process.env.APP_ENV === "test") {
-    return {
-      props: {
-        update: {
-          type: "info",
-          title: "Not for Production",
-          text: "This is the development or testing version of this software. Do not use in production.",
-        },
-      },
-    };
-  }
-  // Checks if this is the latest version and if it does adds data
-  console.log("Checking for updates");
-  const releases = await fetch(
-    "https://api.github.com/repos/lukasdotcom/bundesliga-manager/releases"
-  ).then((res) => (res.ok ? res.json() : {}));
-  if (releases[0] === undefined || releases[0].tag_name === undefined) {
-    console.log("Failed to get version data from github api.");
-    return {
-      props: {
-        update: {
-          type: "error",
-          title: "Failure",
-          text: "Failing to check for updates.",
-          link: "/error/update",
-        },
-      },
-      // Checks at max every hour
-      revalidate: 3600 * 24, // In seconds
-    };
-  }
-  let update = {};
-  if (version.version !== releases[0].tag_name) {
     update = {
-      type: "warning",
-      title: "Out of Date",
-      text: "New Update Available for more info Click Here",
-      link: releases[0].html_url,
+      type: "info",
+      title: "Not for Production",
+      text: "This is the development or testing version of this software. Do not use in production.",
     };
+  } else {
+    // Checks if this is the latest version and if it does adds data
+    console.log("Checking for updates");
+    interface release {
+      url: string;
+      assets_url: string;
+      upload_url: string;
+      html_url: string;
+      id: number;
+      tag_name: string;
+      name: string;
+      draft: boolean;
+      prerelease: boolean;
+      body: string;
+    }
+    const releases: release[] | [] = await fetch(
+      "https://api.github.com/repos/lukasdotcom/bundesliga-manager/releases"
+    ).then((res) => (res.ok ? res.json() : []));
+    // Finds the first release that is not a draft or a prerelease and the same major version
+    let counter = 0;
+    while (
+      counter < releases.length &&
+      !releases[counter].prerelease &&
+      !releases[counter].draft &&
+      releases[0].tag_name.slice(0, 2) !== "1."
+    ) {
+      counter += 1;
+    }
+    if (counter >= releases.length) {
+      console.log("Failed to get version data from github api.");
+      update = {
+        type: "error",
+        title: "Failure",
+        text: "Failing to check for updates.",
+        link: "/error/update",
+      };
+    } else if (version.version !== releases[0].tag_name) {
+      update = {
+        type: "warning",
+        title: "Out of Date",
+        text: "New Update Available for more info Click Here",
+        link: releases[0].html_url,
+      };
+    }
   }
-
   return {
     props: { update },
     // Checks at max every day
     revalidate: 3600 * 24,
   };
-}
+};

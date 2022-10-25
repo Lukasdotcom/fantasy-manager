@@ -7,7 +7,6 @@ COPY components components
 COPY Modules Modules
 COPY pages pages
 COPY public public
-COPY screenshots screenshots
 COPY scripts scripts
 COPY styles styles
 COPY .eslintrc.json .eslintrc.json
@@ -15,6 +14,7 @@ COPY next.config.js next.config.js
 COPY package-lock.json package-lock.json
 COPY package.json package.json
 COPY tsconfig.json tsconfig.json
+COPY tsconfig2.json tsconfig2.json
 COPY types types
 RUN npm ci
 # Sets the default configuration

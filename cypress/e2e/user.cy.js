@@ -1,6 +1,6 @@
 describe("User", () => {
   before(() => {
-    cy.exec("export APP_ENV=test; node cypress/e2e/user.mjs");
+    cy.exec("export APP_ENV=test; node cypress/e2e/user.js");
   });
   // Used to signup change username and password and login again
   it("signup", () => {
@@ -43,6 +43,25 @@ describe("User", () => {
     );
     cy.get("#input-password-for-Sign\\ In-provider").type("New Password");
     cy.contains("Sign in with Sign In").click();
-    cy.contains("NS");
+    // Creates a league
+    cy.contains("Leagues").click();
+    cy.get("#name").type("Sample League");
+    cy.get("button").contains("Create League").click();
+    // Verifies that the user can not be deleted
+    cy.contains("NS").click();
+    cy.contains(
+      "You can not be in any leagues if you want to delete your user."
+    );
+    // Leaves the league
+    cy.contains("Leagues").click();
+    cy.contains("Leave League").click();
+    cy.get(".MuiDialogContent-root > .MuiFormControl-root").type(
+      "Sample League"
+    );
+    cy.get(".MuiDialogActions-root > .MuiButton-contained").click();
+    // Deletes the User
+    cy.contains("NS").click();
+    cy.contains("Delete User").click();
+    cy.contains("NS").should("not.exist");
   });
 });

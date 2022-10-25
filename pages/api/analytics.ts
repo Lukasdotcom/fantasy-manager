@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import connect from "../../Modules/database.mjs";
+import connect from "../../Modules/database";
 
 export default async function handler(
   req: NextApiRequest,

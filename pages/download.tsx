@@ -12,13 +12,18 @@ import Head from "next/head";
 import Link from "../components/Link";
 import { useState } from "react";
 import Menu from "../components/Menu";
-import connect from "../Modules/database.mjs";
-export default function Home({ historicalTimes }) {
+import connect from "../Modules/database";
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+
+type fileTypes = "json" | "csv";
+export default function Home({
+  historicalTimes,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [matchday, setMatchday] = useState(0);
   const [showHidden, setShowHidden] = useState(false);
   // Tracks the kind of download
-  function download(type) {
-    if (matchday !== "") push(["trackEvent", "Download", "Time", matchday]);
+  function download(type: fileTypes) {
+    if (matchday !== 0) push(["trackEvent", "Download", "Time", matchday]);
     push(["trackEvent", "Download", "Type", type]);
     push([
       "trackEvent",
@@ -28,7 +33,7 @@ export default function Home({ historicalTimes }) {
     ]);
   }
   // Generates the download link
-  function downloadLink(type) {
+  function downloadLink(type: fileTypes) {
     return `/api/download?type=${type}${
       matchday !== 0 ? `&time=${matchday}` : ""
     }${showHidden ? "&showHidden=true" : ""}`;
@@ -45,9 +50,9 @@ export default function Home({ historicalTimes }) {
       <Select
         id="time"
         value={matchday}
-        onChange={(val) => setMatchday(val.target.value)}
+        onChange={(val) => setMatchday(val.target.value as number)}
       >
-        {historicalTimes.map((e) => {
+        {historicalTimes.map((e: number) => {
           let date = new Date(e * 1000);
           return (
             <MenuItem key={e} value={e}>
@@ -92,12 +97,14 @@ export default function Home({ historicalTimes }) {
     </>
   );
 }
-
-export async function getServerSideProps(ctx) {
+export const getServerSideProps: GetServerSideProps = async () => {
   const connection = await connect();
   // Gets a list of all the times
+  interface result {
+    time: number;
+  }
   const historicalTimes = (
     await connection.query("SELECT DISTINCT time FROM historicalPlayers")
-  ).map((e) => e.time);
+  ).map((e: result) => e.time);
   return { props: { historicalTimes } };
-}
+};

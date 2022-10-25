@@ -1,11 +1,12 @@
 {
   "extends": ["next/core-web-vitals", "plugin:cypress/recommended"],
-  "plugins": ["cypress"],
+  "plugins": ["cypress", "unused-imports"],
   "rules": {
     "no-var": "error",
     "no-implied-eval": "error",
     "no-eval": "error",
     "no-const-assign": "error",
+    "unused-imports/no-unused-imports": "error",
     "no-restricted-imports": [
       "error",
       {
