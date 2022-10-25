@@ -288,6 +288,26 @@ export function TransferPlayer({
       </Button>
     </>
   );
+  const SellText = (
+    <>
+      <TextField
+        id="amount"
+        variant="outlined"
+        size="small"
+        label="Min Sale Amount"
+        type="number"
+        endadornment={<InputAdornment position="end">M</InputAdornment>}
+        onChange={(val) => {
+          // Used to change the invite link
+          setAmount(val.target.value);
+        }}
+        value={amount}
+      />
+      <Button color="error" onClick={() => buySell(amount * -1)}>
+        Sell for min of {amount}
+      </Button>
+    </>
+  );
   // This will contain the input for everything you can do
   let Actions = <></>;
   // Checks if the ownership info exists
@@ -318,6 +338,7 @@ export function TransferPlayer({
       ButtonColor = "error";
       Actions = (
         <>
+          {SellText}
           <Button
             color="secondary"
             onClick={() => {
@@ -335,18 +356,7 @@ export function TransferPlayer({
     } else if (ownership.filter((e) => e.owner === user).length > 0) {
       ButtonText = "Sell";
       ButtonColor = "error";
-      Actions = (
-        <>
-          <Button
-            color="error"
-            onClick={() => {
-              buySell(data.value * -1);
-            }}
-          >
-            Sell
-          </Button>
-        </>
-      );
+      Actions = <>{SellText}</>;
       // Checks if the player is still purchasable
     } else if (
       duplicatePlayers <= ownership.filter((e) => !e.transfer).length
@@ -429,11 +439,23 @@ export function TransferPlayer({
         {ownership &&
           ownership
             .filter((e) => !e.transfer)
-            .map((e) => <UserChip key={e.owner} userid={e.owner} />)}
+            .map((e) => (
+              <UserChip
+                sx={{ margin: "10px" }}
+                key={e.owner}
+                userid={e.owner}
+              />
+            ))}
         {ownership &&
           ownership
             .filter((e) => e.seller != 0 && e.transfer)
-            .map((e) => <UserChip key={e.seller} userid={e.seller} />)}
+            .map((e) => (
+              <UserChip
+                sx={{ margin: "10px" }}
+                key={e.seller}
+                userid={e.seller}
+              />
+            ))}
         {Actions}
       </Dialog>
       <Button

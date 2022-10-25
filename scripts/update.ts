@@ -294,6 +294,8 @@ export async function startMatchday() {
   // Goes through every transfer
   let currentleagueID = -1;
   let matchday = 1;
+  // Deletes all the transfers that are not fulfilled because the minimum bid was not met
+  await connection.query("DELETE FROM transfers WHERE buyer=-1");
   const transfers = await connection.query(
     "SELECT * FROM transfers ORDER BY leagueID"
   );
