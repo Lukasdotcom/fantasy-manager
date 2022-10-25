@@ -376,6 +376,16 @@ describe("Invite User into league and change some league Settings and run throug
       .children("button")
       .contains("View Transfers");
     cy.contains(`Money left: ${user1Money}`);
+    // Sells Lewandowski for outrageous price knowing noone will take it
+    cy.contains("Robert Lewandowski")
+      .parent()
+      .parent()
+      .parent()
+      .children(".playerButton")
+      .children("button")
+      .click();
+    cy.get("#amount").clear().type("40");
+    cy.contains("Sell for min of 40").click();
     // Checks the standings
     cy.contains("Standings").click();
     cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("34");

@@ -186,6 +186,7 @@ export interface leagueUsers {
   leagueID: number;
   user: number;
   points: number;
+  money: number;
   formation: string;
   admin: boolean;
 }
