@@ -164,7 +164,7 @@ InferGetStaticPropsType<typeof getStaticProps>) {
           <AlertTitle>{update.title}</AlertTitle>
           {update.link === undefined && <p>{update.text}</p>}
           {update.link && (
-            <Link href={update.link} rel="noreferrer">
+            <Link href={update.link} rel="noopener noreferrer">
               {update.text}
             </Link>
           )}
@@ -185,45 +185,27 @@ export const getStaticProps: GetStaticProps = async () => {
   } else {
     // Checks if this is the latest version and if it does adds data
     console.log("Checking for updates");
-    interface release {
-      url: string;
-      assets_url: string;
-      upload_url: string;
-      html_url: string;
-      id: number;
-      tag_name: string;
+    interface data {
       name: string;
-      draft: boolean;
-      prerelease: boolean;
-      body: string;
+      version: string;
     }
-    const releases: release[] | [] = await fetch(
-      "https://api.github.com/repos/lukasdotcom/bundesliga-manager/releases"
-    ).then((res) => (res.ok ? res.json() : []));
-    // Finds the first release that is not a draft or a prerelease and the same major version
-    let counter = 0;
-    while (
-      counter < releases.length &&
-      !releases[counter].prerelease &&
-      !releases[counter].draft &&
-      releases[0].tag_name.slice(0, 2) !== "1."
-    ) {
-      counter += 1;
-    }
-    if (counter >= releases.length) {
-      console.log("Failed to get version data from github api.");
+    const data: data | undefined = await fetch(
+      "https://raw.githubusercontent.com/Lukasdotcom/bundesliga-manager/stable/package.json"
+    ).then((res) => (res.ok ? res.json() : undefined));
+    if (!data) {
+      console.log("Failed to get version data from github.");
       update = {
         type: "error",
         title: "Failure",
         text: "Failing to check for updates.",
         link: "/error/update",
       };
-    } else if (version.version !== releases[0].tag_name) {
+    } else if (version.version !== data.version) {
       update = {
         type: "warning",
         title: "Out of Date",
         text: "New Update Available for more info Click Here",
-        link: releases[0].html_url,
+        link: `https://github.com/Lukasdotcom/bundesliga-manager/releases/tag/${data.version}`,
       };
     }
   }
