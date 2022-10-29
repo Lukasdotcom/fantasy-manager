@@ -5,6 +5,7 @@ import connect from "../../../Modules/database";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
+  LinearProgress,
   Paper,
   Table,
   TableBody,
@@ -150,6 +151,13 @@ export default function Home({ player, times, uid, league }: props) {
       clearInterval(id);
     };
   }, []);
+  // Calculates the number of rows that have not been loaded but should be
+  let tempUnloaded =
+    page * rowsPerPage + rowsPerPage - Object.values(rows).length;
+  if (page * rowsPerPage + rowsPerPage > times.length) {
+    tempUnloaded -= page * rowsPerPage + rowsPerPage - times.length;
+  }
+  const unloadedRows = tempUnloaded > 0 ? tempUnloaded : 0;
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
   return (
@@ -225,6 +233,23 @@ export default function Home({ player, times, uid, league }: props) {
                           </TableCell>
                         );
                       })}
+                    </TableRow>
+                  );
+                })}
+              {Array(unloadedRows)
+                .fill(0)
+                .map((e, idx) => {
+                  return (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={String(idx)}
+                    >
+                      <TableCell colSpan={7}>
+                        Loading...
+                        <LinearProgress />
+                      </TableCell>
                     </TableRow>
                   );
                 })}
