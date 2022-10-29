@@ -107,3 +107,6 @@ This service collects some simple analytics when you host this service that curr
 2. version - The version of the server.
 3. users - The number of users.
 4. activeUsers - The number of users that were logged in on that day.
+5. Then for every type of league (Bundesliga, EPL, etc) there are 2 pieces of data collected:
+   1. Active Users - The number of Active Users in a league with that type.
+   2. Users - The number of users in a league of this type.
