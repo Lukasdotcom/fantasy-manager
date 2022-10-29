@@ -2,7 +2,7 @@ import Menu from "../components/Menu";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head.js";
 import { getSession } from "next-auth/react";
-import connect from "../Modules/database";
+import connect, { leagues } from "../Modules/database";
 import React, { useState } from "react";
 import {
   Chart as ChartJS,
@@ -20,6 +20,7 @@ import { Slider, Typography } from "@mui/material";
 
 interface props {
   analytics: analyticsData[];
+  leagues: string[];
 }
 interface ChartData {
   fill: boolean;
@@ -52,7 +53,7 @@ function compareSemanticVersions(key: string, a: any, b: any) {
   // We hit this if the all checked versions so far are equal
   return a1.length - b1.length;
 }
-export default function Home({ analytics }: props) {
+export default function Home({ analytics, leagues }: props) {
   const [graphLength, setGraphLength] = useState(Math.sqrt(30));
   // Sorts the analytics by version number
   const sortedAnalytics = analytics.sort((a, b) =>
@@ -192,6 +193,7 @@ export default function Home({ analytics }: props) {
       </Head>
       <Menu />
       <h1>Admin Panel</h1>
+      <h2>Analytics</h2>
       <div style={{ height: "min(max(50vh, 50vw), 80vh)", width: "100%" }}>
         <Line options={options} data={data} />
       </div>
@@ -208,6 +210,19 @@ export default function Home({ analytics }: props) {
         valueLabelDisplay="auto"
         aria-labelledby="non-linear-slider"
       />
+      <h2>Enabled League Types</h2>
+      <p>
+        Bundesliga is{" "}
+        {leagues.includes("Bundesliga")
+          ? "enabled."
+          : "disabled. To enable enter a bundesliga api key as directed in the readme into the enviromental variable BUNDESLIGA_API."}
+      </p>
+      <p>
+        The English Premier League is{" "}
+        {leagues.includes("EPL")
+          ? "enabled."
+          : "disabled. To enable set the enviromental variable ENABLE_EPL to enable."}
+      </p>
     </>
   );
 }
@@ -235,7 +250,7 @@ export const getServerSideProps: GetServerSideProps = async (
     );
     connection.end();
     return {
-      props: { analytics },
+      props: { analytics, leagues },
     };
   }
   return {
