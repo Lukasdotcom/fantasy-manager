@@ -259,6 +259,10 @@ export interface analytics {
   version: string;
   users: number;
   activeUsers: number;
+  Bundesliga: number;
+  BundesligaActive: number;
+  EPL: number;
+  EPLActive: number;
 }
 const validLeagues = (): string[] => {
   const leagues = [];

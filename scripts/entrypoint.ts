@@ -84,7 +84,7 @@ async function startUp() {
     ),
     // Used to store analytics data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS analytics (serverID varchar(10), day int, version varchar(10), users int, activeUsers int)"
+      "CREATE TABLE IF NOT EXISTS analytics (serverID varchar(10), day int, version varchar(10), users int, activeUsers int, Bundesliga int, BundesligaActive int, EPL int, EPLActive int)"
     ),
   ]);
   // Checks if the server hash has been created and if not makes one
@@ -266,6 +266,16 @@ async function startUp() {
         ),
         connection.query("DELETE FROM data WHERE value1='locked'"),
       ]);
+      // Adds the new columns to the analytics
+      await Promise.all([
+        connection.query("ALTER TABLE analytics ADD Bundesliga int"),
+        connection.query("ALTER TABLE analytics ADD BundesligaActive int"),
+        connection.query("ALTER TABLE analytics ADD EPL int"),
+        connection.query("ALTER TABLE analytics ADD EPLActive int"),
+      ]);
+      await connection.query(
+        "UPDATE analytics SET Bundesliga=0, BundesligaActive=0, EPL=0, EPLACTIVE=0"
+      );
       oldVersion = "1.8.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
@@ -313,6 +323,27 @@ async function update() {
       users: users.length,
       activeUsers: users.filter((e) => e.active).length,
       version: version.version,
+      // Gets all the statistics for the leagues
+      Bundesliga: (
+        await connection3.query(
+          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league='Bundesliga')"
+        )
+      ).length,
+      BundesligaActive: (
+        await connection3.query(
+          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league='Bundesliga') AND EXISTS (SELECT * FROM users WHERE users.id=leagueUsers.user AND active='1')"
+        )
+      ).length,
+      EPL: (
+        await connection3.query(
+          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league='EPL')"
+        )
+      ).length,
+      EPLActive: (
+        await connection3.query(
+          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league='EPL') AND EXISTS (SELECT * FROM users WHERE users.id=leagueUsers.user AND active='1')"
+        )
+      ).length,
     });
     if (
       process.env.APP_ENV !== "development" &&

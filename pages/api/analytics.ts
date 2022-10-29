@@ -9,7 +9,16 @@ export default async function handler(
     const connection = await connect();
     // Collects all the analytics data
     const day = Math.floor(Date.now() / 1000 / 86400);
-    const { serverID, version, users, activeUsers } = req.body;
+    const {
+      serverID,
+      version,
+      users,
+      activeUsers,
+      Bundesliga,
+      BundesligaActive,
+      EPL,
+      EPLActive,
+    } = req.body;
     // Deletes the analytics data from the user if it already exists
     await connection.query("DELETE FROM analytics WHERE serverID=? AND day=?", [
       serverID,
@@ -17,8 +26,18 @@ export default async function handler(
     ]);
     // Adds the analytics data
     connection.query(
-      "INSERT INTO analytics (serverID, day, version, users, activeUsers) VALUES (?, ?, ?, ?, ?)",
-      [serverID, day, version, users, activeUsers]
+      "INSERT INTO analytics (serverID, day, version, users, activeUsers, Bundesliga, BundesligaActive, EPL, EPLActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        serverID,
+        day,
+        version,
+        users,
+        activeUsers,
+        Bundesliga,
+        BundesligaActive,
+        EPL,
+        EPLActive,
+      ]
     );
     connection.end();
     res.status(200).end();
