@@ -17,8 +17,8 @@
     "start:no-build": "node scripts/entrypoint.js & next start"
   },
   "dependencies": {
-    "@emotion/react": "11.10.4",
-    "@emotion/styled": "11.10.4",
+    "@emotion/react": "11.10.5",
+    "@emotion/styled": "11.10.5",
     "@mui/material": "5.10.11",
     "@socialgouv/matomo-next": "1.4.0",
     "@types/mysql": "2.15.21",
