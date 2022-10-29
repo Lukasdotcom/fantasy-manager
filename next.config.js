@@ -7,7 +7,7 @@ const withPWA = require("next-pwa")({
 const nextConfig = withPWA({
   reactStrictMode: true,
   images: {
-    domains: ["i.bundesliga.com"],
+    domains: ["i.bundesliga.com", "resources.premierleague.com"],
   },
 });
 

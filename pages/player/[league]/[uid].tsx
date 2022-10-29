@@ -1,7 +1,7 @@
-import Menu from "../../components/Menu";
+import Menu from "../../../components/Menu";
 import { GetServerSideProps } from "next";
 import Head from "next/head.js";
-import connect from "../../Modules/database";
+import connect from "../../../Modules/database";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
@@ -33,6 +33,7 @@ interface props {
     };
   };
   times: number[];
+  league: string;
 }
 interface Column {
   id:
@@ -90,7 +91,7 @@ interface Data {
   position: string;
   exists: 1 | 0;
 }
-export default function Home({ player, times, uid }: props) {
+export default function Home({ player, times, uid, league }: props) {
   // Stores the amount of time left until the game starts
   const [countdown, setCountown] = useState<number>(
     (player.game.gameStart - Date.now() / 1000) / 60
@@ -117,7 +118,7 @@ export default function Home({ player, times, uid }: props) {
     count--;
     if (count > 0) {
       if (rows[String(time)] === undefined) {
-        fetch(`/api/player/${uid}?time=${time}`)
+        fetch(`/api/player/${league}/${uid}?time=${time}`)
           .then((e) => e.json())
           .then((data) => {
             let newRows = { ...rows };
@@ -159,8 +160,14 @@ export default function Home({ player, times, uid }: props) {
       <h1>
         {player.name} ({player.position}) - {player.club}
       </h1>
-      <Image src={player.pictureUrl} alt="" width={300} height={300} />
+      <Image
+        src={player.pictureUrl}
+        alt=""
+        width={league === "EPL" ? 234 : 300}
+        height={300}
+      />
       <h2>Current Player Info</h2>
+      <p>League: {league}</p>
       <p>Value : {player.value / 1000000}M</p>
       <p>Total Points(This season) : {player.total_points}</p>
       <p>Average Points(This season) : {player.average_points}</p>
@@ -239,34 +246,40 @@ export default function Home({ player, times, uid }: props) {
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const connection = await connect();
-  const uid = ctx.params ? ctx.params.uid : "";
+  const uid = ctx.params?.uid as string;
+  const league = ctx.params?.league as string;
   // This makes the program wait until all updates are completed
   while (
     await connection
-      .query("SELECT * FROM data WHERE value1='locked'")
+      .query("SELECT * FROM data WHERE value1=?", ["locked" + league])
       .then((res) => res.length > 0)
   ) {
     await new Promise((res) => setTimeout(res, 500));
   }
-  const player = await connection.query("SELECT * FROM players WHERE uid=?", [
-    uid,
-  ]);
+  const player = await connection.query(
+    "SELECT * FROM players WHERE uid=? AND league=?",
+    [uid, league]
+  );
   if (player.length == 0) {
     return {
       notFound: true,
     };
   }
   player[0].game = await connection
-    .query("SELECT * FROM clubs WHERE club=?", [player[0].club])
+    .query("SELECT * FROM clubs WHERE club=? AND league=?", [
+      player[0].club,
+      league,
+    ])
     .then((res) =>
       res.length > 0
         ? { opponent: res[0].opponent, gameStart: res[0].gameStart }
         : undefined
     );
   const times = await connection
-    .query("SELECT * FROM historicalPlayers WHERE uid=? ORDER BY time DESC", [
-      uid,
-    ])
+    .query(
+      "SELECT * FROM historicalPlayers WHERE uid=? AND league=? ORDER BY time DESC",
+      [uid, league]
+    )
     .then((res) => {
       let result: number[] = [];
       res.forEach((e: { time: number }) => {
@@ -276,5 +289,5 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     });
   connection.end();
   // Checks if the matchday exists
-  return { props: { uid, player: player[0], times } };
+  return { props: { uid, player: player[0], times, league } };
 };

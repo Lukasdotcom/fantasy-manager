@@ -6,7 +6,10 @@ services:
     links:
       - db
     environment:
-      - BUNDESLIGA_API= # How to get this value is in the README
+      # Enable EPL by uncommenting next line
+      #- ENABLE_EPL=enabled
+      # Enable bundesliga by uncommenting the next line and getting the bundesliga_api key
+      #- BUNDESLIGA_API= # How to get this value is in the README
       - NEXTAUTH_URL=http://localhost # The url of the server
       - MYSQL_USER=bundesliga
       - MYSQL_PASSWORD=password

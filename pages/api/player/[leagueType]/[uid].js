@@ -1,16 +1,17 @@
-import connect from "../../../Modules/database";
-import { checkUpdate } from "../../../scripts/checkUpdate";
+import connect from "../../../../Modules/database";
+import { checkUpdate } from "../../../../scripts/checkUpdate";
 // Used to return a dictionary on the data for a player
 export default async function handler(req, res) {
   if (req.method == "GET") {
     const connection = await connect();
+    const league = req.query.leagueType;
     // Checks if new data needs to be requested
-    checkUpdate();
+    await checkUpdate(league);
     let result = [];
     if (parseInt(req.query.time) > 0) {
       result = await connection.query(
-        "SELECT * FROM historicalPlayers WHERE uid=? AND time=?",
-        [req.query.uid, parseInt(req.query.time)]
+        "SELECT * FROM historicalPlayers WHERE uid=? AND time=? AND league=?",
+        [req.query.uid, parseInt(req.query.time), league]
       );
       if (result.length > 0) {
         result[0].forecast = "a";
@@ -19,19 +20,22 @@ export default async function handler(req, res) {
       // This makes the program wait until all updates are completed
       while (
         await connection
-          .query("SELECT * FROM data WHERE value1='locked'")
+          .query("SELECT * FROM data WHERE value1=?", ["locked" + league])
           .then((res) => res.length > 0)
       ) {
         await new Promise((res) => setTimeout(res, 500));
       }
       result = await connection.query(
-        `SELECT * FROM players WHERE uid=? LIMIT 1`,
-        [req.query.uid]
+        `SELECT * FROM players WHERE uid=? AND league=? LIMIT 1`,
+        [req.query.uid, league]
       );
       // Adds the game information
       if (result.length > 0) {
         result[0].game = await connection
-          .query("SELECT * FROM clubs WHERE club=?", [result[0].club])
+          .query("SELECT * FROM clubs WHERE club=? AND league=?", [
+            result[0].club,
+            league,
+          ])
           .then((res) =>
             res.length > 0
               ? { opponent: res[0].opponent, gameStart: res[0].gameStart }
@@ -56,14 +60,16 @@ export default async function handler(req, res) {
       ) {
         const timeLeft =
           (await connection
-            .query("SELECT * FROM data WHERE value1='playerUpdate'")
+            .query("SELECT * FROM data WHERE value1=?", [
+              "playerUpdate" + league,
+            ])
             .then((res) => (res.length > 0 ? res[0].value2 : Math.max()))) -
           parseInt(Date.now() / 1000) +
           parseInt(
             (await connection
-              .query(
-                "SELECT * FROM data WHERE value1='transferOpen' AND value2='true'"
-              )
+              .query("SELECT * FROM data WHERE value1=? AND value2='true'", [
+                "transferOpen" + league,
+              ])
               .then((res) => res.length > 0))
               ? process.env.MIN_UPDATE_TIME_TRANSFER
               : process.env.MIN_UPDATE_TIME

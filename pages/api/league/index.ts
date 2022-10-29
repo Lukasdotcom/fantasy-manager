@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-import connect from "../../../Modules/database";
+import connect, { leagues } from "../../../Modules/database";
 
 export default async function handler(
   req: NextApiRequest,
@@ -22,6 +22,11 @@ export default async function handler(
           res.status(500).end("Failed to create league");
           break;
         }
+        const leagueType = req.body.leagueType;
+        if (!leagues.includes(leagueType)) {
+          res.status(404).end("Invalud league type given");
+          break;
+        }
         if (req.body.name == "") {
           res.status(500).end("Invalid league name given");
           break;
@@ -29,13 +34,13 @@ export default async function handler(
         const startMoney = parseInt(req.body["Starting Money"]);
         if (startMoney > 100000) {
           await connection.query(
-            "INSERT INTO leagueSettings (leagueName, leagueID, startMoney) VALUES (?, ?, ?)",
-            [req.body.name, id, startMoney]
+            "INSERT INTO leagueSettings (leagueName, leagueID, startMoney, league) VALUES (?, ?, ?, ?)",
+            [req.body.name, id, startMoney, leagueType]
           );
         } else {
           await connection.query(
-            "INSERT INTO leagueSettings (leagueName, leagueID) VALUES (?, ?)",
-            [req.body.name, id]
+            "INSERT INTO leagueSettings (leagueName, leagueID, league) VALUES (?, ?, ?)",
+            [req.body.name, id, leagueType]
           );
         }
         connection.query(
@@ -44,7 +49,9 @@ export default async function handler(
         );
         // Checks if the game is in a transfer period and if yes it starts the first matchday automatically
         const transferClosed = await connection
-          .query("SELECT value2 FROM data WHERE value1='transferOpen'")
+          .query("SELECT value2 FROM data WHERE value1=?", [
+            "transferOpen" + leagueType,
+          ])
           .then((res) => res[0].value2 !== "true");
         if (transferClosed) {
           connection.query(

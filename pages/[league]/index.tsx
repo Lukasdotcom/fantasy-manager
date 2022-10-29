@@ -42,6 +42,7 @@ interface AdminPanelProps {
   leagueName: string;
   setLeagueName: (name: string) => void;
   admin: boolean;
+  leagueType: string;
 }
 // Creates the admin panel
 function AdminPanel({
@@ -49,6 +50,7 @@ function AdminPanel({
   leagueName,
   setLeagueName,
   admin,
+  leagueType,
 }: AdminPanelProps) {
   const notify = useContext(NotifyContext);
   const [startingMoney, setStartingMoney] = useState(150);
@@ -81,6 +83,7 @@ function AdminPanel({
     return (
       <>
         <h1>Admin Panel</h1>
+        <p>League Used: {leagueType}</p>
         <TextField
           id="leagueName"
           variant="outlined"
@@ -231,6 +234,7 @@ function AdminPanel({
     return (
       <>
         <h1>Settings</h1>
+        <p>League Used: {leagueType}</p>
         <p>Starting Money : {startingMoney}</p>
         <p>Transfer Limit : {transfers}</p>
         <p>Number of Squads a Player can be in : {duplicatePlayers}</p>
@@ -386,6 +390,7 @@ interface Props {
   host: string | undefined;
   leagueName: string;
   league: number;
+  leagueType: string;
 }
 export default function Home({
   admin,
@@ -395,6 +400,7 @@ export default function Home({
   inviteLinks,
   host,
   leagueName,
+  leagueType,
 }: Props) {
   const notify = useContext(NotifyContext);
   const [inputLeagueName, setInputLeagueName] = useState(leagueName);
@@ -533,6 +539,7 @@ export default function Home({
         setLeagueName={setInputLeagueName}
         league={league}
         admin={admin}
+        leagueType={leagueType}
       />
     </>
   );

@@ -1,6 +1,5 @@
-import connect, { data } from "../Modules/database";
+import connect, { data, leagues } from "../Modules/database";
 import { updateData } from "./update";
-import { checkUpdate } from "./checkUpdate";
 import version from "./../package.json";
 import dotenv from "dotenv";
 import { unlink } from "fs";
@@ -12,7 +11,7 @@ if (process.env.APP_ENV !== "test") {
 }
 const analyticsDomain = "https://bundesliga.lschaefer.xyz";
 // Used to tell the program what version of the database to use
-const currentVersion = "1.7.0";
+const currentVersion = "1.8.0";
 const date = new Date();
 let day = date.getDay();
 
@@ -37,7 +36,7 @@ async function startUp() {
     ),
     // Used to store the players data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool)"
+      "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))"
     ),
     // Creates a table that contains some key value pairs for data that is needed for some things
     connection.query(
@@ -45,7 +44,7 @@ async function startUp() {
     ),
     // Used to store the leagues settings
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150)"
+      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25))"
     ),
     // Used to store the leagues users
     connection.query(
@@ -73,7 +72,7 @@ async function startUp() {
     ),
     // Used to store historical player data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), total_points int, average_points int, last_match int, `exists` bool)"
+      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))"
     ),
     // Used to store historical transfer data
     connection.query(
@@ -81,7 +80,7 @@ async function startUp() {
     ),
     // Used to store club data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, opponent varchar(3))"
+      "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, opponent varchar(3), league varchar(25))"
     ),
     // Used to store analytics data
     connection.query(
@@ -94,7 +93,9 @@ async function startUp() {
     [String(Math.random() * 8980989890)]
   );
   // Unlocks the database
-  connection.query("DELETE FROM data WHERE value1='locked'");
+  leagues.forEach((e) => {
+    connection.query("DELETE FROM data WHERE value1=?", ["locked" + e]);
+  });
   // Checks the version of the database is out of date
   let getOldVersion: data[] = await connection.query(
     "SELECT value2 FROM data WHERE value1='version'"
@@ -231,6 +232,42 @@ async function startUp() {
       await connection.query("UPDATE users SET admin=0");
       oldVersion = "1.7.0";
     }
+    if (oldVersion == "1.7.0") {
+      console.log("Updating database to version 1.8.0");
+      // Adds the league column to the db
+      await Promise.all([
+        connection.query("ALTER TABLE players ADD league varchar(25)"),
+        connection.query("ALTER TABLE leagueSettings ADD league varchar(25)"),
+        connection.query(
+          "ALTER TABLE historicalPlayers ADD league varchar(25)"
+        ),
+        connection.query("ALTER TABLE clubs ADD league varchar(25)"),
+      ]);
+      // Sets the league column to bundesliga everywhere
+      await Promise.all([
+        connection.query("UPDATE players SET league='Bundesliga'"),
+        connection.query("UPDATE leagueSettings SET league='Bundesliga'"),
+        connection.query("UPDATE historicalPlayers SET league='Bundesliga'"),
+        connection.query("UPDATE clubs SET league='Bundesliga'"),
+      ]);
+      // Deletes some old uneccessary data from the db and moves it to the new data
+      await Promise.all([
+        connection.query(
+          "UPDATE data SET value1='updateBundesliga' WHERE value1='update'"
+        ),
+        connection.query(
+          "UPDATE data SET value1='transferOpenBundesliga' WHERE value1='transferOpen'"
+        ),
+        connection.query(
+          "UPDATE data SET value1='playerUpdateBundesliga' WHERE value1='playerUpdate'"
+        ),
+        connection.query(
+          "UPDATE data SET value1='countdownBundesliga' WHERE value1='countdown'"
+        ),
+        connection.query("DELETE FROM data WHERE value1='locked'"),
+      ]);
+      oldVersion = "1.8.0";
+    }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date
     if (oldVersion !== currentVersion) {
@@ -254,7 +291,9 @@ async function startUp() {
   connection.end();
   // Makes sure to check if an update is neccessary every 10 seconds
   setInterval(update, 10000);
-  updateData();
+  leagues.forEach((e) => {
+    updateData(e);
+  });
 }
 startUp();
 async function update() {
@@ -298,70 +337,92 @@ async function update() {
     });
     connection3.query("UPDATE users SET active=0");
     console.log("Downloading new data for today");
-    updateData();
+    // Updates every single league
+    leagues.forEach((e) => {
+      updateData(e);
+    });
     // Checks if an update was requested
-  } else if (
-    (
-      await connection3.query(
-        "SELECT * FROM data WHERE value1='update' and value2='1'"
-      )
-    ).length > 0
-  ) {
-    console.log("Updating data now");
-    updateData();
-  }
-  connection3.query(
-    "INSERT INTO data (value1, value2) VALUES('update', '0') ON DUPLICATE KEY UPDATE value2=0"
-  );
-  // Checks how much longer the transfer period is and lowers the value for the transfer period length and if the transfer period is about to end ends it
-  const countdown = await connection3.query(
-    "SELECT value2 FROM data WHERE value1='countdown'"
-  );
-  const transferOpen = await connection3
-    .query("SELECT value2 FROM data WHERE value1='transferOpen'")
-    .then((res: data[]) => (res.length > 0 ? res[0].value2 === "true" : false));
-  if (countdown.length > 0) {
-    const time = countdown[0].value2;
-    // Updates the countdown
-    if (transferOpen) {
-      if (time - 11 > 0) {
-        connection3.query("UPDATE data SET value2=? WHERE value1='countdown'", [
-          time - 10,
-        ]);
-      } else {
-        // Makes sure that the amount of time left in the transfer is not unknown
-        if (time > 0) {
-          console.log(`Predicting start of matchday in ${time} seconds`);
-          // Makes sure to wait until the time is done
-          setTimeout(updateData, time * 1000 + 1);
-          connection3.query(
-            "UPDATE data SET value2=? WHERE value1='countdown'",
-            [time - 10]
-          );
-        }
+  } else {
+    leagues.forEach(async (e) => {
+      if (
+        (
+          await connection3.query(
+            "SELECT * FROM data WHERE value1=? and value2='1'",
+            ["update" + e]
+          )
+        ).length > 0
+      ) {
+        console.log(`Updating data for ${e} now`);
+        updateData(e);
       }
-    } else {
-      if (time - 11 > 0) {
-        // If there is about an hour left an update is requested
-        if (time - 3600 < 11) {
-          checkUpdate();
+    });
+  }
+  leagues.forEach(async (e) => {
+    const connection4 = await connect();
+    connection4.query(
+      "INSERT INTO data (value1, value2) VALUES(?, '0') ON DUPLICATE KEY UPDATE value2=0",
+      ["update" + e]
+    );
+    // Checks how much longer the transfer period is and lowers the value for the transfer period length and if the transfer period is about to end ends it
+    const countdown = await connection4.query(
+      "SELECT value2 FROM data WHERE value1=?",
+      ["countdown" + e]
+    );
+    const transferOpen = await connection4
+      .query("SELECT value2 FROM data WHERE value1=?", ["transferOpen" + e])
+      .then((res: data[]) =>
+        res.length > 0 ? res[0].value2 === "true" : false
+      );
+    if (countdown.length > 0) {
+      const time = countdown[0].value2;
+      // Updates the countdown
+      if (transferOpen) {
+        if (time - 11 > 0) {
+          connection4.query("UPDATE data SET value2=? WHERE value1=?", [
+            time - 10,
+            "countdown" + e,
+          ]);
+        } else {
+          // Makes sure that the amount of time left in the transfer is not unknown
+          if (time > 0) {
+            console.log(
+              `Predicting start of matchday in ${time} seconds for ${e}`
+            );
+            // Makes sure to wait until the time is done
+            setTimeout(() => {
+              updateData(e);
+            }, time * 1000 + 1);
+            connection4.query("UPDATE data SET value2=? WHERE value1=?", [
+              time - 10,
+              "countdown" + e,
+            ]);
+          }
         }
-        connection3.query("UPDATE data SET value2=? WHERE value1='countdown'", [
-          time - 10,
-        ]);
       } else {
-        // Makes sure that the amount of time left in the matchday is not unknown
-        if (time > 0) {
-          console.log(`Predicting end of matchday in ${time} seconds`);
-          setTimeout(updateData, time * 1000 + 1);
-          connection3.query(
-            "UPDATE data SET value2=? WHERE value1='countdown'",
-            [time - 10]
-          );
+        if (time - 11 > 0) {
+          connection4.query("UPDATE data SET value2=? WHERE value1=?", [
+            time - 10,
+            "countdown" + e,
+          ]);
+        } else {
+          // Makes sure that the amount of time left in the matchday is not unknown
+          if (time > 0) {
+            console.log(
+              `Predicting end of matchday in ${time} seconds for ${e}`
+            );
+            setTimeout(() => {
+              updateData(e);
+            }, time * 1000 + 1);
+            connection4.query("UPDATE data SET value2=? WHERE value1=?", [
+              time - 10,
+              "countdown" + e,
+            ]);
+          }
         }
       }
     }
-  }
+    connection4.end();
+  });
   // Updates the latest update check value
   connection3.query(
     "INSERT INTO data (value1, value2) VALUES('lastUpdateCheck', ?) ON DUPLICATE KEY UPDATE value2=?",
