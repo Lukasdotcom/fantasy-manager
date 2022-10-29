@@ -83,7 +83,7 @@ function AdminPanel({
     return (
       <>
         <h1>Admin Panel</h1>
-        <p>League Used: {leagueType}</p>
+        <p>League Type Used: {leagueType}</p>
         <TextField
           id="leagueName"
           variant="outlined"
@@ -234,7 +234,7 @@ function AdminPanel({
     return (
       <>
         <h1>Settings</h1>
-        <p>League Used: {leagueType}</p>
+        <p>League Type Used: {leagueType}</p>
         <p>Starting Money : {startingMoney}</p>
         <p>Transfer Limit : {transfers}</p>
         <p>Number of Squads a Player can be in : {duplicatePlayers}</p>
