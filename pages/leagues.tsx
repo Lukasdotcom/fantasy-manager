@@ -15,6 +15,9 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Select,
+  MenuItem,
+  InputLabel,
 } from "@mui/material";
 import { NotifyContext } from "../Modules/context";
 import {
@@ -22,12 +25,15 @@ import {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
+import { leagues as leagueTypes } from "../Modules/database";
 interface MakeLeagueProps {
   getLeagueData: () => Promise<void>;
+  leagues: string[];
 }
 // Used to create a new League
-function MakeLeague({ getLeagueData }: MakeLeagueProps) {
+function MakeLeague({ getLeagueData, leagues }: MakeLeagueProps) {
   const notify = useContext(NotifyContext);
+  const [leagueType, setLeagueType] = useState<string>(leagues[0]);
   const [leagueName, setLeagueName] = useState("");
   const [startingMoney, setStartingMoney] = useState(150);
   return (
@@ -55,6 +61,18 @@ function MakeLeague({ getLeagueData }: MakeLeagueProps) {
         }}
         value={leagueName}
       />
+      <InputLabel htmlFor="leagueType">Which league: </InputLabel>
+      <Select
+        value={leagueType}
+        onChange={(val) => setLeagueType(val.target.value)}
+        id="leagueType"
+      >
+        {leagues.map((val) => (
+          <MenuItem key={val} value={val}>
+            {val}
+          </MenuItem>
+        ))}
+      </Select>
       <br></br>
       <Button
         variant="contained"
@@ -70,6 +88,7 @@ function MakeLeague({ getLeagueData }: MakeLeagueProps) {
             body: JSON.stringify({
               name: leagueName,
               "Starting Money": startingMoney * 1000000,
+              leagueType,
             }),
           });
           notify(await response.text(), response.ok ? "success" : "error");
@@ -184,9 +203,10 @@ function LeaveLeague({
 }
 interface LeaguesProps {
   leagueData: LeagueListResult[];
+  leagues: string[];
 }
 // Used to list all the leagues you are part of and to add a league
-function Leagues({ leagueData }: LeaguesProps) {
+function Leagues({ leagueData, leagues }: LeaguesProps) {
   const notify = useContext(NotifyContext);
   const { data: session } = useSession();
   const [leagueList, setLeagueList] = useState(leagueData);
@@ -279,7 +299,7 @@ function Leagues({ leagueData }: LeaguesProps) {
         >
           Clear Favorite League<Icon>delete</Icon>
         </Button>
-        <MakeLeague getLeagueData={getLeagueData} />
+        <MakeLeague getLeagueData={getLeagueData} leagues={leagues} />
       </>
     );
   } else {
@@ -288,6 +308,7 @@ function Leagues({ leagueData }: LeaguesProps) {
 }
 export default function Home({
   leagueData,
+  leagues,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
@@ -297,7 +318,7 @@ export default function Home({
       <Menu />
       <h1>Bundesliga Fantasy Manager</h1>
       <SessionProvider>
-        <Leagues leagueData={leagueData} />
+        <Leagues leagueData={leagueData} leagues={leagues} />
       </SessionProvider>
     </>
   );
@@ -310,6 +331,7 @@ export const getServerSideProps: GetServerSideProps = async (
     return {
       props: {
         leagueData: await leagueList(session.user.id),
+        leagues: leagueTypes,
       },
     };
   } else {

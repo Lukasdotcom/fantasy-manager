@@ -94,12 +94,12 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
             setPictureUrl(fallbackImg);
           }}
           src={pictureUrl}
-          width="100px"
+          width={data.league === "EPL" ? "78px" : "100px"}
           height="100px"
         />
         <div style={{ width: "70%" }}>
           <p>
-            <Link styled={false} href={`/player/${data.uid}`}>
+            <Link styled={false} href={`/player/${data.league}/${data.uid}`}>
               {data.name}
             </Link>
             {starred ? (
@@ -223,6 +223,7 @@ export function TransferPlayer({
   open,
   duplicatePlayers,
   allOwnership,
+  leagueType,
 }) {
   const notify = useContext(NotifyContext);
   const session = useSession();
@@ -240,12 +241,14 @@ export function TransferPlayer({
   // Used to get the data for the player
   useEffect(() => {
     async function getData() {
-      const info = await (await fetch(`/api/player/${uid}`)).json();
+      const info = await (
+        await fetch(`/api/player/${leagueType}/${uid}`)
+      ).json();
       setData(info);
       setAmount(info.value / 1000000);
     }
     getData();
-  }, [uid]);
+  }, [uid, leagueType]);
   // Used to purchase a player
   function buySell(amount) {
     amount = amount * 1000000;
@@ -475,16 +478,24 @@ export function TransferPlayer({
   );
 }
 // Used for the squad. Field should be undefined unless they are on the bench and then it shoud give what positions are still open
-export function SquadPlayer({ uid, update, field, league, starred, status }) {
+export function SquadPlayer({
+  uid,
+  update,
+  field,
+  league,
+  starred,
+  status,
+  leagueType,
+}) {
   const notify = useContext(NotifyContext);
   const [data, setData] = useState({});
   // Used to get the data for the player
   useEffect(() => {
     async function getData() {
-      setData(await (await fetch(`/api/player/${uid}`)).json());
+      setData(await (await fetch(`/api/player/${leagueType}/${uid}`)).json());
     }
     getData();
-  }, [uid]);
+  }, [uid, leagueType]);
   // Checks if the player is on the bench or not
   let MoveButton = "";
   let disabled = false;
@@ -567,15 +578,15 @@ export function SquadPlayer({ uid, update, field, league, starred, status }) {
   );
 }
 // Used to show the player without any buttons
-export function Player({ uid, children, starred }) {
+export function Player({ uid, children, starred, leagueType }) {
   const [data, setData] = useState({});
   // Used to get the data for the player
   useEffect(() => {
     async function getData() {
-      setData(await (await fetch(`/api/player/${uid}`)).json());
+      setData(await (await fetch(`/api/player/${leagueType}/${uid}`)).json());
     }
     getData();
-  }, [uid]);
+  }, [uid, leagueType]);
   return (
     <InternalPlayer data={data} starred={starred} condensed={"historical"}>
       {" "}
@@ -584,15 +595,19 @@ export function Player({ uid, children, starred }) {
   );
 }
 // Used to show the player with historical data
-export function HistoricalPlayer({ uid, time, children, starred }) {
+export function HistoricalPlayer({ uid, time, children, starred, leagueType }) {
   const [data, setData] = useState({});
   // Used to get the data for the player
   useEffect(() => {
     async function getData() {
-      setData(await (await fetch(`/api/player/${uid}?time=${time}`)).json());
+      setData(
+        await (
+          await fetch(`/api/player/${leagueType}/${uid}?time=${time}`)
+        ).json()
+      );
     }
     getData();
-  }, [uid, time]);
+  }, [uid, time, leagueType]);
   return (
     <InternalPlayer data={data} starred={starred} condensed={"historical"}>
       {" "}
