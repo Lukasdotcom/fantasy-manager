@@ -2,7 +2,7 @@ import Menu from "../components/Menu";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head.js";
 import { getSession } from "next-auth/react";
-import connect, { leagues } from "../Modules/database";
+import connect, { analytics, leagues } from "../Modules/database";
 import React, { useState } from "react";
 import {
   Chart as ChartJS,
@@ -19,7 +19,7 @@ import { Line } from "react-chartjs-2";
 import { Slider, Typography } from "@mui/material";
 
 interface props {
-  analytics: analyticsData[];
+  analytics: analytics[];
   leagues: string[];
 }
 interface ChartData {
@@ -28,13 +28,6 @@ interface ChartData {
   data: number[];
   borderColor: string;
   backgroundColor: string;
-}
-interface analyticsData {
-  serverID: string;
-  day: number;
-  version: string;
-  users: number;
-  activeUsers: number;
 }
 // This function is used to sort an array of semantic versions
 function compareSemanticVersions(key: string, a: any, b: any) {
@@ -73,12 +66,6 @@ export default function Home({ analytics, leagues }: props) {
   const options = {
     maintainAspectRatio: false,
     responsive: true,
-    plugins: {
-      title: {
-        display: true,
-        text: "Analytics Data",
-      },
-    },
     scales: {
       x: {
         title: {
@@ -116,6 +103,10 @@ export default function Home({ analytics, leagues }: props) {
   historicalVersionColor.reverse();
   const datasetActive: ChartData[] = [];
   const datasetInActive: ChartData[] = [];
+  const BundesligaData: Record<string, number> = {};
+  const BundesligaActiveData: Record<string, number> = {};
+  const EPLData: Record<string, number> = {};
+  const EPLActiveData: Record<string, number> = {};
   let counter = 0;
   // Adds all the data to the dataset
   while (sortedAnalytics.length > counter) {
@@ -134,6 +125,25 @@ export default function Home({ analytics, leagues }: props) {
       let data = sortedAnalytics[counter];
       counter++;
       if (data) {
+        // Calculates all the league data
+        if (!BundesligaData[String(data?.day)]) {
+          BundesligaData[String(data?.day)] = 0;
+        }
+        BundesligaData[String(data?.day)] +=
+          data.Bundesliga - data.BundesligaActive;
+        if (!BundesligaActiveData[String(data?.day)]) {
+          BundesligaActiveData[String(data?.day)] = 0;
+        }
+        BundesligaActiveData[String(data?.day)] += data.BundesligaActive;
+        if (!EPLData[String(data?.day)]) {
+          EPLData[String(data?.day)] = 0;
+        }
+        EPLData[String(data?.day)] += data.EPL - data.EPLActive;
+        if (!EPLActiveData[String(data?.day)]) {
+          EPLActiveData[String(data?.day)] = 0;
+        }
+        EPLActiveData[String(data?.day)] += data.EPLActive;
+        // Calculates all the version data
         if (!activeData[String(data?.day)]) {
           activeData[String(data?.day)] = 0;
         }
@@ -168,13 +178,56 @@ export default function Home({ analytics, leagues }: props) {
       backgroundColor: color(0.6),
     });
   }
-  const data = {
+  const versionData = {
     // Makes the labels nicer to read
     labels: labels.map((e) => {
       const date = new Date(e * 3600 * 24 * 1000);
       return date.toDateString();
     }),
     datasets: [...datasetActive, ...datasetInActive],
+  };
+  const leagueData = {
+    // Makes the labels nicer to read
+    labels: labels.map((e) => {
+      const date = new Date(e * 3600 * 24 * 1000);
+      return date.toDateString();
+    }),
+    datasets: [
+      {
+        fill: true,
+        label: "Bundesliga Active",
+        data: labels.map((e) =>
+          BundesligaActiveData[String(e)] ? BundesligaActiveData[String(e)] : 0
+        ),
+        borderColor: "rgba(209, 3, 19, 1)",
+        backgroundColor: "rgba(209, 3, 19, 1)",
+      },
+      {
+        fill: true,
+        label: "EPL Active",
+        data: labels.map((e) =>
+          EPLActiveData[String(e)] ? EPLActiveData[String(e)] : 0
+        ),
+        borderColor: "rgba(61, 25, 91, 1)",
+        backgroundColor: "rgba(61, 25, 91, 1)",
+      },
+      {
+        fill: true,
+        label: "Bundesliga",
+        data: labels.map((e) =>
+          BundesligaData[String(e)] ? BundesligaData[String(e)] : 0
+        ),
+        borderColor: "rgba(209, 3, 19, 0.7)",
+        backgroundColor: "rgba(209, 3, 19, 0.6)",
+      },
+      {
+        fill: true,
+        label: "EPL",
+        data: labels.map((e) => (EPLData[String(e)] ? EPLData[String(e)] : 0)),
+        borderColor: "rgba(61, 25, 91, 0.7)",
+        backgroundColor: "rgba(61, 25, 91, 0.6)",
+      },
+    ],
   };
   // This is used to give the scale a logarithmic values
   function calculateValue(value: number) {
@@ -194,8 +247,21 @@ export default function Home({ analytics, leagues }: props) {
       <Menu />
       <h1>Admin Panel</h1>
       <h2>Analytics</h2>
+      <h3>Version Data</h3>
+      <p>
+        This graph shows how many users are using each (server) version. Active
+        users are defined as users that are active on that day.
+      </p>
       <div style={{ height: "min(max(50vh, 50vw), 80vh)", width: "100%" }}>
-        <Line options={options} data={data} />
+        <Line options={options} data={versionData} />
+      </div>
+      <h3>League Type Data</h3>
+      <p>
+        This graph shows how many users are using each league type. Note that
+        users are counted based on how many leagues they are in.
+      </p>
+      <div style={{ height: "min(max(50vh, 50vw), 80vh)", width: "100%" }}>
+        <Line options={options} data={leagueData} />
       </div>
       <Typography id="graph-length" gutterBottom>
         Graph Data Length: {calculateValue(graphLength)} Days
@@ -212,7 +278,7 @@ export default function Home({ analytics, leagues }: props) {
       />
       <h2>Enabled League Types</h2>
       <p>
-        Bundesliga is{" "}
+        The Bundesliga is{" "}
         {leagues.includes("Bundesliga")
           ? "enabled."
           : "disabled. To enable enter a bundesliga api key as directed in the readme into the enviromental variable BUNDESLIGA_API."}
