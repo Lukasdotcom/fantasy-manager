@@ -112,22 +112,23 @@ export default function Home({ player, times, uid, league }: props) {
     },
   });
   // Loads the data up to that amount(If on the server nothing new is loaded)
-  let count =
-    typeof window === "undefined" ? 0 : page * rowsPerPage + rowsPerPage;
-  times.forEach((time) => {
-    count--;
-    if (count > 0) {
-      if (rows[String(time)] === undefined) {
-        fetch(`/api/player/${league}/${uid}?time=${time}`)
-          .then((e) => e.json())
-          .then((data) => {
-            let newRows = { ...rows };
-            newRows[String(time)] = data;
-            setRows(newRows);
-          });
+  useEffect(() => {
+    let count = page * rowsPerPage + rowsPerPage;
+    times.forEach((time) => {
+      count--;
+      if (count > 0) {
+        if (rows[String(time)] === undefined) {
+          fetch(`/api/player/${league}/${uid}?time=${time}`)
+            .then((e) => e.json())
+            .then((data) => {
+              let newRows = { ...rows };
+              newRows[String(time)] = data;
+              setRows(newRows);
+            });
+        }
       }
-    }
-  });
+    });
+  }, [page, rowsPerPage, league, rows, times, uid]);
   // Used to change the page
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
