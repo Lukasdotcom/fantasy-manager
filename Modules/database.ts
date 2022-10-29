@@ -262,7 +262,7 @@ export interface analytics {
 }
 const validLeagues = (): string[] => {
   const leagues = [];
-  if (process.env.APP_ENV) return ["Bundesliga"];
+  if (process.env.APP_ENV === "test") return ["Bundesliga"];
   if (process.env.BUNDESLIGA_API) leagues.push("Bundesliga");
   if (process.env.ENABLE_EPL) leagues.push("EPL");
   return leagues;
