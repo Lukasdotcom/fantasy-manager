@@ -91,11 +91,15 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
           alt=""
           onError={() => {
             // If the picture does not exist a fallback picture is used
-            console.log(1)
+            console.log(1);
             setPictureUrl(fallbackImg);
           }}
           src={pictureUrl}
-          width={data.league === "EPL" && pictureUrl !== fallbackImg ? "78px" : "100px"}
+          width={
+            data.league === "EPL" && pictureUrl !== fallbackImg
+              ? "78px"
+              : "100px"
+          }
           height="100px"
         />
         <div style={{ width: "70%" }}>
