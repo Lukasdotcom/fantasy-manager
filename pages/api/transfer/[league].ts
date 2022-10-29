@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import connect, {
+  leagueSettings,
   leagueUsers,
   players,
   squad,
@@ -43,11 +44,10 @@ export default async function handler(
       ])
       .then((e) => (e.length > 0 ? e[0].money : false));
     // Gets the leagues settings
-    const leagueSettings = (
-      await connection.query(
-        "SELECT transfers, duplicatePlayers FROM leagueSettings WHERE leagueID=?",
-        [league]
-      )
+    const leagueSettings: leagueSettings = (
+      await connection.query("SELECT * FROM leagueSettings WHERE leagueID=?", [
+        league,
+      ])
     )[0];
     switch (req.method) {
       // Used to return a dictionary of all transfers and ownerships
@@ -67,11 +67,15 @@ export default async function handler(
             connection.query("SELECT * FROM squad WHERE leagueID=?", [league]),
             // Checks if the transfer market is open
             connection
-              .query("SELECT value2 FROM data WHERE value1='transferOpen'")
+              .query("SELECT value2 FROM data WHERE value1=?", [
+                "transferOpen" + leagueSettings.league,
+              ])
               .then((result) => result[0].value2 === "true"),
             // Gets the amount of time left in the transfer period
             connection
-              .query("SELECT value2 FROM data WHERE value1='countdown'")
+              .query("SELECT value2 FROM data WHERE value1=?", [
+                "countdown" + leagueSettings.league,
+              ])
               .then((result) => parseInt(result[0].value2)),
           ]);
           // Puts all the ownership and transfer info in a dictionary
@@ -120,8 +124,8 @@ export default async function handler(
         const playeruid = req.body.playeruid;
         const amount = parseInt(req.body.amount);
         const players: players[] = await connection.query(
-          "SELECT * FROM players WHERE uid=?",
-          [playeruid]
+          "SELECT * FROM players WHERE uid=? AND league=?",
+          [playeruid, leagueSettings.league]
         );
         // Checks if the player exists
         if (players.length == 0) {
@@ -217,7 +221,7 @@ export default async function handler(
               [money - player.value, league, user]
             );
             console.log(
-              `Player ${playeruid} bought for ${player.value} with max bid of ${amount} by user ${user}`
+              `Player ${playeruid} bought for ${player.value} with max bid of ${amount} by user ${user} in league ${league}`
             );
             res.status(200).end("Bought player");
             break;
@@ -271,7 +275,7 @@ export default async function handler(
                 console.log(
                   `User ${cheapest[0].buyer} increased bid to ${
                     cheapest[0].value + 100000
-                  } for ${playeruid} due to automatic bid increase`
+                  } for ${playeruid} due to automatic bid increase in league ${league}`
                 );
                 // Increases the bidding amount by 100k for that bid
                 await Promise.all([
@@ -321,14 +325,14 @@ export default async function handler(
                 console.log(
                   `User ${user} outbidded ${cheapest[0].buyer} with ${
                     cheapest[0].value + (isAI ? 0 : 100000)
-                  } for ${playeruid}`
+                  } for ${playeruid} in league ${league}`
                 );
                 res
                   .status(200)
                   .end(
                     `User ${user} bought player for ${
                       (cheapest[0].value + (isAI ? 0 : 100000)) / 1000000
-                    }M`
+                    }M in league ${league}`
                   );
                 break;
               }
@@ -447,7 +451,7 @@ export default async function handler(
           console.log(
             `User ${user} is ${
               actualAmount > player.value ? "planning to sell" : "selling"
-            } ${playeruid} for ${actualAmount}`
+            } ${playeruid} for ${actualAmount} in league ${league}`
           );
           res
             .status(200)
@@ -499,7 +503,7 @@ export default async function handler(
             );
             res.status(200).end("Cancelled transaction");
             console.log(
-              `User ${user} cancelled sale of ${playeruid} to ${sale.buyer} for ${sale.value}`
+              `User ${user} cancelled sale of ${playeruid} to ${sale.buyer} for ${sale.value} in league ${league}`
             );
             break;
           }
@@ -520,7 +524,7 @@ export default async function handler(
             );
             res.status(200).end("Cancelled transaction");
             console.log(
-              `User ${user} cancelled purchase of ${playeruid} from ${purchase.buyer} for ${player.value}`
+              `User ${user} cancelled purchase of ${playeruid} from ${purchase.buyer} for ${player.value} in league ${league}`
             );
             break;
           }

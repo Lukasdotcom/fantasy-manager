@@ -63,7 +63,9 @@ export default function Home({
   duplicatePlayers,
   leagueName,
   maxPrice,
+  leagueType,
 }) {
+  league;
   const positionList = ["gk", "def", "mid", "att"];
   const [players, setPlayers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -147,9 +149,9 @@ export default function Home({
     // Gets the data and returns the amount of players found
     setLoading(true);
     const newLength = await fetch(
-      `/api/player?${
-        isNew ? "" : `limit=${players.length + 10}`
-      }&searchTerm=${encodeURIComponent(
+      `/api/player/${leagueType}/search?${
+        isNew ? "" : `limit=${players.length + 10}&`
+      }searchTerm=${encodeURIComponent(
         searchTerm
       )}&clubSearch=${encodeURIComponent(
         clubSearch
@@ -294,6 +296,7 @@ export default function Home({
             transferData={transferData}
             open={open}
             duplicatePlayers={duplicatePlayers}
+            leagueType={leagueType}
           />
         ))}
       </SessionProvider>
@@ -305,18 +308,21 @@ export default function Home({
 export async function getServerSideProps(ctx) {
   const connection = await connect();
   // Gets the amount of allowed transfers
-  const [allowedTransfers, duplicatePlayers] = await connection
+  const [allowedTransfers, duplicatePlayers, league] = await connection
     .query(
-      "SELECT transfers, duplicatePlayers FROM leagueSettings WHERE leagueID=?",
+      "SELECT transfers, duplicatePlayers, league FROM leagueSettings WHERE leagueID=?",
       [ctx.params.league]
     )
     .then((result) =>
       result.length > 0
-        ? [result[0].transfers, result[0].duplicatePlayers]
-        : [0, 0]
+        ? [result[0].transfers, result[0].duplicatePlayers, result[0].league]
+        : [0, 0, "Bundesliga"]
     );
   const maxPrice = await connection
-    .query("SELECT value FROM players ORDER BY value DESC limit 1")
+    .query(
+      "SELECT value FROM players WHERE league=? ORDER BY value DESC limit 1",
+      [league]
+    )
     .then((res) => (res.length > 0 ? res[0].value : 0));
   connection.end();
   return await redirect(ctx, { allowedTransfers, duplicatePlayers, maxPrice });

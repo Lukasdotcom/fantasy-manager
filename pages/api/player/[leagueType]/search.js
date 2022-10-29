@@ -1,8 +1,9 @@
 import { getSession } from "next-auth/react";
-import connect from "../../../Modules/database";
+import connect from "../../../../Modules/database";
 // Used to return a list of UIDs of players that are searched for
 export default async function handler(req, res) {
   if (req.method == "GET") {
+    const league = req.query.leagueType;
     const connection = await connect();
     // Gets the search term
     let searchTerm =
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
               showHidden
                 ? ""
                 : " (`exists`=1 OR EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND user=? AND leagueID=?)) AND"
-            } (name like ? OR nameAscii like ?) AND club like ? ${positionsSQL} AND value>=? AND value<=? ORDER BY ${order_by} DESC LIMIT ${limit}`,
+            } (name like ? OR nameAscii like ?) AND club like ? ${positionsSQL} AND value>=? AND value<=? AND league=? ORDER BY ${order_by} DESC LIMIT ${limit}`,
             showHidden
               ? [
                   searchTerm,
@@ -64,6 +65,7 @@ export default async function handler(req, res) {
                   parseInt(req.query.maxPrice) >= 0
                     ? parseInt(req.query.maxPrice)
                     : Number.MAX_SAFE_INTEGER,
+                  league,
                 ]
               : [
                   session ? session.user.id : "",
@@ -78,6 +80,7 @@ export default async function handler(req, res) {
                   parseInt(req.query.maxPrice) >= 0
                     ? parseInt(req.query.maxPrice)
                     : Number.MAX_SAFE_INTEGER,
+                  league,
                 ]
           )
         );

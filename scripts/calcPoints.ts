@@ -1,20 +1,27 @@
-import connect, { leagueSettings, points } from "../Modules/database";
+import connect, {
+  leagueSettings,
+  leagueUsers,
+  points,
+} from "../Modules/database";
 
 // Used to calculate the points for every user
-export async function calcPoints() {
+export async function calcPoints(league: string) {
   const connection = await connect();
   // Makes sure that the transfer season is running
   if (
     await connection
-      .query("SELECT value2 FROM data WHERE value1='transferOpen'")
+      .query("SELECT value2 FROM data WHERE value1=?", [
+        "transferOpen" + league,
+      ])
       .then((result) => (result.length > 0 ? result[0].value2 == "true" : true))
   ) {
     connection.end();
     return;
   }
-  console.log("Calculating player points");
-  const leagueUsers = await connection.query(
-    "SELECT leagueID, user, points FROM leagueUsers ORDER BY leagueID"
+  console.log(`Calculating user points for ${league}`);
+  const leagueUsers: leagueUsers[] = await connection.query(
+    "SELECT leagueID, user, points FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=?) ORDER BY leagueID",
+    [league]
   );
   let index = 0;
   let currentleagueID = -1;
@@ -29,7 +36,7 @@ export async function calcPoints() {
           "SELECT points FROM points WHERE leagueID=? and user=? ORDER BY matchday DESC LIMIT 1",
           [e.leagueID, e.user]
         )
-        .then((result: points[]) => result[0].points),
+        .then((result: points[]) => (result.length > 0 ? result[0].points : 0)),
       // Calculates the amont of points the user should have for the matchday
       new Promise<number>(async (res) => {
         res(
@@ -66,7 +73,7 @@ export async function calcPoints() {
         );
       }),
     ]);
-    // Checks if the point calculations are off and if they are wrong they are updated
+    // Checks if the point amount has changed and if they are different they are updated
     if (oldPoints !== newPoints) {
       // Checks if the matchday might be different
       if (e.leagueID !== currentleagueID) {
@@ -89,7 +96,7 @@ export async function calcPoints() {
       );
     }
   }
-  console.log("Updated user points");
+  console.log(`Updated user points for ${league}`);
   connection.end();
   return;
 }

@@ -142,7 +142,7 @@ class connection {
     }
   }
 }
-export type position = "bench" | "def" | "mid" | "att";
+export type position = "bench" | "gk" | "def" | "mid" | "att";
 // These are the types for the database
 export interface users {
   id: number;
@@ -169,6 +169,7 @@ export interface players {
   last_match: number;
   locked: boolean;
   exists: boolean;
+  league: string;
 }
 export interface data {
   value1: string;
@@ -181,6 +182,7 @@ export interface leagueSettings {
   transfers: number;
   duplicatePlayers: number;
   starredPercentage: number;
+  league: string;
 }
 export interface leagueUsers {
   leagueID: number;
@@ -235,6 +237,7 @@ export interface historicalPlayers {
   average_points: number;
   last_match: number;
   exists: boolean;
+  league: string;
 }
 export interface historicalTransfers {
   matchday: number;
@@ -248,6 +251,7 @@ export interface clubs {
   club: string;
   gameStart: number;
   opponent: string;
+  league: string;
 }
 export interface analytics {
   serverID: string;
@@ -256,3 +260,11 @@ export interface analytics {
   users: number;
   activeUsers: number;
 }
+const validLeagues = (): string[] => {
+  const leagues = [];
+  if (process.env.APP_ENV) return ["Bundesliga"];
+  if (process.env.BUNDESLIGA_API) leagues.push("Bundesliga");
+  if (process.env.ENABLE_EPL) leagues.push("EPL");
+  return leagues;
+};
+export const leagues = validLeagues();

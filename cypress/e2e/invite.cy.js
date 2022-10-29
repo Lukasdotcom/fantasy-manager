@@ -194,7 +194,9 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#close").click();
     cy.contains(`Money left: ${user2Money}`);
     // Moves the squad slightly
-    cy.intercept("/api/player/87963521baf120631131").as("loadNkunku");
+    cy.intercept("/api/player/Bundesliga/87963521baf120631131").as(
+      "loadNkunku"
+    );
     cy.contains("Squad").click();
     cy.contains("Squad for");
     cy.contains("Christopher Nkunku")
@@ -241,7 +243,9 @@ describe("Invite User into league and change some league Settings and run throug
     // Makes sure the starred percantage is correct
     cy.contains("180%");
     // Moves Haaland to the field and stars him
-    cy.intercept("/api/player/a4e3b74d3b62fbd6376b").as("loadPlayer");
+    cy.intercept("/api/player/Bundesliga/a4e3b74d3b62fbd6376b").as(
+      "loadPlayer"
+    );
     cy.contains("Erling Haaland")
       .parent()
       .parent()
@@ -310,7 +314,9 @@ describe("Invite User into league and change some league Settings and run throug
     matchdays.push({ invite1: user1Money, invite2: user2Money });
     // Starts the transfer period and sells Muller
     cy.exec("export APP_ENV=test; node cypress/e2e/invite4.js");
-    cy.intercept("/api/player/ef5112a9f971a1e40966").as("loadRobert");
+    cy.intercept("/api/player/Bundesliga/ef5112a9f971a1e40966").as(
+      "loadRobert"
+    );
     cy.contains("Transfer").click();
     cy.wait("@loadRobert").then(() =>
       cy

@@ -21,6 +21,7 @@ export default function Home({
   starredPercentage,
   leagueName,
   leagueInfo,
+  leagueType,
 }) {
   const notify = useContext(NotifyContext);
   // Turns the leagueInfo data into the data for the starting state
@@ -126,6 +127,7 @@ export default function Home({
             starred={e.starred}
             update={getSquad}
             status={e.status}
+            leagueType={leagueType}
           />
         )
       )}
@@ -141,6 +143,7 @@ export default function Home({
             starred={e.starred}
             update={getSquad}
             status={e.status}
+            leagueType={leagueType}
           />
         )
       )}
@@ -156,6 +159,7 @@ export default function Home({
             starred={e.starred}
             update={getSquad}
             status={e.status}
+            leagueType={leagueType}
           />
         )
       )}
@@ -170,6 +174,7 @@ export default function Home({
             league={league}
             update={getSquad}
             status={e.status}
+            leagueType={leagueType}
           />
         )
       )}
@@ -199,6 +204,7 @@ export default function Home({
               league={league}
               update={getSquad}
               status={e.status}
+              leagueType={leagueType}
             />
           )
         )}

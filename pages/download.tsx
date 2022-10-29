@@ -7,34 +7,24 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
-import { push } from "@socialgouv/matomo-next";
 import Head from "next/head";
 import Link from "../components/Link";
 import { useState } from "react";
 import Menu from "../components/Menu";
-import connect from "../Modules/database";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-
+import connect, { leagues as leagueTypes } from "../Modules/database";
+import { GetServerSideProps } from "next";
+interface props {
+  historicalTimes: number[];
+  leagues: string[];
+}
 type fileTypes = "json" | "csv";
-export default function Home({
-  historicalTimes,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function Home({ historicalTimes, leagues }: props) {
   const [matchday, setMatchday] = useState(0);
   const [showHidden, setShowHidden] = useState(false);
-  // Tracks the kind of download
-  function download(type: fileTypes) {
-    if (matchday !== 0) push(["trackEvent", "Download", "Time", matchday]);
-    push(["trackEvent", "Download", "Type", type]);
-    push([
-      "trackEvent",
-      "Download",
-      "Show Hidden",
-      showHidden ? "true" : "false",
-    ]);
-  }
+  const [league, setLeague] = useState(leagues[0]);
   // Generates the download link
   function downloadLink(type: fileTypes) {
-    return `/api/download?type=${type}${
+    return `/api/download?type=${type}&league=${league}${
       matchday !== 0 ? `&time=${matchday}` : ""
     }${showHidden ? "&showHidden=true" : ""}`;
   }
@@ -62,6 +52,18 @@ export default function Home({
         })}
         <MenuItem value={0}>Latest</MenuItem>
       </Select>
+      <InputLabel htmlFor="league">Which league: </InputLabel>
+      <Select
+        value={league}
+        onChange={(val) => setLeague(val.target.value)}
+        id="league"
+      >
+        {leagues.map((val) => (
+          <MenuItem key={val} value={val}>
+            {val}
+          </MenuItem>
+        ))}
+      </Select>
       <br></br>
       <FormControlLabel
         label="Download hidden players in addition to all other ones"
@@ -75,20 +77,12 @@ export default function Home({
       />
       <br></br>
       <ButtonGroup>
-        <Button
-          onClick={() => {
-            download("json");
-          }}
-        >
+        <Button>
           <Link disableNext={true} href={downloadLink("json")}>
             Download as JSON
           </Link>
         </Button>
-        <Button
-          onClick={() => {
-            download("csv");
-          }}
-        >
+        <Button>
           <Link disableNext={true} href={downloadLink("csv")}>
             Download as CSV
           </Link>
@@ -106,5 +100,5 @@ export const getServerSideProps: GetServerSideProps = async () => {
   const historicalTimes = (
     await connection.query("SELECT DISTINCT time FROM historicalPlayers")
   ).map((e: result) => e.time);
-  return { props: { historicalTimes } };
+  return { props: { historicalTimes, leagues: leagueTypes } };
 };

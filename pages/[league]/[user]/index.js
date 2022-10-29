@@ -17,6 +17,7 @@ export default function HistoricalView({
   leagueName,
   money,
   value,
+  leagueType,
 }) {
   const router = useRouter();
   return (
@@ -62,6 +63,7 @@ export default function HistoricalView({
                 key={e.playeruid + "att"}
                 starred={e.starred}
                 uid={e.playeruid}
+                leagueType={leagueType}
               />
             );
           return (
@@ -70,6 +72,7 @@ export default function HistoricalView({
               uid={e.playeruid}
               starred={e.starred}
               time={time}
+              leagueType={leagueType}
             />
           );
         })}
@@ -83,6 +86,7 @@ export default function HistoricalView({
                 key={e.playeruid + "mid"}
                 starred={e.starred}
                 uid={e.playeruid}
+                leagueType={leagueType}
               />
             );
           return (
@@ -91,6 +95,7 @@ export default function HistoricalView({
               uid={e.playeruid}
               starred={e.starred}
               time={time}
+              leagueType={leagueType}
             />
           );
         })}
@@ -104,6 +109,7 @@ export default function HistoricalView({
                 key={e.playeruid + "def"}
                 starred={e.starred}
                 uid={e.playeruid}
+                leagueType={leagueType}
               />
             );
           return (
@@ -112,6 +118,7 @@ export default function HistoricalView({
               uid={e.playeruid}
               starred={e.starred}
               time={time}
+              leagueType={leagueType}
             />
           );
         })}
@@ -120,9 +127,20 @@ export default function HistoricalView({
         .filter((e) => e.position === "gk")
         .map((e) => {
           if (currentMatchday === 0)
-            return <Player key={e.playeruid + "gk"} uid={e.playeruid} />;
+            return (
+              <Player
+                key={e.playeruid + "gk"}
+                uid={e.playeruid}
+                leagueType={leagueType}
+              />
+            );
           return (
-            <HistoricalPlayer key={e.playeruid} uid={e.playeruid} time={time} />
+            <HistoricalPlayer
+              key={e.playeruid}
+              uid={e.playeruid}
+              time={time}
+              leagueType={leagueType}
+            />
           );
         })}
       <h2>Bench</h2>
@@ -130,9 +148,20 @@ export default function HistoricalView({
         .filter((e) => e.position === "bench")
         .map((e) => {
           if (currentMatchday === 0)
-            return <Player key={e.playeruid + "bench"} uid={e.playeruid} />;
+            return (
+              <Player
+                key={e.playeruid + "bench"}
+                uid={e.playeruid}
+                leagueType={leagueType}
+              />
+            );
           return (
-            <HistoricalPlayer key={e.playeruid} uid={e.playeruid} time={time} />
+            <HistoricalPlayer
+              key={e.playeruid}
+              uid={e.playeruid}
+              time={time}
+              leagueType={leagueType}
+            />
           );
         })}
       <h1>Transfers</h1>
@@ -142,7 +171,11 @@ export default function HistoricalView({
         .map((e) => {
           if (currentMatchday === 0)
             return (
-              <Player key={e.playeruid + "buy"} uid={e.playeruid}>
+              <Player
+                key={e.playeruid + "buy"}
+                uid={e.playeruid}
+                leagueType={leagueType}
+              >
                 <p>Buying for {e.value / 1000000}M</p>
               </Player>
             );
@@ -151,6 +184,7 @@ export default function HistoricalView({
               key={e.playeruid + "buy"}
               uid={e.playeruid}
               time={time}
+              leagueType={leagueType}
             >
               <p>Bought for {e.value / 1000000}M</p>
             </HistoricalPlayer>
@@ -162,12 +196,17 @@ export default function HistoricalView({
         .map((e) => {
           if (currentMatchday === 0)
             return (
-              <Player key={e.playeruid + "sell"} uid={e.playeruid}>
+              <Player
+                key={e.playeruid + "sell"}
+                uid={e.playeruid}
+                leagueType={leagueType}
+              >
                 <p>Selling for {e.value / 1000000}M</p>
               </Player>
             );
           return (
             <HistoricalPlayer
+              leagueType={leagueType}
               key={e.playeruid + "sell"}
               uid={e.playeruid}
               time={time}
