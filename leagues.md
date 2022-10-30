@@ -1,3 +1,17 @@
+# League Support Level
+
+Not every league has perfect support.
+
+- :1st_place_medal: is the top level of support so it is tested/used actively by me.
+- :2nd_place_medal: is the second level of support which means it is not activly maintained/tested but will recieve bug fixes
+- :3rd_place_medal: means that the league has no support anymore or is done.
+- :new: means that the league is new and may have some unforeseen bugs.
+
+| League     | Support           |
+| ---------- | ----------------- |
+| Bundesliga | :1st_place_medal: |
+| EPL :new:  | :2nd_place_medal: |
+
 # How to Enable leagues
 
 ## Bundesliga
@@ -16,7 +30,7 @@
 - Did you add a check on if it is enabled in the ./Modules/database.ts file?
 - Did you add a way for the data to be grabbed and updated in the ./scripts/update.ts?
 
-## Not Required @Lukasdotcom will do this
+## Not Required Owner of Repository Will do this
 
 - Did you add add the league to the analytics database table and add it in the analytics request(entrypoint.ts) and api response(./pages/api/analytics.ts).
 - Did you add the league to the analytics graph in the admin page.
