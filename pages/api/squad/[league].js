@@ -313,14 +313,8 @@ export default async function handler(req, res) {
             res.status(500).end(e);
           });
         }
-        // Has the point calculation update
-        calcPoints(
-          await connection
-            .query("SELECT league FROM leagueSettings WHERE leagueID=?", [
-              league,
-            ])
-            .then((result) => (result.length > 0 ? result[0].league : ""))
-        );
+        // Has the point calculation update for that league
+        calcPoints(league);
         // If no errors happened gives a succesful result
         if (res.statusMessage === undefined)
           res.status(200).end("Succesfully did commands");

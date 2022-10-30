@@ -34,3 +34,4 @@ Not every league has perfect support.
 
 - Did you add add the league to the analytics database table and add it in the analytics request(entrypoint.ts) and api response(./pages/api/analytics.ts).
 - Did you add the league to the analytics graph in the admin page.
+- Add to support list.
