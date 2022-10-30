@@ -95,10 +95,6 @@ git pull
 
 Read the contributing guidelines.
 
-## How to get Bundesliga Api
-
-Make an account on fantasy.bundesliga.com and then look at your cookies and one of the cookies is called acess_token and that is the api key for bundesliga
-
 ## Analytics
 
 This service collects some simple analytics when you host this service that currently includes only the following information. This is collected daily.

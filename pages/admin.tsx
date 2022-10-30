@@ -281,7 +281,7 @@ export default function Home({ analytics, leagues }: props) {
         The Bundesliga is{" "}
         {leagues.includes("Bundesliga")
           ? "enabled."
-          : "disabled. To enable enter a bundesliga api key as directed in the readme into the enviromental variable BUNDESLIGA_API."}
+          : "disabled. To enable enter a bundesliga api key as directed in the leagues.md file into the enviromental variable BUNDESLIGA_API."}
       </p>
       <p>
         The English Premier League is{" "}
