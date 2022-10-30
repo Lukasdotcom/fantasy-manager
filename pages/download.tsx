@@ -6,6 +6,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
 } from "@mui/material";
 import Head from "next/head";
 import Link from "../components/Link";
@@ -13,8 +14,9 @@ import { useState } from "react";
 import Menu from "../components/Menu";
 import connect, { leagues as leagueTypes } from "../Modules/database";
 import { GetServerSideProps } from "next";
+type historicalTimes = { [Key: string]: number[] };
 interface props {
-  historicalTimes: number[];
+  historicalTimes: historicalTimes;
   leagues: string[];
 }
 type fileTypes = "json" | "csv";
@@ -22,6 +24,11 @@ export default function Home({ historicalTimes, leagues }: props) {
   const [matchday, setMatchday] = useState(0);
   const [showHidden, setShowHidden] = useState(false);
   const [league, setLeague] = useState(leagues[0]);
+  // Used to handle when the league selected changes
+  const changeLeague = (e: SelectChangeEvent) => {
+    setLeague(e.target.value);
+    setMatchday(0);
+  };
   // Generates the download link
   function downloadLink(type: fileTypes) {
     return `/api/download?type=${type}&league=${league}${
@@ -42,7 +49,7 @@ export default function Home({ historicalTimes, leagues }: props) {
         value={matchday}
         onChange={(val) => setMatchday(val.target.value as number)}
       >
-        {historicalTimes.map((e: number) => {
+        {historicalTimes[league].map((e: number) => {
           let date = new Date(e * 1000);
           return (
             <MenuItem key={e} value={e}>
@@ -53,11 +60,7 @@ export default function Home({ historicalTimes, leagues }: props) {
         <MenuItem value={0}>Latest</MenuItem>
       </Select>
       <InputLabel htmlFor="league">Which league: </InputLabel>
-      <Select
-        value={league}
-        onChange={(val) => setLeague(val.target.value)}
-        id="league"
-      >
+      <Select value={league} onChange={changeLeague} id="league">
         {leagues.map((val) => (
           <MenuItem key={val} value={val}>
             {val}
@@ -93,12 +96,18 @@ export default function Home({ historicalTimes, leagues }: props) {
 }
 export const getServerSideProps: GetServerSideProps = async () => {
   const connection = await connect();
-  // Gets a list of all the times
-  interface result {
-    time: number;
-  }
-  const historicalTimes = (
-    await connection.query("SELECT DISTINCT time FROM historicalPlayers")
-  ).map((e: result) => e.time);
+  // Gets a list of all the times stored by each league
+  const historicalTimes: historicalTimes = {};
+  await Promise.all(
+    leagueTypes.map((league) =>
+      connection
+        .query("SELECT DISTINCT time FROM historicalPlayers WHERE league=?", [
+          league,
+        ])
+        .then((e) => {
+          historicalTimes[league] = e.map((e: { time: number }) => e.time);
+        })
+    )
+  );
   return { props: { historicalTimes, leagues: leagueTypes } };
 };
