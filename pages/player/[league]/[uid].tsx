@@ -1,7 +1,8 @@
 import Menu from "../../../components/Menu";
+import Link from "../../../components/Link";
 import { GetServerSideProps } from "next";
 import Head from "next/head.js";
-import connect from "../../../Modules/database";
+import connect, { players } from "../../../Modules/database";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
@@ -16,25 +17,18 @@ import {
   TableRow,
   useTheme,
 } from "@mui/material";
+interface extendedPlayers extends players {
+  game: {
+    opponent: string;
+    gameStart: number;
+  };
+}
 interface props {
   uid: string;
-  player: {
-    name: string;
-    position: string;
-    club: string;
-    pictureUrl: string;
-    value: number;
-    total_points: number;
-    average_points: number;
-    last_match: number;
-    exists: 1 | 0;
-    game: {
-      opponent: string;
-      gameStart: number;
-    };
-  };
+  player: extendedPlayers;
   times: number[];
   league: string;
+  otherLeagues: { league: string; uid: string }[];
 }
 interface Column {
   id:
@@ -90,9 +84,15 @@ interface Data {
   total_points: number;
   club: string;
   position: string;
-  exists: 1 | 0;
+  exists: boolean;
 }
-export default function Home({ player, times, uid, league }: props) {
+export default function Home({
+  player,
+  times,
+  uid,
+  league,
+  otherLeagues,
+}: props) {
   // Stores the amount of time left until the game starts
   const [countdown, setCountown] = useState<number>(
     (player.game.gameStart - Date.now() / 1000) / 60
@@ -189,6 +189,19 @@ export default function Home({ player, times, uid, league }: props) {
             } H ${Math.floor(countdown) % 60} M`
           : ""}
       </p>
+      {otherLeagues.length > 0 && (
+        <>
+          <h2>Other Leagues</h2>
+          <p>This player was found in some other leagues:</p>
+          <ul>
+            {otherLeagues.map((e) => (
+              <li key={e.league}>
+                <Link href={`/player/${e.league}/${e.uid}`}>{e.league}</Link>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
       <h2>Historical Data Table</h2>
       <p>
         All the ones with a purple background mean the player was not in the
@@ -212,7 +225,7 @@ export default function Home({ player, times, uid, league }: props) {
                   return (
                     <TableRow
                       style={
-                        row.exists == 0
+                        !row.exists
                           ? {
                               background: dark
                                 ? "rgb(50, 0, 50)"
@@ -282,7 +295,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   ) {
     await new Promise((res) => setTimeout(res, 500));
   }
-  const player = await connection.query(
+  const player: extendedPlayers[] = await connection.query(
     "SELECT * FROM players WHERE uid=? AND league=?",
     [uid, league]
   );
@@ -291,7 +304,17 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       notFound: true,
     };
   }
-  player[0].game = await connection
+  const otherLeagues = await connection
+    .query("SELECT * FROM players WHERE nameAscii=? AND league!=?", [
+      player[0].nameAscii,
+      league,
+    ])
+    .then((e: players[]) =>
+      e.map((e) => {
+        return { league: e.league, uid: e.uid };
+      })
+    );
+  const gameData = await connection
     .query("SELECT * FROM clubs WHERE club=? AND league=?", [
       player[0].club,
       league,
@@ -301,6 +324,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         ? { opponent: res[0].opponent, gameStart: res[0].gameStart }
         : undefined
     );
+  if (gameData) player[0].game = gameData;
   const times = await connection
     .query(
       "SELECT * FROM historicalPlayers WHERE uid=? AND league=? ORDER BY time DESC",
@@ -315,5 +339,5 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     });
   connection.end();
   // Checks if the matchday exists
-  return { props: { uid, player: player[0], times, league } };
+  return { props: { uid, player: player[0], times, league, otherLeagues } };
 };
