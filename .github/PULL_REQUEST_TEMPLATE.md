@@ -6,11 +6,12 @@ Provide summary of changes with issue number if any.
 
 - [ ] Run `npm run format` to format everything with prettier.
 - [ ] Run `npm run lint` and fix all errors and warnings.
-- [ ] Made sure that all database changes have update code in entrypoint.ts.
+- [ ] Made sure that all database changes have update code in entrypoint.ts and the database schema was updated in database.ts.
 - [ ] Made sure to test your changes.
 - [ ] All sql syntax would work on mysql.
 - [ ] Made sure to test your changes with cypress by running `npm run start:test` and in another terminal `npm run cypress`. If this fails and you don't know why look in the contributing guidelines or ask in this pull request.
 - [ ] If you added any features it would be great if you tested them with cypress(Not required).
+- [ ] If you added another league did you follow all the steps in the [leagues.md How to add another league](../leagues.md#how-to-add-another-league).
 
 ## Change type
 
@@ -20,6 +21,7 @@ Provide summary of changes with issue number if any.
 - [ ] style: (formatting, missing semi colons, fixing typo, etc)
 - [ ] refactor: (refactoring production code, eg. renaming a variable)
 - [ ] test: (adding missing cypress tests, refactoring cypress tests; editing github actions; no production code change)
+- [ ] new league type: (added another league type like the premier league )
 
 ## Additional information / screenshots (optional)
 

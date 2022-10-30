@@ -9,6 +9,7 @@ I am very slowly converting this project to typescript. If you create a new file
 - [ ] Made sure that all database changes have update code in entrypoint.ts.
 - [ ] Made sure to test your changes whith [cypress](#cypress) by running `npm run start:test` and in another terminal `npm run cypress`. If this fails and you don't know why look in the [cypress section](#cypress).
 - [ ] If you added any features it would be great if you tested them with cypress(Not required).
+- [ ] If you added another league did you follow all the steps in the [leagues.md How to add another league](../leagues.md#how-to-add-another-league).
 
 # How to run development enviroment
 
@@ -50,9 +51,8 @@ node -v
 ```
 
 10. Now copy the contents of .env.sample which is in the development folder. Make a new file in the top folder in the repository called .env.local and paste the contents of .env.sample in there.
-11. Now follow the steps to get the BUNDESLIGA_API outlined in the README and enter that value in the the .env.local file.
-12. If you are using mysql remember to comment out the SQLITE enviroment variable otherwise skip this step.
-13. Now you should be able to run the command below to start up the development instance.
+11. If you are using mysql remember to comment out the SQLITE enviroment variable otherwise skip this step.
+12. Now you should be able to run the command below to start up the development instance.
 
 ```bash
 npm run dev
@@ -68,9 +68,8 @@ git clone https://github.com/lukasdotcom/Bundesliga
 ```
 
 3. Copy the docker-compose file in the development folder to the top folder of the repository.
-4. Edit the BUNDESLIGA_API entry by getting the value as shown in the README
-5. Edit the volume and replace /locationToWhereThisGithubIsDownloaded with wherever this repository got downloaded to.
-6. Then run `docker-compose up`
+4. Edit the volume and replace /locationToWhereThisGithubIsDownloaded with wherever this repository got downloaded to.
+5. Then run `docker-compose up`
 
 # Cypress
 
