@@ -5,8 +5,20 @@ import connect, {
 } from "../Modules/database";
 
 // Used to calculate the points for every user
-export async function calcPoints(league: string) {
+export async function calcPoints(league: string | number) {
   const connection = await connect();
+  let leagueID: false | number = false;
+  // Checks if a league number was requested instead of an entire league type
+  if (league > 0) {
+    let leagueData: leagueSettings[] = await connection.query(
+      "SELECT * FROM leagueSettings WHERE leagueID=?",
+      [league]
+    );
+    if (leagueData.length > 0) {
+      leagueID = leagueData[0].leagueID;
+      league = leagueData[0].league;
+    }
+  }
   // Makes sure that the transfer season is running
   if (
     await connection
@@ -18,11 +30,20 @@ export async function calcPoints(league: string) {
     connection.end();
     return;
   }
-  console.log(`Calculating user points for ${league}`);
-  const leagueUsers: leagueUsers[] = await connection.query(
-    "SELECT leagueID, user, points FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=?) ORDER BY leagueID",
-    [league]
+  console.log(
+    `Calculating user points for ${
+      leagueID ? `leagueID ${leagueID} in the ` : ""
+    }${league}`
   );
+  const leagueUsers: leagueUsers[] = leagueID
+    ? await connection.query(
+        "SELECT leagueID, user, points FROM leagueUsers WHERE leagueID=?",
+        [leagueID]
+      )
+    : await connection.query(
+        "SELECT leagueID, user, points FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=?) ORDER BY leagueID",
+        [league]
+      );
   let index = 0;
   let currentleagueID = -1;
   let matchday = 1;
@@ -96,7 +117,11 @@ export async function calcPoints(league: string) {
       );
     }
   }
-  console.log(`Updated user points for ${league}`);
+  console.log(
+    `Updated user points for ${
+      leagueID ? `leagueID ${leagueID} in the ` : ""
+    }${league}`
+  );
   connection.end();
   return;
 }
