@@ -1,10 +1,12 @@
 // This is very similar to https://github.com/tyxla/remove-accents/blob/master/index.js but with less characters to improve performance
 // List of characters to change
 const characterMap: Record<string, string> = {
+  Á: "A",
   á: "a",
   ą: "a",
+  ã: "a",
   ä: "a",
-  Ç: "c",
+  Ç: "C",
   ç: "c",
   ć: "c",
   č: "c",
@@ -26,8 +28,11 @@ const characterMap: Record<string, string> = {
   ó: "o",
   ř: "r",
   ß: "ss",
+  Š: "S",
   š: "s",
+  ş: "s",
   ü: "u",
+  ú: "u",
   ý: "y",
   ž: "z",
 };
