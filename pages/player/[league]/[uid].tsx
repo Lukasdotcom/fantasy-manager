@@ -128,6 +128,11 @@ export default function Home({
       count--;
       if (count > 0) {
         if (rows[String(time)] === undefined) {
+          setRows((rows) => {
+            let newRows = { ...rows };
+            newRows[String(time)] = { time, loading: true };
+            return newRows;
+          });
           fetch(`/api/player/${league}/${uid}?time=${time}`)
             .then((e) => e.json())
             .then((data) => {
@@ -166,13 +171,6 @@ export default function Home({
       clearInterval(id);
     };
   }, []);
-  // Calculates the number of rows that have not been loaded but should be
-  let tempUnloaded =
-    page * rowsPerPage + rowsPerPage - Object.values(rows).length;
-  if (page * rowsPerPage + rowsPerPage > times.length) {
-    tempUnloaded -= page * rowsPerPage + rowsPerPage - times.length;
-  }
-  const unloadedRows = tempUnloaded > 0 ? tempUnloaded : 0;
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
   return (
@@ -262,7 +260,20 @@ export default function Home({
                 .sort((e) => e.time)
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
-                  if (row.loading) return;
+                  if (row.loading)
+                    return (
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        tabIndex={-1}
+                        key={String(row.time)}
+                      >
+                        <TableCell colSpan={7}>
+                          Loading...
+                          <LinearProgress />
+                        </TableCell>
+                      </TableRow>
+                    );
                   return (
                     <TableRow
                       style={
@@ -287,23 +298,6 @@ export default function Home({
                           </TableCell>
                         );
                       })}
-                    </TableRow>
-                  );
-                })}
-              {Array(unloadedRows)
-                .fill(0)
-                .map((e, idx) => {
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      key={String(idx)}
-                    >
-                      <TableCell colSpan={7}>
-                        Loading...
-                        <LinearProgress />
-                      </TableCell>
                     </TableRow>
                   );
                 })}
