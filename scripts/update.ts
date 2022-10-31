@@ -298,7 +298,7 @@ export async function updateData(
     index++;
     // Checks if it is a matchday
     if (newTransfer) {
-      // Updates the club info
+      // Updates the club info if it is a new club
       if (club !== val.club) {
         club = val.club;
         // Makes sure to only update the match starts in stat if it is greater than 0
@@ -328,7 +328,7 @@ export async function updateData(
         }
       }
       await connection.query(
-        "INSERT INTO players (uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?) ON DUPLICATE KEY UPDATE value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1, club=?, pictureUrl=?, position=?",
+        "INSERT INTO players (uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?) ON DUPLICATE KEY UPDATE name=?, nameAscii=?, value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1, club=?, pictureUrl=?, position=?",
         [
           val.uid,
           val.name,
@@ -343,7 +343,10 @@ export async function updateData(
           val.last_match,
           val.locked,
           league,
-          /*Start of have to update*/ val.value,
+          /*Start of have to update*/
+          val.name,
+          val.nameAscii,
+          val.value,
           val.forecast,
           val.total_points,
           val.average_points,
