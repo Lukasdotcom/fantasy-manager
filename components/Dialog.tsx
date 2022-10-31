@@ -9,7 +9,7 @@ interface Props {
 // A simple dialog
 export default function Home({ children, onClose, title, open }: Props) {
   return (
-    <Dialog open={open}>
+    <Dialog open={open} scroll="body">
       <DialogTitle sx={{ m: 0, p: 2 }}>
         {title}
         {onClose ? (

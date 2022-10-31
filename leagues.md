@@ -29,6 +29,7 @@ Not every league has perfect support.
 
 - Did you add a check on if it is enabled in the ./Modules/database.ts file?
 - Did you add a way for the data to be grabbed and updated in the ./scripts/update.ts?
+- If the aspect ratio on the picture is not 1 by 1 did you make sure to change the width and height in ./components/player.js and ./pages/player/[league].[uid].js?
 
 ## Not Required Owner of Repository Will do this
 

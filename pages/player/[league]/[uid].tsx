@@ -1,11 +1,13 @@
 import Menu from "../../../components/Menu";
 import Link from "../../../components/Link";
+import Dialog from "../../../components/Dialog";
 import { GetServerSideProps } from "next";
 import Head from "next/head.js";
-import connect, { players } from "../../../Modules/database";
+import connect, { historicalPlayers, players } from "../../../Modules/database";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
+  Button,
   LinearProgress,
   Paper,
   Table,
@@ -29,6 +31,7 @@ interface props {
   times: number[];
   league: string;
   otherLeagues: { league: string; uid: string }[];
+  pictures: string[];
 }
 interface Column {
   id:
@@ -85,6 +88,7 @@ interface Data {
   club: string;
   position: string;
   exists: boolean;
+  loading: false;
 }
 export default function Home({
   player,
@@ -92,6 +96,7 @@ export default function Home({
   uid,
   league,
   otherLeagues,
+  pictures,
 }: props) {
   // Stores the amount of time left until the game starts
   const [countdown, setCountown] = useState<number>(
@@ -99,8 +104,11 @@ export default function Home({
   );
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [dialogVisible, setDialogVisible] = useState(false);
   // Sets the starting value to crazy high time and sets it to the starting amount
-  const [rows, setRows] = useState<Record<string, Data>>({
+  const [rows, setRows] = useState<
+    Record<string, Data | { time: number; loading: true }>
+  >({
     "9999999999999999": {
       time: 0,
       value: player.value,
@@ -110,6 +118,7 @@ export default function Home({
       club: player.club,
       position: player.position,
       exists: player.exists,
+      loading: false,
     },
   });
   // Loads the data up to that amount(If on the server nothing new is loaded)
@@ -122,9 +131,11 @@ export default function Home({
           fetch(`/api/player/${league}/${uid}?time=${time}`)
             .then((e) => e.json())
             .then((data) => {
-              let newRows = { ...rows };
-              newRows[String(time)] = data;
-              setRows(newRows);
+              setRows((rows) => {
+                let newRows = { ...rows };
+                newRows[String(time)] = data;
+                return newRows;
+              });
             });
         }
       }
@@ -140,6 +151,10 @@ export default function Home({
   ) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
+  };
+  // Used to handle the dialog closing
+  const handleDialogToggle = () => {
+    setDialogVisible((e) => !e);
   };
   // Used to search for more data
   useEffect(() => {
@@ -175,6 +190,31 @@ export default function Home({
         width={league === "EPL" ? 234 : 300}
         height={300}
       />
+      <Dialog
+        onClose={handleDialogToggle}
+        open={dialogVisible}
+        title="Historical Pictures"
+      >
+        <>
+          <p>The newest pictures are on the top.</p>
+          {pictures.map((e) => (
+            <>
+              <Image
+                key={e}
+                src={e}
+                alt=""
+                width={league === "EPL" ? 234 : 300}
+                height={300}
+              />
+              <br></br>
+            </>
+          ))}
+        </>
+      </Dialog>
+      <br></br>
+      <Button variant={"outlined"} onClick={handleDialogToggle}>
+        Show Historical Pictures
+      </Button>
       <h2>Current Player Info</h2>
       <p>League: {league}</p>
       <p>Value : {player.value / 1000000}M</p>
@@ -221,7 +261,8 @@ export default function Home({
               {Object.values(rows)
                 .sort((e) => e.time)
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row: Data) => {
+                .map((row) => {
+                  if (row.loading) return;
                   return (
                     <TableRow
                       style={
@@ -314,6 +355,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         return { league: e.league, uid: e.uid };
       })
     );
+  // Gets some more player data
   const gameData = await connection
     .query("SELECT * FROM clubs WHERE club=? AND league=?", [
       player[0].club,
@@ -325,6 +367,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         : undefined
     );
   if (gameData) player[0].game = gameData;
+  // Gets all the pictures in a set
+  const pictures = new Set();
+  pictures.add(player[0].pictureUrl);
+  // Gets all the historical times in an array
   const times = await connection
     .query(
       "SELECT * FROM historicalPlayers WHERE uid=? AND league=? ORDER BY time DESC",
@@ -332,12 +378,21 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     )
     .then((res) => {
       let result: number[] = [];
-      res.forEach((e: { time: number }) => {
+      res.forEach((e: historicalPlayers) => {
         result.push(e.time);
+        pictures.add(e.pictureUrl);
       });
       return result;
     });
   connection.end();
-  // Checks if the matchday exists
-  return { props: { uid, player: player[0], times, league, otherLeagues } };
+  return {
+    props: {
+      uid,
+      player: player[0],
+      times,
+      league,
+      otherLeagues,
+      pictures: Array.from(pictures),
+    },
+  };
 };
