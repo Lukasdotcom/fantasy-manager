@@ -28,52 +28,6 @@ export default function Home() {
         price that player is bought from you. You can also cancel buying a
         player but you will only be refunded the value of the player.
       </p>
-      <h3>Pricing and Points</h3>
-      <p>
-        The points are calculated by the way{" "}
-        <Link
-          href="https://fantasy.bundesliga.com/page/scoring_rules"
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          shown here
-        </Link>
-        . Player pricing changes based on the performance of the player. Price
-        increase:
-        <br />
-        400,000 - 10 or more points above the position average
-        <br />
-        300,000 - 6 to 9 points above the position average
-        <br />
-        200,000 - 3 to 5 points above the position average
-        <br />
-        No Change - 0 to 2 points above the position average
-        <br />
-        300,000 - winning the official Player of the Month award
-        <br />
-        100,000 - winner of an &quot;in-form card&quot; in the official
-        &quot;Team of the Week&quot; of the official license partner of the
-        Bundesliga EA SPORTS
-        <br />
-        <br />
-        Price decreases:
-        <br />
-        No Change - 0 to 2 points below the position average
-        <br />
-        200,000 - 3 to 5 points below the position average
-        <br />
-        300,000 - 6 to 9 points below the position average
-        <br />
-        400,000 - 10 or more points below the position average
-        <br />
-        <br />
-        Other factors:
-        <br />
-        -100,000 for any player not playing during the match day -100,000 for
-        any player receiving a red card independent of minutes played. <br />
-        Player value can not drop below 1,000,000 Player value is determined
-        after all the matches of the week have been played.
-      </p>
       <h2>Squad Management</h2>
       <p>
         In your squad you can move players from the bench to the field and vice
@@ -88,6 +42,38 @@ export default function Home() {
         one defender. Those starred players will get 150% as many points as
         normally unless your league has that rule changed. You can make a player
         a starred player as long as their team has not started playing.
+      </p>
+      <h2>Pricing and Points</h2>
+      <h3>Bundesliga</h3>
+      <p>
+        The points are calculated by the way{" "}
+        <Link
+          href="https://fantasy.bundesliga.com/page/scoring_rules"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          shown here
+        </Link>{" "}
+        and the pricing is changed as{" "}
+        <Link
+          href="https://fantasy.bundesliga.com/page/scoring_rules"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          shown here
+        </Link>{" "}
+        under Managing your team and Pricing.
+      </p>
+      <h3>English Premier League</h3>
+      <p>
+        The points are calculated by the way{" "}
+        <Link
+          href="https://fantasy.premierleague.com/help/rules"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          shown here.
+        </Link>
       </p>
       <h1>Installing as an App</h1>
       <p>
