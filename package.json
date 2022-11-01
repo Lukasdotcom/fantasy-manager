@@ -22,7 +22,7 @@
     "@mui/material": "5.10.12",
     "@socialgouv/matomo-next": "1.4.0",
     "@types/mysql": "2.15.21",
-    "@types/node": "18.11.8",
+    "@types/node": "18.11.9",
     "@types/react": "18.0.24",
     "bcryptjs": "2.4.3",
     "chart.js": "3.9.1",
