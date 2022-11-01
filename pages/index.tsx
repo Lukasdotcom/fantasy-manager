@@ -36,6 +36,8 @@ function CurrentPicture({ picture }: CurrentPictureProps) {
       case 4:
         return "Transfer";
       case 5:
+        return "DetailedPlayer";
+      case 6:
         return "LeagueAdmin";
       default:
         return "Usermenu";
@@ -59,7 +61,7 @@ function CurrentPicture({ picture }: CurrentPictureProps) {
 }
 // Shows all the screenshots and allows the user to pick screenshots they would like to see
 function Carrousel() {
-  const pictures = 6;
+  const pictures = 7;
   const [picture, setPicture] = useState(1);
   useEffect(() => {
     const interval = setInterval(() => {

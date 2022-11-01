@@ -171,6 +171,13 @@ export default function Home({
       clearInterval(id);
     };
   }, []);
+  // Calculates the number of rows that have not been loaded but should be
+  let tempUnloaded =
+    page * rowsPerPage + rowsPerPage - Object.values(rows).length;
+  if (page * rowsPerPage + rowsPerPage > times.length) {
+    tempUnloaded -= page * rowsPerPage + rowsPerPage - times.length;
+  }
+  const unloadedRows = tempUnloaded > 0 ? tempUnloaded : 0;
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
   return (
@@ -196,16 +203,14 @@ export default function Home({
         <>
           <p>The newest pictures are on the top.</p>
           {pictures.map((e) => (
-            <>
+            <div key={e}>
               <Image
-                key={e}
                 src={e}
                 alt=""
                 width={league === "EPL" ? 234 : 300}
                 height={300}
               />
-              <br></br>
-            </>
+            </div>
           ))}
         </>
       </Dialog>
@@ -298,6 +303,23 @@ export default function Home({
                           </TableCell>
                         );
                       })}
+                    </TableRow>
+                  );
+                })}
+              {Array(unloadedRows)
+                .fill(0)
+                .map((e, idx) => {
+                  return (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={String(idx)}
+                    >
+                      <TableCell colSpan={7}>
+                        Loading...
+                        <LinearProgress />
+                      </TableCell>
                     </TableRow>
                   );
                 })}
