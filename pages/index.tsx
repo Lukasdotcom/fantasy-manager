@@ -89,28 +89,28 @@ InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <>
       <Head>
-        <title>Bundesliga Fantasy</title>
+        <title>Fantasy Manager</title>
       </Head>
       <Menu />
-      <h1>Bundesliga Fantasy Manager</h1>
+      <h1>Open Source Fantasy Manager</h1>
       <p>
-        A modern open source Fantasy Bundesliga Manager. The source code is
-        available on{" "}
+        A modern open source Fantasy Manager. The source code is available on{" "}
         <Link
-          href="https://github.com/Lukasdotcom/bundesliga-manager"
+          href="https://github.com/Lukasdotcom/fantasy-manager"
           rel="noopener noreferrer"
           target="_blank"
         >
           github.
         </Link>
-        The goal of this is to be the best place to play a fantasy bundesliga
-        manager with your friends. The rules are located in the rules tab in the
-        menu. To play you must have an account which is free to do in the log in
-        button in the top right of the screen.
+        The goal of this is to be the best place to play a fantasy manager with
+        your friends. The rules are located in the rules tab in the menu. To
+        play you must have an account which is free to do in the log in button
+        in the top right of the screen.
       </p>
       <h2>Feature</h2>
       <ol>
         <li> Completely free and open source.</li>
+        <li>Many different leagues to use(Bundesliga, EPL, etc).</li>
         <li>Unlimited users and unlimited leagues.</li>
         <li>Customize starting money.</li>
         <li>Customize starred player bonus.</li>
@@ -150,7 +150,7 @@ InferGetStaticPropsType<typeof getStaticProps>) {
       <h2>Community</h2>
       You can go to the{" "}
       <Link
-        href="https://github.com/Lukasdotcom/bundesliga-manager/discussions"
+        href="https://github.com/Lukasdotcom/fantasy-manager/discussions"
         rel="noopener noreferrer"
         target="_blank"
       >
@@ -190,7 +190,7 @@ export const getStaticProps: GetStaticProps = async () => {
       version: string;
     }
     const data: data | undefined = await fetch(
-      "https://raw.githubusercontent.com/Lukasdotcom/bundesliga-manager/stable/package.json"
+      "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/stable/package.json"
     ).then((res) => (res.ok ? res.json() : undefined));
     if (!data) {
       console.log("Failed to get version data from github.");
@@ -205,7 +205,7 @@ export const getStaticProps: GetStaticProps = async () => {
         type: "warning",
         title: "Out of Date",
         text: "New Update Available for more info Click Here",
-        link: `https://github.com/Lukasdotcom/bundesliga-manager/releases/tag/${data.version}`,
+        link: `https://github.com/Lukasdotcom/fantasy-manager/releases/tag/${data.version}`,
       };
     }
   }

@@ -9,7 +9,7 @@ if (process.env.APP_ENV !== "test") {
 } else {
   dotenv.config({ path: ".env.test.local" });
 }
-const analyticsDomain = "https://bundesliga.lschaefer.xyz";
+const analyticsDomain = "https://fantasy.lschaefer.xyz";
 // Used to tell the program what version of the database to use
 const currentVersion = "1.8.0";
 const date = new Date();
