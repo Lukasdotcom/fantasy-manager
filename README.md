@@ -70,7 +70,7 @@ docker-compose up
 
 Required Tools:
 
-- [Nodejs](https://nodejs.org/en/download/) ≥ 18
+- [Nodejs](https://nodejs.org/en/download/) ≥ 18. v18.x is recommended.
 - [Git](https://git-scm.com/downloads)
 
 1. First clone this git repository
