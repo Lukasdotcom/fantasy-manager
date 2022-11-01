@@ -252,30 +252,33 @@ export default function Home({ analytics, leagues }: props) {
         This graph shows how many users are using each (server) version. Active
         users are defined as users that are active on that day.
       </p>
-      <div style={{ height: "min(max(50vh, 50vw), 80vh)", width: "100%" }}>
+      <div style={{ height: "min(max(50vh, 50vw), 80vh)", width: "95%" }}>
         <Line options={options} data={versionData} />
       </div>
       <h3>League Type Data</h3>
       <p>
         This graph shows how many users are using each league type. Note that
-        users are counted based on how many leagues they are in.
+        users are counted based on how many leagues they are in and that this
+        data only exists for servers on v1.8.0 or later.
       </p>
-      <div style={{ height: "min(max(50vh, 50vw), 80vh)", width: "100%" }}>
+      <div style={{ height: "min(max(50vh, 50vw), 80vh)", width: "95%" }}>
         <Line options={options} data={leagueData} />
       </div>
       <Typography id="graph-length" gutterBottom>
         Graph Data Length: {calculateValue(graphLength)} Days
       </Typography>
-      <Slider
-        value={graphLength}
-        min={1}
-        step={Math.floor(Math.sqrt(Math.max(fullLabels.length, 30))) / 100}
-        max={Math.sqrt(Math.max(fullLabels.length, 30))}
-        scale={calculateValue}
-        onChange={graphLengthChange}
-        valueLabelDisplay="auto"
-        aria-labelledby="non-linear-slider"
-      />
+      <div style={{ width: "95%", margin: "2%" }}>
+        <Slider
+          value={graphLength}
+          min={1}
+          step={Math.floor(Math.sqrt(Math.max(fullLabels.length, 30))) / 100}
+          max={Math.sqrt(Math.max(fullLabels.length, 30))}
+          scale={calculateValue}
+          onChange={graphLengthChange}
+          valueLabelDisplay="auto"
+          aria-labelledby="non-linear-slider"
+        />
+      </div>
       <h2>Enabled League Types</h2>
       <p>
         The Bundesliga is{" "}
