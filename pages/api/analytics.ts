@@ -10,14 +10,23 @@ export default async function handler(
     // Collects all the analytics data
     const day = Math.floor(Date.now() / 1000 / 86400);
     const {
-      serverID,
-      version,
-      users,
-      activeUsers,
-      Bundesliga,
-      BundesligaActive,
-      EPL,
-      EPLActive,
+      serverID = "fake",
+      version = "0.0.0",
+      users = 0,
+      activeUsers = 0,
+      Bundesliga = 0,
+      BundesligaActive = 0,
+      EPL = 0,
+      EPLActive = 0,
+    }: {
+      serverID: string;
+      version: string;
+      users: number;
+      activeUsers: number;
+      Bundesliga: number;
+      BundesligaActive: number;
+      EPL: number;
+      EPLActive: number;
     } = req.body;
     // Deletes the analytics data from the user if it already exists
     await connection.query("DELETE FROM analytics WHERE serverID=? AND day=?", [
