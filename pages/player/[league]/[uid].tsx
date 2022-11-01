@@ -105,22 +105,27 @@ export default function Home({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [dialogVisible, setDialogVisible] = useState(false);
-  // Sets the starting value to crazy high time and sets it to the starting amount
   const [rows, setRows] = useState<
     Record<string, Data | { time: number; loading: true }>
-  >({
-    "9999999999999999": {
-      time: 0,
-      value: player.value,
-      last_match: player.last_match,
-      average_points: player.average_points,
-      total_points: player.total_points,
-      club: player.club,
-      position: player.position,
-      exists: player.exists,
-      loading: false,
-    },
-  });
+  >({});
+  // Sets the starting piece of data when a new player gets loaded
+  useEffect(() => {
+    setPage(0);
+    // Sets the starting value to crazy high time and sets it to the starting amount
+    setRows({
+      "9999999999999999": {
+        time: 0,
+        value: player.value,
+        last_match: player.last_match,
+        average_points: player.average_points,
+        total_points: player.total_points,
+        club: player.club,
+        position: player.position,
+        exists: player.exists,
+        loading: false,
+      },
+    });
+  }, [uid, player]);
   // Loads the data up to that amount(If on the server nothing new is loaded)
   useEffect(() => {
     let count = page * rowsPerPage + rowsPerPage;
@@ -331,7 +336,7 @@ export default function Home({
           component="div"
           count={times.length + 1}
           rowsPerPage={rowsPerPage}
-          page={page}
+          page={times.length + 1 >= page * rowsPerPage ? page : 0}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
