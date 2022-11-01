@@ -21,7 +21,7 @@ export default function Home() {
         not check if this is actually the latest version. You should just
         manually check the{" "}
         <Link
-          href="https://github.com/Lukasdotcom/bundesliga-manager/releases"
+          href="https://github.com/Lukasdotcom/fantasy-manager/releases"
           rel="noopener noreferrer"
           target="_blank"
         >

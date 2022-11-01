@@ -41,7 +41,7 @@ FLUSH PRIVILEGES;
 8. Download this entire repository to your computer with
 
 ```bash
-git clone https://github.com/lukasdotcom/Bundesliga
+git clone https://github.com/lukasdotcom/fantasy-manager
 ```
 
 9. [Install node v18 or greater](https://nodejs.org/en/) if you have not yet. To check you version run the command below which should give you some version number just make sure the major version is greater than or equal to 18
@@ -64,7 +64,7 @@ npm run dev
 2. Download this entire repository to your computer with
 
 ```bash
-git clone https://github.com/lukasdotcom/Bundesliga
+git clone https://github.com/lukasdotcom/fantasy-manager
 ```
 
 3. Copy the docker-compose file in the development folder to the top folder of the repository.

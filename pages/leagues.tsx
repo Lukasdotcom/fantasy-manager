@@ -316,7 +316,6 @@ export default function Home({
         <title>Leagues</title>
       </Head>
       <Menu />
-      <h1>Bundesliga Fantasy Manager</h1>
       <SessionProvider>
         <Leagues leagueData={leagueData} leagues={leagues} />
       </SessionProvider>
