@@ -79,7 +79,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
         className={playerStyles.container}
         sx={{
           background,
-          height: "120px",
+          height: "120",
           ...border,
         }}
       >
@@ -97,10 +97,10 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
           src={pictureUrl}
           width={
             data.league === "EPL" && pictureUrl !== fallbackImg
-              ? "78px"
-              : "100px"
+              ? "78"
+              : "100"
           }
-          height="100px"
+          height="100"
         />
         <div style={{ width: "70%" }}>
           <p>
@@ -108,7 +108,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
               {data.name}
             </Link>
             {starred ? (
-              <Image alt="starred" src="/star.svg" width="20px" height="20px" />
+              <Image alt="starred" src="/star.svg" width="20" height="20" />
             ) : (
               ""
             )}
