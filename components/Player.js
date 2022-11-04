@@ -291,6 +291,7 @@ export function TransferPlayer({
         }}
         value={amount}
       />
+      <br />
       <Button color="success" onClick={() => buySell(amount)}>
         Buy for max of {amount}
       </Button>
@@ -311,6 +312,7 @@ export function TransferPlayer({
         }}
         value={amount}
       />
+      <br />
       <Button color="error" onClick={() => buySell(amount * -1)}>
         Sell for min of {amount}
       </Button>
@@ -448,22 +450,29 @@ export function TransferPlayer({
           ownership
             .filter((e) => !e.transfer)
             .map((e) => (
-              <UserChip
-                sx={{ margin: "10px" }}
-                key={e.owner}
-                userid={e.owner}
-              />
+              <>
+                <br />
+                <UserChip
+                  sx={{ margin: "10px" }}
+                  key={e.owner}
+                  userid={e.owner}
+                />
+              </>
             ))}
         {ownership &&
           ownership
             .filter((e) => e.seller != 0 && e.transfer)
             .map((e) => (
-              <UserChip
-                sx={{ margin: "10px" }}
-                key={e.seller}
-                userid={e.seller}
-              />
+              <>
+                <br />
+                <UserChip
+                  sx={{ margin: "10px" }}
+                  key={e.seller}
+                  userid={e.seller}
+                />
+              </>
             ))}
+        <br />
         {Actions}
       </Dialog>
       <Button
