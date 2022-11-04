@@ -9,7 +9,7 @@ Provide summary of changes with issue number if any.
 - [ ] Made sure that all database changes have update code in entrypoint.ts and the database schema was updated in database.ts.
 - [ ] Made sure to test your changes.
 - [ ] All sql syntax would work on mysql.
-- [ ] Made sure to test your changes with cypress by running `npm run start:test` and in another terminal `npm run cypress`. If this fails and you don't know why look in the contributing guidelines or ask in this pull request.
+- [ ] Made sure to test your changes whith [cypress](#cypress) by running `npm test` and when it is done stopping the server with ctr-c. If this fails and you don't know why look in the contributing guidelines or ask in this pull request.
 - [ ] If you added any features it would be great if you tested them with cypress(Not required).
 - [ ] If you added another league did you follow all the steps in the [leagues.md How to add another league](../leagues.md#how-to-add-another-league).
 
