@@ -9,7 +9,7 @@ import {
   InferGetServerSidePropsType,
 } from "next";
 import { Session } from "next-auth";
-import { NotifyContext, NotifyType } from "../Modules/context";
+import { NotifyContext, NotifyType, UserContext } from "../Modules/context";
 import { Providers } from "../types/providers";
 import connect from "../Modules/database";
 import { useRouter } from "next/router";
@@ -99,6 +99,7 @@ export default function Home({
   setColorMode,
   deleteable,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const getUser = useContext(UserContext);
   const [username, setUsername] = useState(user.username);
   const [password, setPassword] = useState("");
   const [passwordExists, setPasswordExists] = useState(user.password);
@@ -124,6 +125,8 @@ export default function Home({
         }),
       }).then(async (response) => {
         notify(await response.text(), response.ok ? "success" : "error");
+        // Makes sure to update the username
+        getUser(user.id, true);
       });
     } else {
       notify("You can not have an empty username", "warning");
@@ -172,10 +175,7 @@ export default function Home({
       <Button variant="contained" onClick={alternateColorMode}>
         Switch to {oppositeColor} mode <Icon>{oppositeColor + "_mode"}</Icon>
       </Button>
-      <p>
-        Note it might take up to 1 minute for the Username to update for
-        everyone
-      </p>
+      <p>Note that a username change will not instantly update.</p>
       <TextField
         error={username === ""}
         id="username"

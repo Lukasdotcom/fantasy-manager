@@ -14,13 +14,6 @@ export default async function handler(req, res) {
           [id]
         );
         if (users.length > 0) {
-          // Adds a 30 second cache if not development
-          if (
-            process.env.APP_ENV !== "development" &&
-            process.env.APP_ENV !== "test"
-          ) {
-            res.setHeader("Cache-Control", "public, max-age=30");
-          }
           res.status(200).json(users[0].username);
           resolve();
         } else {
