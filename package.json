@@ -6,6 +6,7 @@
     "dev": "export NODE_ENV=development APP_ENV=development; npm install; npm run build:ts; node scripts/entrypoint.js & next dev",
     "build": "npm ci; npm run build:ts; next build;",
     "start": "export NODE_ENV=production APP_ENV=production; npm run start2",
+    "test": "npm run cypress & npm run start:test",
     "start:test": "export NODE_ENV=test APP_ENV=test; npm run start2",
     "start2": "npm run build:ts; node scripts/entrypoint.js & next build; next start",
     "lint": "eslint . --max-warnings 0",
