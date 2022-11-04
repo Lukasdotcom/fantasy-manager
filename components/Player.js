@@ -96,9 +96,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
           }}
           src={pictureUrl}
           width={
-            data.league === "EPL" && pictureUrl !== fallbackImg
-              ? "78"
-              : "100"
+            data.league === "EPL" && pictureUrl !== fallbackImg ? "78" : "100"
           }
           height="100"
         />
