@@ -1,17 +1,16 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Avatar, Chip, SxProps, useTheme, Theme } from "@mui/material";
+import { UserContext } from "../Modules/context";
 interface Props {
   userid: number;
 }
 // Simply just shows the name of the user given there userid
 export default function Username({ userid }: Props) {
+  const getUser = useContext(UserContext);
   const [username, setUsername] = useState("");
   useEffect(() => {
-    fetch(`/api/user/${userid}`).then(async (val) => {
-      const newUsername = await val.json();
-      setUsername(newUsername);
-    });
-  }, [userid]);
+    getUser(userid).then((e) => setUsername(e));
+  }, [userid, getUser]);
   return <>{username}</>;
 }
 interface UserChipProps extends Props {
@@ -19,15 +18,13 @@ interface UserChipProps extends Props {
 }
 // Creates a simple chip for the user
 export function UserChip({ userid, sx }: UserChipProps) {
+  const getUser = useContext(UserContext);
   const [username, setUsername] = useState("A");
   useEffect(() => {
     if (userid > 0) {
-      fetch(`/api/user/${userid}`).then(async (val) => {
-        const newUsername = await val.json();
-        setUsername(newUsername);
-      });
+      getUser(userid).then((e) => setUsername(e));
     }
-  }, [userid]);
+  }, [userid, getUser]);
   const theme = useTheme();
   if (userid == 0) return <p>AI</p>;
   if (userid == -1) return <p>No one</p>;
@@ -50,15 +47,12 @@ export function UserChip({ userid, sx }: UserChipProps) {
 }
 // Shows an avatar for the user with a color based on the name
 export function UserAvatar({ userid }: Props) {
+  const getUser = useContext(UserContext);
   const [username, setUsername] = useState("A");
   useEffect(() => {
-    fetch(`/api/user/${userid}`).then(async (val) => {
-      const newUsername = await val.json();
-      setUsername(newUsername);
-    });
-  }, [userid]);
+    getUser(userid).then((e) => setUsername(e));
+  }, [userid, getUser]);
   // Cenerates a color based on the name
-
   const background = stringToColor(userid);
 
   const theme = useTheme();

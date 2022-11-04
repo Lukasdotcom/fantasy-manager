@@ -34,7 +34,7 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { NotifyContext } from "../../Modules/context";
+import { NotifyContext, UserContext } from "../../Modules/context";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { Box } from "@mui/system";
 interface AdminPanelProps {
@@ -283,6 +283,7 @@ function Invite({ link, league, host, remove }: InviteProps) {
 }
 // Used to generate the graph of the historical points
 function Graph({ historicalPoints }: { historicalPoints: historialData }) {
+  const getUser = useContext(UserContext);
   const [usernames, setUsernames] = useState(Object.keys(historicalPoints));
   const [dataRange, setDataRange] = useState<number[]>([
     1,
@@ -290,8 +291,7 @@ function Graph({ historicalPoints }: { historicalPoints: historialData }) {
   ]);
   useEffect(() => {
     Object.keys(historicalPoints).forEach((e, index) => {
-      fetch(`/api/user/${e}`).then(async (val) => {
-        const newUsername = await val.json();
+      getUser(parseInt(e)).then(async (newUsername) => {
         setUsernames((val) => {
           val[index] = newUsername;
           // Makes sure that the component updates after the state is changed
@@ -299,7 +299,7 @@ function Graph({ historicalPoints }: { historicalPoints: historialData }) {
         });
       });
     });
-  }, [historicalPoints]);
+  }, [historicalPoints, getUser]);
   ChartJS.register(
     CategoryScale,
     LinearScale,
