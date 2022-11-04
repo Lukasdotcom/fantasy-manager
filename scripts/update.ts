@@ -110,7 +110,7 @@ export async function updateData(
       }
       const currentData = data.events[counter];
       if (currentData.finished === false) {
-        newTransfer = currentData.deadline_time_epoch - 1667037600 > 0;
+        newTransfer = currentData.deadline_time_epoch - Date.now() / 1000 > 0;
         // Gets the team data for the matchday
         teamData = await fetch(
           `https://fantasy.premierleague.com/api/fixtures/?event=${currentData.id}`
@@ -124,7 +124,7 @@ export async function updateData(
           })
           .catch(() => []);
         countdown = newTransfer
-          ? currentData.deadline_time_epoch - 1667037600
+          ? currentData.deadline_time_epoch - Date.now() / 1000
           : 0;
         break;
       }
