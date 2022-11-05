@@ -107,6 +107,8 @@ export default function Home({ analytics, leagues }: props) {
   const BundesligaActiveData: Record<string, number> = {};
   const EPLData: Record<string, number> = {};
   const EPLActiveData: Record<string, number> = {};
+  const WorldCup2022Data: Record<string, number> = {};
+  const WorldCup2022ActiveData: Record<string, number> = {};
   let counter = 0;
   // Adds all the data to the dataset
   while (sortedAnalytics.length > counter) {
@@ -126,6 +128,7 @@ export default function Home({ analytics, leagues }: props) {
       counter++;
       if (data) {
         // Calculates all the league data
+        // Bundesliga Data
         if (!BundesligaData[String(data?.day)]) {
           BundesligaData[String(data?.day)] = 0;
         }
@@ -135,6 +138,7 @@ export default function Home({ analytics, leagues }: props) {
           BundesligaActiveData[String(data?.day)] = 0;
         }
         BundesligaActiveData[String(data?.day)] += data.BundesligaActive;
+        // EPL Data
         if (!EPLData[String(data?.day)]) {
           EPLData[String(data?.day)] = 0;
         }
@@ -143,6 +147,16 @@ export default function Home({ analytics, leagues }: props) {
           EPLActiveData[String(data?.day)] = 0;
         }
         EPLActiveData[String(data?.day)] += data.EPLActive;
+        // World Cup 2022
+        if (!WorldCup2022Data[String(data?.day)]) {
+          WorldCup2022Data[String(data?.day)] = 0;
+        }
+        WorldCup2022Data[String(data?.day)] +=
+          data.WorldCup2022 - data.WorldCup2022Active;
+        if (!WorldCup2022ActiveData[String(data?.day)]) {
+          WorldCup2022ActiveData[String(data?.day)] = 0;
+        }
+        WorldCup2022ActiveData[String(data?.day)] += data.WorldCup2022Active;
         // Calculates all the version data
         if (!activeData[String(data?.day)]) {
           activeData[String(data?.day)] = 0;
@@ -213,6 +227,17 @@ export default function Home({ analytics, leagues }: props) {
       },
       {
         fill: true,
+        label: "World Cup 2022 Active",
+        data: labels.map((e) =>
+          WorldCup2022ActiveData[String(e)]
+            ? WorldCup2022ActiveData[String(e)]
+            : 0
+        ),
+        borderColor: "rgba(86, 4, 44, 1)",
+        backgroundColor: "rgba(86, 4, 44, 1)",
+      },
+      {
+        fill: true,
         label: "Bundesliga",
         data: labels.map((e) =>
           BundesligaData[String(e)] ? BundesligaData[String(e)] : 0
@@ -226,6 +251,15 @@ export default function Home({ analytics, leagues }: props) {
         data: labels.map((e) => (EPLData[String(e)] ? EPLData[String(e)] : 0)),
         borderColor: "rgba(61, 25, 91, 0.7)",
         backgroundColor: "rgba(61, 25, 91, 0.6)",
+      },
+      {
+        fill: true,
+        label: "World Cup 2022",
+        data: labels.map((e) =>
+          WorldCup2022Data[String(e)] ? WorldCup2022Data[String(e)] : 0
+        ),
+        borderColor: "rgba(86, 4, 44, 0.7)",
+        backgroundColor: "rgba(86, 4, 44, 0.6)",
       },
     ],
   };
@@ -291,6 +325,12 @@ export default function Home({ analytics, leagues }: props) {
         {leagues.includes("EPL")
           ? "enabled."
           : "disabled. To enable set the enviromental variable ENABLE_EPL to enable."}
+      </p>
+      <p>
+        The World Cup 2022 is{" "}
+        {leagues.includes("WorldCup2022")
+          ? "enabled."
+          : "disabled. To enable set the enviromental variable ENABLE_WORDCUP2022 to enable."}
       </p>
     </>
   );

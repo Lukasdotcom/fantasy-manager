@@ -263,12 +263,15 @@ export interface analytics {
   BundesligaActive: number;
   EPL: number;
   EPLActive: number;
+  WorldCup2022: number;
+  WorldCup2022Active: number;
 }
 const validLeagues = (): string[] => {
   const leagues = [];
   if (process.env.APP_ENV === "test") return ["Bundesliga"];
   if (process.env.BUNDESLIGA_API) leagues.push("Bundesliga");
   if (process.env.ENABLE_EPL) leagues.push("EPL");
+  if (process.env.ENABLE_WORDCUP2022) leagues.push("WorldCup2022");
   return leagues;
 };
 export const leagues = validLeagues();

@@ -59,6 +59,12 @@ export async function updateData(
       data: {},
     };
   }
+  if (league === "WorldCup2022") {
+    fetchData = {
+      link: "https://play.fifa.com/json/fantasy/players.json",
+      data: {},
+    };
+  }
   // Gets the player data
   const data =
     process.env.APP_ENV !== "test"
@@ -94,25 +100,29 @@ export async function updateData(
     });
   let newTransfer = false;
   let countdown = 0;
-  let teamData: {
+  let teamDataEPL: {
     kickoff_time: string;
     team_a: number;
     team_h: number;
   }[] = []; // This is used for the EPL to allow opponents to be shown
+  let teamDataWorldCup2022: {
+    [Key: string]: {
+      kickoff_time: string;
+      team: { id: number; abbr: string };
+      opponent: { id: number; abbr: string };
+    };
+  } = {}; // This is used for the WorldCup2022 to allow opponents to be shown
   if (league === "Bundesliga") {
     newTransfer = data.opening_hour.opened;
     countdown = data.opening_hour.countdown / 1000;
   } else if (league === "EPL") {
     let counter = 0;
-    while (true) {
-      if (counter >= data.events.length) {
-        break;
-      }
+    while (counter < data.events.length) {
       const currentData = data.events[counter];
       if (currentData.finished === false) {
-        newTransfer = currentData.deadline_time_epoch - Date.now() / 1000 > 0;
+        newTransfer = currentData.deadline_time_epoch - nowTime > 0;
         // Gets the team data for the matchday
-        teamData = await fetch(
+        teamDataEPL = await fetch(
           `https://fantasy.premierleague.com/api/fixtures/?event=${currentData.id}`
         )
           .then(async (val) => {
@@ -123,16 +133,79 @@ export async function updateData(
             }
           })
           .catch(() => []);
-        countdown = newTransfer
-          ? currentData.deadline_time_epoch - Date.now() / 1000
-          : 0;
+        countdown = newTransfer ? currentData.deadline_time_epoch - nowTime : 0;
         break;
       }
       counter++;
     }
+  } else if (league === "WorldCup2022") {
+    // Gets the team data
+    const WorldCupTeamData: { id: number; abbr: string }[] = await fetch(
+      "https://play.fifa.com/json/fantasy/squads_fifa.json"
+    )
+      .then((e) => e.json())
+      .catch(() => []);
+    // Gets the round data
+    const WorldCupRoundData: {
+      startDate: string;
+      endDate: string;
+      tournaments: { date: string; homeSquadId: number; awaySquadId: number }[];
+    }[] = await fetch("https://play.fifa.com/json/fantasy/rounds.json")
+      .then((e) => e.json())
+      .catch(() => []);
+    let round = 0;
+    while (round < WorldCupRoundData.length) {
+      // If it is before this matchday starts return that it is transfer time and countdown length
+      if (Date.parse(WorldCupRoundData[round].startDate) / 1000 >= nowTime) {
+        newTransfer = true;
+        countdown =
+          Date.parse(WorldCupRoundData[round].startDate) / 1000 - nowTime;
+        break;
+      }
+      // If it is in the matchday
+      if (Date.parse(WorldCupRoundData[round].endDate) / 1000 >= nowTime) {
+        newTransfer = false;
+        countdown =
+          Date.parse(WorldCupRoundData[round].endDate) / 1000 - nowTime;
+        break;
+      }
+      round += 1;
+    }
+    // Adds all the teams data to a list
+    const roundData = WorldCupRoundData[round].tournaments;
+    for (let i = 0; i < roundData.length; i++) {
+      const element = roundData[i];
+      const team_h = WorldCupTeamData.filter(
+        (e) => e.id === element.homeSquadId
+      );
+      const team_a = WorldCupTeamData.filter(
+        (e) => e.id === element.awaySquadId
+      );
+      if (team_h.length == 0 || team_a.length == 0) {
+        console.error(
+          `Error - Failed to get data for ${league}(if this happens to often something is wrong)`
+        );
+        // Unlocks the database
+        connection.query("DELETE FROM data WHERE value1=?", [
+          "locked" + league,
+        ]);
+        connection.end();
+        return;
+      }
+      teamDataWorldCup2022[team_a[0].id] = {
+        team: team_a[0],
+        opponent: team_h[0],
+        kickoff_time: element.date,
+      };
+      teamDataWorldCup2022[team_h[0].id] = {
+        team: team_h[0],
+        opponent: team_a[0],
+        kickoff_time: element.date,
+      };
+    }
   }
   // Checks if the team data failed
-  if (teamData.length === 0 && league === "EPL") {
+  if (teamDataEPL.length === 0 && league === "EPL") {
     console.error(
       `Error - Failed to get data for ${league}(if this happens to often something is wrong)`
     );
@@ -194,94 +267,146 @@ export async function updateData(
     team: number;
     total_points: number;
   }
+  interface PlayerDataWorldCup2022 {
+    id: number;
+    name: string;
+    squadId: number;
+    cost: number;
+    stats: {
+      totalPoints: number;
+      avgPoints: number;
+    };
+    status: "available";
+    position: 1 | 2 | 3 | 4;
+    locked: boolean;
+  }
   interface expandedPlayer extends players {
     match_starts_in: number;
     next_opponent: string;
   }
-
   let playerList;
   if (league === "Bundesliga") {
     playerList = data.offerings.items;
   } else if (league === "EPL") {
     playerList = data.elements;
+  } else if (league === "WorldCup2022") {
+    playerList = data;
   }
   // Goes through all of the players and adds their data to the database
   const players: expandedPlayer[] = playerList
-    .map((e: playerDataBundesliga | PlayerDataEPL): expandedPlayer => {
-      // Makes the data get sorted
-      if (league === "Bundesliga") {
-        e = e as playerDataBundesliga;
-        return {
-          uid: e.player.uid,
-          name: e.player.nickname,
-          nameAscii: noAccents(e.player.uid),
-          club: e.player.team.team_code,
-          pictureUrl: e.player.image_urls.default,
-          value: e.transfer_value,
-          position: e.player.positions[0] as position,
-          forecast: e.attendance.forecast[0] as "a" | "u" | "m",
-          total_points: e.player.statistics.total_points,
-          average_points: e.player.statistics.average_points,
-          // This is unreliable only use this when it is unknown
-          last_match: e.player.statistics.last_match_points,
-          locked: e.player.is_locked,
-          exists: true,
-          league,
-          match_starts_in: e.player.match_starts_in,
-          next_opponent: e.player.next_opponent.team_code,
-        };
-      } else {
-        const newData = e as PlayerDataEPL;
-        let forecast: "a" | "u" | "m" = "u";
-        if (newData.chance_of_playing_this_round === 0) {
-          forecast = "m";
-        } else if (newData.chance_of_playing_this_round === 100) {
-          forecast = "a";
+    .map(
+      (
+        e: playerDataBundesliga | PlayerDataEPL | PlayerDataWorldCup2022
+      ): expandedPlayer => {
+        // Makes the data get sorted
+        if (league === "Bundesliga") {
+          e = e as playerDataBundesliga;
+          return {
+            uid: e.player.uid,
+            name: e.player.nickname,
+            nameAscii: noAccents(e.player.nickname),
+            club: e.player.team.team_code,
+            pictureUrl: e.player.image_urls.default,
+            value: e.transfer_value,
+            position: e.player.positions[0] as position,
+            forecast: e.attendance.forecast[0] as "a" | "u" | "m",
+            total_points: e.player.statistics.total_points,
+            average_points: e.player.statistics.average_points,
+            // This is unreliable only use this when it is unknown
+            last_match: e.player.statistics.last_match_points,
+            locked: e.player.is_locked,
+            exists: true,
+            league,
+            match_starts_in: e.player.match_starts_in,
+            next_opponent: e.player.next_opponent.team_code,
+          };
+        } else if (league === "EPL") {
+          const newData = e as PlayerDataEPL;
+          let forecast: "a" | "u" | "m" = "u";
+          if (newData.chance_of_playing_this_round === 0) {
+            forecast = "m";
+          } else if (newData.chance_of_playing_this_round === 100) {
+            forecast = "a";
+          }
+          const gettingData = teamDataEPL.filter(
+            (e2) => e2.team_a === newData.team || e2.team_h === newData.team
+          );
+          // Checks if the team data could be gotten otherwise junk data is given
+          const thisTeamData =
+            gettingData.length > 0
+              ? gettingData[0]
+              : {
+                  kickoff_time: "2022-10-29T11:30:00Z",
+                  team_a: 1,
+                  team_h: 1,
+                };
+          const getTeam = (id: number): string => {
+            id = id - 1;
+            return data.teams.length > id ? data.teams[id].short_name : "N/A";
+          };
+          return {
+            uid: String(newData.code),
+            name: newData.first_name + " " + newData.second_name,
+            nameAscii: noAccents(
+              newData.first_name + " " + newData.second_name
+            ),
+            club: getTeam(newData.team),
+            pictureUrl: `https://resources.premierleague.com/premierleague/photos/players/110x140/p${newData.code}.png`,
+            value: newData.now_cost * 100000,
+            position: ["", "gk", "def", "mid", "att"][
+              newData.element_type
+            ] as position,
+            forecast,
+            total_points: newData.total_points,
+            average_points: parseFloat(newData.points_per_game),
+            // This is unreliable only use this when it is unknown
+            last_match: 0,
+            locked: Date.parse(thisTeamData.kickoff_time) < nowTime * 1000,
+            exists: true,
+            league,
+            match_starts_in: Math.floor(
+              Date.parse(thisTeamData.kickoff_time) / 1000 - nowTime
+            ),
+            next_opponent:
+              thisTeamData.team_a === newData.team
+                ? getTeam(thisTeamData.team_h)
+                : getTeam(thisTeamData.team_a),
+          };
+        } else {
+          const newData = e as PlayerDataWorldCup2022;
+          return {
+            uid: String(newData.id),
+            name: newData.name,
+            nameAscii: noAccents(newData.name),
+            club: teamDataWorldCup2022[String(newData.squadId)].team.abbr,
+            pictureUrl: `https://play.fifa.com/media/squads/${
+              newData.position === 1 ? "goalkeeper" : "outfield"
+            }/${newData.squadId}.png`,
+            value: newData.cost,
+            position: ["", "gk", "def", "mid", "att"][
+              newData.position
+            ] as position,
+            forecast: "a",
+            total_points: newData.stats.totalPoints,
+            average_points: newData.stats.avgPoints,
+            // This data does not exist and has to be calculated the normal way
+            last_match: 0,
+            locked: newData.locked,
+            exists: true,
+            league,
+            match_starts_in: Math.floor(
+              Date.parse(
+                teamDataWorldCup2022[String(newData.squadId)].kickoff_time
+              ) /
+                1000 -
+                nowTime
+            ),
+            next_opponent:
+              teamDataWorldCup2022[String(newData.squadId)].opponent.abbr,
+          };
         }
-        const gettingData = teamData.filter(
-          (e2) => e2.team_a === newData.team || e2.team_h === newData.team
-        );
-        // Checks if the team data could be gotten otherwise junk data is given
-        const thisTeamData =
-          gettingData.length > 0
-            ? gettingData[0]
-            : {
-                kickoff_time: "2022-10-29T11:30:00Z",
-                team_a: 1,
-                team_h: 1,
-              };
-        const getTeam = (id: number): string => {
-          id = id - 1;
-          return data.teams.length > id ? data.teams[id].short_name : "N/A";
-        };
-        return {
-          uid: String(newData.code),
-          name: newData.first_name + " " + newData.second_name,
-          nameAscii: noAccents(newData.first_name + " " + newData.second_name),
-          club: getTeam(newData.team),
-          pictureUrl: `https://resources.premierleague.com/premierleague/photos/players/110x140/p${newData.code}.png`,
-          value: newData.now_cost * 100000,
-          position: ["", "gk", "def", "mid", "att"][
-            newData.element_type
-          ] as position,
-          forecast,
-          total_points: newData.total_points,
-          average_points: parseFloat(newData.points_per_game),
-          // This is unreliable only use this when it is unknown
-          last_match: 0,
-          locked: Date.parse(thisTeamData.kickoff_time) < Date.now(),
-          exists: true,
-          league,
-          match_starts_in: Math.floor(
-            (Date.parse(thisTeamData.kickoff_time) - Date.now()) / 1000
-          ),
-          next_opponent:
-            thisTeamData.team_a === newData.team
-              ? getTeam(thisTeamData.team_h)
-              : getTeam(thisTeamData.team_a),
-        };
       }
-    })
+    )
     .sort(
       (a: expandedPlayer, b: expandedPlayer) =>
         parseInt(a.club, 36) - parseInt(b.club, 36)
@@ -292,7 +417,7 @@ export async function updateData(
   let index = 0;
   let club = "";
   let clubDone = false;
-  const currentTime = Math.floor(Date.now() / 1000);
+  const currentTime = nowTime;
   while (index < players.length) {
     let val = players[index];
     index++;

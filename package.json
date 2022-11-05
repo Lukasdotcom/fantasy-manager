@@ -1,6 +1,6 @@
 {
   "name": "fantasy-manager",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "private": true,
   "scripts": {
     "dev": "export NODE_ENV=development APP_ENV=development; npm install; npm run build:ts; node scripts/entrypoint.js & next dev",

@@ -11,7 +11,7 @@ if (process.env.APP_ENV !== "test") {
 }
 const analyticsDomain = "https://fantasy.lschaefer.xyz";
 // Used to tell the program what version of the database to use
-const currentVersion = "1.8.0";
+const currentVersion = "1.9.0";
 const date = new Date();
 let day = date.getDay();
 
@@ -84,7 +84,7 @@ async function startUp() {
     ),
     // Used to store analytics data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS analytics (serverID varchar(10), day int, version varchar(10), users int, activeUsers int, Bundesliga int, BundesligaActive int, EPL int, EPLActive int)"
+      "CREATE TABLE IF NOT EXISTS analytics (serverID varchar(10), day int, version varchar(10), users int, activeUsers int, Bundesliga int, BundesligaActive int, EPL int, EPLActive int, WorldCup2022 int, WorldCup2022Active int)"
     ),
   ]);
   // Checks if the server hash has been created and if not makes one
@@ -278,6 +278,40 @@ async function startUp() {
       );
       oldVersion = "1.8.0";
     }
+    if (oldVersion == "1.8.0") {
+      console.log("Updating database to version 1.9.0");
+      // Adds the new columns to the analytics
+      await Promise.all([
+        connection.query("ALTER TABLE analytics ADD WorldCup2022 int"),
+        connection.query("ALTER TABLE analytics ADD WorldCup2022Active int"),
+      ]);
+      await connection.query(
+        "UPDATE analytics SET WorldCup2022=0, WorldCup2022Active=0"
+      );
+      // Fixes all the player data to have the correct ascii name
+      const players = await connection.query("SELECT * FROM players");
+      await Promise.all(
+        players.map((player) =>
+          connection.query("UPDATE players SET nameAscii=? WHERE uid=?", [
+            noAccents(player.name),
+            player.uid,
+          ])
+        )
+      );
+      // Fixes all the player data to have the correct historical ascii name
+      const historicalPlayers = await connection.query(
+        "SELECT * FROM historicalPlayers"
+      );
+      await Promise.all(
+        historicalPlayers.map((player) =>
+          connection.query(
+            "UPDATE historicalPlayers SET nameAscii=? WHERE uid=?",
+            [noAccents(player.name), player.uid]
+          )
+        )
+      );
+      oldVersion = "1.9.0";
+    }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date
     if (oldVersion !== currentVersion) {
@@ -342,6 +376,16 @@ async function update() {
       EPLActive: (
         await connection3.query(
           "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league='EPL') AND EXISTS (SELECT * FROM users WHERE users.id=leagueUsers.user AND active='1')"
+        )
+      ).length,
+      WorldCup2022: (
+        await connection3.query(
+          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league='WorldCup2022')"
+        )
+      ).length,
+      WorldCup2022Active: (
+        await connection3.query(
+          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league='WorldCup2022') AND EXISTS (SELECT * FROM users WHERE users.id=leagueUsers.user AND active='1')"
         )
       ).length,
     });

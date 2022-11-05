@@ -75,6 +75,17 @@ export default function Home() {
           shown here.
         </Link>
       </p>
+      <h3>World Cup 2022 League</h3>
+      <p>
+        The points are calculated by the way shown under{" "}
+        <Link
+          href="https://play.fifa.com/fantasy-classic/help/guidelines"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          scoring guidelines.
+        </Link>
+      </p>
       <h1>Installing as an App</h1>
       <p>
         I don&apos;t really want to pay $100 to get an apple developer license
