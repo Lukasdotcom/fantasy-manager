@@ -18,6 +18,8 @@ export default async function handler(
       BundesligaActive = 0,
       EPL = 0,
       EPLActive = 0,
+      WorldCup2022 = 0,
+      WorldCup2022Active = 0,
     }: {
       serverID: string;
       version: string;
@@ -27,6 +29,8 @@ export default async function handler(
       BundesligaActive: number;
       EPL: number;
       EPLActive: number;
+      WorldCup2022: number;
+      WorldCup2022Active: number;
     } = req.body;
     // Deletes the analytics data from the user if it already exists
     await connection.query("DELETE FROM analytics WHERE serverID=? AND day=?", [
@@ -35,7 +39,7 @@ export default async function handler(
     ]);
     // Adds the analytics data
     connection.query(
-      "INSERT INTO analytics (serverID, day, version, users, activeUsers, Bundesliga, BundesligaActive, EPL, EPLActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO analytics (serverID, day, version, users, activeUsers, Bundesliga, BundesligaActive, EPL, EPLActive, WorldCup2022, WorldCup2022Active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         serverID,
         day,
@@ -46,6 +50,8 @@ export default async function handler(
         BundesligaActive,
         EPL,
         EPLActive,
+        WorldCup2022,
+        WorldCup2022Active,
       ]
     );
     connection.end();
