@@ -36,6 +36,17 @@ export default async function handler(
   } else {
     const user = session.user.id;
     const connection = await connect();
+    // Checks if the league ia rchived
+    if (
+      await connection
+        .query("SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0", [
+          league,
+        ])
+        .then((e) => e.length === 0)
+    ) {
+      res.status(400).end("League is archived");
+      return;
+    }
     // Gets users money
     const money = await connection
       .query("SELECT money FROM leagueUsers WHERE leagueID=? and user=?", [

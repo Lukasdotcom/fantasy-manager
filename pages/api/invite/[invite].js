@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     invite = invite[0];
     // Gets the info for the league
     let leagueName = await connection.query(
-      "SELECT * FROM leagueSettings WHERE leagueID=?",
+      "SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0",
       [invite.leagueID]
     );
     // Checks if the league exists

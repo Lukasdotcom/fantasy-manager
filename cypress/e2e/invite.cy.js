@@ -452,6 +452,20 @@ describe("Invite User into league and change some league Settings and run throug
       .then(() => {
         cy.reload();
       });
+    // Archives the league
+    cy.contains("Open League").click();
+    cy.get(".PrivateSwitchBase-input").click();
+    cy.get("#confirmation").type("New Sample League");
+    cy.contains("Save Admin Settings").click();
+    // Simulates an empty matchday
+    cy.exec("export APP_ENV=test; node cypress/e2e/invite5.js");
+    // Makes sure that the matchday does not exist
+    cy.reload().then((e) => {
+      cy.get(".MuiPagination-ul > :nth-child(4) > .MuiButtonBase-root")
+        .contains("3")
+        .should("not.exist");
+    });
+    cy.contains("Leagues").click();
     cy.contains("Leave League")
       .click()
       .then(() => {

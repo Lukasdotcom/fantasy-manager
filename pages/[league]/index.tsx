@@ -22,6 +22,8 @@ import {
   Autocomplete,
   BoxTypeMap,
   Slider,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import {
   Chart as ChartJS,
@@ -37,12 +39,14 @@ import { Line } from "react-chartjs-2";
 import { NotifyContext, UserContext } from "../../Modules/context";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { Box } from "@mui/system";
+import Router from "next/router";
 interface AdminPanelProps {
   league: number;
   leagueName: string;
   setLeagueName: (name: string) => void;
   admin: boolean;
   leagueType: string;
+  archived: number;
 }
 // Creates the admin panel
 function AdminPanel({
@@ -51,6 +55,7 @@ function AdminPanel({
   setLeagueName,
   admin,
   leagueType,
+  archived,
 }: AdminPanelProps) {
   const notify = useContext(NotifyContext);
   const [startingMoney, setStartingMoney] = useState(150);
@@ -62,6 +67,8 @@ function AdminPanel({
   const [transfers, setTransfers] = useState(6);
   const [duplicatePlayers, setDuplicatePlayers] = useState(1);
   const [starredPercentage, setStarredPercentage] = useState(150.0);
+  const [archive, setArchive] = useState(false);
+  const [confirmation, setConfirmation] = useState("");
   function updateData(league: number) {
     fetch(`/api/league/${league}`).then(async (res) => {
       if (res.ok) {
@@ -79,7 +86,7 @@ function AdminPanel({
   useEffect(() => {
     updateData(league);
   }, [league]);
-  if (admin) {
+  if (admin && !archived) {
     return (
       <>
         <h1>Admin Panel</h1>
@@ -200,9 +207,40 @@ function AdminPanel({
             />
           )}
         />
+        <FormControlLabel
+          label="Check this to archive the league when you press save."
+          control={
+            <Checkbox
+              checked={archive}
+              onChange={() => {
+                setArchive((e) => !e);
+              }}
+            />
+          }
+        />
+        <br></br>
+        {archive && (
+          <TextField
+            id="confirmation"
+            error={leagueName !== confirmation}
+            helperText="Enter league name here to confirm archive"
+            variant="outlined"
+            margin="dense"
+            size="small"
+            placeholder={leagueName}
+            onChange={(e) => {
+              setConfirmation(e.target.value);
+            }}
+            value={confirmation}
+          />
+        )}
         <br></br>
         <Button
           onClick={() => {
+            if (archive && confirmation !== leagueName) {
+              notify("Confirmation text is wrong", "error");
+              return;
+            }
             // Used to save the data
             notify("Saving");
             fetch(`/api/league/${league}`, {
@@ -218,10 +256,12 @@ function AdminPanel({
                   duplicatePlayers,
                   starredPercentage,
                   leagueName,
+                  archive,
                 },
               }),
             }).then(async (res) => {
               notify(await res.text(), res.ok ? "success" : "error");
+              if (archive) Router.reload();
             });
           }}
           variant="contained"
@@ -239,6 +279,7 @@ function AdminPanel({
         <p>Transfer Limit : {transfers}</p>
         <p>Number of Squads a Player can be in : {duplicatePlayers}</p>
         <p>Starred Player Percantage : {starredPercentage}%</p>
+        <p>This league is: {archived ? "archived" : "not archived"}</p>
       </>
     );
   }
@@ -391,6 +432,7 @@ interface Props {
   leagueName: string;
   league: number;
   leagueType: string;
+  archived: number;
 }
 export default function Home({
   admin,
@@ -401,6 +443,7 @@ export default function Home({
   host,
   leagueName,
   leagueType,
+  archived,
 }: Props) {
   const notify = useContext(NotifyContext);
   const [inputLeagueName, setInputLeagueName] = useState(leagueName);
@@ -540,6 +583,7 @@ export default function Home({
         league={league}
         admin={admin}
         leagueType={leagueType}
+        archived={archived}
       />
     </>
   );

@@ -64,8 +64,17 @@ export default async function handler(
           `User ${session.user.id} created league of ${id} with name ${req.body.name}`
         );
         break;
-      case "GET": // Returns all leagues the user is in
-        res.status(200).json(await leagueList(session.user.id));
+      case "GET": // Returns all leagues and archived leagues the user is in
+        res.status(200).json({
+          leagues: await connection.query(
+            "SELECT leagueName, leagueID FROM leagueSettings WHERE archived=0 AND EXISTS (SELECT * FROM leagueUsers WHERE user=? and leagueUsers.leagueID = leagueSettings.leagueID)",
+            [session.user.id]
+          ),
+          archived: await connection.query(
+            "SELECT leagueName, leagueID FROM leagueSettings WHERE archived!=0 AND EXISTS (SELECT * FROM leagueUsers WHERE user=? and leagueUsers.leagueID = leagueSettings.leagueID) ORDER BY archived DESC",
+            [session.user.id]
+          ),
+        });
         break;
       default:
         res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -77,16 +86,10 @@ export default async function handler(
   }
 }
 export interface LeagueListResult {
+  leagues: LeagueListPart[];
+  archived: LeagueListPart[];
+}
+export interface LeagueListPart {
   leagueName: string;
   leagueID: number;
-}
-// A Promise that gets all of the leagues a user is in
-export async function leagueList(user: number) {
-  const connection = await connect();
-  const leagues: LeagueListResult[] = await connection.query(
-    "SELECT leagueName, leagueID FROM leagueSettings WHERE EXISTS (SELECT * FROM leagueUsers WHERE user=? and leagueUsers.leagueID = leagueSettings.leagueID)",
-    [user]
-  );
-  connection.end();
-  return leagues;
 }

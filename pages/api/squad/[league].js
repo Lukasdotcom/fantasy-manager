@@ -67,6 +67,17 @@ export default async function handler(req, res) {
     res.status(401).end("Not logged in");
   } else {
     const user = session.user.id;
+    // Checks if the league is archived
+    if (
+      await connection
+        .query("SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0", [
+          league,
+        ])
+        .then((e) => e.length === 0)
+    ) {
+      res.status(400).end("League is archived");
+      return;
+    }
     switch (req.method) {
       // Used to return a dictionary of all formations and your current squad and formation
       case "GET":

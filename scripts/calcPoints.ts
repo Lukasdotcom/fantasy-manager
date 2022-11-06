@@ -11,7 +11,7 @@ export async function calcPoints(league: string | number) {
   // Checks if a league number was requested instead of an entire league type
   if (league > 0) {
     let leagueData: leagueSettings[] = await connection.query(
-      "SELECT * FROM leagueSettings WHERE leagueID=?",
+      "SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0",
       [league]
     );
     if (leagueData.length > 0) {
@@ -54,7 +54,7 @@ export async function calcPoints(league: string | number) {
       // Gets how many points the user had for the matchday with the previous calculation
       connection
         .query(
-          "SELECT points FROM points WHERE leagueID=? and user=? ORDER BY matchday DESC LIMIT 1",
+          "SELECT points FROM points WHERE leagueID=? AND user=? AND time IS NULL ORDER BY matchday DESC LIMIT 1",
           [e.leagueID, e.user]
         )
         .then((result: points[]) => (result.length > 0 ? result[0].points : 0)),

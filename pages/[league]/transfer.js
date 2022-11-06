@@ -8,6 +8,8 @@ import { SessionProvider, useSession } from "next-auth/react";
 import connect from "../../Modules/database";
 import Link from "../../components/Link";
 import {
+  Alert,
+  AlertTitle,
   Button,
   Checkbox,
   FormControlLabel,
@@ -57,7 +59,7 @@ function Postion({ position, positions, setPositions }) {
     </>
   );
 }
-export default function Home({
+function MainPage({
   league,
   allowedTransfers,
   duplicatePlayers,
@@ -304,7 +306,26 @@ export default function Home({
     </div>
   );
 }
-
+export default function Home(props) {
+  // Checks if the league is archived
+  if (props.archived !== 0) {
+    return (
+      <>
+        <Head>
+          <title>{`Transfers for ` + props.leagueName}</title>
+        </Head>
+        <Menu league={props.league} />
+        <h1>Transfers for {props.leagueName}</h1>
+        <Alert severity={"warning"} className="notification">
+          <AlertTitle>This League is Archived</AlertTitle>
+          <p>This league is archived and this screen is disabled</p>
+        </Alert>
+      </>
+    );
+  } else {
+    return <MainPage {...props} />;
+  }
+}
 export async function getServerSideProps(ctx) {
   const connection = await connect();
   // Gets the amount of allowed transfers
