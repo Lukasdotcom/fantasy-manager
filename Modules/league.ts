@@ -23,6 +23,7 @@ const redirect = async (
           league: league,
           leagueName: leagueInfo[0].leagueName,
           leagueType: leagueInfo[0].league,
+          archived: leagueInfo[0].archived,
         },
       };
     } else {

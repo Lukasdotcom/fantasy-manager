@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useContext, useEffect, useState } from "react";
 import { getSession, SessionProvider, useSession } from "next-auth/react";
-import { leagueList, LeagueListResult } from "./api/league";
+import { LeagueListPart, LeagueListResult } from "./api/league";
 import Link from "../components/Link";
 import Menu from "../components/Menu";
 import { push } from "@socialgouv/matomo-next";
@@ -202,16 +202,27 @@ function LeaveLeague({
   );
 }
 interface LeaguesProps {
-  leagueData: LeagueListResult[];
   leagues: string[];
 }
 // Used to list all the leagues you are part of and to add a league
-function Leagues({ leagueData, leagues }: LeaguesProps) {
+function Leagues({ leagues }: LeaguesProps) {
   const notify = useContext(NotifyContext);
   const { data: session } = useSession();
-  const [leagueList, setLeagueList] = useState(leagueData);
+  const [leagueList, setLeagueList] = useState<LeagueListResult>({
+    leagues: [],
+    archived: [],
+  });
+  // Used to get a list of all the leagues
+  const getLeagueData = async () => {
+    let data = await fetch("/api/league");
+    setLeagueList(await data.json());
+  };
+  // Makes sure to get the league data on the mount
+  useEffect(() => {
+    getLeagueData();
+  }, []);
   const [favoriteLeague, setFavoriteLeague] = useState<
-    LeagueListResult | undefined
+    LeagueListPart | undefined
   >(undefined);
   // Gets the favorite league
   useEffect(() => {
@@ -219,7 +230,7 @@ function Leagues({ leagueData, leagues }: LeaguesProps) {
     if (favoriteLeague || !session) {
       return;
     }
-    const newFavoriteLeague = leagueList.filter(
+    const newFavoriteLeague = leagueList.leagues.filter(
       (e) => e.leagueID === session.user.favoriteLeague
     );
     setFavoriteLeague(
@@ -229,7 +240,7 @@ function Leagues({ leagueData, leagues }: LeaguesProps) {
     );
   }, [session, leagueList, favoriteLeague]);
   // Used to update the favorite
-  async function updateFavorite(val: LeagueListResult | undefined) {
+  async function updateFavorite(val: LeagueListPart | undefined) {
     let leagueID = 0;
     if (val) {
       leagueID = val.leagueID;
@@ -248,11 +259,6 @@ function Leagues({ leagueData, leagues }: LeaguesProps) {
     setFavoriteLeague(val);
   }
   if (session) {
-    // Used to get a list of all the leagues
-    const getLeagueData = async () => {
-      let data = await fetch("/api/league");
-      setLeagueList(await data.json());
-    };
     return (
       <>
         <h1>Leagues</h1>
@@ -265,7 +271,7 @@ function Leagues({ leagueData, leagues }: LeaguesProps) {
           <p>Your favorite league is: {favoriteLeague.leagueName}.</p>
         )}
         {!favoriteLeague && <p>You have no favorite league.</p>}
-        {leagueList.map((val) => (
+        {leagueList.leagues.map((val) => (
           // Makes a link for every league
           <div key={val.leagueID}>
             <strong>{val.leagueName}</strong>
@@ -300,6 +306,26 @@ function Leagues({ leagueData, leagues }: LeaguesProps) {
           Clear Favorite League<Icon>delete</Icon>
         </Button>
         <MakeLeague getLeagueData={getLeagueData} leagues={leagues} />
+        <h1>Archived Leagues</h1>
+        <p>
+          These are leagues that can be viewed but you can not do anything in.
+        </p>
+        {leagueList.archived.map((val) => (
+          // Makes a link for every league
+          <div key={val.leagueID}>
+            <strong>{val.leagueName}</strong>
+            <Link href={`/${val.leagueID}`}>
+              <Button style={{ margin: "5px" }} variant="outlined">
+                Open League
+              </Button>
+            </Link>
+            <LeaveLeague
+              leagueName={val.leagueName}
+              leagueID={val.leagueID}
+              getLeagueData={getLeagueData}
+            />
+          </div>
+        ))}
       </>
     );
   } else {
@@ -307,7 +333,6 @@ function Leagues({ leagueData, leagues }: LeaguesProps) {
   }
 }
 export default function Home({
-  leagueData,
   leagues,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
@@ -317,7 +342,7 @@ export default function Home({
       </Head>
       <Menu />
       <SessionProvider>
-        <Leagues leagueData={leagueData} leagues={leagues} />
+        <Leagues leagues={leagues} />
       </SessionProvider>
     </>
   );
@@ -329,7 +354,6 @@ export const getServerSideProps: GetServerSideProps = async (
   if (session) {
     return {
       props: {
-        leagueData: await leagueList(session.user.id),
         leagues: leagueTypes,
       },
     };

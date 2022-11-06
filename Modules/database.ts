@@ -183,6 +183,7 @@ export interface leagueSettings {
   duplicatePlayers: number;
   starredPercentage: number;
   league: string;
+  archived: number;
 }
 export interface leagueUsers {
   leagueID: number;

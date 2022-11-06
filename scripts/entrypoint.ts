@@ -44,7 +44,7 @@ async function startUp() {
     ),
     // Used to store the leagues settings
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25))"
+      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0)"
     ),
     // Used to store the leagues users
     connection.query(
@@ -280,14 +280,20 @@ async function startUp() {
     }
     if (oldVersion == "1.8.0") {
       console.log("Updating database to version 1.9.0");
-      // Adds the new columns to the analytics
+      // Adds the new columns to the analytics and the leagueSettings table
       await Promise.all([
         connection.query("ALTER TABLE analytics ADD WorldCup2022 int"),
         connection.query("ALTER TABLE analytics ADD WorldCup2022Active int"),
+        connection.query(
+          "ALTER TABLE leagueSettings ADD archived int DEFAULT 0"
+        ),
       ]);
-      await connection.query(
-        "UPDATE analytics SET WorldCup2022=0, WorldCup2022Active=0"
-      );
+      await Promise.all([
+        connection.query(
+          "UPDATE analytics SET WorldCup2022=0, WorldCup2022Active=0"
+        ),
+        connection.query("UPDATE leagueSettings SET archived=0"),
+      ]);
       // Fixes all the player data to have the correct ascii name
       const players = await connection.query("SELECT * FROM players");
       await Promise.all(

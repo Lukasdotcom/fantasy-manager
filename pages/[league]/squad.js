@@ -6,6 +6,8 @@ import { useContext, useState } from "react";
 import { push } from "@socialgouv/matomo-next";
 import connect from "../../Modules/database";
 import {
+  Alert,
+  AlertTitle,
   FormControlLabel,
   InputLabel,
   MenuItem,
@@ -22,6 +24,7 @@ export default function Home({
   leagueName,
   leagueInfo,
   leagueType,
+  archived,
 }) {
   const notify = useContext(NotifyContext);
   // Turns the leagueInfo data into the data for the starting state
@@ -39,6 +42,22 @@ export default function Home({
   const [validFormations, setValidFormations] = useState(
     leagueInfo.validFormations
   );
+  // Checks if the league is archived
+  if (archived !== 0) {
+    return (
+      <>
+        <Head>
+          <title>{`Squad for ` + leagueName}</title>
+        </Head>
+        <Menu league={league} />
+        <h1>Squad for {leagueName}</h1>
+        <Alert severity={"warning"} className="notification">
+          <AlertTitle>This League is Archived</AlertTitle>
+          <p>This league is archived and this screen is disabled</p>
+        </Alert>
+      </>
+    );
+  }
   const field = {
     att: squad.att.length < formation[3],
     mid: squad.mid.length < formation[2],

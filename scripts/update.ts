@@ -593,7 +593,7 @@ export async function startMatchday(league: string) {
     [league]
   );
   const transfers = await connection.query(
-    "SELECT * FROM transfers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=transfers.leagueID AND league=?) ORDER BY leagueID",
+    "SELECT * FROM transfers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=transfers.leagueID AND league=? AND archived=0) ORDER BY leagueID",
     [league]
   );
   let index = 0;
@@ -637,7 +637,7 @@ export async function startMatchday(league: string) {
   ]);
   // Sets up the points to 0 for every player in every league and sets up 0 points for that matchday
   const leagues = await connection.query(
-    "SELECT leagueID, user, points FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=?) ORDER BY leagueID",
+    "SELECT leagueID, user, points FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=? AND archived=0) ORDER BY leagueID",
     [league]
   );
   currentleagueID = -1;
@@ -719,7 +719,7 @@ async function endMatchday(league: string) {
   }
   // Copies all squads into the historical squads
   const squads = await connection.query(
-    "SELECT * FROM squad WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=squad.leagueID AND league=?) ORDER BY leagueID DESC",
+    "SELECT * FROM squad WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=squad.leagueID AND league=? AND archived=0) ORDER BY leagueID DESC",
     [league]
   );
   counter = 0;

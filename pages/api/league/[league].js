@@ -6,9 +6,19 @@ export default async function handler(req, res) {
   if (session) {
     const connection = await connect();
     const league = req.query.league;
+    // Variable to check if the league is archived
+    const isArchived = connection
+      .query("SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0", [
+        league,
+      ])
+      .then((e) => e.length === 0);
     switch (req.method) {
       // Used to edit a league
       case "POST":
+        if (await isArchived) {
+          res.status(400).end("League is archived");
+          break;
+        }
         // Checks if the user is qualified to do this
         if (
           (
@@ -55,6 +65,12 @@ export default async function handler(req, res) {
                 [settings.leagueName, league]
               );
             }
+            // Archives the league when told to do so
+            if (settings.archive === true)
+              connection.query(
+                "UPDATE leagueSettings SET archived=? WHERE leagueID=?",
+                [Math.floor(Date.now() / 1000), league]
+              );
           }
           res.status(200).end("Saved Settings");
         } else {
