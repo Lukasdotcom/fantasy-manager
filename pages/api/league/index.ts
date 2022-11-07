@@ -12,8 +12,10 @@ export default async function handler(
     switch (req.method) {
       // Used to create a new league
       case "POST":
-        // Generates an id between 0 and 2 billion
-        const id = Math.floor(Math.random() * 2000000);
+        // Generates the next id
+        const id = await connection
+          .query("SELECT max(leagueID) FROM leagueSettings")
+          .then((e) => (e.length > 0 ? e[0]["max(leagueID)"] + 1 : 1));
         // Makes sure that the id is not taken
         const idUsed = await connection
           .query("SELECT leagueID FROM leagueSettings WHERE leagueID=?", [id])
@@ -42,6 +44,14 @@ export default async function handler(
             "INSERT INTO leagueSettings (leagueName, leagueID, league) VALUES (?, ?, ?)",
             [req.body.name, id, leagueType]
           );
+        }
+        // Makes sure that the id was created
+        const idCreated = await connection
+          .query("SELECT leagueID FROM leagueSettings WHERE leagueID=?", [id])
+          .then((res) => res.length > 0);
+        if (!idCreated) {
+          res.status(500).end("Failed to create league");
+          break;
         }
         connection.query(
           "INSERT INTO leagueUsers (leagueID, user, points, money, formation, admin) VALUES(?, ?, 0, (SELECT startMoney FROM leagueSettings WHERE leagueId=?), '[1, 4, 4, 2]', 1)",
