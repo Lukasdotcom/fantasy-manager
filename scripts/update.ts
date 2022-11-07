@@ -1,17 +1,31 @@
-import connect, { leagues, players, position } from "../Modules/database";
-import noAccents from "../Modules/normalize";
+import connect, { clubs, leagues, players } from "../Modules/database";
+import dataGetter from "../types/data";
 import { calcPoints } from "./calcPoints";
 // Used to update all the data
 export async function updateData(
   league: string,
-  file = "../sample/data1.json"
+  file = "../../sample/data1.json"
 ) {
+  const currentTime = Math.floor(Date.now() / 1000);
+  // A dictionary of all the data generators
+  const dataGetter: {
+    [Key: string]: (arg0: string | undefined) => Promise<dataGetter>;
+  } = {
+    Bundesliga: (await import("./data/Bundesliga")).default,
+    EPL: (await import("./data/EPL")).default,
+    WorldCup2022: (await import("./data/WorldCup2022")).default,
+  };
   // Checks if the league is included
   if (!leagues.includes(league)) {
     console.error(`Unknown league ${league} data was requested`);
     return;
   }
   const connection = await connect();
+  // Updates the internal data for the player update data
+  connection.query(
+    "INSERT INTO data (value1, value2) VALUES(?, ?) ON DUPLICATE KEY UPDATE value2=?",
+    ["playerUpdate" + league, currentTime, currentTime]
+  );
   // Waits until the database is unlocked to prevent to scripts from updating at once
   await new Promise<void>(async (res) => {
     while (
@@ -28,67 +42,7 @@ export async function updateData(
     "locked" + league,
     "locked" + league,
   ]);
-  const nowTime = Math.floor(Date.now() / 1000);
-  connection.query(
-    "INSERT INTO data (value1, value2) VALUES(?, ?) ON DUPLICATE KEY UPDATE value2=?",
-    ["playerUpdate" + league, nowTime, nowTime]
-  );
-  // Defaults to bundesliga data
-  let fetchData: { link: string; data: any } = {
-    link: "https://fantasy.bundesliga.com/api/player_transfers/init",
-    data: {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: `access_token=${process.env.BUNDESLIGA_API}`,
-      },
-      body: JSON.stringify({
-        payload: {
-          offerings_query: {
-            offset: 0,
-            limit: 1000,
-            sort: { order_by: "popularity", order_direction: "desc" },
-          },
-        },
-      }),
-    },
-  };
-  if (league === "EPL") {
-    fetchData = {
-      link: "https://fantasy.premierleague.com/api/bootstrap-static/",
-      data: {},
-    };
-  }
-  if (league === "WorldCup2022") {
-    fetchData = {
-      link: "https://play.fifa.com/json/fantasy/players.json",
-      data: {},
-    };
-  }
-  // Gets the player data
-  const data =
-    process.env.APP_ENV !== "test"
-      ? await fetch(fetchData.link, fetchData.data)
-          .then(async (val) => {
-            if (val.ok) {
-              return await val.json();
-            } else {
-              return "FAILURE";
-            }
-          })
-          .catch(() => "FAILURE")
-      : (await import(file)).default;
-  // Checks if there was a failure somewhere
-  if (data === "FAILURE") {
-    console.error(
-      `Error - Failed to get data for ${league}(if this happens to often something is wrong)`
-    );
-    // Unlocks the database
-    connection.query("DELETE FROM data WHERE value1=?", ["locked" + league]);
-    connection.end();
-    return;
-  }
-  // Puts in the data if the transfermarket is open
+  // Gets the old transfer status
   const oldTransfer = await connection
     .query("SELECT * FROM data WHERE value1=?", ["transferOpen" + league])
     .then((result) => {
@@ -98,122 +52,29 @@ export async function updateData(
         return result[0].value2 === "true";
       }
     });
-  let newTransfer = false;
-  let countdown = 0;
-  let teamDataEPL: {
-    kickoff_time: string;
-    team_a: number;
-    team_h: number;
-  }[] = []; // This is used for the EPL to allow opponents to be shown
-  let teamDataWorldCup2022: {
-    [Key: string]: {
-      kickoff_time: string;
-      team: { id: number; abbr: string };
-      opponent: { id: number; abbr: string };
-    };
-  } = {}; // This is used for the WorldCup2022 to allow opponents to be shown
-  if (league === "Bundesliga") {
-    newTransfer = data.opening_hour.opened;
-    countdown = data.opening_hour.countdown / 1000;
-  } else if (league === "EPL") {
-    let counter = 0;
-    while (counter < data.events.length) {
-      const currentData = data.events[counter];
-      if (currentData.finished === false) {
-        newTransfer = currentData.deadline_time_epoch - nowTime > 0;
-        // Gets the team data for the matchday
-        teamDataEPL = await fetch(
-          `https://fantasy.premierleague.com/api/fixtures/?event=${currentData.id}`
-        )
-          .then(async (val) => {
-            if (val.ok) {
-              return await val.json();
-            } else {
-              return [];
-            }
-          })
-          .catch(() => []);
-        countdown = newTransfer ? currentData.deadline_time_epoch - nowTime : 0;
-        break;
-      }
-      counter++;
-    }
-  } else if (league === "WorldCup2022") {
-    // Gets the team data
-    const WorldCupTeamData: { id: number; abbr: string }[] = await fetch(
-      "https://play.fifa.com/json/fantasy/squads_fifa.json"
-    )
-      .then((e) => e.json())
-      .catch(() => []);
-    // Gets the round data
-    const WorldCupRoundData: {
-      startDate: string;
-      endDate: string;
-      tournaments: { date: string; homeSquadId: number; awaySquadId: number }[];
-    }[] = await fetch("https://play.fifa.com/json/fantasy/rounds.json")
-      .then((e) => e.json())
-      .catch(() => []);
-    let round = 0;
-    while (round < WorldCupRoundData.length) {
-      // If it is before this matchday starts return that it is transfer time and countdown length
-      if (Date.parse(WorldCupRoundData[round].startDate) / 1000 >= nowTime) {
-        newTransfer = true;
-        countdown =
-          Date.parse(WorldCupRoundData[round].startDate) / 1000 - nowTime;
-        break;
-      }
-      // If it is in the matchday
-      if (Date.parse(WorldCupRoundData[round].endDate) / 1000 >= nowTime) {
-        newTransfer = false;
-        countdown =
-          Date.parse(WorldCupRoundData[round].endDate) / 1000 - nowTime;
-        break;
-      }
-      round += 1;
-    }
-    // Adds all the teams data to a list
-    const roundData = WorldCupRoundData[round].tournaments;
-    for (let i = 0; i < roundData.length; i++) {
-      const element = roundData[i];
-      const team_h = WorldCupTeamData.filter(
-        (e) => e.id === element.homeSquadId
-      );
-      const team_a = WorldCupTeamData.filter(
-        (e) => e.id === element.awaySquadId
-      );
-      if (team_h.length == 0 || team_a.length == 0) {
-        console.error(
-          `Error - Failed to get data for ${league}(if this happens to often something is wrong)`
-        );
-        // Unlocks the database
-        connection.query("DELETE FROM data WHERE value1=?", [
-          "locked" + league,
-        ]);
-        connection.end();
-        return;
-      }
-      teamDataWorldCup2022[team_a[0].id] = {
-        team: team_a[0],
-        opponent: team_h[0],
-        kickoff_time: element.date,
-      };
-      teamDataWorldCup2022[team_h[0].id] = {
-        team: team_h[0],
-        opponent: team_a[0],
-        kickoff_time: element.date,
-      };
-    }
-  }
-  // Checks if the team data failed
-  if (teamDataEPL.length === 0 && league === "EPL") {
+  // Gets the data. Note that the last match points are ignored and calculated using total points
+  const [newTransfer, countdown, players, clubs] = await dataGetter[league](
+    process.env.APP_ENV === "test" ? file : undefined
+  ).catch((e) => {
     console.error(
-      `Error - Failed to get data for ${league}(if this happens to often something is wrong)`
+      `Error - Failed to get data for ${league}(if this happens to often something is wrong) with error ${e}`
     );
     // Unlocks the database
     connection.query("DELETE FROM data WHERE value1=?", ["locked" + league]);
     connection.end();
+    const returnValue: ["FAILURE", "FAILURE", "FAILURE", "FAILURE"] = [
+      "FAILURE",
+      "FAILURE",
+      "FAILURE",
+      "FAILURE",
+    ];
+    return returnValue;
+  });
+  // Checks if any errors happened and ends erverything
+  if (newTransfer == "FAILURE") {
     return;
   }
+  // Updates countdown and the transfer market status
   await connection.query(
     "INSERT INTO data (value1, value2) VALUES(?, ?) ON DUPLICATE KEY UPDATE value2=?",
     ["transferOpen" + league, String(newTransfer), String(newTransfer)]
@@ -224,200 +85,20 @@ export async function updateData(
   );
   // Checks if the transfer market is closing
   if (newTransfer && !oldTransfer) await endMatchday(league);
-  // Note that this is not complete.
-  interface playerDataBundesliga {
-    transfer_value: number;
-    player: {
-      uid: string;
-      transfer_value: number;
-      statistics: {
-        total_points: number;
-        average_points: number;
-        best_value_rank: number;
-        form: number;
-        popularity: number;
-        last_match_points: number;
-      };
-      image_urls: {
-        default: string;
-      };
-      nickname: string;
-      positions: string[];
-      is_locked: boolean;
-      match_starts_in: number;
-      team: {
-        team_code: string;
-      };
-      next_opponent: {
-        team_code: string;
-      };
-    };
-    attendance: {
-      forecast: "attending" | "unknown" | "missing";
-    };
-  }
-  interface PlayerDataEPL {
-    chance_of_playing_this_round: number;
-    element_type: number;
-    code: number;
-    first_name: string;
-    now_cost: number;
-    points_per_game: string;
-    second_name: string;
-    team: number;
-    total_points: number;
-  }
-  interface PlayerDataWorldCup2022 {
-    id: number;
-    name: string;
-    squadId: number;
-    cost: number;
-    stats: {
-      totalPoints: number;
-      avgPoints: number;
-    };
-    status: "available";
-    position: 1 | 2 | 3 | 4;
-    locked: boolean;
-  }
-  interface expandedPlayer extends players {
-    match_starts_in: number;
-    next_opponent: string;
-  }
-  let playerList;
-  if (league === "Bundesliga") {
-    playerList = data.offerings.items;
-  } else if (league === "EPL") {
-    playerList = data.elements;
-  } else if (league === "WorldCup2022") {
-    playerList = data;
-  }
-  // Goes through all of the players and adds their data to the database
-  const players: expandedPlayer[] = playerList
-    .map(
-      (
-        e: playerDataBundesliga | PlayerDataEPL | PlayerDataWorldCup2022
-      ): expandedPlayer => {
-        // Makes the data get sorted
-        if (league === "Bundesliga") {
-          e = e as playerDataBundesliga;
-          return {
-            uid: e.player.uid,
-            name: e.player.nickname,
-            nameAscii: noAccents(e.player.nickname),
-            club: e.player.team.team_code,
-            pictureUrl: e.player.image_urls.default,
-            value: e.transfer_value,
-            position: e.player.positions[0] as position,
-            forecast: e.attendance.forecast[0] as "a" | "u" | "m",
-            total_points: e.player.statistics.total_points,
-            average_points: e.player.statistics.average_points,
-            // This is unreliable only use this when it is unknown
-            last_match: e.player.statistics.last_match_points,
-            locked: e.player.is_locked,
-            exists: true,
-            league,
-            match_starts_in: e.player.match_starts_in,
-            next_opponent: e.player.next_opponent.team_code,
-          };
-        } else if (league === "EPL") {
-          const newData = e as PlayerDataEPL;
-          let forecast: "a" | "u" | "m" = "u";
-          if (newData.chance_of_playing_this_round === 0) {
-            forecast = "m";
-          } else if (newData.chance_of_playing_this_round === 100) {
-            forecast = "a";
-          }
-          const gettingData = teamDataEPL.filter(
-            (e2) => e2.team_a === newData.team || e2.team_h === newData.team
-          );
-          // Checks if the team data could be gotten otherwise junk data is given
-          const thisTeamData =
-            gettingData.length > 0
-              ? gettingData[0]
-              : {
-                  kickoff_time: "2022-10-29T11:30:00Z",
-                  team_a: 1,
-                  team_h: 1,
-                };
-          const getTeam = (id: number): string => {
-            id = id - 1;
-            return data.teams.length > id ? data.teams[id].short_name : "N/A";
-          };
-          return {
-            uid: String(newData.code),
-            name: newData.first_name + " " + newData.second_name,
-            nameAscii: noAccents(
-              newData.first_name + " " + newData.second_name
-            ),
-            club: getTeam(newData.team),
-            pictureUrl: `https://resources.premierleague.com/premierleague/photos/players/110x140/p${newData.code}.png`,
-            value: newData.now_cost * 100000,
-            position: ["", "gk", "def", "mid", "att"][
-              newData.element_type
-            ] as position,
-            forecast,
-            total_points: newData.total_points,
-            average_points: parseFloat(newData.points_per_game),
-            // This is unreliable only use this when it is unknown
-            last_match: 0,
-            locked: Date.parse(thisTeamData.kickoff_time) < nowTime * 1000,
-            exists: true,
-            league,
-            match_starts_in: Math.floor(
-              Date.parse(thisTeamData.kickoff_time) / 1000 - nowTime
-            ),
-            next_opponent:
-              thisTeamData.team_a === newData.team
-                ? getTeam(thisTeamData.team_h)
-                : getTeam(thisTeamData.team_a),
-          };
-        } else {
-          const newData = e as PlayerDataWorldCup2022;
-          return {
-            uid: String(newData.id),
-            name: newData.name,
-            nameAscii: noAccents(newData.name),
-            club: teamDataWorldCup2022[String(newData.squadId)].team.abbr,
-            pictureUrl: `https://play.fifa.com/media/squads/${
-              newData.position === 1 ? "goalkeeper" : "outfield"
-            }/${newData.squadId}.png`,
-            value: newData.cost,
-            position: ["", "gk", "def", "mid", "att"][
-              newData.position
-            ] as position,
-            forecast: "a",
-            total_points: newData.stats.totalPoints,
-            average_points: newData.stats.avgPoints,
-            // This data does not exist and has to be calculated the normal way
-            last_match: 0,
-            locked: newData.locked,
-            exists: true,
-            league,
-            match_starts_in: Math.floor(
-              Date.parse(
-                teamDataWorldCup2022[String(newData.squadId)].kickoff_time
-              ) /
-                1000 -
-                nowTime
-            ),
-            next_opponent:
-              teamDataWorldCup2022[String(newData.squadId)].opponent.abbr,
-          };
-        }
-      }
-    )
-    .sort(
-      (a: expandedPlayer, b: expandedPlayer) =>
-        parseInt(a.club, 36) - parseInt(b.club, 36)
-    );
+  // Sets every player as notexisting
   await connection.query("UPDATE players SET `exists`=0 WHERE league=?", [
     league,
   ]);
   let index = 0;
   let club = "";
   let clubDone = false;
-  const currentTime = nowTime;
+  const getClub = (club: string): clubs => {
+    const result = clubs.filter((e) => e.club == club);
+    if (result.length == 0) {
+      return { club, gameStart: 0, opponent: "NA", league };
+    }
+    return result[0];
+  };
   while (index < players.length) {
     let val = players[index];
     index++;
@@ -426,17 +107,18 @@ export async function updateData(
       // Updates the club info if it is a new club
       if (club !== val.club) {
         club = val.club;
+        const clubData = getClub(club);
         // Makes sure to only update the match starts in stat if it is greater than 0
-        if (val.match_starts_in > 0) {
+        if (clubData.gameStart > currentTime) {
           await connection.query(
             "INSERT INTO clubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE gameStart=?, opponent=?",
             [
               club,
-              currentTime + val.match_starts_in,
-              val.next_opponent,
+              clubData.gameStart,
+              clubData.opponent,
               league,
-              currentTime + val.match_starts_in,
-              val.next_opponent,
+              clubData.gameStart,
+              clubData.opponent,
             ]
           );
         } else {
@@ -444,10 +126,10 @@ export async function updateData(
             "INSERT INTO clubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?",
             [
               club,
-              currentTime + val.match_starts_in,
-              val.next_opponent,
+              clubData.gameStart,
+              clubData.opponent,
               league,
-              val.next_opponent,
+              clubData.opponent,
             ]
           );
         }
@@ -485,6 +167,8 @@ export async function updateData(
       // Updates the club info if it changed
       if (club !== val.club) {
         club = val.club;
+        // Gets the club data
+        const clubData = getClub(club);
         // Checks if the club is already done
         clubDone = await connection
           .query("SELECT * FROM clubs WHERE club=? AND league=?", [
@@ -492,20 +176,20 @@ export async function updateData(
             league,
           ])
           .then((res) =>
-            res.length > 0 ? val.next_opponent !== res[0].opponent : false
+            res.length > 0 ? clubData.opponent !== res[0].opponent : false
           );
         // Checks if the club has not changed during the transfer period
         if (!clubDone) {
-          if (val.match_starts_in > 0) {
+          if (clubData.gameStart > currentTime) {
             await connection.query(
               "INSERT INTO clubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE gameStart=?, opponent=?",
               [
                 club,
-                currentTime + val.match_starts_in,
-                val.next_opponent,
+                clubData.gameStart,
+                clubData.opponent,
                 league,
-                currentTime + val.match_starts_in,
-                val.next_opponent,
+                clubData.gameStart,
+                clubData.opponent,
               ]
             );
           } else {
@@ -513,10 +197,10 @@ export async function updateData(
               "INSERT INTO clubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?",
               [
                 club,
-                currentTime + val.match_starts_in,
-                val.next_opponent,
+                clubData.gameStart,
+                clubData.opponent,
                 league,
-                val.next_opponent,
+                clubData.opponent,
               ]
             );
           }

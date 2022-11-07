@@ -253,7 +253,7 @@ export default function Home({
       <h2>Historical Data Table</h2>
       <p>
         All the ones with a purple background mean the player was not in the
-        bundesliga during these matchdays.
+        league during these matchdays.
       </p>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer>

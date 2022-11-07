@@ -2,5 +2,6 @@
 .cache
 node_modules
 # Ignores compiled js files
+scripts/data/*.js
 scripts/*.js
 Modules/*.js
