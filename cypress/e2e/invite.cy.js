@@ -460,7 +460,7 @@ describe("Invite User into league and change some league Settings and run throug
     // Simulates an empty matchday
     cy.exec("export APP_ENV=test; node cypress/e2e/invite5.js");
     // Makes sure that the matchday does not exist
-    cy.reload().then((e) => {
+    cy.go("back").then(() => {
       cy.get(".MuiPagination-ul > :nth-child(4) > .MuiButtonBase-root")
         .contains("3")
         .should("not.exist");

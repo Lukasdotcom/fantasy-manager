@@ -261,7 +261,7 @@ function AdminPanel({
               }),
             }).then(async (res) => {
               notify(await res.text(), res.ok ? "success" : "error");
-              if (archive) Router.reload();
+              if (archive) Router.push("/leagues");
             });
           }}
           variant="contained"
