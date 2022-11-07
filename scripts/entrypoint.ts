@@ -44,7 +44,7 @@ async function startUp() {
     ),
     // Used to store the leagues settings
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0)"
+      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0)"
     ),
     // Used to store the leagues users
     connection.query(
@@ -316,6 +316,49 @@ async function startUp() {
           )
         )
       );
+      // Moves the leagues to a new table with the new league id style
+      await connection.query(
+        "CREATE TABLE IF NOT EXISTS leagueSettingsTemp (leagueName varchar(255), newLeagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, leagueID int, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0)"
+      );
+      await connection.query(
+        "INSERT INTO leagueSettingsTemp(leagueName, leagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived) SELECT leagueName, leagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived FROM leagueSettings"
+      );
+      // Updates the league ids in the other tables
+      await Promise.all([
+        connection.query(
+          "UPDATE users SET favoriteLeague=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=users.favoriteLeague)"
+        ),
+        connection.query(
+          "UPDATE leagueUsers SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=leagueUsers.leagueID)"
+        ),
+        connection.query(
+          "UPDATE points SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=points.leagueID)"
+        ),
+        connection.query(
+          "UPDATE transfers SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=transfers.leagueID)"
+        ),
+        connection.query(
+          "UPDATE invite SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=invite.leagueID)"
+        ),
+        connection.query(
+          "UPDATE squad SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=squad.leagueID)"
+        ),
+        connection.query(
+          "UPDATE historicalSquad SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=historicalSquad.leagueID)"
+        ),
+        connection.query(
+          "UPDATE historicalTransfers SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=historicalTransfers.leagueID)"
+        ),
+      ]);
+      // Moves the leagues back to the original table in the correct form
+      await connection.query("DROP TABLE leagueSettings");
+      await connection.query(
+        "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0)"
+      );
+      await connection.query(
+        "INSERT INTO leagueSettings(leagueName, leagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived) SELECT leagueName, newLeagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived FROM leagueSettingsTemp"
+      );
+      await connection.query("DROP TABLE leagueSettingsTemp");
       oldVersion = "1.9.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
