@@ -61,7 +61,17 @@ function MakeLeague({ getLeagueData, leagues }: MakeLeagueProps) {
         }}
         value={leagueName}
       />
-      <InputLabel htmlFor="leagueType">Which league: </InputLabel>
+      <InputLabel htmlFor="leagueType">
+        Which league(League support levels are described{" "}
+        <Link
+          href="https://github.com/Lukasdotcom/fantasy-manager/blob/main/leagues.md"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          here
+        </Link>
+        ):{" "}
+      </InputLabel>
       <Select
         value={leagueType}
         onChange={(val) => setLeagueType(val.target.value)}
