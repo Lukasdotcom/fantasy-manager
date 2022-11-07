@@ -448,14 +448,9 @@ export function TransferPlayer({
           ownership
             .filter((e) => !e.transfer)
             .map((e) => (
-              <>
-                <br />
-                <UserChip
-                  sx={{ margin: "10px" }}
-                  key={e.owner}
-                  userid={e.owner}
-                />
-              </>
+              <div key={e.owner}>
+                <UserChip sx={{ margin: "10px" }} userid={e.owner} />
+              </div>
             ))}
         {ownership &&
           ownership
