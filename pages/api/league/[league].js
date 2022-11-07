@@ -66,11 +66,13 @@ export default async function handler(req, res) {
               );
             }
             // Archives the league when told to do so
-            if (settings.archive === true)
+            if (settings.archive === true) {
+              console.log(`League ${league} was archived`);
               connection.query(
                 "UPDATE leagueSettings SET archived=? WHERE leagueID=?",
                 [Math.floor(Date.now() / 1000), league]
               );
+            }
           }
           res.status(200).end("Saved Settings");
         } else {

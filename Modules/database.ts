@@ -143,6 +143,7 @@ class connection {
   }
 }
 export type position = "bench" | "gk" | "def" | "mid" | "att";
+export type forecast = "a" | "u" | "m";
 // These are the types for the database
 export interface users {
   id: number;
@@ -163,7 +164,7 @@ export interface players {
   pictureUrl: string;
   value: number;
   position: position;
-  forecast: "a" | "u" | "m";
+  forecast: forecast;
   total_points: number;
   average_points: number;
   last_match: number;

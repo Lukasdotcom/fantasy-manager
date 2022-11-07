@@ -33,7 +33,9 @@ Not every league has perfect support.
 ## Required
 
 - Did you add a check on if it is enabled in the ./Modules/database.ts file?
-- Did you add a way for the data to be grabbed and updated in the ./scripts/update.ts?
+- Did you add a data getter in ./scripts/data folder?
+- Did you set the types for the data getter functions result in ./types/data/${Name of League} using [JSON to TS](https://jsonformatter.org/json-to-typescript)?
+- Did you add that script in the getter dictionary in ./scripts/update.ts?
 - If the aspect ratio on the picture is not 1 by 1 did you make sure to change the width and height in ./components/player.js and ./pages/player/[league].[uid].js?
 - Did you update the rules page for this league?
 
