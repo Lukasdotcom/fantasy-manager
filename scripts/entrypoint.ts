@@ -82,6 +82,10 @@ async function startUp() {
     connection.query(
       "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, opponent varchar(3), league varchar(25))"
     ),
+    // Used to store club data
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS historicalClubs (club varchar(3), opponent varchar(3), league varchar(25), time int)"
+    ),
     // Used to store analytics data
     connection.query(
       "CREATE TABLE IF NOT EXISTS analytics (serverID varchar(10), day int, version varchar(10), users int, activeUsers int, Bundesliga int, BundesligaActive int, EPL int, EPLActive int, WorldCup2022 int, WorldCup2022Active int)"

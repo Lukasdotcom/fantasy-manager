@@ -19,6 +19,7 @@ import {
   TableRow,
   useTheme,
 } from "@mui/material";
+import { result as apiPlayerResult } from "../../api/player/[leagueType]/[uid]";
 interface extendedPlayers extends players {
   game: {
     opponent: string;
@@ -40,6 +41,7 @@ interface Column {
     | "last_match"
     | "average_points"
     | "total_points"
+    | "opponent"
     | "club"
     | "position";
   label: string;
@@ -75,6 +77,7 @@ const columns: Column[] = [
     label: "Total Points",
     format: (value: number) => String(value),
   },
+  { id: "opponent", label: "Opponent", format: (value: string) => value },
   { id: "club", label: "Club", format: (value: string) => value },
   { id: "position", label: "Position", format: (value: string) => value },
 ];
@@ -86,6 +89,7 @@ interface Data {
   average_points: number;
   total_points: number;
   club: string;
+  opponent: string;
   position: string;
   exists: boolean;
   loading: false;
@@ -119,6 +123,7 @@ export default function Home({
         last_match: player.last_match,
         average_points: player.average_points,
         total_points: player.total_points,
+        opponent: player.game.opponent,
         club: player.club,
         position: player.position,
         exists: player.exists,
@@ -140,10 +145,21 @@ export default function Home({
           });
           fetch(`/api/player/${league}/${uid}?time=${time}`)
             .then((e) => e.json())
-            .then((data) => {
+            .then((data: apiPlayerResult) => {
               setRows((rows) => {
                 let newRows = { ...rows };
-                newRows[String(time)] = data;
+                newRows[String(time)] = {
+                  time,
+                  value: data.value,
+                  last_match: data.last_match,
+                  average_points: data.average_points,
+                  total_points: data.total_points,
+                  club: data.club,
+                  opponent: data.game ? data.game.opponent : "",
+                  position: data.position,
+                  exists: data.exists,
+                  loading: false,
+                };
                 return newRows;
               });
             });
@@ -405,6 +421,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       });
       return result;
     });
+  console.log(player);
   connection.end();
   return {
     props: {

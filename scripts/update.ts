@@ -368,48 +368,30 @@ async function endMatchday(league: string) {
   const connection = await connect();
   const time = Math.floor(Date.now() / 1000);
   // Makes sure all the points have the right time set for them
-  connection.query(
+  await connection.query(
     "UPDATE points SET time=? WHERE time IS NULL AND EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=points.leagueID AND league=?)",
-    [time]
+    [time, league]
   );
-  // Copies all the player data to the historical player data
-  const players = await connection.query(
-    "SELECT * FROM players WHERE league=?",
-    [league]
-  );
-  let counter = 0;
   console.log(`Archiving player data for ${league}`);
-  while (players.length > counter) {
-    const player = players[counter];
-    counter++;
-    connection.query(
-      "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureUrl, value, position, total_points, average_points, last_match, `exists`, league) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [
-        time,
-        player.uid,
-        player.name,
-        player.nameAscii,
-        player.club,
-        player.pictureUrl,
-        player.value,
-        player.position,
-        player.total_points,
-        player.average_points,
-        player.last_match,
-        player.exists,
-        league,
-      ]
-    );
-  }
+  // Copies all the player data to the historical player data
+  await connection.query(
+    "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureUrl, value, position, total_points, average_points, last_match, `exists`, league) SELECT ? as time, uid, name, nameAscii, club, pictureUrl, value, position, total_points, average_points, last_match, `exists`, league FROM players WHERE league=?",
+    [time, league]
+  );
+  console.log(`Archiving matchday data for ${league}`);
+  await connection.query(
+    "INSERT INTO historicalClubs (club, opponent, league, time) SELECT club, opponent, league, ? as time FROM clubs WHERE league=?",
+    [time, league]
+  );
   // Copies all squads into the historical squads
+  let currentleagueID = 0;
+  console.log(`Archiving user squads for ${league}`);
   const squads = await connection.query(
     "SELECT * FROM squad WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=squad.leagueID AND league=? AND archived=0) ORDER BY leagueID DESC",
     [league]
   );
-  counter = 0;
+  let counter = 0;
   let matchday = 1;
-  let currentleagueID = 0;
-  console.log(`Archiving user squads for ${league}`);
   while (squads.length > counter) {
     const squad = squads[counter];
     counter++;
