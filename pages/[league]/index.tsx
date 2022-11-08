@@ -452,9 +452,18 @@ export default function Home({
   if (Object.values(historicalPoints).length !== 0) {
     currentMatchday = Object.values(historicalPoints)[0].length;
   }
+  // Used to generate a random invite link
+  const randomLink = (): string => {
+    return (
+      Math.random().toString(36).substring(2) +
+      Math.random().toString(36).substring(2) +
+      Math.random().toString(36).substring(2) +
+      Math.random().toString(36).substring(2)
+    );
+  };
   const [matchday, setmatchday] = useState(currentMatchday + 1);
   const [invites, setInvites] = useState(inviteLinks);
-  const [newInvite, setnewInvite] = useState("");
+  const [newInvite, setnewInvite] = useState(randomLink);
   // Orders the players in the correct order by points
   let newStandings: { user: number; points: number }[] = [];
   if (matchday <= currentMatchday) {
@@ -557,10 +566,6 @@ export default function Home({
         onClick={async () => {
           let link = newInvite;
           notify("Creating new invite");
-          // Makes sure to generate a random leagueID if none is given
-          if (link === "") {
-            link = String(Math.random()).slice(2);
-          }
           const response = await fetch("/api/invite", {
             method: "POST",
             headers: {
@@ -572,7 +577,11 @@ export default function Home({
             }),
           });
           notify(await response.text(), response.ok ? "success" : "error");
-          if (response.ok) setInvites([...invites, link]);
+          if (response.ok) {
+            setInvites([...invites, link]);
+            // Makes sure to generate a new random link id
+            setnewInvite(randomLink());
+          }
         }}
       >
         Add Invite

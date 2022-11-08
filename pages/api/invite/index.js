@@ -32,6 +32,15 @@ export default async function handler(req, res) {
         res.status(400).end("League is archived");
         break;
       }
+      // Makes sure that an invite link was given
+      if (!req.body.link || req.body.link === "") {
+        res.status(400).end("Invalid invite link");
+        break;
+      }
+      if (req.body.link.search(/[^a-zA-Z0-9]/) > -1) {
+        res.status(400).end("Only alphanumeric characters are allowed");
+        break;
+      }
       await connection
         .query("INSERT INTO invite (inviteID, leagueID) VALUES(?, ?)", [
           req.body.link,

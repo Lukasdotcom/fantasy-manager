@@ -27,7 +27,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Open League").click();
     cy.contains("Standings for Sample League");
     cy.contains("Add Invite").click();
-    cy.get("#invite").type("invite1");
+    cy.get("#invite").clear().type("invite1");
     cy.contains("Add Invite").click();
     cy.contains("Link: localhost:3000/api/invite/").contains("Delete").click();
     cy.contains("Link: localhost:3000/api/invite/invite1");
