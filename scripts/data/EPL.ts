@@ -73,8 +73,8 @@ export default async function Main(): Promise<dataGetter> {
       }
       return {
         uid: String(e.code),
-        name: e.first_name + e.second_name,
-        nameAscii: noAccents(e.first_name + e.second_name),
+        name: e.first_name + " " + e.second_name,
+        nameAscii: noAccents(e.first_name + " " + e.second_name),
         club: teamData.short_name,
         pictureUrl: `https://resources.premierleague.com/premierleague/photos/players/110x140/p${e.code}.png`,
         value: e.now_cost * 100000,
