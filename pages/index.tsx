@@ -7,6 +7,7 @@ import {
   AlertTitle,
   Pagination,
   useTheme,
+  Box,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import version from "./../package.json";
@@ -51,12 +52,30 @@ function CurrentPicture({ picture }: CurrentPictureProps) {
     (theme.palette.mode === "dark" ? "Dark" : "Light") +
     ".webp";
   return (
-    <Image
-      alt={"Screenshot of " + name + " page"}
-      src={actualSrc}
-      height={540}
-      width={960}
-    />
+    <>
+      <Box
+        sx={{
+          width: "100%",
+          height: "56vw",
+          position: "absolute",
+          display: { xs: "block", md: "none" },
+        }}
+      >
+        <Image
+          alt={"Screenshot of " + name + " page"}
+          src={actualSrc}
+          fill={true}
+        />
+      </Box>
+      <Box sx={{ display: { xs: "none", md: "block" } }}>
+        <Image
+          alt={"Screenshot of " + name + " page"}
+          src={actualSrc}
+          height={506}
+          width={900}
+        />
+      </Box>
+    </>
   );
 }
 // Shows all the screenshots and allows the user to pick screenshots they would like to see
