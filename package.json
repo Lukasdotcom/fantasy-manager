@@ -1,9 +1,9 @@
 {
   "name": "fantasy-manager",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "private": true,
   "scripts": {
-    "dev": "export NODE_ENV=development APP_ENV=development; npm install; npm run build:ts; node scripts/entrypoint.js & next dev",
+    "dev": "export NODE_ENV=development APP_ENV=development; npm run build:ts; node scripts/entrypoint.js & next dev",
     "build": "npm ci; npm run build:ts; next build;",
     "start": "export NODE_ENV=production APP_ENV=production; npm run start2",
     "test": "npm run cypress & npm run start:test",

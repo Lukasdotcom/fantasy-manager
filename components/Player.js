@@ -91,7 +91,6 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
           alt=""
           onError={() => {
             // If the picture does not exist a fallback picture is used
-            console.log(1);
             setPictureUrl(fallbackImg);
           }}
           src={pictureUrl}

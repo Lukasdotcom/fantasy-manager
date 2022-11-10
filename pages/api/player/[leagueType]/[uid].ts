@@ -9,7 +9,7 @@ import { checkUpdate } from "../../../../scripts/checkUpdate";
 // Used to return a dictionary on the data for a player
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse<result>
 ) {
   if (req.method == "GET") {
     const connection = await connect();
@@ -40,7 +40,6 @@ export default async function handler(
           );
         returnValue.push({
           ...answer[0],
-          forecast: "a",
           updateRunning: true,
           game,
         });

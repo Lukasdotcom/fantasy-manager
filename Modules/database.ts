@@ -235,6 +235,7 @@ export interface historicalPlayers {
   pictureUrl: string;
   value: number;
   position: position;
+  forecast: forecast;
   total_points: number;
   average_points: number;
   last_match: number;
