@@ -11,7 +11,7 @@ if (process.env.APP_ENV !== "test") {
 }
 const analyticsDomain = "https://fantasy.lschaefer.xyz";
 // Used to tell the program what version of the database to use
-const currentVersion = "1.9.0";
+const currentVersion = "1.9.1";
 const date = new Date();
 let day = date.getDay();
 
@@ -72,7 +72,7 @@ async function startUp() {
     ),
     // Used to store historical player data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))"
+      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))"
     ),
     // Used to store historical transfer data
     connection.query(
@@ -364,6 +364,23 @@ async function startUp() {
       );
       await connection.query("DROP TABLE leagueSettingsTemp");
       oldVersion = "1.9.0";
+    }
+    if (oldVersion === "1.9.0") {
+      console.log("Updating database to version 1.9.1");
+      // Checks if the forecast column actually exists because it was removed a long time ago but not actually dropped
+      const forecastExists = await connection
+        .query(
+          "SELECT COUNT(*) AS CNT FROM pragma_table_info('historicalPlayers') WHERE name='forecast'"
+        )
+        .then((e) => e[0].CNT === 1);
+      if (!forecastExists) {
+        await connection.query(
+          "ALTER TABLE historicalPlayers ADD forecast varchar(1)"
+        );
+      }
+      // Sets all the forecasts for the historical players to attending because they were unknown.
+      await connection.query("UPDATE historicalPlayers SET forecast='a'");
+      oldVersion = "1.9.1";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date

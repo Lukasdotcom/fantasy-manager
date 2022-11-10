@@ -3,7 +3,11 @@ import Link from "../../../components/Link";
 import Dialog from "../../../components/Dialog";
 import { GetServerSideProps } from "next";
 import Head from "next/head.js";
-import connect, { historicalPlayers, players } from "../../../Modules/database";
+import connect, {
+  forecast,
+  historicalPlayers,
+  players,
+} from "../../../Modules/database";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
@@ -92,6 +96,7 @@ interface Data {
   opponent: string;
   position: string;
   exists: boolean;
+  forecast: forecast;
   loading: false;
 }
 export default function Home({
@@ -127,6 +132,7 @@ export default function Home({
         club: player.club,
         position: player.position,
         exists: player.exists,
+        forecast: player.forecast,
         loading: false,
       },
     });
@@ -158,6 +164,7 @@ export default function Home({
                   opponent: data.game ? data.game.opponent : "",
                   position: data.position,
                   exists: data.exists,
+                  forecast: data.forecast,
                   loading: false,
                 };
                 return newRows;
@@ -269,7 +276,10 @@ export default function Home({
       <h2>Historical Data Table</h2>
       <p>
         All the ones with a purple background mean the player was not in the
-        league during these matchdays.
+        league during these matchdays. Red background means that they were
+        missing and yellow that attendence was unknown(This data is what was
+        known just before the game started). Note: That that historical forecast
+        and historical opponents only exist since version 1.9.1.
       </p>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer>
@@ -286,7 +296,7 @@ export default function Home({
                 .sort((e) => e.time)
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
-                  if (row.loading)
+                  if (row.loading) {
                     return (
                       <TableRow
                         hover
@@ -300,17 +310,21 @@ export default function Home({
                         </TableCell>
                       </TableRow>
                     );
+                  }
+                  // Gets the background color based on the status of the player
+                  let background;
+                  if (row.forecast == "u") {
+                    background = dark ? "rgb(50, 50, 0)" : "rgb(255, 255, 220)";
+                  } else if (row.forecast == "m") {
+                    background = dark ? "rgb(50, 0, 0)" : "rgb(255, 200, 200)";
+                  }
+                  // Checks if the player exists
+                  if (!row.exists) {
+                    background = dark ? "rgb(50, 0, 50)" : "rgb(255, 235, 255)";
+                  }
                   return (
                     <TableRow
-                      style={
-                        !row.exists
-                          ? {
-                              background: dark
-                                ? "rgb(50, 0, 50)"
-                                : "rgb(255, 235, 255)",
-                            }
-                          : {}
-                      }
+                      style={{ background }}
                       hover
                       role="checkbox"
                       tabIndex={-1}
@@ -421,7 +435,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       });
       return result;
     });
-  console.log(player);
   connection.end();
   return {
     props: {

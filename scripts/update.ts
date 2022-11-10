@@ -92,6 +92,7 @@ export async function updateData(
   let index = 0;
   let club = "";
   let clubDone = false;
+  let gameStarted = false;
   const getClub = (club: string): clubs => {
     const result = clubs.filter((e) => e.club == club);
     if (result.length == 0) {
@@ -178,9 +179,11 @@ export async function updateData(
           .then((res) =>
             res.length > 0 ? clubData.opponent !== res[0].opponent : false
           );
-        // Checks if the club has not changed during the transfer period
+        gameStarted = clubData.gameStart <= currentTime;
+        // Checks if the club has not changed during the matchday
         if (!clubDone) {
-          if (clubData.gameStart > currentTime) {
+          // Checks if the game is supposed to have already started
+          if (!gameStarted) {
             await connection.query(
               "INSERT INTO clubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE gameStart=?, opponent=?",
               [
@@ -232,20 +235,37 @@ export async function updateData(
         );
         // Makes sure that the club is not done for the matchday
       } else if (!clubDone) {
-        await connection.query(
-          "UPDATE players SET value=?, forecast=?, total_points=?, average_points=?, last_match=?, locked=?, `exists`=1 WHERE uid=?",
-          [
-            val.value,
-            val.forecast,
-            val.total_points,
-            val.average_points,
-            playerExists[0].last_match +
-              val.total_points -
-              playerExists[0].total_points,
-            val.locked,
-            val.uid,
-          ]
-        );
+        // Only updates the forecast if the game has not already started
+        if (gameStarted) {
+          await connection.query(
+            "UPDATE players SET value=?, total_points=?, average_points=?, last_match=?, locked=?, `exists`=1 WHERE uid=?",
+            [
+              val.value,
+              val.total_points,
+              val.average_points,
+              playerExists[0].last_match +
+                val.total_points -
+                playerExists[0].total_points,
+              val.locked,
+              val.uid,
+            ]
+          );
+        } else {
+          await connection.query(
+            "UPDATE players SET value=?, forecast=?, total_points=?, average_points=?, last_match=?, locked=?, `exists`=1 WHERE uid=?",
+            [
+              val.value,
+              val.forecast,
+              val.total_points,
+              val.average_points,
+              playerExists[0].last_match +
+                val.total_points -
+                playerExists[0].total_points,
+              val.locked,
+              val.uid,
+            ]
+          );
+        }
       } else {
         await connection.query("UPDATE players SET `exists`=1 WHERE uid=?", [
           val.uid,
@@ -375,7 +395,7 @@ async function endMatchday(league: string) {
   console.log(`Archiving player data for ${league}`);
   // Copies all the player data to the historical player data
   await connection.query(
-    "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureUrl, value, position, total_points, average_points, last_match, `exists`, league) SELECT ? as time, uid, name, nameAscii, club, pictureUrl, value, position, total_points, average_points, last_match, `exists`, league FROM players WHERE league=?",
+    "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, `exists`, league) SELECT ? as time, uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, `exists`, league FROM players WHERE league=?",
     [time, league]
   );
   console.log(`Archiving matchday data for ${league}`);
