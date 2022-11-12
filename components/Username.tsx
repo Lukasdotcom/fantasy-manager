@@ -35,10 +35,10 @@ export function UserChip({ userid, sx }: UserChipProps) {
     <Chip
       sx={sx}
       avatar={
-        <Avatar sx={{ bgcolor: background, color: text }}>
-          {`${username.split(" ")[0][0]}${
+        <Avatar sx={{ bgcolor: background }}>
+          <div style={{ color: text }}>{`${username.split(" ")[0][0]}${
             username.split(" ").length > 1 ? username.split(" ")[1][0] : ""
-          }`}
+          }`}</div>
         </Avatar>
       }
       label={username}
@@ -58,10 +58,10 @@ export function UserAvatar({ userid }: Props) {
   const theme = useTheme();
   const text = theme.palette.getContrastText(background);
   return (
-    <Avatar sx={{ bgcolor: background, color: text }}>
-      {`${username.split(" ")[0][0]}${
+    <Avatar sx={{ bgcolor: background }}>
+      <div style={{ color: text }}>{`${username.split(" ")[0][0]}${
         username.split(" ").length > 1 ? username.split(" ")[1][0] : ""
-      }`}
+      }`}</div>
     </Avatar>
   );
 }
