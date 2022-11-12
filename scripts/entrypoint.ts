@@ -11,7 +11,7 @@ if (process.env.APP_ENV !== "test") {
 }
 const analyticsDomain = "https://fantasy.lschaefer.xyz";
 // Used to tell the program what version of the database to use
-const currentVersion = "1.9.1";
+const currentVersion = "1.10.0";
 const date = new Date();
 let day = date.getDay();
 
@@ -381,6 +381,17 @@ async function startUp() {
       // Sets all the forecasts for the historical players to attending because they were unknown.
       await connection.query("UPDATE historicalPlayers SET forecast='a'");
       oldVersion = "1.9.1";
+    }
+    if (oldVersion === "1.9.1") {
+      console.log("Updating database to version 1.10.0");
+      // Replaces all NA clubs names with empty showing that there is no opponent
+      await Promise.all([
+        connection.query("UPDATE clubs SET opponent='' WHERE opponent='NA'"),
+        connection.query(
+          "UPDATE historicalClubs SET opponent='' WHERE opponent='NA'"
+        ),
+      ]);
+      oldVersion = "1.10.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date
