@@ -92,11 +92,11 @@ export async function updateData(
   let index = 0;
   let club = "";
   let clubDone = false;
-  let gameStarted = false;
+  let gameStart = 0;
   const getClub = (club: string): clubs => {
     const result = clubs.filter((e) => e.club == club);
     if (result.length == 0) {
-      return { club, gameStart: 0, opponent: "NA", league };
+      return { club, gameStart: 0, opponent: "", league };
     }
     return result[0];
   };
@@ -179,11 +179,11 @@ export async function updateData(
           .then((res) =>
             res.length > 0 ? clubData.opponent !== res[0].opponent : false
           );
-        gameStarted = clubData.gameStart <= currentTime;
+        gameStart = clubData.gameStart;
         // Checks if the club has not changed during the matchday
         if (!clubDone) {
           // Checks if the game is supposed to have already started
-          if (!gameStarted) {
+          if (gameStart > currentTime) {
             await connection.query(
               "INSERT INTO clubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE gameStart=?, opponent=?",
               [
@@ -235,8 +235,8 @@ export async function updateData(
         );
         // Makes sure that the club is not done for the matchday
       } else if (!clubDone) {
-        // Only updates the forecast if the game has not already started
-        if (gameStarted) {
+        // Does not update the forecast if you are too far through the game
+        if (gameStart + 600 <= currentTime) {
           await connection.query(
             "UPDATE players SET value=?, total_points=?, average_points=?, last_match=?, locked=?, `exists`=1 WHERE uid=?",
             [

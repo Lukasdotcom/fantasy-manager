@@ -41,13 +41,13 @@ export default async function Main(): Promise<dataGetter> {
     if (result.length > 0) {
       return result[0].short_name;
     } else {
-      return "NA";
+      return "";
     }
   };
   // Gets the list of teams and gets their data
   const teams = data.teams.map((club): clubs => {
     let homeGame = matchdayData.filter((e) => e.team_h === club.code);
-    let opponent = "NA";
+    let opponent = "";
     let gameStart = 0;
     if (homeGame.length > 0) {
       gameStart = Date.parse(String(homeGame[0].kickoff_time)) / 1000;
