@@ -48,7 +48,7 @@ export default async function Main(): Promise<dataGetter> {
     if (result.length > 0) {
       return result[0].abbr;
     } else {
-      return "NA";
+      return "";
     }
   };
   // Gets all the teams into a list
