@@ -37,6 +37,7 @@ jobs:
         if: success()
         run: |
           docker buildx build --platform ${{ steps.prepare.outputs.docker_platform }} --tag ${{ steps.prepare.outputs.docker_image }}:nightly --file ./Dockerfile --push .
+      - name: Webhook to update beta platform
         if: success()
         run: |
           curl https://node.lschaefer.xyz/newFantasy\?key\=${{ secrets.BETA_WEBHOOK }}
