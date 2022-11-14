@@ -49,15 +49,14 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [loading, setLoading] = useState(false);
   // Checks if the page is loading
   useEffect(() => {
-    const handleStart = (url: string) =>
-      url !== router.asPath && setLoading(true);
-    const handleComplete = (url: string) =>
-      url === router.asPath && setLoading(false);
+    const handleStart = (url: string, other: { shallow: boolean }) =>
+      url !== router.asPath && !other.shallow && setLoading(true);
+    const handleComplete = () => setLoading(false);
 
     router.events.on("routeChangeStart", handleStart);
     router.events.on("routeChangeComplete", handleComplete);
     router.events.on("routeChangeError", handleComplete);
-
+    setInterval(() => handleComplete, 1000);
     return () => {
       router.events.off("routeChangeStart", handleStart);
       router.events.off("routeChangeComplete", handleComplete);

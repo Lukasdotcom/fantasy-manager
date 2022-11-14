@@ -64,7 +64,7 @@ class connection {
         this.query("SHOW TABLES");
       }, 10000);
     } else {
-      connection.configure("busyTimeout", 10000);
+      connection.configure("busyTimeout", 100000);
       this.connection = connection;
     }
   }

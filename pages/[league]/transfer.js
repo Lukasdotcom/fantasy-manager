@@ -67,7 +67,6 @@ function MainPage({
   maxPrice,
   leagueType,
 }) {
-  league;
   const positionList = ["gk", "def", "mid", "att"];
   const [players, setPlayers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -119,9 +118,6 @@ function MainPage({
   useEffect(transferData, [league]);
   // Used to search the isNew is used to check if it should reload everything back from the start
   async function search(isNew) {
-    if (loading) {
-      return;
-    }
     let length = -1;
     if (!isNew) {
       if (finished) {
@@ -208,7 +204,7 @@ function MainPage({
         onChange={(val) => {
           setSearchTerm(val.target.value);
         }}
-        val={searchTerm}
+        value={searchTerm}
         label="Search Player"
         id="searchPlayer"
       ></TextField>
@@ -216,7 +212,7 @@ function MainPage({
         onChange={(val) => {
           setClubSearch(val.target.value);
         }}
-        val={clubSearch}
+        value={clubSearch}
         id="searchClub"
         label="Search Club"
         helperText="Use the acronymn ex: FCB, VFB"
