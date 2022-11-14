@@ -74,7 +74,7 @@ export default async function handler(
       }
     }
     // Tells the user if the updates are still running
-    if (returnValue.length > 0) {
+    if (returnValue.length > 0 && time > 0) {
       returnValue[0].updateRunning = await connection
         .query("SELECT value2 FROM data WHERE value1='lastUpdateCheck'")
         .then((result) =>
