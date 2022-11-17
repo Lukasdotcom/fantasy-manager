@@ -23,9 +23,15 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#startingMoney").clear().type(200);
     cy.get("#name").type("Sample League");
     cy.get("button").contains("Create League").click();
-    // Creates invites and deletes the randomly generated one
     cy.contains("Open League").click();
     cy.contains("Standings for Sample League");
+    // Creates an anouncement
+    cy.get("#announcementTitle").type("Super Aweosome Anouncement");
+    cy.get("#announcementDescription").type(
+      "Very great description for this announcement"
+    );
+    cy.get(".MuiButton-containedSuccess").click();
+    // Creates invites and deletes the randomly generated one
     cy.contains("Add Invite").click();
     cy.get("#invite").clear().type("invite1");
     cy.contains("Add Invite").click();
@@ -56,6 +62,8 @@ describe("Invite User into league and change some league Settings and run throug
     // Joins the league
     cy.visit("http://localhost:3000/api/invite/invite1");
     cy.contains("Admin Panel").should("not.exist");
+    // Checks if the annoucement exists
+    cy.contains("Very great description for this announcement");
     // Purchases Lewandoski for 25.8 million
     cy.contains("Transfer").click();
     cy.contains(`Money left: ${user2Money}M`);

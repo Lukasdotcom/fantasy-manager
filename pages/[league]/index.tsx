@@ -5,7 +5,11 @@ import { SyntheticEvent, useContext, useEffect, useState } from "react";
 import { stringToColor, UserChip } from "../../components/Username";
 import { push } from "@socialgouv/matomo-next";
 import { getSession } from "next-auth/react";
-import connect, { invite } from "../../Modules/database";
+import connect, {
+  announcements,
+  anouncementColor,
+  invite,
+} from "../../Modules/database";
 import Link from "../../components/Link";
 import {
   Table,
@@ -24,6 +28,13 @@ import {
   Slider,
   Checkbox,
   FormControlLabel,
+  Alert,
+  AlertTitle,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
+  Icon,
 } from "@mui/material";
 import {
   Chart as ChartJS,
@@ -424,6 +435,7 @@ function Graph({ historicalPoints }: { historicalPoints: historialData }) {
   );
 }
 interface Props {
+  OGannouncement: announcements[];
   admin: boolean;
   standings: standingsData[];
   historicalPoints: historialData;
@@ -435,6 +447,7 @@ interface Props {
   archived: number;
 }
 export default function Home({
+  OGannouncement,
   admin,
   league,
   standings,
@@ -461,9 +474,65 @@ export default function Home({
       Math.random().toString(36).substring(2)
     );
   };
+  const [announcementPriority, setAnouncementPriority] =
+    useState<anouncementColor>("info");
+  const [announcementDescription, setAnouncementDescription] = useState("");
+  const [announcementTitle, setAnouncementTitle] = useState("");
+  const [announcements, setAnouncements] = useState(OGannouncement);
   const [matchday, setmatchday] = useState(currentMatchday + 1);
   const [invites, setInvites] = useState(inviteLinks);
   const [newInvite, setnewInvite] = useState(randomLink);
+  // Used to delete an anouncement
+  const deleteAnouncement = (idx: number) => {
+    notify("Deleting anouncement");
+    fetch(`/api/league/${league}/announcement`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        leagueID: league,
+        title: announcements[idx].title,
+        description: announcements[idx].description,
+      }),
+    }).then(async (response) => {
+      notify(await response.text(), response.ok ? "success" : "error");
+      if (response.ok) {
+        setAnouncements((e) => {
+          e = e.filter((e, index) => index !== idx);
+          return e;
+        });
+      }
+    });
+  };
+  // Used to add an anouncement
+  const addAnouncement = () => {
+    notify("Adding anouncement");
+    fetch(`/api/league/${league}/announcement`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        priority: announcementPriority,
+        title: announcementTitle,
+        description: announcementDescription,
+      }),
+    }).then(async (response) => {
+      notify(await response.text(), response.ok ? "success" : "error");
+      if (response.ok) {
+        setAnouncements((e) => {
+          e.push({
+            leagueID: league,
+            priority: announcementPriority,
+            title: announcementTitle,
+            description: announcementDescription,
+          });
+          return e;
+        });
+      }
+    });
+  };
   // Orders the players in the correct order by points
   let newStandings: { user: number; points: number }[] = [];
   if (matchday <= currentMatchday) {
@@ -537,6 +606,77 @@ export default function Home({
       ></Pagination>
       {Object.values(historicalPoints).length > 0 && (
         <Graph historicalPoints={historicalPoints} />
+      )}
+      <h1>Announcements</h1>
+      {announcements.map((e: announcements, idx) => (
+        <Alert key={idx} severity={e.priority} sx={{ position: "relative" }}>
+          <AlertTitle>{e.title}</AlertTitle>
+          {admin && (
+            <IconButton
+              id="close"
+              aria-label="close"
+              onClick={() => {
+                deleteAnouncement(idx);
+              }}
+              sx={{
+                position: "absolute",
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <Icon>close</Icon>
+            </IconButton>
+          )}
+          {e.description}
+        </Alert>
+      ))}
+      {admin && (
+        <>
+          <TextField
+            id="announcementTitle"
+            variant="outlined"
+            size="small"
+            label="Title"
+            onChange={(val) => {
+              // Used to change the title
+              setAnouncementTitle(val.target.value);
+            }}
+            value={announcementTitle}
+          />
+          <br />
+          <TextField
+            id="announcementDescription"
+            variant="outlined"
+            label="Description"
+            multiline
+            minRows={2}
+            onChange={(val) => {
+              // Used to change the description
+              setAnouncementDescription(val.target.value);
+            }}
+            value={announcementDescription}
+          />
+          <br />
+          <InputLabel htmlFor="priority">Announcement Priority: </InputLabel>
+          <Select
+            id="priority"
+            value={announcementPriority}
+            onChange={(val) =>
+              setAnouncementPriority(val.target.value as anouncementColor)
+            }
+          >
+            {["info", "success", "warning", "error"].map((e: string) => (
+              <MenuItem key={e} value={e}>
+                {e}
+              </MenuItem>
+            ))}
+          </Select>
+          <br />
+          <Button variant="contained" color="success" onClick={addAnouncement}>
+            Add Anoucement
+          </Button>
+        </>
       )}
       <h1>Invite Links</h1>
       {invites.map((val) => (
@@ -674,7 +814,16 @@ export const getServerSideProps: GetServerSideProps = async (
     );
     res(result.length > 0);
   });
+  const announcements = new Promise<announcements[]>(async (res) => {
+    const connection = await connect();
+    res(
+      await connection.query("SELECT * FROM announcements WHERE leagueID=?", [
+        ctx.params?.league,
+      ])
+    );
+  });
   return redirect(ctx, {
+    OGannouncement: await announcements,
     admin: await admin,
     standings: await standings,
     historicalPoints: await historicalPoints,

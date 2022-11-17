@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "export NODE_ENV=development APP_ENV=development; npm run build:ts; node scripts/entrypoint.js & next dev",
     "build": "npm ci; npm run build:ts; next build;",
+    "analyze": "export ANALYZE=true; next build",
     "start": "export NODE_ENV=production APP_ENV=production; npm run start2",
     "test": "npm run cypress & npm run start:test",
     "start:test": "export NODE_ENV=test APP_ENV=test; npm run start2",
@@ -45,6 +46,7 @@
     "node": ">=18"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "13.0.3",
     "cypress": "11.0.1",
     "eslint": "8.27.0",
     "eslint-config-next": "13.0.3",
