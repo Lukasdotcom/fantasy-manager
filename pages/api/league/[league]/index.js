@@ -1,5 +1,5 @@
 import { getSession } from "next-auth/react";
-import connect from "../../../Modules/database";
+import connect from "../../../../Modules/database";
 
 export default async function handler(req, res) {
   const session = await getSession({ req });
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
         if (
           (
             await connection.query(
-              "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
+              "SELECT * FROM leagueUsers WHERE leagueID=? AND user=? AND admin=1",
               [league, session.user.id]
             )
           ).length > 0
@@ -141,6 +141,9 @@ export default async function handler(req, res) {
             league,
           ]);
           connection.query("DELETE FROM historicalSquad WHERE leagueID=?", [
+            league,
+          ]);
+          connection.query("DELETE FROM announcements WHERE leagueID=?", [
             league,
           ]);
           console.log(`League ${league} is now empty and is being deleted`);

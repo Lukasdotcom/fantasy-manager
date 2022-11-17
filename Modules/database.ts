@@ -269,6 +269,13 @@ export interface analytics {
   WorldCup2022: number;
   WorldCup2022Active: number;
 }
+export type anouncementColor = "error" | "info" | "success" | "warning";
+export interface announcements {
+  leagueID: number;
+  priority: anouncementColor;
+  title: string;
+  description: string;
+}
 const validLeagues = (): string[] => {
   const leagues = [];
   if (process.env.APP_ENV === "test") return ["Bundesliga"];

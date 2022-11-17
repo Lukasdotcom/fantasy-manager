@@ -90,6 +90,10 @@ async function startUp() {
     connection.query(
       "CREATE TABLE IF NOT EXISTS analytics (serverID varchar(10), day int, version varchar(10), users int, activeUsers int, Bundesliga int, BundesligaActive int, EPL int, EPLActive int, WorldCup2022 int, WorldCup2022Active int)"
     ),
+    // Used to store league announcements
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS announcements (leagueID int, priority varchar(10) check(priority = 'error' or priority = 'info' or priority = 'success' or priority='warning'), title varchar(255), description varchar(255))"
+    ),
   ]);
   // Checks if the server hash has been created and if not makes one
   await connection.query(
