@@ -162,7 +162,8 @@ InferGetStaticPropsType<typeof getStaticProps>) {
           <li>By Position.</li>
         </ol>
         <li>Download player data as json or csv</li>
-        <li>See all historical user data(As long as the server was up).</li>
+        <li>See all historical player data(As long as the server was up).</li>
+        <li>See historical squads for every league.</li>
         <li>
           And all of these features in a Modern Responsive UI available in a
           light and dark theme.

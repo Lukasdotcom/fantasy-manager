@@ -24,7 +24,7 @@ Not every league has perfect support.
 
 1. Set the enviromental variable ENABLE_EPL to enabled
 
-# English Premier League
+# World Cup 2022
 
 1. Set the enviromental variable ENABLE_WORDCUP2022 to enabled
 

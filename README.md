@@ -25,8 +25,9 @@ This is meant to be an open source self hosted way to play a fantasy manager for
    6. By Name
    7. By Position
 10. Download player data as json or csv
-11. See all historical user data(As long as the server was up).
-12. And all of these features in a Modern Responsive UI available in a light and dark theme.
+11. See all historical player data(As long as the server was up).
+12. See historical squads for every league.
+13. And all of these features in a Modern Responsive UI available in a light and dark theme.
 
 ## Screenshots
 
