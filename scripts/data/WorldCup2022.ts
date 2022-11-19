@@ -71,31 +71,33 @@ export default async function Main(): Promise<dataGetter> {
     });
   });
   // Gets all the player data
-  const players = data.map((e: Player): players => {
-    let forecast: forecast = "u";
-    if (e.status === "available") {
-      forecast = "a";
-    } else if (e.status === "unavailable") {
-      forecast = "m";
-    }
-    return {
-      uid: String(e.id),
-      name: e.name,
-      nameAscii: noAccents(e.name),
-      club: getTeam(e.squadId),
-      pictureUrl: `https://play.fifa.com/media/squads/${
-        e.position === 1 ? "goalkeeper" : "outfield"
-      }/${e.squadId}.png`,
-      value: e.cost,
-      position: ["", "gk", "def", "mid", "att"][e.position] as position,
-      forecast,
-      total_points: e.stats.total_points ? e.stats.total_points : 0,
-      average_points: e.stats.average_points ? e.stats.average_points : 0,
-      last_match: 0,
-      locked: e.locked === 1,
-      exists: e.status !== "eliminated",
-      league: "WorldCup2022",
-    };
-  });
+  const players = data
+    .filter((e) => e.status !== "eliminated")
+    .map((e: Player): players => {
+      let forecast: forecast = "u";
+      if (e.status === "available") {
+        forecast = "a";
+      } else if (e.status === "unavailable") {
+        forecast = "m";
+      }
+      return {
+        uid: String(e.id),
+        name: e.name,
+        nameAscii: noAccents(e.name),
+        club: getTeam(e.squadId),
+        pictureUrl: `https://play.fifa.com/media/squads/${
+          e.position === 1 ? "goalkeeper" : "outfield"
+        }/${e.squadId}.png`,
+        value: e.cost,
+        position: ["", "gk", "def", "mid", "att"][e.position] as position,
+        forecast,
+        total_points: e.stats.total_points ? e.stats.total_points : 0,
+        average_points: e.stats.average_points ? e.stats.average_points : 0,
+        last_match: 0,
+        locked: e.locked === 1,
+        exists: e.status !== "eliminated",
+        league: "WorldCup2022",
+      };
+    });
   return [transfer, countdown, players, teams];
 }
