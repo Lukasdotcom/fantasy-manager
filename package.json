@@ -46,7 +46,6 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "13.0.4",
     "cypress": "11.1.0",
     "eslint": "8.28.0",
     "eslint-config-next": "13.0.4",
