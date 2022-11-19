@@ -3,6 +3,8 @@ export type WorldCup2022Players = WorldCup2022Player[];
 
 export interface Player {
   id: number;
+  feedId: number | null;
+  firstName: string;
   name: string;
   preferredName: string;
   squadId: number;
@@ -16,6 +18,8 @@ export interface Player {
 
 export enum Status {
   Available = "available",
+  Eliminated = "eliminated",
+  Unavailable = "unavailable",
 }
 
 export type WorldCup2022Squads = Squad[];
