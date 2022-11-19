@@ -75,6 +75,8 @@ export default async function Main(): Promise<dataGetter> {
     let forecast: forecast = "u";
     if (e.status === "available") {
       forecast = "a";
+    } else if (e.status === "unavailable") {
+      forecast = "m";
     }
     return {
       uid: String(e.id),
@@ -91,7 +93,7 @@ export default async function Main(): Promise<dataGetter> {
       average_points: e.stats.average_points ? e.stats.average_points : 0,
       last_match: 0,
       locked: e.locked === 1,
-      exists: true,
+      exists: e.status !== "eliminated",
       league: "WorldCup2022",
     };
   });
