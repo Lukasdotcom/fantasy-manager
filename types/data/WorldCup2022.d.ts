@@ -9,11 +9,31 @@ export interface Player {
   preferredName: string;
   squadId: number;
   cost: number;
-  stats: { [key: string]: number | null };
+  stats: Stats;
   status: Status;
   position: number;
   locked: number;
-  matchDayPoints: { [key: string]: null };
+  matchDayPoints: { [key: string]: number | null };
+}
+
+export interface Stats {
+  totalPoints: number;
+  avgPoints: number;
+  gamesPlayed: number;
+  roundScores: { [key: string]: number | null } | null;
+  tournamentScores: { [key: string]: number | null } | null;
+  pickedBy: number;
+  goals: number;
+  assists: number;
+  redCard: number;
+  yellowCard: number;
+  ownGoals: number;
+  penaltySave: number;
+  penaltyMissed: number;
+  starting11: number;
+  substitutions: number;
+  cleanSheets: number;
+  goalsConceded: number;
 }
 
 export enum Status {
