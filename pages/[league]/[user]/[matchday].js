@@ -100,7 +100,7 @@ export async function getServerSideProps(ctx) {
     league,
     latestMatchday,
     currentMatchday: matchday,
-    time,
+    time: historicalSquadExists ? time : null,
     money,
     value,
   });
