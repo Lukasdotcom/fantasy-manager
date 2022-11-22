@@ -1,5 +1,6 @@
 import Menu from "../../components/Menu";
 import Head from "next/head";
+import BugReport from "../../components/BugReport";
 export default function Home({}) {
   return (
     <>
@@ -19,6 +20,7 @@ export default function Home({}) {
         and try again. If this problem persists please contact the administrator
         of this website.
       </p>
+      <BugReport />
     </>
   );
 }
