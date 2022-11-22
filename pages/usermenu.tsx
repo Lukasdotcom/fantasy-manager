@@ -10,7 +10,7 @@ import {
 } from "next";
 import { Session } from "next-auth";
 import { NotifyContext, NotifyType, UserContext } from "../Modules/context";
-import { Providers } from "../types/providers";
+import { getProviders, Providers } from "../types/providers";
 import connect from "../Modules/database";
 import { useRouter } from "next/router";
 interface ProviderProps {
@@ -256,26 +256,13 @@ export const getServerSideProps: GetServerSideProps = async (
       .query("SELECT * FROM leagueUsers WHERE user=? LIMIT 1", [user.id])
       .then((e) => e.length > 0);
     // Checks what providers are supported
-    const providers: Providers[] = [];
-    if (
-      !(process.env.GOOGLE_ID === undefined || process.env.GOOGLE_ID === "") &&
-      !(
-        process.env.GOOGLE_SECRET === undefined ||
-        process.env.GOOGLE_SECRET === ""
-      )
-    ) {
-      providers.push("google");
-    }
-    if (
-      !(process.env.GITHUB_ID === undefined || process.env.GITHUB_ID === "") &&
-      !(
-        process.env.GITHUB_SECRET === undefined ||
-        process.env.GITHUB_SECRET === ""
-      )
-    ) {
-      providers.push("github");
-    }
-    return { props: { user, providers, deleteable: !(await anyLeagues) } };
+    return {
+      props: {
+        user,
+        providers: getProviders(),
+        deleteable: !(await anyLeagues),
+      },
+    };
   } else {
     return {
       redirect: {

@@ -1,11 +1,14 @@
 import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
 import connect from "../../../Modules/database";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 
 let ran = false;
 const options = {
+  pages: {
+    signIn: "/signin",
+  },
   // Configure one or more authentication providers
   providers: [
     CredentialsProvider({
@@ -13,7 +16,7 @@ const options = {
       id: "Sign In",
       name: "Sign In",
       credentials: {
-        username: { label: "Username/Email", type: "username" },
+        username: { label: "Username", type: "username" },
         password: { label: "Password", type: "password" },
       },
       // Used to make sure that the credentails are correct

@@ -12,13 +12,15 @@ describe("Invite User into league and change some league Settings and run throug
     // Signs in
     cy.visit("http://localhost:3000");
     cy.get("#login").click();
-    cy.get("#input-username-for-Sign\\ Up-provider").type("Invite 1");
-    cy.get("#input-password-for-Sign\\ Up-provider").type("password");
-    cy.contains("Sign in with Sign Up").click();
-    // Creates league with alternate starting amount
-    cy.getCookie("next-auth.session-token").then(
-      (cookie) => (user1 = cookie.value)
+    cy.get("#username").type("Invite 1");
+    cy.get("#password").type("password");
+    cy.contains("Sign Up").click();
+    cy.reload().then(() =>
+      cy
+        .getCookie("next-auth.session-token")
+        .then((cookie) => (user1 = cookie.value))
     );
+    // Creates league with alternate starting amount
     cy.contains("Leagues").click();
     cy.get("#startingMoney").clear().type(200);
     cy.get("#name").type("Sample League");
@@ -48,17 +50,18 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Save Admin Settings").click();
     // Signs into User 2 which will join the league through the invite
     cy.get("#logout").click();
-    cy.get("#input-username-for-Sign\\ Up-provider").type("Invite 2");
-    cy.get("#input-password-for-Sign\\ Up-provider").type("password");
-    cy.contains("Sign in with Sign Up").click();
-    cy.getCookie("next-auth.session-token").then(
-      (cookie) => (user2 = cookie.value)
-    );
     // Checks invalid invite
     cy.visit("http://localhost:3000/api/invite/invite2", {
       failOnStatusCode: false,
     });
+    cy.get("#username").type("Invite 2");
+    cy.get("#password").type("password");
+    cy.contains("Sign Up").click();
+    cy.contains("404");
     cy.get(".center").contains("404");
+    cy.getCookie("next-auth.session-token").then(
+      (cookie) => (user2 = cookie.value)
+    );
     // Joins the league
     cy.visit("http://localhost:3000/api/invite/invite1");
     cy.contains("Admin Panel").should("not.exist");
@@ -434,11 +437,14 @@ describe("Invite User into league and change some league Settings and run throug
     // Simulates an empty matchday
     cy.exec("export APP_ENV=test; node cypress/e2e/invite5.js");
     // Adds a third user that joins late
-    cy.get("#logout").click();
-    cy.get("#input-username-for-Sign\\ Up-provider").type("Invite 3");
-    cy.get("#input-password-for-Sign\\ Up-provider").type("password");
-    cy.contains("Sign in with Sign Up").click();
-    cy.visit("http://localhost:3000/api/invite/invite1");
+    cy.get("#logout")
+      .click()
+      .then(() => {
+        cy.visit("http://localhost:3000/api/invite/invite1");
+      });
+    cy.get("#username").type("Invite 3");
+    cy.get("#password").type("password");
+    cy.contains("Sign Up").click();
     // Makes sure this user actually has points for matchday 2
     cy.get(".MuiPagination-ul > :nth-child(3)").click();
     cy.get(".MuiTableBody-root > :nth-child(3) > :nth-child(2)").contains("0");
@@ -495,12 +501,15 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get(".MuiDialogActions-root > .MuiButton-contained").click();
     cy.get("#logout").click();
     // Checks if the league is actually deleted
-    cy.get("#input-username-for-Sign\\ Up-provider").type("Invite 3");
-    cy.get("#input-password-for-Sign\\ Up-provider").type("password");
-    cy.contains("Sign in with Sign Up").click();
-    cy.visit("http://localhost:3000/api/invite/invite1", {
-      failOnStatusCode: false,
+    cy.get("#username").type("Invite 3");
+    cy.get("#password").type("password");
+    cy.contains("Sign Up").click();
+    cy.reload().then(() => {
+      cy.visit("http://localhost:3000/api/invite/invite1", {
+        failOnStatusCode: false,
+      });
     });
+
     cy.get(".center").contains("404"); //*/
   });
 });

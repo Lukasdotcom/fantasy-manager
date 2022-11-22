@@ -11,6 +11,7 @@ const nextConfig = withPWA({
       "i.bundesliga.com",
       "resources.premierleague.com",
       "play.fifa.com",
+      "raw.githubusercontent.com",
     ],
   },
 });

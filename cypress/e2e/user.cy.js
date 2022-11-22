@@ -7,9 +7,9 @@ describe("User", () => {
     // Signs in
     cy.visit("http://localhost:3000");
     cy.get("#login").click();
-    cy.get("#input-username-for-Sign\\ Up-provider").type("Sample User");
-    cy.get("#input-password-for-Sign\\ Up-provider").type("Sample Password");
-    cy.contains("Sign in with Sign Up").click();
+    cy.get("#username").type("Sample User");
+    cy.get("#password").type("Sample Password");
+    cy.contains("Sign Up").click();
     // Edits the user
     cy.contains("SU").click();
     cy.get("#username").should("value", "Sample User");
@@ -25,23 +25,21 @@ describe("User", () => {
     // Trys to sign in with the wrong password and username
     cy.visit("http://localhost:3000");
     cy.get("#login").click();
-    cy.get("#input-username-for-Sign\\ In-provider").type("Sample User");
-    cy.get("#input-password-for-Sign\\ In-provider").type("Sample Password");
-    cy.contains("Sign in with Sign In").click();
-    cy.contains("Sign in failed. Check the details you provided are correct.");
+    cy.get("#username").type("Sample User");
+    cy.get("#password").type("Sample Password");
+    cy.contains("Sign In").click();
+    cy.contains("Check that you gave the correct username and password");
     // Trys to sign in with the wrong password and correct username
-    cy.get("#input-username-for-Sign\\ In-provider").type(
-      "New Sample Username"
-    );
-    cy.get("#input-password-for-Sign\\ In-provider").type("Sample Password");
-    cy.contains("Sign in with Sign In").click();
-    cy.contains("Sign in failed. Check the details you provided are correct.");
-    // Trys to sign in with the correct password and correct username
-    cy.get("#input-username-for-Sign\\ In-provider").type(
-      "New Sample Username"
-    );
-    cy.get("#input-password-for-Sign\\ In-provider").type("New Password");
-    cy.contains("Sign in with Sign In").click();
+    cy.get("#username").type("New Sample Username");
+    cy.get("#password").type("Sample Password");
+    cy.contains("Sign In").click();
+    cy.reload().then(() => {
+      cy.contains("Check that you gave the correct username and password");
+      // Trys to sign in with the correct password and correct username
+      cy.get("#username").type("New Sample Username");
+      cy.get("#password").type("New Password");
+    });
+    cy.contains("Sign In").click();
     // Creates a league
     cy.contains("Leagues").click();
     cy.get("#name").type("Sample League");
