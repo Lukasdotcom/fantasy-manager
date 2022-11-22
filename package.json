@@ -28,7 +28,7 @@
     "@types/react": "18.0.25",
     "bcryptjs": "2.4.3",
     "chart.js": "4.0.1",
-    "csv-stringify": "6.2.1",
+    "csv-stringify": "6.2.2",
     "dotenv": "16.0.3",
     "mysql": "2.18.1",
     "next": "13.0.4",
