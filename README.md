@@ -29,6 +29,10 @@ This is meant to be an open source self hosted way to play a fantasy manager for
 12. See historical squads for every league.
 13. And all of these features in a Modern Responsive UI available in a light and dark theme.
 
+## Roadmap
+
+The official roadmap is [on this kanban](https://drive.lschaefer.xyz/kanban/#/2/kanban/view/Tv48PjfOOBpvt59CcPmnB+NtZyPvuTScCnNWLIhRoeA/). If you would like to have a feature added you can request it in an issue or make it yourself and add a pull request.
+
 ## Screenshots
 
 Here is a sample screenshot for more go to the [screenshots folder](public/screenshots/) which is in the public folder or to the [main page of my hosted version](https://fantasy.lschaefer.xyz)![](https://uptime.lschaefer.xyz/api/badge/15/uptime/720?label=30&labelSuffix=d).
