@@ -256,7 +256,13 @@ export const getServerSideProps: GetServerSideProps = async (
       .query("SELECT * FROM leagueUsers WHERE user=? LIMIT 1", [user.id])
       .then((e) => e.length > 0);
     // Checks what providers are supported
-    return { props: { user, providers : getProviders(), deleteable: !(await anyLeagues) } };
+    return {
+      props: {
+        user,
+        providers: getProviders(),
+        deleteable: !(await anyLeagues),
+      },
+    };
   } else {
     return {
       redirect: {
