@@ -284,4 +284,5 @@ const validLeagues = (): string[] => {
   if (process.env.ENABLE_WORDCUP2022) leagues.push("WorldCup2022");
   return leagues;
 };
+
 export const leagues = validLeagues();

@@ -95,7 +95,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
           }}
           src={pictureUrl}
           width={
-            data.league === "EPL" && pictureUrl !== fallbackImg ? "78" : "100"
+            pictureUrl !== fallbackImg ? getLeaguePicWidth(data.league) : "100"
           }
           height="100"
         />
@@ -621,3 +621,10 @@ export function HistoricalPlayer({ uid, time, children, starred, leagueType }) {
     </InternalPlayer>
   );
 }
+
+// Gets the width of the picture for that league
+export const getLeaguePicWidth = (league) => {
+  if (league === "WorldCup2022") return "72";
+  if (league === "EPL") return "78";
+  return "100";
+};

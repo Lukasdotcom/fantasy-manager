@@ -85,9 +85,7 @@ export default async function Main(): Promise<dataGetter> {
         name: e.name,
         nameAscii: noAccents(e.name),
         club: getTeam(e.squadId),
-        pictureUrl: `https://play.fifa.com/media/squads/${
-          e.position === 1 ? "goalkeeper" : "outfield"
-        }/${e.squadId}.png`,
+        pictureUrl: `https://play.fifa.com/media/image/headshots/potm_croped/${e.id}_webimage.png`,
         value: e.cost,
         position: ["", "gk", "def", "mid", "att"][e.position] as position,
         forecast,
