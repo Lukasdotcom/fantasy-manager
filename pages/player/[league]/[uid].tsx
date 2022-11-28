@@ -24,6 +24,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { result as apiPlayerResult } from "../../api/player/[leagueType]/[uid]";
+import { getLeaguePicWidth } from "../../../components/Player";
 interface extendedPlayers extends players {
   game: {
     opponent: string;
@@ -220,7 +221,7 @@ export default function Home({
       <Image
         src={player.pictureUrl}
         alt=""
-        width={league === "EPL" ? 234 : 300}
+        width={parseInt(getLeaguePicWidth(league)) * 3}
         height={300}
       />
       <Dialog
@@ -235,7 +236,7 @@ export default function Home({
               <Image
                 src={e}
                 alt=""
-                width={league === "EPL" ? 234 : 300}
+                width={parseInt(getLeaguePicWidth(league)) * 3}
                 height={300}
               />
             </div>

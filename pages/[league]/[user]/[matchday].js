@@ -12,8 +12,8 @@ export async function getServerSideProps(ctx) {
   const matchday = ctx.params.matchday;
   // Checks if the matchday exists
   const timeData = await connection.query(
-    "SELECT * FROM points WHERE matchday=?",
-    [matchday]
+    "SELECT * FROM points WHERE matchday=? AND leagueID=?",
+    [matchday, league]
   );
   if (timeData.length === 0) {
     return {
