@@ -60,35 +60,33 @@ export default async function handler(
         league,
       ])
     )[0];
+    // Checks if the transfer market is open
+    const transferOpen: Boolean = await connection
+      .query("SELECT value2 FROM data WHERE value1=?", [
+        "transferOpen" + leagueSettings.league,
+      ])
+      .then((result) => result[0].value2 === "true");
     switch (req.method) {
       // Used to return a dictionary of all transfers and ownerships
       case "GET":
         if (money !== false) {
-          const [transfers, squads, transferOpen, timeLeft]: [
-            transfers[],
-            squad[],
-            boolean,
-            number
-          ] = await Promise.all([
-            // Gets list of all transfers
-            connection.query("SELECT * FROM transfers WHERE leagueID=?", [
-              league,
-            ]),
-            // Gets squads
-            connection.query("SELECT * FROM squad WHERE leagueID=?", [league]),
-            // Checks if the transfer market is open
-            connection
-              .query("SELECT value2 FROM data WHERE value1=?", [
-                "transferOpen" + leagueSettings.league,
-              ])
-              .then((result) => result[0].value2 === "true"),
-            // Gets the amount of time left in the transfer period
-            connection
-              .query("SELECT value2 FROM data WHERE value1=?", [
-                "countdown" + leagueSettings.league,
-              ])
-              .then((result) => parseInt(result[0].value2)),
-          ]);
+          const [transfers, squads, timeLeft]: [transfers[], squad[], number] =
+            await Promise.all([
+              // Gets list of all transfers
+              connection.query("SELECT * FROM transfers WHERE leagueID=?", [
+                league,
+              ]),
+              // Gets squads
+              connection.query("SELECT * FROM squad WHERE leagueID=?", [
+                league,
+              ]),
+              // Gets the amount of time left in the transfer period
+              connection
+                .query("SELECT value2 FROM data WHERE value1=?", [
+                  "countdown" + leagueSettings.league,
+                ])
+                .then((result) => parseInt(result[0].value2)),
+            ]);
           // Puts all the ownership and transfer info in a dictionary
           let ownership: { [Key: string]: (ownershipInfo | transferInfo)[] } =
             {};
@@ -141,6 +139,11 @@ export default async function handler(
         // Checks if the player exists
         if (players.length == 0) {
           res.status(404).end("Player does not exist");
+          break;
+        }
+        // Checks if the transfer market is still open
+        if (!transferOpen && !leagueSettings.matchdayTransfers) {
+          res.status(400).end("The Transfer Market is Closed");
           break;
         }
         const player = players[0];

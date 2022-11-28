@@ -185,6 +185,7 @@ export interface leagueSettings {
   starredPercentage: number;
   league: string;
   archived: number;
+  matchdayTransfers: boolean;
 }
 export interface leagueUsers {
   leagueID: number;

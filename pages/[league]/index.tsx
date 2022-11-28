@@ -57,7 +57,7 @@ interface AdminPanelProps {
   setLeagueName: (name: string) => void;
   admin: boolean;
   leagueType: string;
-  archived: number;
+  archived: boolean;
 }
 // Creates the admin panel
 function AdminPanel({
@@ -80,6 +80,7 @@ function AdminPanel({
   const [starredPercentage, setStarredPercentage] = useState(150.0);
   const [archive, setArchive] = useState(false);
   const [confirmation, setConfirmation] = useState("");
+  const [matchdayTransfers, setMatchdayTransfers] = useState(false);
   function updateData(league: number) {
     fetch(`/api/league/${league}`).then(async (res) => {
       if (res.ok) {
@@ -89,6 +90,7 @@ function AdminPanel({
         setTransfers(result.settings.transfers);
         setDuplicatePlayers(result.settings.duplicatePlayers);
         setStarredPercentage(result.settings.starredPercentage);
+        setMatchdayTransfers(Boolean(result.settings.matchdayTransfers));
       } else {
         alert(await res.text());
       }
@@ -219,6 +221,18 @@ function AdminPanel({
           )}
         />
         <FormControlLabel
+          label="Allow picking transfers during matchday."
+          control={
+            <Checkbox
+              checked={matchdayTransfers}
+              onChange={() => {
+                setMatchdayTransfers((e) => !e);
+              }}
+            />
+          }
+        />
+        <br />
+        <FormControlLabel
           label="Check this to archive the league when you press save."
           control={
             <Checkbox
@@ -229,7 +243,7 @@ function AdminPanel({
             />
           }
         />
-        <br></br>
+        <br />
         {archive && (
           <TextField
             id="confirmation"
@@ -268,6 +282,7 @@ function AdminPanel({
                   starredPercentage,
                   leagueName,
                   archive,
+                  matchdayTransfers,
                 },
               }),
             }).then(async (res) => {
@@ -290,6 +305,10 @@ function AdminPanel({
         <p>Transfer Limit : {transfers}</p>
         <p>Number of Squads a Player can be in : {duplicatePlayers}</p>
         <p>Starred Player Percantage : {starredPercentage}%</p>
+        <p>
+          Transfers on matchdays are :{" "}
+          {matchdayTransfers ? "Allowed" : "Not Allowed"}
+        </p>
         <p>This league is: {archived ? "archived" : "not archived"}</p>
       </>
     );
@@ -444,7 +463,7 @@ interface Props {
   leagueName: string;
   league: number;
   leagueType: string;
-  archived: number;
+  archived: boolean;
 }
 export default function Home({
   OGannouncement,
