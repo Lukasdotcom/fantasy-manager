@@ -66,6 +66,7 @@ function MainPage({
   leagueName,
   maxPrice,
   leagueType,
+  matchdayTransfers,
 }) {
   const positionList = ["gk", "def", "mid", "att"];
   const [players, setPlayers] = useState([]);
@@ -292,7 +293,7 @@ function MainPage({
             transferLeft={transferCount < allowedTransfers}
             allOwnership={ownership}
             transferData={transferData}
-            open={open}
+            open={matchdayTransfers || open}
             duplicatePlayers={duplicatePlayers}
             leagueType={leagueType}
           />

@@ -34,15 +34,21 @@ export default async function handler(
           break;
         }
         const startMoney = parseInt(req.body["Starting Money"]);
-        if (startMoney > 100000) {
+        if (startMoney > 0) {
           await connection.query(
-            "INSERT INTO leagueSettings (leagueName, leagueID, startMoney, league) VALUES (?, ?, ?, ?)",
-            [req.body.name, id, startMoney, leagueType]
+            "INSERT INTO leagueSettings (leagueName, leagueID, startMoney, league, matchdayTransfers) VALUES (?, ?, ?, ?, ?)",
+            [
+              req.body.name,
+              id,
+              startMoney,
+              leagueType,
+              leagueType === "WorldCup2022",
+            ]
           );
         } else {
           await connection.query(
-            "INSERT INTO leagueSettings (leagueName, leagueID, league) VALUES (?, ?, ?)",
-            [req.body.name, id, leagueType]
+            "INSERT INTO leagueSettings (leagueName, leagueID, league, matchdayTransfers) VALUES (?, ?, ?, ?)",
+            [req.body.name, id, leagueType, leagueType === "WorldCup2022"]
           );
         }
         // Makes sure that the id was created

@@ -11,7 +11,7 @@ if (process.env.APP_ENV !== "test") {
 }
 const analyticsDomain = "https://fantasy.lschaefer.xyz";
 // Used to tell the program what version of the database to use
-const currentVersion = "1.10.0";
+const currentVersion = "1.10.2";
 const date = new Date();
 let day = date.getDay();
 
@@ -44,7 +44,7 @@ async function startUp() {
     ),
     // Used to store the leagues settings
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0)"
+      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0, matchdayTransfers boolean)"
     ),
     // Used to store the leagues users
     connection.query(
@@ -396,6 +396,18 @@ async function startUp() {
         ),
       ]);
       oldVersion = "1.10.0";
+    }
+    if (oldVersion === "1.10.0") {
+      console.log("Updating database to version 1.10.2");
+      // Replaces all NA clubs names with empty showing that there is no opponent
+      await connection.query(
+        "ALTER TABLE leagueSettings ADD matchdayTransfers boolean"
+      );
+      await connection.query("UPDATE leagueSettings SET matchdayTransfers=0");
+      await connection.query(
+        "UPDATE leagueSettings SET matchdayTransfers=1 WHERE league='WorldCup2022'"
+      );
+      oldVersion = "1.10.2";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date

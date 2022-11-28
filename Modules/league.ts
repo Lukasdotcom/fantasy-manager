@@ -23,6 +23,7 @@ const redirect = async (
           league: league,
           leagueName: leagueInfo[0].leagueName,
           leagueType: leagueInfo[0].league,
+          matchdayTransfers: leagueInfo[0].matchdayTransfers,
           archived: leagueInfo[0].archived,
         },
       };
