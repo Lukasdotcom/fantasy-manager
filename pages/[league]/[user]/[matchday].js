@@ -55,13 +55,13 @@ export async function getServerSideProps(ctx) {
   // Checks if it is the latest matchday and that the matchday is running because then the historicalSquad table does not have the squad data for the player
   const historicalSquadExists = !(
     latestMatchday == matchday &&
-    connection
+    (await connection
       .query("SELECT value2 FROM data WHERE value1=?", [
         "transferOpen" + leagueType,
       ])
       .then((result) =>
         result.length > 0 ? result[0].value2 !== "true" : false
-      )
+      ))
   );
   // Gets the squad of the user on that matchday
   const squad = historicalSquadExists
