@@ -1,4 +1,5 @@
 import { getSession } from "next-auth/react";
+import { cache } from "../../../../Modules/cache";
 import connect from "../../../../Modules/database";
 // Used to return a list of UIDs of players that are searched for
 export default async function handler(req, res) {
@@ -62,7 +63,7 @@ export default async function handler(req, res) {
             ? String(process.env.MIN_UPDATE_TIME_TRANSFER)
             : String(process.env.MIN_UPDATE_TIME)
         );
-      res.setHeader("Cache-Control", `public, max-age=${timeLeft}`);
+      res.setHeader("Cache-Control", `public, max-age=${await cache(league)}`);
     }
     res.status(200).json(
       await new Promise(async (resolve) => {

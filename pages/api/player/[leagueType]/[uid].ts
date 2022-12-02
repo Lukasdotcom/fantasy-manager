@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { cache } from "../../../../Modules/cache";
 import connect, {
   forecast,
   historicalPlayers,
@@ -88,25 +89,9 @@ export default async function handler(
         process.env.APP_ENV !== "development" &&
         process.env.APP_ENV !== "test"
       ) {
-        const timeLeft =
-          (await connection
-            .query("SELECT * FROM data WHERE value1=?", [
-              "playerUpdate" + league,
-            ])
-            .then((res) => (res.length > 0 ? res[0].value2 : Math.max()))) -
-          Math.floor(Date.now() / 1000) +
-          parseInt(
-            (await connection
-              .query("SELECT * FROM data WHERE value1=? AND value2='true'", [
-                "transferOpen" + league,
-              ])
-              .then((res) => res.length > 0))
-              ? String(process.env.MIN_UPDATE_TIME_TRANSFER)
-              : String(process.env.MIN_UPDATE_TIME)
-          );
         res.setHeader(
           "Cache-Control",
-          `public, max-age=${time > 0 ? 604800 : timeLeft}`
+          `public, max-age=${time > 0 ? 604800 : await cache(league)}`
         );
       }
       res.status(200).json(returnValue[0]);
