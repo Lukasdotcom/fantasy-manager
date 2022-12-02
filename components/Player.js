@@ -456,7 +456,6 @@ export function TransferPlayer({
             .filter((e) => e.seller != 0 && e.transfer)
             .map((e) => (
               <>
-                <br />
                 <UserChip
                   sx={{ margin: "10px" }}
                   key={e.seller}
