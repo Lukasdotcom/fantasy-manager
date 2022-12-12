@@ -149,18 +149,16 @@ function MainPage({
     setLoading(true);
     const newLength = await fetch(
       `/api/player/${leagueType}/search?${
-        isNew ? "" : `limit=${players.length + 10}&`
+        isNew ? "" : `limit=${players.length + 50}&`
       }searchTerm=${encodeURIComponent(
         searchTerm
       )}&clubSearch=${encodeURIComponent(
         clubSearch
       )}&positions=${encodeURIComponent(
         JSON.stringify(positions)
-      )}&order_by=${encodeURIComponent(orderBy)}${
-        showHidden ? "&showHidden=true" : ""
-      }&league=${league}&minPrice=${price[0] * 1000000}&maxPrice=${
-        price[1] * 1000000
-      }`
+      )}&order_by=${encodeURIComponent(orderBy)}&league=${league}&minPrice=${
+        price[0] * 1000000
+      }&maxPrice=${price[1] * 1000000}`
     ).then(async (val) => {
       val = await val.json();
       setPlayers(val);
@@ -296,6 +294,7 @@ function MainPage({
             open={matchdayTransfers || open}
             duplicatePlayers={duplicatePlayers}
             leagueType={leagueType}
+            showHidden={showHidden}
           />
         ))}
       </SessionProvider>

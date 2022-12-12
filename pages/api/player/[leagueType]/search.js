@@ -1,4 +1,3 @@
-import { getSession } from "next-auth/react";
 import { cache } from "../../../../Modules/cache";
 import connect from "../../../../Modules/database";
 // Used to return a list of UIDs of players that are searched for
@@ -16,7 +15,7 @@ export default async function handler(req, res) {
     clubSearch = `%${clubSearch}%`;
     // Used to get the number of players to max out the search results to
     const limit =
-      parseInt(req.query.limit) > 0 ? parseInt(req.query.limit) : 10;
+      parseInt(req.query.limit) > 0 ? parseInt(req.query.limit) : 50;
     // Creates the sql for all the positions
     let positions = ["att", "mid", "def", "gk"];
     if (req.query.positions != undefined) {
@@ -33,8 +32,6 @@ export default async function handler(req, res) {
     if (positionsSQL != "") {
       positionsSQL = `AND (${positionsSQL.slice(0, -4)})`;
     }
-    // Checks if non existant players should be shown
-    const showHidden = Boolean(req.query.showHidden);
     // Gets the value to order by
     const order_by = [
       "value",
@@ -67,43 +64,22 @@ export default async function handler(req, res) {
     }
     res.status(200).json(
       await new Promise(async (resolve) => {
-        const session = await getSession({ req });
         resolve(
           await connection.query(
-            `SELECT uid FROM players WHERE${
-              showHidden
-                ? ""
-                : " (`exists`=1 OR EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND user=? AND leagueID=?)) AND"
-            } (name like ? OR nameAscii like ?) AND club like ? ${positionsSQL} AND value>=? AND value<=? AND league=? ORDER BY ${order_by} DESC LIMIT ${limit}`,
-            showHidden
-              ? [
-                  searchTerm,
-                  searchTerm,
-                  clubSearch,
-                  parseInt(req.query.minPrice) > 0
-                    ? parseInt(req.query.minPrice)
-                    : 0,
-                  // Checks if the max price is greater than or equal to 0 otherwise sets it to the maximum int possible
-                  parseInt(req.query.maxPrice) >= 0
-                    ? parseInt(req.query.maxPrice)
-                    : Number.MAX_SAFE_INTEGER,
-                  league,
-                ]
-              : [
-                  session ? session.user.id : "",
-                  req.query.league,
-                  searchTerm,
-                  searchTerm,
-                  clubSearch,
-                  parseInt(req.query.minPrice) > 0
-                    ? parseInt(req.query.minPrice)
-                    : 0,
-                  // Checks if the max price is greater than or equal to 0 otherwise sets it to the maximum int possible
-                  parseInt(req.query.maxPrice) >= 0
-                    ? parseInt(req.query.maxPrice)
-                    : Number.MAX_SAFE_INTEGER,
-                  league,
-                ]
+            `SELECT uid FROM players WHERE (name like ? OR nameAscii like ?) AND club like ? ${positionsSQL} AND value>=? AND value<=? AND league=? ORDER BY ${order_by} DESC LIMIT ${limit}`,
+            [
+              searchTerm,
+              searchTerm,
+              clubSearch,
+              parseInt(req.query.minPrice) > 0
+                ? parseInt(req.query.minPrice)
+                : 0,
+              // Checks if the max price is greater than or equal to 0 otherwise sets it to the maximum int possible
+              parseInt(req.query.maxPrice) >= 0
+                ? parseInt(req.query.maxPrice)
+                : Number.MAX_SAFE_INTEGER,
+              league,
+            ]
           )
         );
         // Organizes the data in a list instead of a list of dictionaries
