@@ -226,6 +226,7 @@ export function TransferPlayer({
   duplicatePlayers,
   allOwnership,
   leagueType,
+  showHidden,
 }) {
   const notify = useContext(NotifyContext);
   const session = useSession();
@@ -406,6 +407,18 @@ export function TransferPlayer({
       ButtonColor = "success";
       Actions = BuyText;
     }
+  }
+  // Checks if the player should even be shown
+  if (
+    Object.keys(data).length != 0 &&
+    !showHidden &&
+    !data.exists &&
+    (!ownership ||
+      ownership.filter((x) =>
+        x.transfer ? x.buyer == user || x.seller == user : x.owner == user
+      ).length == 0)
+  ) {
+    return <></>;
   }
   return (
     <InternalPlayer data={data} condensed={"transfer"}>
