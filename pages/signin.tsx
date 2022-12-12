@@ -64,10 +64,14 @@ export default function SignIn({ enabledProviders }: Props) {
           <AlertTitle>
             {error === "CredentialsSignin"
               ? "Wrong Credentials"
+              : error === "no_username"
+              ? "No Username or Password"
               : "Failed to Sign in"}
           </AlertTitle>
           {error === "CredentialsSignin"
             ? "Check that you gave the correct username and password."
+            : error === "no_username"
+            ? "You need to give a username and a password when signing up."
             : "Try logging in again."}
         </Alert>
       )}
