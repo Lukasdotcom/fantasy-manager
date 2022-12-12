@@ -426,7 +426,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains(`Money: ${matchdays[0].invite2}M`);
     cy.contains("Next").should("not.exist");
     cy.get('[alt="starred"]');
-    cy.get(':nth-child(14) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(9) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski"
     );
     cy.get(':nth-child(19) > [style="width: 70%;"] > :nth-child(1)').contains(
@@ -468,7 +468,9 @@ describe("Invite User into league and change some league Settings and run throug
       });
     // Archives the league
     cy.contains("Open League").click();
-    cy.get(".PrivateSwitchBase-input").click();
+    cy.get(
+      ":nth-child(37) > .MuiButtonBase-root > .PrivateSwitchBase-input"
+    ).click();
     cy.get("#confirmation").type("New Sample League");
     cy.contains("Save Admin Settings").click();
     // Simulates an empty matchday
