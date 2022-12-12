@@ -8,6 +8,7 @@ let ran = false;
 const options = {
   pages: {
     signIn: "/signin",
+    error: "signin",
   },
   // Configure one or more authentication providers
   providers: [
@@ -71,6 +72,9 @@ const options = {
         const bcrypt = require("bcryptjs");
         // Goes through every user that has the email or username that was given
         const connection = await connect();
+        if (credentials.username == "" || credentials.password == "") {
+          throw Error("no_username");
+        }
         const password = bcrypt.hashSync(
           credentials.password,
           parseInt(process.env.BCRYPT_ROUNDS)
