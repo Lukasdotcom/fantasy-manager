@@ -67,6 +67,7 @@ export interface Round {
 }
 
 export enum Status {
+  Complete = "complete",
   Scheduled = "scheduled",
 }
 
@@ -79,8 +80,8 @@ export interface Tournament {
   awaySquadId: number;
   homeSquadName: string;
   awaySquadName: string;
-  homeScore: null;
-  awayScore: null;
+  homeScore: number | null;
+  awayScore: number | null;
   status: Status;
   bracketId: number;
   matchcentreUrl: string;

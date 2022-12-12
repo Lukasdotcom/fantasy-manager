@@ -25,18 +25,52 @@ export default async function Main(): Promise<dataGetter> {
   let transfer = true;
   let round = 0;
   while (round < matchdayData.length) {
-    // If it is before this matchday starts return that it is transfer time and countdown length
-    if (Date.parse(String(matchdayData[round].startDate)) / 1000 >= nowTime) {
+    // If there is no matchdata it is assumed that the matchday has not started yet
+    if (matchdayData[round].tournaments.length == 0) {
       countdown = Math.floor(
         Date.parse(String(matchdayData[round].startDate)) / 1000 - nowTime
       );
+      if (countdown < 0) {
+        countdown = 60;
+      }
       break;
     }
-    // If it is in the matchday
-    if (Date.parse(String(matchdayData[round].endDate)) / 1000 >= nowTime) {
+    // If it is before this matchday starts return that it is transfer time and countdown length
+    if (
+      Date.parse(String(matchdayData[round].tournaments[0].date)) / 1000 >=
+      nowTime
+    ) {
+      countdown = Math.floor(
+        Date.parse(String(matchdayData[round].tournaments[0].date)) / 1000 -
+          nowTime
+      );
+      break;
+    }
+    // If it is in the matchday the very last game is checked to see when it ends and a 3 hour buffer is put after it
+    if (
+      Date.parse(
+        String(
+          matchdayData[round].tournaments[
+            matchdayData[round].tournaments.length - 1
+          ].date
+        )
+      ) /
+        1000 +
+        3600 * 3 >=
+      nowTime
+    ) {
       transfer = false;
       countdown = Math.floor(
-        Date.parse(String(matchdayData[round].endDate)) / 1000 - nowTime
+        Date.parse(
+          String(
+            matchdayData[round].tournaments[
+              matchdayData[round].tournaments.length - 1
+            ].date
+          )
+        ) /
+          1000 +
+          3600 * 3 -
+          nowTime
       );
       break;
     }
