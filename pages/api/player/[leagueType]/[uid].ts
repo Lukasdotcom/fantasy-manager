@@ -3,7 +3,6 @@ import { cache } from "../../../../Modules/cache";
 import connect, {
   forecast,
   historicalPlayers,
-  leagues,
   players,
 } from "../../../../Modules/database";
 import { checkUpdate } from "../../../../scripts/checkUpdate";
@@ -16,11 +15,6 @@ export default async function handler(
     const connection = await connect();
     const league = String(req.query.leagueType);
     const time = parseInt(String(req.query.time));
-    // Checks if the league exists
-    if (!leagues.includes(league)) {
-      res.status(500).end("League not found");
-      return;
-    }
     let returnValue: result[] = [];
     // Checks if new data needs to be requested
     await checkUpdate(league);

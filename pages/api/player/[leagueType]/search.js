@@ -46,20 +46,6 @@ export default async function handler(req, res) {
       process.env.APP_ENV !== "development" &&
       process.env.APP_ENV !== "test"
     ) {
-      const timeLeft =
-        (await connection
-          .query("SELECT * FROM data WHERE value1=?", ["playerUpdate" + league])
-          .then((res) => (res.length > 0 ? res[0].value2 : Math.max()))) -
-        Math.floor(Date.now() / 1000) +
-        parseInt(
-          (await connection
-            .query("SELECT * FROM data WHERE value1=? AND value2='true'", [
-              "transferOpen" + league,
-            ])
-            .then((res) => res.length > 0))
-            ? String(process.env.MIN_UPDATE_TIME_TRANSFER)
-            : String(process.env.MIN_UPDATE_TIME)
-        );
       res.setHeader("Cache-Control", `public, max-age=${await cache(league)}`);
     }
     res.status(200).json(
