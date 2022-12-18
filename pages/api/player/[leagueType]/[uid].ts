@@ -3,7 +3,6 @@ import { cache } from "../../../../Modules/cache";
 import connect, {
   forecast,
   historicalPlayers,
-  leagues,
   players,
 } from "../../../../Modules/database";
 import { checkUpdate } from "../../../../scripts/checkUpdate";
