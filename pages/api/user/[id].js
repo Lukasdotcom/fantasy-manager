@@ -17,7 +17,7 @@ export default async function handler(req, res) {
           res.status(200).json(users[0].username);
           resolve();
         } else {
-          res.status(404).end("Player not found");
+          res.status(404).end("User not found");
           resolve();
         }
       });

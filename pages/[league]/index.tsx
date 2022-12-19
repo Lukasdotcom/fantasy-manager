@@ -35,6 +35,7 @@ import {
   MenuItem,
   IconButton,
   Icon,
+  FormLabel,
 } from "@mui/material";
 import {
   Chart as ChartJS,
@@ -47,7 +48,11 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { NotifyContext, UserContext } from "../../Modules/context";
+import {
+  NotifyContext,
+  TranslateContext,
+  UserContext,
+} from "../../Modules/context";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { Box } from "@mui/system";
 import Router from "next/router";
@@ -74,6 +79,7 @@ function AdminPanel({
     user: number;
     admin: boolean;
   }
+  const t = useContext(TranslateContext);
   const [users, setUsers] = useState<userData[]>([]);
   const [transfers, setTransfers] = useState(6);
   const [duplicatePlayers, setDuplicatePlayers] = useState(1);
@@ -102,13 +108,15 @@ function AdminPanel({
   if (admin && !archived) {
     return (
       <>
-        <h1>Admin Panel</h1>
-        <p>League Type Used: {leagueType}</p>
+        <h1>{t("Admin Panel")}</h1>
+        <p>
+          {t("League Type Used: {leagueType}", { leagueType: t(leagueType) })}
+        </p>
         <TextField
           id="leagueName"
           variant="outlined"
           size="small"
-          label="League Name"
+          label={t("League name")}
           onChange={(val) => {
             // Used to change the invite link
             setLeagueName(val.target.value);
@@ -120,7 +128,7 @@ function AdminPanel({
           id="startingMoney"
           variant="outlined"
           size="small"
-          label="Starting Money"
+          label={t("Starting Money")}
           type="number"
           onChange={(val) => {
             // Used to change the invite link
@@ -133,7 +141,7 @@ function AdminPanel({
           id="transfers"
           variant="outlined"
           size="small"
-          label="Transfer Amount"
+          label={t("Transfer Limit")}
           type="number"
           onChange={(val) => {
             // Used to change the transfer limit
@@ -146,7 +154,7 @@ function AdminPanel({
           id="duplicatePlayers"
           variant="outlined"
           size="small"
-          helperText="Amount of Squads players can be in"
+          helperText={t("Amount of squads a player can be in")}
           type="number"
           onChange={(val) => {
             // Used to change the amount of duplicate players
@@ -159,7 +167,7 @@ function AdminPanel({
           id="starredPercentage"
           variant="outlined"
           size="small"
-          helperText="Point boost for starred players"
+          helperText={t("Point boost for starred players")}
           InputProps={{
             endAdornment: <InputAdornment position="end">%</InputAdornment>,
           }}
@@ -215,13 +223,13 @@ function AdminPanel({
             <TextField
               {...params}
               variant="standard"
-              label="Admins"
-              placeholder="New Admin"
+              label={t("Admins")}
+              placeholder={t("New admin")}
             />
           )}
         />
         <FormControlLabel
-          label="Allow picking transfers during matchday."
+          label={t("Allow picking transfers during matchday. ")}
           control={
             <Checkbox
               checked={matchdayTransfers}
@@ -233,7 +241,7 @@ function AdminPanel({
         />
         <br />
         <FormControlLabel
-          label="Check this to archive the league when you press save."
+          label={t("Check this to archive the league when you press save. ")}
           control={
             <Checkbox
               checked={archive}
@@ -248,7 +256,7 @@ function AdminPanel({
           <TextField
             id="confirmation"
             error={leagueName !== confirmation}
-            helperText="Enter league name here to confirm archive"
+            helperText={t("Enter league name here to confirm archive. ")}
             variant="outlined"
             margin="dense"
             size="small"
@@ -263,7 +271,7 @@ function AdminPanel({
         <Button
           onClick={() => {
             if (archive && confirmation !== leagueName) {
-              notify("Confirmation text is wrong", "error");
+              notify(t("Confirmation text is wrong"), "error");
               return;
             }
             // Used to save the data
@@ -286,30 +294,41 @@ function AdminPanel({
                 },
               }),
             }).then(async (res) => {
-              notify(await res.text(), res.ok ? "success" : "error");
+              notify(t(await res.text()), res.ok ? "success" : "error");
               if (archive) Router.push("/leagues");
             });
           }}
           variant="contained"
         >
-          Save Admin Settings
+          {t("Save admin settings")}
         </Button>
       </>
     );
   } else {
     return (
       <>
-        <h1>Settings</h1>
-        <p>League Type Used: {leagueType}</p>
-        <p>Starting Money : {startingMoney}</p>
-        <p>Transfer Limit : {transfers}</p>
-        <p>Number of Squads a Player can be in : {duplicatePlayers}</p>
-        <p>Starred Player Percantage : {starredPercentage}%</p>
+        <h1>{t("Settings")}</h1>
         <p>
-          Transfers on matchdays are :{" "}
-          {matchdayTransfers ? "Allowed" : "Not Allowed"}
+          {t("League Type Used: {leagueType}", { leagueType: t(leagueType) })}
         </p>
-        <p>This league is: {archived ? "archived" : "not archived"}</p>
+        <p>{t("Starting money : {amount} M", { amount: startingMoney })}</p>
+        <p>{t("Transfer limit : {amount}", { amount: transfers })}</p>
+        <p>
+          {t("Amount of squads a player can be in : {duplicatePlayers}", {
+            duplicatePlayers,
+          })}
+        </p>
+        <p>
+          {t("Point boost for starred players : {starBoost}%", {
+            starBoost: starredPercentage,
+          })}
+        </p>
+        <p>
+          {t("Transfers on matchdays are {allowed}", {
+            allowed: matchdayTransfers ? t("Allowed") : t("Forbidden"),
+          })}
+        </p>
+        <p>{t("This league is " + (archived ? "archived" : "not archived"))}</p>
       </>
     );
   }
@@ -323,12 +342,13 @@ interface InviteProps {
 // Used to show all the invites that exist and to delete an individual invite
 function Invite({ link, league, host, remove }: InviteProps) {
   const notify = useContext(NotifyContext);
+  const t = useContext(TranslateContext);
   return (
     <p>
-      Link: {`${host}/api/invite/${link}`}
+      {t("Link: {link}", { link: `${host}/api/invite/${link}` })}
       <Button
         onClick={async () => {
-          notify("Deleting");
+          notify(t("Deleting"));
           push(["trackEvent", "Delete Invite", league, link]);
           const response = await fetch("/api/invite", {
             method: "DELETE",
@@ -340,14 +360,14 @@ function Invite({ link, league, host, remove }: InviteProps) {
               link: link,
             }),
           });
-          notify(await response.text(), response.ok ? "success" : "error");
+          notify(t(await response.text()), response.ok ? "success" : "error");
           remove();
         }}
         sx={{ margin: "5px" }}
         variant="outlined"
         color="error"
       >
-        Delete
+        {t("Delete")}
       </Button>
     </p>
   );
@@ -355,6 +375,7 @@ function Invite({ link, league, host, remove }: InviteProps) {
 // Used to generate the graph of the historical points
 function Graph({ historicalPoints }: { historicalPoints: historialData }) {
   const getUser = useContext(UserContext);
+  const t = useContext(TranslateContext);
   const [usernames, setUsernames] = useState(Object.keys(historicalPoints));
   const [dataRange, setDataRange] = useState<number[]>([
     1,
@@ -389,20 +410,20 @@ function Graph({ historicalPoints }: { historicalPoints: historialData }) {
       },
       title: {
         display: true,
-        text: "Points over Time",
+        text: t("Points over Time"),
       },
     },
     scales: {
       x: {
         title: {
           display: true,
-          text: "Matchday",
+          text: t("Matchday"),
         },
       },
       y: {
         title: {
           display: true,
-          text: "Points",
+          text: t("Points"),
         },
       },
     },
@@ -410,7 +431,7 @@ function Graph({ historicalPoints }: { historicalPoints: historialData }) {
   // Adds a label for every matchday
   const labels = Array(dataRange[1] - dataRange[0] + 1)
     .fill(0)
-    .map((e, index) => index + dataRange[0]);
+    .map((_, index) => index + dataRange[0]);
   const datasets: any[] = [];
   // Adds every dataset
   Object.keys(historicalPoints).forEach((e, index) => {
@@ -443,7 +464,7 @@ function Graph({ historicalPoints }: { historicalPoints: historialData }) {
       <Slider
         getAriaLabel={() => "Standings Range"}
         value={dataRange}
-        onChange={(e, value) => {
+        onChange={(_, value) => {
           typeof value === "number" ? "" : setDataRange(value);
         }}
         valueLabelDisplay="auto"
@@ -477,6 +498,7 @@ export default function Home({
   leagueType,
   archived,
 }: Props) {
+  const t = useContext(TranslateContext);
   const notify = useContext(NotifyContext);
   const [inputLeagueName, setInputLeagueName] = useState(leagueName);
   // Calculates the current matchday
@@ -503,7 +525,7 @@ export default function Home({
   const [newInvite, setnewInvite] = useState(randomLink);
   // Used to delete an anouncement
   const deleteAnouncement = (idx: number) => {
-    notify("Deleting anouncement");
+    notify(t("Deleting anouncement"));
     fetch(`/api/league/${league}/announcement`, {
       method: "DELETE",
       headers: {
@@ -515,7 +537,7 @@ export default function Home({
         description: announcements[idx].description,
       }),
     }).then(async (response) => {
-      notify(await response.text(), response.ok ? "success" : "error");
+      notify(t(await response.text()), response.ok ? "success" : "error");
       if (response.ok) {
         setAnouncements((e) => {
           e = e.filter((e, index) => index !== idx);
@@ -526,7 +548,7 @@ export default function Home({
   };
   // Used to add an anouncement
   const addAnouncement = () => {
-    notify("Adding anouncement");
+    notify(t("Adding anouncement"));
     fetch(`/api/league/${league}/announcement`, {
       method: "POST",
       headers: {
@@ -538,7 +560,7 @@ export default function Home({
         description: announcementDescription,
       }),
     }).then(async (response) => {
-      notify(await response.text(), response.ok ? "success" : "error");
+      notify(t(await response.text()), response.ok ? "success" : "error");
       if (response.ok) {
         setAnouncements((e) => {
           e.push({
@@ -568,21 +590,25 @@ export default function Home({
   return (
     <>
       <Head>
-        <title>{`Standings for ` + inputLeagueName}</title>
+        <title>
+          {t("Standings for {leagueName}", { leagueName: inputLeagueName })}
+        </title>
       </Head>
       <Menu league={league} />
-      <h1>Standings for {inputLeagueName}</h1>
+      <h1>
+        {t("Standings for {leagueName}", { leagueName: inputLeagueName })}
+      </h1>
       <TableContainer sx={{ width: "95%" }}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>User</TableCell>
+              <TableCell>{t("Username")}</TableCell>
               <TableCell>
                 {matchday > currentMatchday
-                  ? "Total Points"
-                  : `Matchday ${matchday} Points`}
+                  ? t("Total Points")
+                  : t("Matchday {matchday} Points", { matchday })}
               </TableCell>
-              <TableCell>Buttons to View Historical Data</TableCell>
+              <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -602,7 +628,7 @@ export default function Home({
                       matchday > currentMatchday ? "" : matchday
                     }`}
                   >
-                    <Button>Click to View</Button>
+                    <Button>{t("Click to view squad")}</Button>
                   </Link>
                 </TableCell>
               </TableRow>
@@ -610,8 +636,9 @@ export default function Home({
           </TableBody>
         </Table>
       </TableContainer>
-      <p>Select the matchday here</p>
+      <FormLabel id="matchdayLabel">{t("Select matchday")}</FormLabel>
       <Pagination
+        id="matchdayLabel"
         page={matchday}
         count={currentMatchday + 1}
         onChange={(e, v) => {
@@ -619,14 +646,14 @@ export default function Home({
         }}
         renderItem={(item) => {
           const page =
-            item.page && item.page > currentMatchday ? "All" : item.page;
+            item.page && item.page > currentMatchday ? t("All") : item.page;
           return <PaginationItem {...item} page={page} />;
         }}
       ></Pagination>
       {Object.values(historicalPoints).length > 0 && (
         <Graph historicalPoints={historicalPoints} />
       )}
-      <h1>Announcements</h1>
+      <h1>{t("Announcements")}</h1>
       {announcements.map((e: announcements, idx) => (
         <Alert key={idx} severity={e.priority} sx={{ position: "relative" }}>
           <AlertTitle>{e.title}</AlertTitle>
@@ -656,7 +683,7 @@ export default function Home({
             id="announcementTitle"
             variant="outlined"
             size="small"
-            label="Title"
+            label={t("Title")}
             onChange={(val) => {
               // Used to change the title
               setAnouncementTitle(val.target.value);
@@ -667,7 +694,7 @@ export default function Home({
           <TextField
             id="announcementDescription"
             variant="outlined"
-            label="Description"
+            label={t("Content")}
             multiline
             minRows={2}
             onChange={(val) => {
@@ -677,7 +704,9 @@ export default function Home({
             value={announcementDescription}
           />
           <br />
-          <InputLabel htmlFor="priority">Announcement Priority: </InputLabel>
+          <InputLabel htmlFor="priority">
+            {t("Announcement Priority: ")}
+          </InputLabel>
           <Select
             id="priority"
             value={announcementPriority}
@@ -687,17 +716,17 @@ export default function Home({
           >
             {["info", "success", "warning", "error"].map((e: string) => (
               <MenuItem key={e} value={e}>
-                {e}
+                {t(e)}
               </MenuItem>
             ))}
           </Select>
           <br />
           <Button variant="contained" color="success" onClick={addAnouncement}>
-            Add Anoucement
+            {t("Add announcement")}
           </Button>
         </>
       )}
-      <h1>Invite Links</h1>
+      <h1>{t("Invite Links")}</h1>
       {invites.map((val) => (
         <Invite
           host={host}
@@ -714,7 +743,7 @@ export default function Home({
         id="invite"
         variant="outlined"
         size="small"
-        label="Invite Link"
+        label={t("Invite link")}
         onChange={(val) => {
           // Used to change the invite link
           setnewInvite(val.target.value);
@@ -724,7 +753,7 @@ export default function Home({
       <Button
         onClick={async () => {
           let link = newInvite;
-          notify("Creating new invite");
+          notify(t("Creating new invite link"));
           const response = await fetch("/api/invite", {
             method: "POST",
             headers: {
@@ -735,7 +764,7 @@ export default function Home({
               link: link,
             }),
           });
-          notify(await response.text(), response.ok ? "success" : "error");
+          notify(t(await response.text()), response.ok ? "success" : "error");
           if (response.ok) {
             setInvites([...invites, link]);
             // Makes sure to generate a new random link id
@@ -743,7 +772,7 @@ export default function Home({
           }
         }}
       >
-        Add Invite
+        {t("Add invite")}
       </Button>
       <AdminPanel
         leagueName={inputLeagueName}

@@ -10,10 +10,12 @@ import {
 } from "@mui/material";
 import Head from "next/head";
 import Link from "../components/Link";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Menu from "../components/Menu";
 import connect, { leagues as leagueTypes } from "../Modules/database";
 import { GetServerSideProps } from "next";
+import { TranslateContext } from "../Modules/context";
+import getLocales from "../locales/getLocales";
 type historicalTimes = { [Key: string]: number[] };
 interface props {
   historicalTimes: historicalTimes;
@@ -35,15 +37,19 @@ export default function Home({ historicalTimes, leagues }: props) {
       matchday !== 0 ? `&time=${matchday}` : ""
     }${showHidden ? "&showHidden=true" : ""}`;
   }
+  const t = useContext(TranslateContext);
   return (
     <>
       <Head>
-        <title>Download</title>
+        <title>{t("Download Data")}</title>
       </Head>
       <Menu />
-      <h1>Download Data</h1>
-      <p>Here you can download the player data for personal use.</p>
-      <InputLabel htmlFor="time">Time</InputLabel>
+      <h1>{t("Download Data")}</h1>
+      <p>
+        {t("Here you can download the player data for personal use. ")}
+        {t("This downloaded player data is only available in english. ")}
+      </p>
+      <InputLabel htmlFor="time">{t("Time")}</InputLabel>
       <Select
         id="time"
         value={matchday}
@@ -53,23 +59,23 @@ export default function Home({ historicalTimes, leagues }: props) {
           let date = new Date(e * 1000);
           return (
             <MenuItem key={e} value={e}>
-              {date.toDateString()}
+              {t("{date}", { date })}
             </MenuItem>
           );
         })}
-        <MenuItem value={0}>Latest</MenuItem>
+        <MenuItem value={0}>{t("Latest")}</MenuItem>
       </Select>
-      <InputLabel htmlFor="league">Which league: </InputLabel>
+      <InputLabel htmlFor="league">{t("League")}</InputLabel>
       <Select value={league} onChange={changeLeague} id="league">
         {leagues.map((val) => (
           <MenuItem key={val} value={val}>
-            {val}
+            {t(val)}
           </MenuItem>
         ))}
       </Select>
       <br></br>
       <FormControlLabel
-        label="Download hidden players in addition to all other ones"
+        label={t("Download hidden players in addition to all other ones")}
         control={
           <Checkbox
             id="showHidden"
@@ -82,19 +88,19 @@ export default function Home({ historicalTimes, leagues }: props) {
       <ButtonGroup>
         <Button>
           <Link disableNext={true} href={downloadLink("json")}>
-            Download as JSON
+            {t("Download as {file}", { file: "json" })}
           </Link>
         </Button>
         <Button>
           <Link disableNext={true} href={downloadLink("csv")}>
-            Download as CSV
+            {t("Download as {file}", { file: "csv" })}
           </Link>
         </Button>
       </ButtonGroup>
     </>
   );
 }
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const connection = await connect();
   // Gets a list of all the times stored by each league
   const historicalTimes: historicalTimes = {};
@@ -109,5 +115,11 @@ export const getServerSideProps: GetServerSideProps = async () => {
         })
     )
   );
-  return { props: { historicalTimes, leagues: leagueTypes } };
+  return {
+    props: {
+      historicalTimes,
+      leagues: leagueTypes,
+      t: await getLocales(context.locale),
+    },
+  };
 };
