@@ -19,7 +19,7 @@ describe("User", () => {
     cy.get("#usermenu").click();
     cy.get("#username").should("value", "New Sample Username");
     cy.get("#password").type("New Password");
-    cy.contains("Update Password").click();
+    cy.contains("Change password").click();
     // Signs out
     cy.get("#logout").click();
     // Trys to sign in with the wrong password and username
@@ -28,13 +28,13 @@ describe("User", () => {
     cy.get("#username").type("Sample User");
     cy.get("#password").type("Sample Password");
     cy.contains("Sign In").click();
-    cy.contains("Check that you gave the correct username and password");
+    cy.contains("Check that you entered the correct username and password. ");
     // Trys to sign in with the wrong password and correct username
     cy.get("#username").type("New Sample Username");
     cy.get("#password").type("Sample Password");
     cy.contains("Sign In").click();
     cy.reload().then(() => {
-      cy.contains("Check that you gave the correct username and password");
+      cy.contains("Check that you entered the correct username and password. ");
       // Trys to sign in with the correct password and correct username
       cy.get("#username").type("New Sample Username");
       cy.get("#password").type("New Password");
@@ -46,19 +46,16 @@ describe("User", () => {
     cy.get("button").contains("Create League").click();
     // Verifies that the user can not be deleted
     cy.contains("NS").click();
-    cy.contains(
-      "You can not be in any leagues if you want to delete your user."
-    );
     // Leaves the league
     cy.contains("Leagues").click();
-    cy.contains("Leave League").click();
+    cy.contains("Leave league").click();
     cy.get(".MuiDialogContent-root > .MuiFormControl-root").type(
       "Sample League"
     );
     cy.get(".MuiDialogActions-root > .MuiButton-contained").click();
     // Deletes the User
     cy.contains("NS").click();
-    cy.contains("Delete User").click();
+    cy.contains("Delete user").click();
     cy.contains("NS").should("not.exist");
   });
 });

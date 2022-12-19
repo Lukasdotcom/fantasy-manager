@@ -11,9 +11,10 @@ import {
   Box,
   AppBar,
 } from "@mui/material";
-import { MouseEvent, MouseEventHandler, useState } from "react";
+import { MouseEvent, MouseEventHandler, useContext, useState } from "react";
 import Link from "./Link";
 import { useSession } from "next-auth/react";
+import { TranslateContext } from "../Modules/context";
 interface MenuItemsInterface {
   league: undefined | Number;
   handleCloseNavMenu: MouseEventHandler;
@@ -26,23 +27,24 @@ function MenuItems({ league, handleCloseNavMenu }: MenuItemsInterface) {
       ? session.user.favoriteLeague
       : undefined;
   }
+  const t = useContext(TranslateContext);
   const pages = [
-    { name: "Home", link: "/" },
+    { name: t("Home"), link: "/" },
     { name: "Rules", link: "/rules" },
   ];
-  pages.push({ name: "Download", link: `/download` });
+  pages.push({ name: t("Download"), link: `/download` });
   // Checks if the player is logged in
   if (session || league) {
     if (session?.user.admin) {
       pages.push({ name: "Admin", link: "/admin" });
     }
-    pages.push({ name: "Leagues", link: "/leagues" });
+    pages.push({ name: t("Leagues"), link: "/leagues" });
   }
   // Checks if the player should see the league links
   if (league) {
-    pages.push({ name: "Standings", link: `/${league}` });
-    pages.push({ name: "Squad", link: `/${league}/squad` });
-    pages.push({ name: "Transfers", link: `/${league}/transfer` });
+    pages.push({ name: t("Standings"), link: `/${league}` });
+    pages.push({ name: t("Squad"), link: `/${league}/squad` });
+    pages.push({ name: t("Transfers"), link: `/${league}/transfer` });
   }
   return (
     <>
@@ -75,7 +77,6 @@ const Layout = ({ league }: MainInterface) => {
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Icon>sports_soccer</Icon>
-
           <Box sx={{ flexGrow: 1, display: { sm: "flex", md: "none" } }}>
             <IconButton
               size="large"
