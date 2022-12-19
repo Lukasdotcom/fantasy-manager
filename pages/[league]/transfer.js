@@ -1,7 +1,7 @@
 import Menu from "../../components/Menu";
 import redirect from "../../Modules/league";
 import Head from "next/head";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { TransferPlayer as Player } from "../../components/Player";
 import { push } from "@socialgouv/matomo-next";
 import { SessionProvider, useSession } from "next-auth/react";
@@ -23,24 +23,29 @@ import {
   TextField,
 } from "@mui/material";
 import { Box } from "@mui/system";
+import { TranslateContext } from "../../Modules/context";
 
 // Shows the amount of transfers left
 function TransfersLeft({ ownership, allowedTransfers, transferCount }) {
   const session = useSession();
+  const t = useContext(TranslateContext);
   const user = session.data ? session.data.user.id : 1;
   return (
     <p>
-      {Object.values(ownership).filter(
-        (e) => e.filter((e) => e.owner === user).length > 0
-      ).length == 0
-        ? "Unlimited"
-        : allowedTransfers - transferCount}{" "}
-      transfers left
+      {t("{amount} transfers left", {
+        amount:
+          Object.values(ownership).filter(
+            (e) => e.filter((e) => e.owner === user).length > 0
+          ).length == 0
+            ? t("Unlimited")
+            : allowedTransfers - transferCount,
+      })}
     </p>
   );
 }
 // Used for the selecting and unselecting of a position
 function Postion({ position, positions, setPositions }) {
+  const t = useContext(TranslateContext);
   return (
     <>
       <FormControlLabel
@@ -54,7 +59,7 @@ function Postion({ position, positions, setPositions }) {
             }}
           />
         }
-        label={position}
+        label={t(position)}
       />
     </>
   );
@@ -83,6 +88,7 @@ function MainPage({
   const [open, setOpen] = useState(true);
   const [clubSearch, setClubSearch] = useState("");
   const [price, setPrice] = useState([0, Math.ceil(maxPrice / 500000) / 2]);
+  const t = useContext(TranslateContext);
   useEffect(() => {
     search(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,9 +117,13 @@ function MainPage({
   // Used to calculate transfer message
   let transferMessage = (
     <p>
-      Transfer Market {open ? "Open" : "Closed"} for{" "}
-      {Math.floor(timeLeft / 3600 / 24)} D {Math.floor(timeLeft / 3600) % 24} H{" "}
-      {Math.floor(timeLeft / 60) % 60} M {timeLeft % 60} S
+      {t("Transfer Market {open} for {day} D {hour} H {minute} M {second} S", {
+        open: open ? t("open") : t("closed"),
+        day: Math.floor(timeLeft / 3600 / 24),
+        hour: Math.floor(timeLeft / 3600) % 24,
+        minute: Math.floor(timeLeft / 60) % 60,
+        second: timeLeft % 60,
+      })}
     </p>
   );
   useEffect(transferData, [league]);
@@ -186,10 +196,10 @@ function MainPage({
       }}
     >
       <Head>
-        <title>{`Transfers for ` + leagueName}</title>
+        <title>{t("Transfers for {leagueName}", { leagueName })}</title>
       </Head>
       <Menu league={league} />
-      <h1>Transfers for {leagueName}</h1>
+      <h1>{t("Transfers for {leagueName}", { leagueName })}</h1>
       <SessionProvider>
         <TransfersLeft
           ownership={ownership}
@@ -197,7 +207,7 @@ function MainPage({
           transferCount={transferCount}
         />
       </SessionProvider>
-      <p>Money left: {money / 1000000}M</p>
+      <p>{t("Money left: {amount} M", { amount: money / 1000000 })}</p>
       {transferMessage}
       <TextField
         onChange={(val) => {
@@ -213,13 +223,16 @@ function MainPage({
         }}
         value={clubSearch}
         id="searchClub"
-        label="Search Club"
-        helperText="Use the acronymn ex: FCB, VFB"
+        label={t("Search Club")}
+        helperText={t("Use the acronymn ex: FCB, VFB")}
       ></TextField>
       <br />
       <Box sx={{ width: 300, marginLeft: 2 }}>
         <FormLabel htmlFor="value">
-          Value: {price[0]}M to {price[1]}M
+          {t("Value: {price1} M to {price2} M", {
+            price1: price[0],
+            price2: price[1],
+          })}
         </FormLabel>
         <Slider
           step={0.5}
@@ -230,24 +243,25 @@ function MainPage({
         />
       </Box>
       <br></br>
-      <FormLabel htmlFor="order">Search Order: </FormLabel>
+      <FormLabel htmlFor="order">{t("Sort players by: ")}</FormLabel>
       <Select
         value={orderBy}
         onChange={(val) => setOrderBy(val.target.value)}
         id="order"
       >
-        {["value", "total_points", "average_points", "last_match"].map(
-          (val) => (
-            <MenuItem key={val} value={val}>
-              {val}
-            </MenuItem>
-          )
-        )}
+        {[
+          ["value", "Value"],
+          ["total_points", "Total Points"],
+          ["average_points", "Average Points"],
+          ["last_match", "Last Match"],
+        ].map((val) => (
+          <MenuItem key={val[0]} value={val[0]}>
+            {t(val[1])}
+          </MenuItem>
+        ))}
       </Select>
       <br></br>
-      <FormLabel component="legend">
-        Positions to Search(Uncheck to filter out)
-      </FormLabel>
+      <FormLabel component="legend">{t("Positions to search: ")}</FormLabel>
       <FormGroup>
         {positionList.map((position) => (
           <Postion
@@ -268,17 +282,11 @@ function MainPage({
             checked={showHidden}
           />
         }
-        label="Show Hidden Players"
+        label={t("Show hidden players")}
       />
-      <p>
-        Yellow background means attendance unknown, red background that the
-        player is not attending, and purple that the player will not earn points
-        anytime soon also known as a hidden player(Sell these players). You can
-        click on the player name for more detailed info and historical
-        information.
-      </p>
+      <br />
       <Link href="/download">
-        <Button>Download Player Data</Button>
+        <Button>{t("Download Data")}</Button>
       </Link>
       <SessionProvider>
         {players.map((val) => (
@@ -303,18 +311,23 @@ function MainPage({
   );
 }
 export default function Home(props) {
+  const t = useContext(TranslateContext);
   // Checks if the league is archived
   if (props.archived !== 0) {
     return (
       <>
         <Head>
-          <title>{`Transfers for ` + props.leagueName}</title>
+          <title>
+            {t("Transfers for {leagueName}", { leagueName: props.leagueName })}
+          </title>
         </Head>
         <Menu league={props.league} />
-        <h1>Transfers for {props.leagueName}</h1>
+        <h1>
+          {t("Transfers for {leagueName}", { leagueName: props.leagueName })}
+        </h1>
         <Alert severity={"warning"} className="notification">
-          <AlertTitle>This League is Archived</AlertTitle>
-          <p>This league is archived and this screen is disabled</p>
+          <AlertTitle>{t("This league is archived")}</AlertTitle>
+          <p>{t("This league is archived and this screen is disabled. ")}</p>
         </Alert>
       </>
     );

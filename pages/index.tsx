@@ -9,10 +9,12 @@ import {
   useTheme,
   Box,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import version from "./../package.json";
 import Link from "../components/Link";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
+import getLocales from "../locales/getLocales";
+import { TranslateContext } from "../Modules/context";
 interface InnerUpdateType {
   type: AlertColor;
   title: string;
@@ -107,87 +109,81 @@ export default function Home({
   update,
 }: // For some reason the inference does not work here
 InferGetStaticPropsType<typeof getStaticProps>) {
+  const t = useContext(TranslateContext);
   return (
     <>
       <Head>
-        <title>Fantasy Manager</title>
+        <title>{t("Open Source Fantasy Manager")}</title>
       </Head>
       <Menu />
-      <h1>Open Source Fantasy Manager</h1>
+      <h1>{t("Open Source Fantasy Manager")}</h1>
       <p>
-        A modern open source Fantasy Manager. The source code is available on{" "}
+        {t("A modern open source Fantasy Manager. ")}
         <Link
           href="https://github.com/Lukasdotcom/fantasy-manager"
           rel="noopener noreferrer"
           target="_blank"
         >
-          github.
+          {t("The source code is available on Github. ")}
         </Link>
-        The goal of this is to be the best place to play a fantasy manager with
-        your friends. The rules are located in the rules tab in the menu. To
-        play you must have an account which is free to do in the log in button
-        in the top right of the screen.
+        {t(
+          "The goal of this site is to be the best place to play a Fantasy Manager with your friends and family. "
+        )}
+        {t(
+          "To play you must have an account which is free to do in the log in button in the top right of the screen. "
+        )}
       </p>
-      <h2>Feature</h2>
+      <h2>{t("Features")}</h2>
       <ol>
-        <li> Completely free and open source.</li>
-        <li>Many different leagues to use(Bundesliga, EPL, etc).</li>
-        <li>Unlimited users and unlimited leagues.</li>
-        <li>Customize starting money.</li>
-        <li>Customize starred player bonus.</li>
+        <li>{t("Completely free and open source. ")}</li>
+        <li>{t("Many different leagues to use(Bundesliga, EPL, etc). ")}</li>
+        <li>{t("Unlimited users and unlimited leagues for every user. ")}</li>
+        <li>{t("Customize starting money. ")}</li>
+        <li>{t("Customize starred player bonus. ")}</li>
+        <li>{t("Limit transfer amount. ")}</li>
         <li>
-          Limit transfer amount(Note all users are allowed unlimited transfers
-          while they have an empty squad).
+          {t(
+            "Ability to allow players to be bought by multiple users in the same league. "
+          )}
         </li>
+        <li>{t("Ranking tables for matchday points and total points. ")}</li>
         <li>
-          Ability to allow players to be bought by multiple users in the same
-          league.
+          {t(
+            "Many ways to search through players including price, points, position, club, name, etc. "
+          )}
         </li>
-        <li>Ranking tables for(Only in leagues):</li>
-        <ol>
-          <li>Top points for every matchday</li>
-          <li>Top points in total</li>
-        </ol>
-        <li>Many ways to search through players:</li>
-        <ol>
-          <li>By price.</li>
-          <li>By total points.</li>
-          <li>By average points.</li>
-          <li>
-            By the last match points(Requires the server to have been up for the
-            last match day).
-          </li>
-          <li>By Club.</li>
-          <li>By Name.</li>
-          <li>By Position.</li>
-        </ol>
-        <li>Download player data as json or csv</li>
-        <li>See all historical player data(As long as the server was up).</li>
-        <li>See historical squads for every league.</li>
+        <li>{t("Download historical player data as json or csv. ")}</li>
         <li>
-          And all of these features in a Modern Responsive UI available in a
-          light and dark theme.
+          {t(
+            "View historical data for a player and what leagues player played in. "
+          )}
+        </li>
+        <li>{t("See historical squads for every league. ")}</li>
+        <li>
+          {t(
+            "And all of these features in a Modern Responsive UI available in a light and dark theme and multiple languages. "
+          )}
         </li>
       </ol>
-      <h2>Community</h2>
-      You can go to the{" "}
+      <h2>{t("Community")}</h2>
       <Link
         href="https://github.com/Lukasdotcom/fantasy-manager/discussions"
         rel="noopener noreferrer"
         target="_blank"
       >
-        github discussions
+        {t(
+          "You can go to the Github Discussions to ask questions or find leagues to join. "
+        )}
       </Link>{" "}
-      to ask questions or find leagues to join.
-      <h2>Screenshots</h2>
+      <h2>{t("Screenshots")}</h2>
       <Carrousel />
       {update.type && (
         <Alert severity={update.type} className="notification">
-          <AlertTitle>{update.title}</AlertTitle>
-          {update.link === undefined && <p>{update.text}</p>}
+          <AlertTitle>{t(update.title)}</AlertTitle>
+          {update.link === undefined && <p>{t(update.text)}</p>}
           {update.link && (
             <Link href={update.link} rel="noopener noreferrer">
-              {update.text}
+              {t(update.text)}
             </Link>
           )}
         </Alert>
@@ -195,7 +191,7 @@ InferGetStaticPropsType<typeof getStaticProps>) {
     </>
   );
 }
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async (context) => {
   let update: UpdateType = {};
   // Checks if this is running in a non production setup
   if (process.env.APP_ENV === "development" || process.env.APP_ENV === "test") {
@@ -215,7 +211,7 @@ export const getStaticProps: GetStaticProps = async () => {
       "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/stable/package.json"
     ).then((res) => (res.ok ? res.json() : undefined));
     if (!data) {
-      console.log("Failed to get version data from github.");
+      console.log("Failed to get version data from Github.");
       update = {
         type: "error",
         title: "Failure",
@@ -232,7 +228,7 @@ export const getStaticProps: GetStaticProps = async () => {
     }
   }
   return {
-    props: { update },
+    props: { update, t: await getLocales(context.locale) },
     // Checks at max every day
     revalidate: 3600 * 24,
   };

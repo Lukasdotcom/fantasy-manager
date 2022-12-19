@@ -139,8 +139,8 @@ export default async function handler(req, res) {
                   [JSON.stringify(formation), league, user]
                 );
               })
-              .catch((val) => {
-                res.status(500).end(val.replace(/[^A-Za-z0-9 ]/g, ""));
+              .catch(() => {
+                res.status(500).end("Not enough spots");
               });
           } else {
             res.status(500).end("Invalid formation");
@@ -200,7 +200,7 @@ export default async function handler(req, res) {
                       );
                       resolve();
                     } else {
-                      rej("Player already played");
+                      rej("Player has already played");
                     }
                   } else {
                     rej("Player is not in the field");
@@ -243,7 +243,7 @@ export default async function handler(req, res) {
                         [e]
                       );
                       if (locked[0].locked) {
-                        reject(`${e} is locked`);
+                        reject(`Player is locked`);
                       } else {
                         const playerposition = locked[0].position;
                         // Gets the amount of players on that position
@@ -316,7 +316,7 @@ export default async function handler(req, res) {
                       resolve();
                     }
                   } else {
-                    reject(`${e} is not your player`);
+                    reject(`Player is not your player`);
                   }
                 })
             )
@@ -328,7 +328,7 @@ export default async function handler(req, res) {
         calcPoints(league);
         // If no errors happened gives a succesful result
         if (res.statusMessage === undefined)
-          res.status(200).end("Succesfully did commands");
+          res.status(200).end("Successfully did commands");
         break;
       default:
         res.status(405).end(`Method ${req.method} Not Allowed`);
