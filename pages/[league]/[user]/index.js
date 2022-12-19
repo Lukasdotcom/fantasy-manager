@@ -5,6 +5,8 @@ import redirect from "../../../Modules/league";
 import { Player, HistoricalPlayer } from "../../../components/Player";
 import { useRouter } from "next/router";
 import { FormLabel, Pagination, PaginationItem } from "@mui/material";
+import { useContext } from "react";
+import { TranslateContext } from "../../../Modules/context";
 export default function HistoricalView({
   user,
   username,
@@ -20,24 +22,37 @@ export default function HistoricalView({
   leagueType,
 }) {
   const router = useRouter();
+  const t = useContext(TranslateContext);
   return (
     <>
       <Head>
         <title>
-          {`${username}'s Squad  
-          ${currentMatchday === 0 ? "" : `on Matchday ${currentMatchday} `}
-          from ${leagueName}`}
+          {t("{username}'s squad {matchday} from {leagueName}", {
+            username,
+            matchday:
+              currentMatchday === 0
+                ? ""
+                : t("on matchday {currentMatchday}", { currentMatchday }),
+            leagueName,
+          })}
         </title>
       </Head>
       <Menu league={league} />
       <h1>
-        {username}&apos;s Squad{" "}
-        {currentMatchday === 0 ? "" : `on Matchday ${currentMatchday} `}
-        from {leagueName}
+        {t("{username}'s squad {matchday} from {leagueName}", {
+          username,
+          matchday:
+            currentMatchday === 0
+              ? ""
+              : t("on matchday {currentMatchday}", { currentMatchday }),
+          leagueName,
+        })}
       </h1>
-      <p>Money: {money / 1000000}M</p>
-      {value && <p>Team Value(Including Money): {value / 1000000}M</p>}
-      <FormLabel id="matchdayLabel">Select Matchday</FormLabel>
+      <p>{t("Money left: {amount} M", { amount: money / 1000000 })}</p>
+      {value && (
+        <p>{t("Team value: {teamValue} M", { teamValue: value / 1000000 })}</p>
+      )}
+      <FormLabel id="matchdayLabel">{t("Select matchday")}</FormLabel>
       <Pagination
         page={
           currentMatchday == 0 ? latestMatchday + 1 : parseInt(currentMatchday)
@@ -49,11 +64,11 @@ export default function HistoricalView({
           );
         }}
         renderItem={(item) => {
-          if (item.page > latestMatchday) item.page = "Latest";
+          if (item.page > latestMatchday) item.page = t("Latest");
           return <PaginationItem {...item} />;
         }}
       ></Pagination>
-      <h2>Attackers</h2>
+      <h2>{t("Attackers")}</h2>
       {squad
         .filter((e) => e.position === "att")
         .map((e) => {
@@ -76,7 +91,7 @@ export default function HistoricalView({
             />
           );
         })}
-      <h2>Midfielders</h2>
+      <h2>{t("Midfielders")}</h2>
       {squad
         .filter((e) => e.position === "mid")
         .map((e) => {
@@ -99,7 +114,7 @@ export default function HistoricalView({
             />
           );
         })}
-      <h2>Defenders</h2>
+      <h2>{t("Defenders")}</h2>
       {squad
         .filter((e) => e.position === "def")
         .map((e) => {
@@ -122,7 +137,7 @@ export default function HistoricalView({
             />
           );
         })}
-      <h2>Goalkeeper</h2>
+      <h2>{t("Goalkeeper")}</h2>
       {squad
         .filter((e) => e.position === "gk")
         .map((e) => {
@@ -143,7 +158,7 @@ export default function HistoricalView({
             />
           );
         })}
-      <h2>Bench</h2>
+      <h2>{t("Bench")}</h2>
       {squad
         .filter((e) => e.position === "bench")
         .map((e) => {
@@ -164,8 +179,8 @@ export default function HistoricalView({
             />
           );
         })}
-      <h1>Transfers</h1>
-      <h2>Buying</h2>
+      <h1>{t("Transfers")}</h1>
+      <h2>{t("Buying")}</h2>
       {transfers
         .filter((e) => e.buyer == user)
         .map((e) => {
@@ -176,7 +191,9 @@ export default function HistoricalView({
                 uid={e.playeruid}
                 leagueType={leagueType}
               >
-                <p>Buying for {e.value / 1000000}M</p>
+                <p>
+                  {t("Buying for {amount} M", { amount: e.value / 1000000 })}
+                </p>
               </Player>
             );
           return (
@@ -186,11 +203,11 @@ export default function HistoricalView({
               time={time}
               leagueType={leagueType}
             >
-              <p>Bought for {e.value / 1000000}M</p>
+              <p>{t("Bought for {amount} M", { amount: e.value / 1000000 })}</p>
             </HistoricalPlayer>
           );
         })}
-      <h2>Selling</h2>
+      <h2>{t("Selling")}</h2>
       {transfers
         .filter((e) => e.seller == user)
         .map((e) => {
@@ -201,7 +218,9 @@ export default function HistoricalView({
                 uid={e.playeruid}
                 leagueType={leagueType}
               >
-                <p>Selling for {e.value / 1000000}M</p>
+                <p>
+                  {t("Selling for {amount} M", { amount: e.value / 1000000 })}
+                </p>
               </Player>
             );
           return (
@@ -211,7 +230,7 @@ export default function HistoricalView({
               uid={e.playeruid}
               time={time}
             >
-              <p>Sold for {e.value / 1000000}M</p>
+              <p>{t("Sold for {amount} M", { amount: e.value / 1000000 })}</p>
             </HistoricalPlayer>
           );
         })}

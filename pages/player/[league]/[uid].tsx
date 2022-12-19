@@ -9,7 +9,7 @@ import connect, {
   players,
 } from "../../../Modules/database";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   Button,
   LinearProgress,
@@ -25,6 +25,8 @@ import {
 } from "@mui/material";
 import { result as apiPlayerResult } from "../../api/player/[leagueType]/[uid]";
 import { getLeaguePicWidth } from "../../../components/Player";
+import { TranslateContext } from "../../../Modules/context";
+import getLocales from "../../../locales/getLocales";
 interface extendedPlayers extends players {
   game: {
     opponent: string;
@@ -52,41 +54,6 @@ interface Column {
   label: string;
   format: (value: any) => string;
 }
-// An array of all the columns
-const columns: Column[] = [
-  {
-    id: "time",
-    label: "Time",
-    format: (value: number) => {
-      const date = new Date(value * 1000);
-      return value === 0 ? "Now" : date.toDateString();
-    },
-  },
-  {
-    id: "value",
-    label: "Value",
-    format: (value: number) => `${value / 1000000}M`,
-  },
-  {
-    id: "last_match",
-    label: "Last Match Points",
-    format: (value: number) => String(value),
-  },
-  {
-    id: "average_points",
-    label: "Average Points",
-    format: (value: number) => String(value),
-  },
-  {
-    id: "total_points",
-    label: "Total Points",
-    format: (value: number) => String(value),
-  },
-  { id: "opponent", label: "Opponent", format: (value: string) => value },
-  { id: "club", label: "Club", format: (value: string) => value },
-  { id: "position", label: "Position", format: (value: string) => value },
-];
-
 interface Data {
   time: number;
   value: number;
@@ -108,6 +75,41 @@ export default function Home({
   otherLeagues,
   pictures,
 }: props) {
+  const t = useContext(TranslateContext);
+  // An array of all the columns
+  const columns: Column[] = [
+    {
+      id: "time",
+      label: "Time",
+      format: (value: number) => {
+        const date = new Date(value * 1000);
+        return value === 0 ? t("Now") : t("{date}", { date });
+      },
+    },
+    {
+      id: "value",
+      label: "Value",
+      format: (value: number) => t("{amount} M", { amount: value / 1000000 }),
+    },
+    {
+      id: "last_match",
+      label: "Last Match Points",
+      format: (value: number) => t("{value}", { value }),
+    },
+    {
+      id: "average_points",
+      label: "Average Points",
+      format: (value: number) => t("{value}", { value }),
+    },
+    {
+      id: "total_points",
+      label: "Total Points",
+      format: (value: number) => t("{value}", { value }),
+    },
+    { id: "opponent", label: "Opponent", format: (value: string) => value },
+    { id: "club", label: "Club", format: (value: string) => value },
+    { id: "position", label: "Position", format: (value: string) => t(value) },
+  ];
   // Stores the amount of time left until the game starts
   const [countdown, setCountown] = useState<number>(
     (player.game.gameStart - Date.now() / 1000) / 60
@@ -216,7 +218,7 @@ export default function Home({
       </Head>
       <Menu />
       <h1>
-        {player.name} ({player.position}) - {player.club}
+        {player.name} ({t(player.position)}) - {player.club}
       </h1>
       <Image
         src={player.pictureUrl}
@@ -227,10 +229,10 @@ export default function Home({
       <Dialog
         onClose={handleDialogToggle}
         open={dialogVisible}
-        title="Historical Pictures"
+        title={t("Historical Pictures")}
       >
         <>
-          <p>The newest pictures are on the top.</p>
+          <p>{t("The newest pictures are on the top. ")}</p>
           {pictures.map((e) => (
             <div key={e}>
               <Image
@@ -245,50 +247,56 @@ export default function Home({
       </Dialog>
       <br></br>
       <Button variant={"outlined"} onClick={handleDialogToggle}>
-        Show Historical Pictures
+        {t("Historical Pictures")}
       </Button>
-      <h2>Current Player Info</h2>
-      <p>League: {league}</p>
-      <p>Value : {player.value / 1000000}M</p>
-      <p>Total Points(This season) : {player.total_points}</p>
-      <p>Average Points(This season) : {player.average_points}</p>
-      <p>Last Match : {player.last_match}</p>
+      <h2>{t("Current Player Info")}</h2>
       <p>
-        Opponent : {player.game.opponent}{" "}
+        {t("League")} : {league}
+      </p>
+      <p>
+        {t("Value")} : {player.value / 1000000}M
+      </p>
+      <p>
+        {t("Total Points")} : {player.total_points}
+      </p>
+      <p>
+        {t("Average Points")} : {player.average_points}
+      </p>
+      <p>
+        {t("Last Match")} : {player.last_match}
+      </p>
+      <p>
+        {t("Opponent")} :{" "}
         {countdown > 0
-          ? ` in ${Math.floor(countdown / 60 / 24)} D ${
-              Math.floor(countdown / 60) % 24
-            } H ${Math.floor(countdown) % 60} M`
-          : ""}
+          ? t("{team} in {day} D {hour} H {minute} M ", {
+              team: player.game.opponent,
+              day: String(Math.floor(countdown / 60 / 24)),
+              hour: String(Math.floor(countdown / 60) % 24),
+              minute: String(Math.floor(countdown) % 60),
+            })
+          : player.game.opponent}
       </p>
       {otherLeagues.length > 0 && (
         <>
-          <h2>Other Leagues</h2>
-          <p>This player was found in some other leagues:</p>
+          <h2>{t("Other Leagues")}</h2>
+          <p>{t("This player was found in the leagues listed below. ")}</p>
           <ul>
             {otherLeagues.map((e) => (
               <li key={e.league}>
-                <Link href={`/player/${e.league}/${e.uid}`}>{e.league}</Link>
+                <Link href={`/player/${e.league}/${e.uid}`}>{t(e.league)}</Link>
               </li>
             ))}
           </ul>
         </>
       )}
-      <h2>Historical Data Table</h2>
-      <p>
-        All the ones with a purple background mean the player was not in the
-        league during these matchdays. Red background means that they were
-        missing and yellow that attendence was unknown(This data is what was
-        known just before the game started). Note: That that historical forecast
-        and historical opponents only exist since version 1.9.1.
-      </p>
+      <h2>{t("Historical Data Table")}</h2>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
-                  <TableCell key={column.id}>{column.label}</TableCell>
+                  <TableCell key={column.id}>{t(column.label)}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
@@ -306,7 +314,7 @@ export default function Home({
                         key={String(row.time)}
                       >
                         <TableCell colSpan={7}>
-                          Loading...
+                          {t("Loading")}
                           <LinearProgress />
                         </TableCell>
                       </TableRow>
@@ -445,6 +453,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       league,
       otherLeagues,
       pictures: Array.from(pictures),
+      t: await getLocales(ctx.locale),
     },
   };
 };

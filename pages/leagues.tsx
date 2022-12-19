@@ -19,7 +19,7 @@ import {
   MenuItem,
   InputLabel,
 } from "@mui/material";
-import { NotifyContext } from "../Modules/context";
+import { NotifyContext, TranslateContext } from "../Modules/context";
 import {
   GetServerSideProps,
   GetServerSidePropsContext,
@@ -32,15 +32,16 @@ interface MakeLeagueProps {
 }
 // Used to create a new League
 function MakeLeague({ getLeagueData, leagues }: MakeLeagueProps) {
+  const t = useContext(TranslateContext);
   const notify = useContext(NotifyContext);
   const [leagueType, setLeagueType] = useState<string>(leagues[0]);
   const [leagueName, setLeagueName] = useState("");
   const [startingMoney, setStartingMoney] = useState(150);
   return (
     <>
-      <h2>Create League</h2>
+      <h2>{t("Create League")}</h2>
       <TextField
-        label="Starting Money"
+        label={t("Starting Money")}
         type="number"
         id="startingMoney"
         variant="outlined"
@@ -52,7 +53,7 @@ function MakeLeague({ getLeagueData, leagues }: MakeLeagueProps) {
       />
       <br></br>
       <TextField
-        label="League Name"
+        label={t("League name")}
         id="name"
         variant="outlined"
         size="small"
@@ -62,15 +63,15 @@ function MakeLeague({ getLeagueData, leagues }: MakeLeagueProps) {
         value={leagueName}
       />
       <InputLabel htmlFor="leagueType">
-        Which league(League support levels are described{" "}
+        {t("League")}(
         <Link
           href="https://github.com/Lukasdotcom/fantasy-manager/blob/main/leagues.md"
           rel="noopener noreferrer"
           target="_blank"
         >
-          here
+          {t("League support levels are described here")}
         </Link>
-        ):{" "}
+        )
       </InputLabel>
       <Select
         value={leagueType}
@@ -79,7 +80,7 @@ function MakeLeague({ getLeagueData, leagues }: MakeLeagueProps) {
       >
         {leagues.map((val) => (
           <MenuItem key={val} value={val}>
-            {val}
+            {t(val)}
           </MenuItem>
         ))}
       </Select>
@@ -101,11 +102,11 @@ function MakeLeague({ getLeagueData, leagues }: MakeLeagueProps) {
               leagueType,
             }),
           });
-          notify(await response.text(), response.ok ? "success" : "error");
+          notify(t(await response.text()), response.ok ? "success" : "error");
           getLeagueData();
         }}
       >
-        Create League
+        {t("Create League")}
       </Button>
     </>
   );
@@ -147,6 +148,7 @@ function LeaveLeague({
     notify(await response.text(), response.ok ? "success" : "error");
     getLeagueData();
   }
+  const t = useContext(TranslateContext);
   return (
     <>
       <Button
@@ -156,7 +158,7 @@ function LeaveLeague({
         id={String(leagueID)}
         onClick={handleOpen}
       >
-        Leave League
+        {t("Leave league")}
       </Button>
       <Dialog
         open={open}
@@ -165,19 +167,20 @@ function LeaveLeague({
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          <Icon color="warning">warning</Icon>
-          {" Are you sure you want to leave?"}
+          <Icon color="warning">warning</Icon>{" "}
+          {t("Are you sure you want to leave?")}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Leaving a league <b>will permanently delete</b> all the data that
-            you generated in the league. Please confirm that you want to do this
-            by typing the name of the league in the box below. The name is:
+            {t(
+              "Leaving a league will permanently delete all the data that you generated in the league. Please confirm that you want to do this by typing the name of the league in the box below. "
+            )}
+            {t("The name of the league is:")}
             <b>{leagueName}</b>.
           </DialogContentText>
           <TextField
             error={leagueName !== confirmation}
-            label="Enter league name here"
+            label={t("Enter league name here")}
             variant="standard"
             margin="dense"
             fullWidth
@@ -196,7 +199,7 @@ function LeaveLeague({
             color="error"
             autoFocus
           >
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button
             onClick={deleteLeague}
@@ -204,7 +207,7 @@ function LeaveLeague({
             color="error"
             disabled={leagueName !== confirmation}
           >
-            Leave League
+            {t("Leave league")}
           </Button>
         </DialogActions>
       </Dialog>
@@ -217,6 +220,7 @@ interface LeaguesProps {
 // Used to list all the leagues you are part of and to add a league
 function Leagues({ leagues }: LeaguesProps) {
   const notify = useContext(NotifyContext);
+  const t = useContext(TranslateContext);
   const { data: session } = useSession();
   const [leagueList, setLeagueList] = useState<LeagueListResult>({
     leagues: [],
@@ -255,7 +259,7 @@ function Leagues({ leagues }: LeaguesProps) {
     if (val) {
       leagueID = val.leagueID;
     }
-    notify("Updaing Favorite");
+    notify(t("Updaing Favorite"));
     const response = await fetch("/api/user", {
       method: "POST",
       headers: {
@@ -265,91 +269,95 @@ function Leagues({ leagues }: LeaguesProps) {
         favorite: leagueID === 0 ? "none" : leagueID,
       }),
     });
-    notify(await response.text(), response.ok ? "success" : "error");
+    notify(t(await response.text()), response.ok ? "success" : "error");
     setFavoriteLeague(val);
   }
-  if (session) {
-    return (
-      <>
-        <h1>Leagues</h1>
-        <p>
-          Your favorited league will be available in the menu when you are not
-          in a league. Note that the menu only updates on a page navigation or
-          reload.
-        </p>
-        {favoriteLeague && (
-          <p>Your favorite league is: {favoriteLeague.leagueName}.</p>
+  return (
+    <>
+      <Head>
+        <title>{t("Leagues")}</title>
+      </Head>
+      <h1>{t("Leagues")}</h1>
+      <p>
+        {t(
+          "Your favorited league will be available in the menu when you are not in a league. Note that the menu only updates on a page navigation or reload. "
         )}
-        {!favoriteLeague && <p>You have no favorite league.</p>}
-        {leagueList.leagues.map((val) => (
-          // Makes a link for every league
-          <div key={val.leagueID}>
-            <strong>{val.leagueName}</strong>
-            <Link href={`/${val.leagueID}`}>
-              <Button style={{ margin: "5px" }} variant="outlined">
-                Open League
-              </Button>
-            </Link>
-            <LeaveLeague
-              leagueName={val.leagueName}
-              leagueID={val.leagueID}
-              getLeagueData={getLeagueData}
-            />
-            <IconButton
-              style={{ margin: "5px" }}
-              color="secondary"
-              onClick={() => updateFavorite(val)}
-            >
-              <Icon>
-                {favoriteLeague && favoriteLeague.leagueID === val.leagueID
-                  ? "star"
-                  : "star_outline"}
-              </Icon>
-            </IconButton>
-          </div>
-        ))}
-        <Button
-          color="error"
-          variant="outlined"
-          onClick={() => updateFavorite(undefined)}
-        >
-          Clear Favorite League<Icon>delete</Icon>
-        </Button>
-        <MakeLeague getLeagueData={getLeagueData} leagues={leagues} />
-        <h1>Archived Leagues</h1>
+      </p>
+      {favoriteLeague && (
         <p>
-          These are leagues that can be viewed but you can not do anything in.
+          {t("Your favorite league is: {league}", {
+            league: favoriteLeague.leagueName,
+          })}
+          .
         </p>
-        {leagueList.archived.map((val) => (
-          // Makes a link for every league
-          <div key={val.leagueID}>
-            <strong>{val.leagueName}</strong>
-            <Link href={`/${val.leagueID}`}>
-              <Button style={{ margin: "5px" }} variant="outlined">
-                Open League
-              </Button>
-            </Link>
-            <LeaveLeague
-              leagueName={val.leagueName}
-              leagueID={val.leagueID}
-              getLeagueData={getLeagueData}
-            />
-          </div>
-        ))}
-      </>
-    );
-  } else {
-    return <p>You shouldn&apos;t be here. Log in please.</p>;
-  }
+      )}
+      {!favoriteLeague && <p>{t("You have no favorite league. ")}</p>}
+      {leagueList.leagues.map((val) => (
+        // Makes a link for every league
+        <div key={val.leagueID}>
+          <strong>{val.leagueName}</strong>
+          <Link href={`/${val.leagueID}`}>
+            <Button style={{ margin: "5px" }} variant="outlined">
+              {t("Open league")}
+            </Button>
+          </Link>
+          <LeaveLeague
+            leagueName={val.leagueName}
+            leagueID={val.leagueID}
+            getLeagueData={getLeagueData}
+          />
+          <IconButton
+            style={{ margin: "5px" }}
+            color="secondary"
+            onClick={() => updateFavorite(val)}
+          >
+            <Icon>
+              {favoriteLeague && favoriteLeague.leagueID === val.leagueID
+                ? "star"
+                : "star_outline"}
+            </Icon>
+          </IconButton>
+        </div>
+      ))}
+      <Button
+        color="error"
+        variant="outlined"
+        onClick={() => updateFavorite(undefined)}
+      >
+        {t("Clear favorite league")}
+        <Icon>delete</Icon>
+      </Button>
+      <MakeLeague getLeagueData={getLeagueData} leagues={leagues} />
+      <h1>{t("Archived Leagues")}</h1>
+      <p>
+        {t(
+          "These are leagues that can be viewed but you can not do anything in. "
+        )}
+      </p>
+      {leagueList.archived.map((val) => (
+        // Makes a link for every league
+        <div key={val.leagueID}>
+          <strong>{val.leagueName}</strong>
+          <Link href={`/${val.leagueID}`}>
+            <Button style={{ margin: "5px" }} variant="outlined">
+              {t("Open league")}
+            </Button>
+          </Link>
+          <LeaveLeague
+            leagueName={val.leagueName}
+            leagueID={val.leagueID}
+            getLeagueData={getLeagueData}
+          />
+        </div>
+      ))}
+    </>
+  );
 }
 export default function Home({
   leagues,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
-      <Head>
-        <title>Leagues</title>
-      </Head>
       <Menu />
       <SessionProvider>
         <Leagues leagues={leagues} />
