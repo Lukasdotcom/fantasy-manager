@@ -16,7 +16,7 @@ export default async function handler(req, res) {
       // Used to edit a league
       case "POST":
         if (await isArchived) {
-          res.status(400).end("League is archived");
+          res.status(400).end("This League is archived");
           break;
         }
         // Checks if the user is qualified to do this
@@ -78,9 +78,9 @@ export default async function handler(req, res) {
               );
             }
           }
-          res.status(200).end("Saved Settings");
+          res.status(200).end("Saved settings");
         } else {
-          res.status(401).end("Not admin of this league");
+          res.status(401).end("You are not admin of this league");
         }
         break;
       case "GET": // Returns the league Settings and which users are admins
@@ -105,7 +105,7 @@ export default async function handler(req, res) {
           ]);
           res.status(200).json({ settings, users });
         } else {
-          res.status(401).end("Not admin of this league");
+          res.status(401).end("You are not admin of this league");
         }
         break;
       case "DELETE":

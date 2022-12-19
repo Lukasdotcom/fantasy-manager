@@ -1,20 +1,22 @@
+import { useContext } from "react";
 import Link from "../components/Link";
+import { TranslateContext } from "../Modules/context";
 
 // A paragraph with a link explaining how to report bugs
 export default function BugReport() {
+  const t = useContext(TranslateContext);
   return (
     <>
-      <h2>Reporting Bugs</h2>
+      <h2>{t("Reporting Bugs")}</h2>
       <p>
-        All bugs can be reported on{" "}
         <Link
           href="https://github.com/Lukasdotcom/fantasy-manager/issues/new?assignees=&labels=&template=bug_report.md&title="
           rel="noopener noreferrer"
           target="_blank"
         >
-          Github
+          {t("All bugs can be reported on Github. ")}
         </Link>
-        . These bugs are then fixed as quickly as possible
+        {t("These bugs are then fixed as quickly as possible. ")}
       </p>
     </>
   );

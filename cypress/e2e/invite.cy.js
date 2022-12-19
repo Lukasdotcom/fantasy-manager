@@ -25,7 +25,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#startingMoney").clear().type(200);
     cy.get("#name").type("Sample League");
     cy.get("button").contains("Create League").click();
-    cy.contains("Open League").click();
+    cy.contains("Open league").click();
     cy.contains("Standings for Sample League");
     // Creates an anouncement
     cy.get("#announcementTitle").type("Super Aweosome Anouncement");
@@ -34,9 +34,9 @@ describe("Invite User into league and change some league Settings and run throug
     );
     cy.get(".MuiButton-containedSuccess").click();
     // Creates invites and deletes the randomly generated one
-    cy.contains("Add Invite").click();
+    cy.contains("Add invite").click();
     cy.get("#invite").clear().type("invite1");
-    cy.contains("Add Invite").click();
+    cy.contains("Add invite").click();
     cy.contains("Link: localhost:3000/api/invite/").contains("Delete").click();
     cy.contains("Link: localhost:3000/api/invite/invite1");
     // Changes the default money amount and starred player multiplier
@@ -47,7 +47,7 @@ describe("Invite User into league and change some league Settings and run throug
     // Changes the name and checks if that worked
     cy.get("#leagueName").clear().type("New Sample League");
     cy.contains("Standings for New Sample League");
-    cy.contains("Save Admin Settings").click();
+    cy.contains("Save admin settings").click();
     // Signs into User 2 which will join the league through the invite
     cy.get("#logout").click();
     // Checks invalid invite
@@ -69,7 +69,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Very great description for this announcement");
     // Purchases Lewandoski for 25.8 million
     cy.contains("Transfer").click();
-    cy.contains(`Money left: ${user2Money}M`);
+    cy.contains(`Money left: ${user2Money} M`);
     cy.contains("Lewandowski")
       .parent()
       .parent()
@@ -83,13 +83,13 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .parent()
       .parent()
-      .contains("Edit Purchase")
+      .contains("Edit purchase")
       .click();
     cy.get(".MuiTableBody-root > .MuiTableRow-root > :nth-child(3)").contains(
-      "25.8M"
+      "25.8 M"
     );
     cy.get("#close").click();
-    cy.contains(`Money left: ${user2Money}M`);
+    cy.contains(`Money left: ${user2Money} M`);
     // Makes sure the next match indicator is right
     cy.contains("WOB in 0 D 2 H");
     // Switches to user 1
@@ -103,10 +103,10 @@ describe("Invite User into league and change some league Settings and run throug
     // Gives other user admin rights
     cy.get("#admins").click();
     cy.get("#admins-option-1").click();
-    cy.contains("Save Admin Settings").click();
+    cy.contains("Save admin settings").click();
     // Trys to outbid Lewandoski purchase
     cy.contains("Transfer").click();
-    cy.contains(`Money left: ${user1Money}M`);
+    cy.contains(`Money left: ${user1Money} M`);
     cy.contains("Lewandowski")
       .parent()
       .parent()
@@ -116,7 +116,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#amount").clear().type("26");
     user2Money -= 0.2;
     cy.contains("Buy for").click();
-    cy.contains(`Money left: ${user1Money}M`);
+    cy.contains(`Money left: ${user1Money} M`);
     // Then actually outbids
     cy.contains("Lewandowski")
       .parent()
@@ -128,18 +128,18 @@ describe("Invite User into league and change some league Settings and run throug
     user2Money += 26;
     user1Money -= 26.1;
     cy.contains("Buy for").click();
-    cy.contains(`Money left: ${user1Money}M`);
+    cy.contains(`Money left: ${user1Money} M`);
     // Then cancels the transaction
     cy.contains("Lewandowski")
       .parent()
       .parent()
       .parent()
-      .contains("Edit Purchase")
+      .contains("Edit purchase")
       .click();
-    cy.contains("Cancel Purchase").click();
+    cy.contains("Cancel purchase").click();
     user1Money += 25.8;
     user1Money = Math.floor(user1Money * 10) / 10;
-    cy.contains(`Money left: ${user1Money}M`);
+    cy.contains(`Money left: ${user1Money} M`);
     // Then buys the player again
     cy.contains("Lewandowski")
       .parent()
@@ -150,14 +150,14 @@ describe("Invite User into league and change some league Settings and run throug
     user1Money -= 25.8;
     user1Money = Math.ceil(user1Money * 10) / 10;
     cy.contains("Buy for").click();
-    cy.contains(`Money left: ${user1Money}M`);
+    cy.contains(`Money left: ${user1Money} M`);
     cy.contains("Unlimited transfers left");
     cy.contains("Squad").click();
-    cy.contains("Move to Field").click();
+    cy.contains("Move to field").click();
     cy.contains("Star").click();
-    cy.contains("Move to Bench").click();
+    cy.contains("Move to bench").click();
     // Makes sure the player can be moved back to the bench
-    cy.contains("Move to Field").click();
+    cy.contains("Move to field").click();
     cy.contains("Star").click();
     cy.contains("Buying");
     // Switches to user 2
@@ -170,7 +170,7 @@ describe("Invite User into league and change some league Settings and run throug
       });
     // Changes the amount of times a player can be in a squad and buys lewandowski
     cy.get("#duplicatePlayers").clear().type(2);
-    cy.contains("Save Admin Settings").click();
+    cy.contains("Save admin settings").click();
     cy.contains("Transfer").click();
     cy.contains("Unlimited transfers left");
     cy.contains(`Money left: ${user2Money}`);
@@ -199,7 +199,7 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .parent()
       .parent()
-      .contains("View Transfers")
+      .contains("View transfers")
       .click();
     cy.contains("Buy for").should("not.exist");
     cy.get("#close").click();
@@ -222,8 +222,8 @@ describe("Invite User into league and change some league Settings and run throug
     cy.exec("export APP_ENV=test; node cypress/e2e/invite2.js").then(() => {
       cy.contains("Transfers").click();
     });
-    cy.contains("Transfer Market Closed");
-    cy.contains("Transfer Market is Closed");
+    cy.contains("Transfer Market closed");
+    cy.contains("Transfer Market is closed");
     // Looks at the squad and moves some players around
     cy.contains("Squad").click();
     cy.get("#formation").click();
@@ -241,7 +241,7 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .children(".playerButton")
       .children("button")
-      .contains("Position is Full");
+      .contains("Position is full");
     cy.get("#formation").click();
     cy.contains("4-4-2").click();
     cy.contains("Christopher Nkunku")
@@ -250,9 +250,7 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .children(".playerButton")
       .children("button")
-      .contains("Move to Bench");
-    // Makes sure the starred percantage is correct
-    cy.contains("180%");
+      .contains("Move to bench");
     // Moves Haaland to the field and stars him
     cy.intercept("/api/player/Bundesliga/a4e3b74d3b62fbd6376b").as(
       "loadPlayer"
@@ -293,7 +291,7 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .children(".playerButton")
       .children("button")
-      .contains("Move to Bench")
+      .contains("Move to bench")
       .click();
     cy.contains("Standings").click();
     // Checks if the points got updated
@@ -320,7 +318,7 @@ describe("Invite User into league and change some league Settings and run throug
           .parent()
           .children(".playerButton")
           .children("button")
-          .contains("Player has Already Played");
+          .contains("Player has already played");
       });
     matchdays.push({ invite1: user1Money, invite2: user2Money });
     // Starts the transfer period and sells Muller
@@ -350,7 +348,7 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .children(".playerButton")
       .children("button")
-      .contains("Move to Bench")
+      .contains("Move to bench")
       .click();
     cy.contains("Robert Lewandowski");
     cy.get("#showSelling").click();
@@ -364,7 +362,7 @@ describe("Invite User into league and change some league Settings and run throug
         cy.contains("Standings").click();
       });
     cy.get("#duplicatePlayers").clear().type(1);
-    cy.contains("Save Admin Settings").click();
+    cy.contains("Save admin settings").click();
     cy.contains("Squad").click();
     // Checks if this user has Lewandowski still and that he is starred
     cy.get('[alt="starred"]');
@@ -379,7 +377,7 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .children(".playerButton")
       .children("button")
-      .contains("Move to Bench")
+      .contains("Move to bench")
       .click();
     // Makes sure that Lewandowski has changed clubs
     cy.contains("VFB");
@@ -391,7 +389,7 @@ describe("Invite User into league and change some league Settings and run throug
       .parent()
       .children(".playerButton")
       .children("button")
-      .contains("View Transfers");
+      .contains("View transfers");
     cy.contains(`Money left: ${user1Money}`);
     // Sells Lewandowski for outrageous price knowing noone will take it
     cy.contains("Robert Lewandowski")
@@ -411,8 +409,8 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get(
       ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root"
     ).click();
-    cy.contains("Invite 2's Squad from New Sample League");
-    cy.contains(`Money: ${user2Money}M`);
+    cy.contains("Invite 2's squad from New Sample League");
+    cy.contains(`Money left: ${user2Money} M`);
     // Makes sure the team they are playing is correct
     cy.contains("Next").parent().contains("BVB");
     // Looks at the historical data for one of the users
@@ -420,10 +418,10 @@ describe("Invite User into league and change some league Settings and run throug
       "Robert Lewandowski"
     );
     cy.get('[alt="starred"]');
-    cy.get(":nth-child(19) > .playerButton > p").contains("Selling for 25.8M");
+    cy.get(":nth-child(19) > .playerButton > p").contains("Selling for 25.8 M");
     cy.get(".MuiPagination-ul > :nth-child(2) > .MuiButtonBase-root").click();
-    cy.contains("Invite 2's Squad on Matchday 1 from New Sample League");
-    cy.contains(`Money: ${matchdays[0].invite2}M`);
+    cy.contains("Invite 2's squad on matchday 1 from New Sample League");
+    cy.contains(`Money left: ${matchdays[0].invite2} M`);
     cy.contains("Next").should("not.exist");
     cy.get('[alt="starred"]');
     cy.get(':nth-child(9) > [style="width: 70%;"] > :nth-child(1)').contains(
@@ -452,7 +450,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Settings");
     // Has all players leave the league
     cy.contains("Leagues").click();
-    cy.contains("Leave League")
+    cy.contains("Leave league")
       .click()
       .then(() => {
         cy.get(".MuiDialogContent-root > .MuiFormControl-root").type(
@@ -467,12 +465,12 @@ describe("Invite User into league and change some league Settings and run throug
         cy.reload();
       });
     // Archives the league
-    cy.contains("Open League").click();
+    cy.contains("Open league").click();
     cy.get(
       ":nth-child(37) > .MuiButtonBase-root > .PrivateSwitchBase-input"
     ).click();
     cy.get("#confirmation").type("New Sample League");
-    cy.contains("Save Admin Settings").click();
+    cy.contains("Save admin settings").click();
     // Simulates an empty matchday
     cy.exec("export APP_ENV=test; node cypress/e2e/invite5.js");
     // Makes sure that the matchday does not exist
@@ -482,7 +480,7 @@ describe("Invite User into league and change some league Settings and run throug
         .should("not.exist");
     });
     cy.contains("Leagues").click();
-    cy.contains("Leave League")
+    cy.contains("Leave league")
       .click()
       .then(() => {
         cy.get(".MuiDialogContent-root > .MuiFormControl-root").type(
@@ -496,7 +494,7 @@ describe("Invite User into league and change some league Settings and run throug
       .then(() => {
         cy.reload();
       });
-    cy.contains("Leave League").click();
+    cy.contains("Leave league").click();
     cy.get(".MuiDialogContent-root > .MuiFormControl-root").type(
       "New Sample League"
     );

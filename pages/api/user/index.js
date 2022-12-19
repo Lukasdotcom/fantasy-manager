@@ -41,14 +41,14 @@ export default async function handler(req, res) {
             [id]
           );
           console.log(`User ${id} disconnected from ${req.body.provider}`);
-          res.status(200).end(`Disconnected from ${req.body.provider}`);
+          res.status(200).end(`Disconnected from {provider}`);
         } else {
           connection.query(
             `UPDATE users SET ${req.body.provider}=? WHERE id=?`,
             [email, id]
           );
           console.log(`User ${id} connected to ${req.body.provider}`);
-          res.status(200).end(`Connected to ${req.body.provider}`);
+          res.status(200).end(`Connected to {provider}`);
         }
         connection.end();
         // Used to update the league favorite
@@ -67,8 +67,11 @@ export default async function handler(req, res) {
         }
         connection.end();
         res.status(200).end("Updated favorite");
-      } else if (req.body.username === undefined) {
-        // Used to connect and disconnect from OAuth providers
+      } else if (
+        req.body.username === undefined ||
+        String(req.body.username) === ""
+      ) {
+        // Checks if a username was given for this change
         res.status(500).end("No username given");
       } else {
         const connection = await connect();
@@ -97,7 +100,7 @@ export default async function handler(req, res) {
         } else {
           console.log(`User ${id} was deleted`);
           await connection.query("DELETE FROM users WHERE id=?", [id]);
-          res.status(200).end("Deleted user succesfully");
+          res.status(200).end("Deleted user successfully");
         }
         connection.end();
       } else {
