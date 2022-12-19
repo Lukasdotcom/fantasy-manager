@@ -1,6 +1,6 @@
 import playerStyles from "../styles/Player.module.css";
 import { useContext, useEffect, useState } from "react";
-import { NotifyContext } from "../Modules/context";
+import { NotifyContext, TranslateContext } from "../Modules/context";
 import Image from "next/image";
 import { push } from "@socialgouv/matomo-next";
 import { useSession } from "next-auth/react";
@@ -27,6 +27,7 @@ import { useTheme } from "@emotion/react";
 // extraText is shown in parenthesis next to the player name
 // condensed is which type of condensed view should be shown (transfer, squad, or historical)
 function InternalPlayer({ data, children, starred, extraText, condensed }) {
+  const t = useContext(TranslateContext);
   const [countdown, setCountown] = useState(0);
   const [pictureUrl, setPictureUrl] = useState(undefined);
   useEffect(() => {
@@ -85,7 +86,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
       >
         <div style={{ width: "min(10%, 80px)", textAlign: "center" }}>
           <p>{data.club}</p>
-          <p>{data.position}</p>
+          <p>{t(data.position)}</p>
         </div>
         <Image
           alt=""
@@ -112,7 +113,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
             {extraText && <i> {extraText}</i>}
             {data.updateRunning === false && (
               <Link color={"#ff0000"} href="/error/no-update">
-                Player Data not updating click for details
+                {t("Player Data not updating click for details")}
               </Link>
             )}
           </p>
@@ -121,34 +122,39 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
             sx={{ display: { xs: "none", sm: "flex" } }}
           >
             <div>
-              <p>Total</p>
-              <p>{data.total_points}</p>
+              <p>{t("Total")}</p>
+              <p>{t("{value}", { value: data.total_points })}</p>
             </div>
             <div>
-              <p>Average</p>
-              <p>{data.average_points}</p>
+              <p>{t("Average")}</p>
+              <p>{t("{value}", { value: data.average_points })}</p>
             </div>
             <div>
-              <p>Last</p>
+              <p>{t("Last")}</p>
               <p>
-                {data.last_match}
-                {starred && countdown <= 0 ? " X Star" : ""}
+                {starred && countdown <= 0
+                  ? t("{points} X Star", {
+                      points: t("{value}", { value: data.last_match }),
+                    })
+                  : t("{value}", { value: data.last_match })}
               </p>
             </div>
             <div>
-              <p>Value</p>
-              <p>{data.value / 1000000} M</p>
+              <p>{t("Value")}</p>
+              <p>{t("{amount} M", { amount: data.value / 1000000 })}</p>
             </div>
             {data.game && (
               <div>
-                <p>Next</p>
+                <p>{t("Next")}</p>
                 <p>
-                  {data.game.opponent}
                   {countdown >= 0
-                    ? ` in ${Math.floor(countdown / 60 / 24)} D ${
-                        Math.floor(countdown / 60) % 24
-                      } H ${Math.floor(countdown) % 60} M`
-                    : ""}
+                    ? t("{team} in {day} D {hour} H {minute} M ", {
+                        team: data.game.opponent,
+                        day: Math.floor(countdown / 60 / 24),
+                        hour: Math.floor(countdown / 60) % 24,
+                        minute: Math.floor(countdown) % 60,
+                      })
+                    : data.game.opponent}
                 </p>
               </div>
             )}
@@ -159,37 +165,42 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
           >
             {condensed == "transfer" && (
               <div>
-                <p>Total</p>
-                <p>{data.total_points}</p>
+                <p>{t("Total")}</p>
+                <p>{t("{value}", { value: data.total_points })}</p>
               </div>
             )}
             <div>
-              <p>Average</p>
-              <p>{data.average_points}</p>
+              <p>{t("Average")}</p>
+              <p>{t("{value}", { value: data.average_points })}</p>
             </div>
             <div>
-              <p>Last</p>
+              <p>{t("Last")}</p>
               <p>
-                {data.last_match}
-                {starred && countdown <= 0 ? " X Star" : ""}
+                {starred && countdown <= 0
+                  ? t("{points} X Star", {
+                      points: t("{value}", { value: data.last_match }),
+                    })
+                  : t("{value}", { value: data.last_match })}
               </p>
             </div>
             {condensed != "squad" && (
               <div>
-                <p>Value</p>
-                <p>{data.value / 1000000} M</p>
+                <p>{t("Value")}</p>
+                <p>{t("{amount} M", { amount: data.value / 1000000 })}</p>
               </div>
             )}
             {data.game && (
               <div>
-                <p>Next</p>
+                <p>{t("Next")}</p>
                 <p>
-                  {data.game.opponent}
-                  {countdown > 0 && condensed == "squad"
-                    ? ` in ${Math.floor(countdown / 60 / 24)}D ${
-                        Math.floor(countdown / 60) % 24
-                      }H ${Math.floor(countdown) % 60}M`
-                    : ""}
+                  {countdown >= 0 && condensed == "squad"
+                    ? t("{team} in {day} D {hour} H {minute} M ", {
+                        team: data.game.opponent,
+                        day: Math.floor(countdown / 60 / 24),
+                        hour: Math.floor(countdown / 60) % 24,
+                        minute: Math.floor(countdown) % 60,
+                      })
+                    : data.game.opponent}
                 </p>
               </div>
             )}
@@ -234,6 +245,7 @@ export function TransferPlayer({
   const [data, setData] = useState({});
   const [focused, setFocused] = useState(false);
   const [amount, setAmount] = useState(money);
+  const t = useContext(TranslateContext);
   if (
     user !== -1 &&
     Object.values(allOwnership).filter(
@@ -268,11 +280,14 @@ export function TransferPlayer({
         amount,
       }),
     }).then(async (response) => {
-      notify(await response.text(), response.ok ? "success" : "error");
+      notify(
+        t(await response.text(), { amount }),
+        response.ok ? "success" : "error"
+      );
       transferData();
     });
   }
-  let ButtonText = "Error Getting Player info";
+  let ButtonText = t("Error Getting Player info");
   let ButtonColor = "primary";
   const BuyText = (
     <>
@@ -280,7 +295,7 @@ export function TransferPlayer({
         id="amount"
         variant="outlined"
         size="small"
-        label="Max Purchase Amount"
+        label={t("Max bid amount")}
         type="number"
         endadornment={<InputAdornment position="end">M</InputAdornment>}
         onChange={(val) => {
@@ -291,7 +306,7 @@ export function TransferPlayer({
       />
       <br />
       <Button color="success" onClick={() => buySell(amount)}>
-        Buy for max of {amount}
+        {t("Buy for max of {amount} M", { amount })}
       </Button>
     </>
   );
@@ -301,7 +316,7 @@ export function TransferPlayer({
         id="amount"
         variant="outlined"
         size="small"
-        label="Min Sale Amount"
+        label={t("Min sale amount")}
         type="number"
         endadornment={<InputAdornment position="end">M</InputAdornment>}
         onChange={(val) => {
@@ -312,7 +327,7 @@ export function TransferPlayer({
       />
       <br />
       <Button color="error" onClick={() => buySell(amount * -1)}>
-        Sell for min of {amount}
+        {t("Sell for min of {amount} M", { amount })}
       </Button>
     </>
   );
@@ -322,10 +337,10 @@ export function TransferPlayer({
   if (ownership !== undefined) {
     // Checks if the transfer market is still open
     if (!open) {
-      ButtonText = "Transfer Market is Closed";
+      ButtonText = t("Transfer Market is closed");
       // Checks if the user is already purchasing the player
     } else if (ownership.filter((e) => e.buyer === user).length > 0) {
-      ButtonText = "Edit Purchase";
+      ButtonText = t("Edit purchase");
       ButtonColor = "success";
       Actions = (
         <>
@@ -336,13 +351,13 @@ export function TransferPlayer({
               buySell(0);
             }}
           >
-            Cancel Purchase
+            {t("Cancel purchase")}
           </Button>
         </>
       );
       // Checks if the user is already selling the player
     } else if (ownership.filter((e) => e.seller === user).length > 0) {
-      ButtonText = "View Sale";
+      ButtonText = t("Edit sale");
       ButtonColor = "error";
       Actions = (
         <>
@@ -353,29 +368,29 @@ export function TransferPlayer({
               buySell(0);
             }}
           >
-            Cancel Sale
+            {t("Cancel sale")}
           </Button>
         </>
       );
       // Checks if ther user is out of transfers
     } else if (!transferLeft) {
-      ButtonText = "View Transfers";
+      ButtonText = t("View transfers");
       // Checks if the user owns the player and can sell the player
     } else if (ownership.filter((e) => e.owner === user).length > 0) {
-      ButtonText = "Sell";
+      ButtonText = t("Sell");
       ButtonColor = "error";
       Actions = <>{SellText}</>;
       // Checks if the player is still purchasable
     } else if (
       duplicatePlayers <= ownership.filter((e) => !e.transfer).length
     ) {
-      ButtonText = "View Transfers";
+      ButtonText = t("View transfers");
       // Checks if the player can be bought from the market
     } else if (duplicatePlayers > ownership.length) {
       if (data.value > money) {
-        ButtonText = "View Transfers";
+        ButtonText = t("View transfers");
       } else {
-        ButtonText = "Buy";
+        ButtonText = t("Buy");
         ButtonColor = "success";
         Actions = BuyText;
       }
@@ -386,9 +401,9 @@ export function TransferPlayer({
         .sort((a, b) => a.amount - b.amount)[0];
       let cheapestPrice = bestDeal.amount + 100000;
       if (cheapestPrice > money) {
-        ButtonText = "View Transfers";
+        ButtonText = t("View transfers");
       } else {
-        ButtonText = "Buy";
+        ButtonText = t("Buy");
         ButtonColor = "success";
         Actions = BuyText;
       }
@@ -396,14 +411,14 @@ export function TransferPlayer({
   } else {
     // If no ownership data exists the player must not be owned by anyone
     if (!open) {
-      ButtonText = "Transfer Market is Closed";
+      ButtonText = t("Transfer Market is closed");
     } else if (!transferLeft) {
-      ButtonText = "View Transfers";
+      ButtonText = t("View transfers");
       // Checks if the user owns the player and can sell the player
     } else if (data.value > money) {
-      ButtonText = "View Transfers";
+      ButtonText = t("View transfers");
     } else {
-      ButtonText = "Buy";
+      ButtonText = t("Buy");
       ButtonColor = "success";
       Actions = BuyText;
     }
@@ -427,14 +442,14 @@ export function TransferPlayer({
         open={focused}
         title={data.name}
       >
-        <strong>Transfers</strong>
+        <strong>{t("Transfers")}</strong>
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Seller</TableCell>
-                <TableCell>Buyer</TableCell>
-                <TableCell>Amount</TableCell>
+                <TableCell>{t("Seller")}</TableCell>
+                <TableCell>{t("Buyer")}</TableCell>
+                <TableCell>{t("Amount")}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -449,13 +464,15 @@ export function TransferPlayer({
                       <TableCell>
                         <UserChip userid={e.buyer} />
                       </TableCell>
-                      <TableCell>{e.amount / 1000000}M</TableCell>
+                      <TableCell>
+                        {t("{amount} M", { amount: e.amount / 1000000 })}
+                      </TableCell>
                     </TableRow>
                   ))}
             </TableBody>
           </Table>
         </TableContainer>
-        <strong>Owners</strong>
+        <strong>{t("Owners")}</strong>
         {ownership &&
           ownership
             .filter((e) => !e.transfer)
@@ -482,8 +499,8 @@ export function TransferPlayer({
       <Button
         variant="outlined"
         disabled={
-          ButtonText === "Transfer Market is Closed" ||
-          ButtonText === "Error Getting Player info"
+          ButtonText === t("Transfer Market is closed") ||
+          ButtonText === t("Error Getting Player info")
         }
         color={ButtonColor}
         onClick={() => {
@@ -505,6 +522,7 @@ export function SquadPlayer({
   status,
   leagueType,
 }) {
+  const t = useContext(TranslateContext);
   const notify = useContext(NotifyContext);
   const [data, setData] = useState({});
   // Used to get the data for the player
@@ -518,20 +536,20 @@ export function SquadPlayer({
   let MoveButton = "";
   let disabled = false;
   if (field === undefined) {
-    MoveButton = "Move to Bench";
+    MoveButton = t("Move to bench");
   } else {
     disabled = !field[data.position];
-    MoveButton = !disabled ? "Move to Field" : "Position is Full";
+    MoveButton = !disabled ? t("Move to field") : t("Position is full");
     if (data.locked) {
       disabled = true;
-      MoveButton = "Player has Already Played";
+      MoveButton = t("Player has already played");
     }
   }
   let extraText;
   if (status == "buy") {
-    extraText = "Buying";
+    extraText = t("Buying");
   } else if (status == "sell") {
-    extraText = "Selling";
+    extraText = t("Selling");
   }
   return (
     <InternalPlayer
@@ -543,7 +561,7 @@ export function SquadPlayer({
       <Button
         variant="outlined"
         onClick={() => {
-          notify("Moving");
+          notify(t("Moving"));
           push(["trackEvent", "Move Player", league, uid]);
           // Used to move the player
           fetch(`/api/squad/${league}`, {
@@ -556,7 +574,10 @@ export function SquadPlayer({
             }),
           })
             .then(async (response) => {
-              notify(await response.text(), response.ok ? "success" : "error");
+              notify(
+                t(await response.text()),
+                response.ok ? "success" : "error"
+              );
             })
             .then(update);
         }}
@@ -569,7 +590,7 @@ export function SquadPlayer({
           variant="outlined"
           color="secondary"
           onClick={() => {
-            notify("Starring");
+            notify(t("Starring"));
             push(["trackEvent", "Star Player", league, uid]);
             fetch(`/api/squad/${league}`, {
               method: "POST",
@@ -582,14 +603,14 @@ export function SquadPlayer({
             })
               .then(async (response) => {
                 notify(
-                  await response.text(),
+                  await t(response.text()),
                   response.ok ? "success" : "error"
                 );
               })
               .then(update);
           }}
         >
-          Star
+          {t("Star")}
         </Button>
       )}
     </InternalPlayer>
@@ -628,7 +649,6 @@ export function HistoricalPlayer({ uid, time, children, starred, leagueType }) {
   }, [uid, time, leagueType]);
   return (
     <InternalPlayer data={data} starred={starred} condensed={"historical"}>
-      {" "}
       {children}
     </InternalPlayer>
   );

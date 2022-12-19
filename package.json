@@ -27,7 +27,7 @@
     "@types/node": "18.11.17",
     "@types/react": "18.0.26",
     "bcryptjs": "2.4.3",
-    "chart.js": "4.0.1",
+    "chart.js": "4.1.1",
     "csv-stringify": "6.2.3",
     "dotenv": "16.0.3",
     "mysql": "2.18.1",
@@ -52,6 +52,6 @@
     "eslint-plugin-cypress": "2.12.1",
     "eslint-plugin-unused-imports": "2.0.0",
     "prettier": "2.8.1",
-    "wait-on": "6.0.1"
+    "wait-on": "7.0.1"
   }
 }

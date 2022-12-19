@@ -42,7 +42,7 @@ export default async function handler(
             .then((e) => res.status(200).end("Added anouncement"))
             .catch((e) => res.status(500).end("Failed to create announcement"));
         } else {
-          res.status(401).end("Not admin of this league");
+          res.status(401).end("You are not admin of this league");
         }
         break;
       case "DELETE": // Used to delete an anouncement
@@ -62,7 +62,7 @@ export default async function handler(
           );
           res.status(200).end("Deleted announcement");
         } else {
-          res.status(401).end("Not admin of this league");
+          res.status(401).end("You are not admin of this league");
         }
         break;
       default:

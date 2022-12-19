@@ -143,7 +143,7 @@ export default async function handler(
         }
         // Checks if the transfer market is still open
         if (!transferOpen && !leagueSettings.matchdayTransfers) {
-          res.status(400).end("The Transfer Market is Closed");
+          res.status(400).end("Transfer Market is closed");
           break;
         }
         const player = players[0];
@@ -184,19 +184,19 @@ export default async function handler(
             if (purchaseTransfer[0].value > amount) {
               res
                 .status(400)
-                .end("You can not bid lower than your current purchase amount");
+                .end("You can not bid lower than your current purchase");
               break;
             }
             connection.query(
               "UPDATE transfers SET max=? WHERE buyer=? AND playeruid=? AND leagueID=?",
               [amount, user, playeruid, league]
             );
-            res.status(200).end(`Updated max bid to ${amount / 1000000}M`);
+            res.status(200).end(`Updated max bid to {amount} M`);
             break;
           }
           // Checks if the user still has transfes left
           if (!transferLeft) {
-            res.status(400).end("You are out of transfers");
+            res.status(400).end("You have no more transfers");
             break;
           }
           // Checks if the player can still be bought from the AI
@@ -219,7 +219,9 @@ export default async function handler(
             if (amount < player.value) {
               res
                 .status(400)
-                .end("You can not buy player for less than player's value");
+                .end(
+                  "You can not buy a player for less than the player's value"
+                );
               break;
             }
             if (money < player.value) {
@@ -341,13 +343,7 @@ export default async function handler(
                     cheapest[0].value + (isAI ? 0 : 100000)
                   } for ${playeruid} in league ${league}`
                 );
-                res
-                  .status(200)
-                  .end(
-                    `User ${user} bought player for ${
-                      (cheapest[0].value + (isAI ? 0 : 100000)) / 1000000
-                    }M in league ${league}`
-                  );
+                res.status(200).end("Bought player");
                 break;
               }
             }

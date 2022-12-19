@@ -14,6 +14,10 @@ const nextConfig = withPWA({
       "raw.githubusercontent.com",
     ],
   },
+  i18n: {
+    locales: ["en", "de"],
+    defaultLocale: "en",
+  },
 });
 
 module.exports = nextConfig;
