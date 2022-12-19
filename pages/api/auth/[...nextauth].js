@@ -14,8 +14,8 @@ const options = {
   providers: [
     CredentialsProvider({
       // Used to sign in
-      id: "Sign In",
-      name: "Sign In",
+      id: "Sign-In",
+      name: "Sign-In",
       credentials: {
         username: { label: "Username", type: "username" },
         password: { label: "Password", type: "password" },
@@ -61,8 +61,8 @@ const options = {
     }),
     CredentialsProvider({
       // Used to sign up
-      id: "Sign Up",
-      name: "Sign Up",
+      id: "Sign-Up",
+      name: "Sign-Up",
       credentials: {
         username: { label: "Username", type: "username" },
         password: { label: "Password", type: "password" },

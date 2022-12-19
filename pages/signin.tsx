@@ -135,13 +135,13 @@ export default function SignIn({ enabledProviders }: Props) {
         <Button
           variant="contained"
           sx={{ margin: 0.5 }}
-          onClick={() => signIn("Sign In", { callbackUrl, username, password })}
+          onClick={() => signIn("Sign-In", { callbackUrl, username, password })}
         >
           {t("Sign In")}
         </Button>
         <Button
           variant="contained"
-          onClick={() => signIn("Sign Up", { callbackUrl, username, password })}
+          onClick={() => signIn("Sign-Up", { callbackUrl, username, password })}
         >
           {t("Sign Up")}
         </Button>
