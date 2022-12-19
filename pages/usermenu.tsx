@@ -9,7 +9,12 @@ import {
   InferGetServerSidePropsType,
 } from "next";
 import { Session } from "next-auth";
-import { NotifyContext, NotifyType, UserContext } from "../Modules/context";
+import {
+  NotifyContext,
+  NotifyType,
+  TranslateContext,
+  UserContext,
+} from "../Modules/context";
 import { getProviders, Providers } from "../types/providers";
 import connect from "../Modules/database";
 import { useRouter } from "next/router";
@@ -20,6 +25,7 @@ interface ProviderProps {
 }
 // Shows the ways to connect and disconnect from a provider
 function ProviderShow({ provider, notify, user }: ProviderProps) {
+  const t = useContext(TranslateContext);
   const [email, setEmail] = useState(user[provider]);
   const [input, setInput] = useState("");
   function handleInputChange(
@@ -29,7 +35,7 @@ function ProviderShow({ provider, notify, user }: ProviderProps) {
   }
   // Used to connect to the provider
   function connect() {
-    notify(`Connecting to ${provider}`);
+    notify(t("Connecting to {provider}", { provider }));
     fetch(`/api/user`, {
       method: "POST",
       headers: {
@@ -40,13 +46,16 @@ function ProviderShow({ provider, notify, user }: ProviderProps) {
         email: input,
       }),
     }).then(async (response) => {
-      notify(await response.text(), response.ok ? "success" : "error");
+      notify(
+        t(await response.text(), { provider }),
+        response.ok ? "success" : "error"
+      );
       setEmail(input);
     });
   }
   // Used to disconnect from the provider
   function disconnect() {
-    notify(`Disconnecting from ${provider}`);
+    notify(t(`Disconnecting from {provider}`, { provider }));
     fetch(`/api/user`, {
       method: "POST",
       headers: {
@@ -57,7 +66,10 @@ function ProviderShow({ provider, notify, user }: ProviderProps) {
         email: "",
       }),
     }).then(async (response) => {
-      notify(await response.text(), response.ok ? "success" : "error");
+      notify(
+        t(await response.text(), { provider }),
+        response.ok ? "success" : "error"
+      );
       setInput("");
       setEmail("");
     });
@@ -71,13 +83,13 @@ function ProviderShow({ provider, notify, user }: ProviderProps) {
           type="email"
           variant="outlined"
           size="small"
-          label="Email"
+          label={t("Email")}
           value={input}
           onChange={handleInputChange}
-          helperText={`Email used with ${provider}`}
+          helperText={t(`Email used with {provider}`, { provider })}
         />
         <Button onClick={connect} variant="outlined">
-          Connect to {provider}
+          {t("Connect to {provider}", { provider })}
         </Button>
       </>
     );
@@ -86,7 +98,7 @@ function ProviderShow({ provider, notify, user }: ProviderProps) {
       <>
         <br></br>
         <Button variant="outlined" onClick={disconnect}>
-          Disconnect from {provider}
+          {t("Disconnect from {provider}", { provider })}
         </Button>
       </>
     );
@@ -99,6 +111,7 @@ export default function Home({
   setColorMode,
   deleteable,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const t = useContext(TranslateContext);
   const getUser = useContext(UserContext);
   const [username, setUsername] = useState(user.username);
   const [password, setPassword] = useState("");
@@ -113,28 +126,24 @@ export default function Home({
   }
   // Used to change the users username
   function changeUsername() {
-    if (username !== "") {
-      notify("Saving...");
-      fetch(`/api/user`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username,
-        }),
-      }).then(async (response) => {
-        notify(await response.text(), response.ok ? "success" : "error");
-        // Makes sure to update the username
-        getUser(user.id, true);
-      });
-    } else {
-      notify("You can not have an empty username", "warning");
-    }
+    notify(t("Saving"));
+    fetch(`/api/user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username,
+      }),
+    }).then(async (response) => {
+      notify(t(await response.text()), response.ok ? "success" : "error");
+      // Makes sure to update the username
+      getUser(user.id, true);
+    });
   }
   // Used to change the users password
   function changePassword() {
-    notify("Saving password");
+    notify(t("Saving"));
     fetch(`/api/user`, {
       method: "POST",
       headers: {
@@ -144,14 +153,14 @@ export default function Home({
         password: password,
       }),
     }).then(async (response) => {
-      notify(await response.text(), response.ok ? "success" : "error");
+      notify(t(await response.text()), response.ok ? "success" : "error");
       setPasswordExists(password !== "");
     });
   }
   // Used to delete the user
   const router = useRouter();
   function deleteUser() {
-    notify("Deleting user");
+    notify(t("Deleting user"));
     fetch(`/api/user`, {
       method: "DELETE",
       headers: {
@@ -161,27 +170,29 @@ export default function Home({
         user: user.id,
       }),
     }).then(async (response) => {
-      notify(await response.text(), response.ok ? "success" : "error");
+      notify(t(await response.text()), response.ok ? "success" : "error");
       router.push("/");
     });
   }
   return (
     <>
       <Head>
-        <title>Usermenu</title>
+        <title>{t("Usermenu")}</title>
       </Head>
       <Menu />
-      <h1>Usermenu</h1>
+      <h1>{t("Usermenu")}</h1>
       <Button variant="contained" onClick={alternateColorMode}>
-        Switch to {oppositeColor} mode <Icon>{oppositeColor + "_mode"}</Icon>
+        {t("Switch to {theme} mode", { theme: t(oppositeColor) })}{" "}
+        <Icon>{oppositeColor + "_mode"}</Icon>
       </Button>
-      <p>Note that a username change will not instantly update.</p>
+      <br />
+      <br />
       <TextField
         error={username === ""}
         id="username"
         variant="outlined"
         size="small"
-        label="Username"
+        label={t("Username")}
         onChange={(e) => {
           // Used to change the username
           setUsername(e.target.value);
@@ -189,22 +200,23 @@ export default function Home({
         value={username}
       />
       <Button variant="contained" onClick={changeUsername}>
-        Change Username
+        {t("Change Username")}
       </Button>
       <p>
-        Password Auth is currently {passwordExists ? "enabled" : "disabled"}
-      </p>
-      <p>
-        It is recommended against using password authorization unless strictly
-        neccessary.
+        {t("Password Auth is currently {enabled}. ", {
+          enabled: passwordExists ? t("enabled") : t("disabled"),
+        })}
+        {t(
+          "It is recommended against using password authorization unless strictly necessary. "
+        )}
       </p>
       <TextField
         type="password"
         id="password"
         variant="outlined"
         size="small"
-        label="Password"
-        helperText="If empty you can disable password auth"
+        label={t("Password")}
+        helperText={t("If empty this will disable password auth")}
         onChange={(e) => {
           setPassword(e.target.value);
         }}
@@ -214,24 +226,22 @@ export default function Home({
         variant="contained"
         onClick={changePassword}
       >
-        {password === "" ? "Disable Password Auth" : "Update Password"}
+        {password === "" ? t("Disable password auth") : t("Change password")}
       </Button>
       {!deleteable && (
-        <p>You can not be in any leagues if you want to delete your user.</p>
+        <p>
+          {t("You can not be in any leagues if you want to delete your user. ")}
+        </p>
       )}
       {deleteable && (
         <>
           <br></br>
           <Button onClick={deleteUser} color="error" variant="contained">
-            Delete User <Icon>delete</Icon>
+            {t("Delete user")} <Icon>delete</Icon>
           </Button>
         </>
       )}
-      <h2>OAuth Providers</h2>
-      <p>
-        Note: If you used an oauth provider before v1.5.1 you will be registered
-        with both even if you only signed in with one.
-      </p>
+      <h2>{t("OAuth Providers")}</h2>
       {providers.map((provider: Providers) => (
         <ProviderShow
           key={provider as Key}

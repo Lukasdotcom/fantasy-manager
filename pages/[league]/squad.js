@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { getLeagueInfo } from "../api/squad/[league]";
 import { getSession } from "next-auth/react";
-import { NotifyContext } from "../../Modules/context";
+import { NotifyContext, TranslateContext } from "../../Modules/context";
 
 export default function Home({
   league,
@@ -27,6 +27,7 @@ export default function Home({
   archived,
 }) {
   const notify = useContext(NotifyContext);
+  const t = useContext(TranslateContext);
   // Turns the leagueInfo data into the data for the starting state
   let players = { att: [], mid: [], def: [], gk: [], bench: [] };
   leagueInfo.players.forEach((e) => {
@@ -47,13 +48,13 @@ export default function Home({
     return (
       <>
         <Head>
-          <title>{`Squad for ` + leagueName}</title>
+          <title>{t("Squad for {leagueName}", { leagueName })}</title>
         </Head>
         <Menu league={league} />
-        <h1>Squad for {leagueName}</h1>
+        <h1>{t("Squad for {leagueName}", { leagueName })}</h1>
         <Alert severity={"warning"} className="notification">
-          <AlertTitle>This League is Archived</AlertTitle>
-          <p>This league is archived and this screen is disabled</p>
+          <AlertTitle>{t("This league is archived")}</AlertTitle>
+          <p>{t("This league is archived and this screen is disabled. ")}</p>
         </Alert>
       </>
     );
@@ -90,18 +91,11 @@ export default function Home({
   return (
     <>
       <Head>
-        <title>{`Squad for ` + leagueName}</title>
+        <title>{t("Squad for {leagueName}", { leagueName })}</title>
       </Head>
       <Menu league={league} />
-      <h1>Squad for {leagueName}</h1>
-      <p>
-        You can have one starred Forward, Midfielder, and Defender. These
-        players will then get {starredPercentage}% of the regular amount of
-        points. Note that the outlined players are probably in a game(this waits
-        120 minutes after the game starts so if there is excess extra time or
-        the game ends early this will be wrong).
-      </p>
-      <InputLabel htmlFor="formation">Formation</InputLabel>
+      <h1>{t("Squad for {leagueName}", { leagueName })}</h1>
+      <InputLabel htmlFor="formation">{t("Formation")}</InputLabel>
       <Select
         onChange={(e) => {
           // Used to change the formation
@@ -134,7 +128,7 @@ export default function Home({
           </MenuItem>
         ))}
       </Select>
-      <h2>Attackers</h2>
+      <h2>{t("Attackers")}</h2>
       {squad["att"].map(
         (
           e // Used to get the players for the attack
@@ -150,7 +144,7 @@ export default function Home({
           />
         )
       )}
-      <h2>Midfielders</h2>
+      <h2>{t("Midfielders")}</h2>
       {squad["mid"].map(
         (
           e // Used to get the players for the mid
@@ -166,7 +160,7 @@ export default function Home({
           />
         )
       )}
-      <h2>Defense</h2>
+      <h2>{t("Defenders")}</h2>
       {squad["def"].map(
         (
           e // Used to get the players for the defense
@@ -182,7 +176,7 @@ export default function Home({
           />
         )
       )}
-      <h2>Goalkeeper</h2>
+      <h2>{t("Goalkeeper")}</h2>
       {squad["gk"].map(
         (
           e // Used to get the player for the goalkeeper
@@ -197,7 +191,7 @@ export default function Home({
           />
         )
       )}
-      <h2>Bench</h2>
+      <h2>{t("Bench")}</h2>
       <FormControlLabel
         control={
           <Switch
@@ -208,7 +202,7 @@ export default function Home({
             checked={showSelling}
           />
         }
-        label="Show Players that are being sold"
+        label={t("Show Players that are being sold")}
       />
       {squad["bench"]
         .filter((e) => showSelling || e.status !== "sell")

@@ -5,15 +5,18 @@ import { signIn } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Menu from "../components/Menu";
 import { Providers, getProviders } from "../types/providers";
 import Link from "../components/Link";
+import { TranslateContext } from "../Modules/context";
+import getLocales from "../locales/getLocales";
 interface Props {
   enabledProviders: Providers[];
 }
 
 export default function SignIn({ enabledProviders }: Props) {
+  const t = useContext(TranslateContext);
   const router = useRouter();
   const callbackUrl = router.query.callbackUrl as string;
   const error = router.query.error as string;
@@ -53,7 +56,7 @@ export default function SignIn({ enabledProviders }: Props) {
   return (
     <>
       <Head>
-        <title>Login Page</title>
+        <title>{t("Login and Signup Page")}</title>
       </Head>
       <Menu />
       {error && (
@@ -63,21 +66,21 @@ export default function SignIn({ enabledProviders }: Props) {
         >
           <AlertTitle>
             {error === "CredentialsSignin"
-              ? "Wrong Credentials"
+              ? t("Wrong Credentials")
               : error === "no_username"
-              ? "No Username or Password"
-              : "Failed to Sign in"}
+              ? t("No Username or Password")
+              : t("Failed to Sign in")}
           </AlertTitle>
           {error === "CredentialsSignin"
-            ? "Check that you gave the correct username and password."
+            ? t("Check that you entered the correct username and password. ")
             : error === "no_username"
-            ? "You need to give a username and a password when signing up."
-            : "Try logging in again."}
+            ? t("You need to give a username and a password when signing up. ")
+            : t("Try logging in again. ")}
         </Alert>
       )}
       <div className="center">
         <>
-          <h2>Login and Signup Here</h2>
+          <h2>{t("Login and Signup Page")}</h2>
           {providers.map((e, idx) => (
             <Button
               startIcon={
@@ -98,13 +101,19 @@ export default function SignIn({ enabledProviders }: Props) {
               }}
               onClick={() => signIn(e.name, { callbackUrl })}
             >
-              Sign in with {e.name}
+              {t("Sign in with {provider}", { provider: e.name })}
             </Button>
           ))}
         </>
+
+        <p>
+          {t(
+            "It is recommended against using password authorization unless strictly necessary. "
+          )}
+        </p>
         <div style={{ height: "20px" }} />
         <TextField
-          label="Username"
+          label={t("Username")}
           type="text"
           id="username"
           variant="outlined"
@@ -114,7 +123,7 @@ export default function SignIn({ enabledProviders }: Props) {
           value={username}
         />
         <TextField
-          label="Password"
+          label={t("Password")}
           type="password"
           id="password"
           variant="outlined"
@@ -128,17 +137,21 @@ export default function SignIn({ enabledProviders }: Props) {
           sx={{ margin: 0.5 }}
           onClick={() => signIn("Sign In", { callbackUrl, username, password })}
         >
-          Sign In
+          {t("Sign In")}
         </Button>
         <Button
           variant="contained"
           onClick={() => signIn("Sign Up", { callbackUrl, username, password })}
         >
-          Sign Up
+          {t("Sign Up")}
         </Button>
         <p>
-          Note that by logging in or signing up you agree to the{" "}
-          <Link href="privacy">privacy policy</Link>
+          {" "}
+          <Link href="privacy">
+            {t(
+              "Note that by logging in or signing up you agree to the privacy policy. "
+            )}
+          </Link>
         </p>
       </div>
     </>
@@ -146,6 +159,8 @@ export default function SignIn({ enabledProviders }: Props) {
 }
 // Gets the list of providers
 export const getStaticProps: GetStaticProps = async (ctx) => {
-  const props: Props = { enabledProviders: getProviders() };
-  return { props };
+  const props: Props = {
+    enabledProviders: getProviders(),
+  };
+  return { props: { ...props, t: await getLocales(ctx.locale) } };
 };

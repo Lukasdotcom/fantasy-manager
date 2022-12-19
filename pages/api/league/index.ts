@@ -26,7 +26,7 @@ export default async function handler(
         }
         const leagueType = req.body.leagueType;
         if (!leagues.includes(leagueType)) {
-          res.status(404).end("Invalud league type given");
+          res.status(404).end("Invalid league type given");
           break;
         }
         if (req.body.name == "") {
