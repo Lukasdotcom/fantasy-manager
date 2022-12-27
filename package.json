@@ -24,7 +24,7 @@
     "@mui/material": "5.11.0",
     "@socialgouv/matomo-next": "1.4.0",
     "@types/mysql": "2.15.21",
-    "@types/node": "18.11.17",
+    "@types/node": "18.11.18",
     "@types/react": "18.0.26",
     "bcryptjs": "2.4.3",
     "chart.js": "4.1.1",
