@@ -1,4 +1,3 @@
-import { SessionProvider } from "next-auth/react";
 import Login from "./Login";
 import {
   Icon,

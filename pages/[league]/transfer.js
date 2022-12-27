@@ -4,7 +4,7 @@ import Head from "next/head";
 import { useState, useEffect, useContext } from "react";
 import { TransferPlayer as Player } from "../../components/Player";
 import { push } from "@socialgouv/matomo-next";
-import { SessionProvider, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import connect from "../../Modules/database";
 import Link from "../../components/Link";
 import {
