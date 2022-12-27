@@ -359,7 +359,7 @@ export default function Home({
   return (
     <>
       <Menu />
-        <Leagues leagues={leagues} />
+      <Leagues leagues={leagues} />
     </>
   );
 }
