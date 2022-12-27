@@ -16,6 +16,7 @@ COPY package.json package.json
 COPY tsconfig.json tsconfig.json
 COPY tsconfig2.json tsconfig2.json
 COPY types types
+COPY locales locales
 RUN npm ci
 # Sets the default configuration
 ENV NEXTAUTH_SECRET=hkf9eUXAZKjw99/hZ4Rrw7aNe47qxB+QuojMwmxbFqA=
