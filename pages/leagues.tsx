@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { useContext, useEffect, useState } from "react";
-import { getSession, SessionProvider, useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { LeagueListPart, LeagueListResult } from "./api/league";
 import Link from "../components/Link";
 import Menu from "../components/Menu";
