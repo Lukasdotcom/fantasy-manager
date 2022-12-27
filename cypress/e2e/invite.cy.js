@@ -359,7 +359,9 @@ describe("Invite User into league and change some league Settings and run throug
         cy.setCookie("next-auth.session-token", user1);
       })
       .then(() => {
-        cy.contains("Standings").click();
+        cy.reload().then(() => {
+          cy.contains("Standings").click();
+        });
       });
     cy.get("#duplicatePlayers").clear().type(1);
     cy.contains("Save admin settings").click();
@@ -442,7 +444,12 @@ describe("Invite User into league and change some league Settings and run throug
       });
     cy.get("#username").type("Invite 3");
     cy.get("#password").type("password");
-    cy.contains("Sign Up").click();
+    cy.contains("Sign Up")
+      .click()
+      .then(() => {
+        cy.contains("Leagues").click();
+        cy.visit("http://localhost:3000/api/invite/invite1");
+      });
     // Makes sure this user actually has points for matchday 2
     cy.get(".MuiPagination-ul > :nth-child(3)").click();
     cy.get(".MuiTableBody-root > :nth-child(3) > :nth-child(2)").contains("0");

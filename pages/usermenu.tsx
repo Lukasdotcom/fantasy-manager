@@ -1,4 +1,4 @@
-import { getSession } from "next-auth/react";
+import { getSession, signOut } from "next-auth/react";
 import { ChangeEvent, Key, useContext, useState } from "react";
 import Menu from "../components/Menu";
 import Head from "next/head";
@@ -171,7 +171,7 @@ export default function Home({
       }),
     }).then(async (response) => {
       notify(t(await response.text()), response.ok ? "success" : "error");
-      router.push("/");
+      signOut();
     });
   }
   return (
