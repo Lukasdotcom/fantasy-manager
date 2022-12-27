@@ -103,27 +103,21 @@ const Layout = ({ league }: MainInterface) => {
                 display: { sm: "block", md: "none" },
               }}
             >
-              <SessionProvider>
-                <MenuItems
-                  league={league}
-                  handleCloseNavMenu={handleCloseNavMenu}
-                />
-              </SessionProvider>
-            </Menu>
-          </Box>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            <SessionProvider>
               <MenuItems
                 league={league}
                 handleCloseNavMenu={handleCloseNavMenu}
               />
-            </SessionProvider>
+            </Menu>
+          </Box>
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+            <MenuItems
+              league={league}
+              handleCloseNavMenu={handleCloseNavMenu}
+            />
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <SessionProvider>
-              <Login />
-            </SessionProvider>
+            <Login />
           </Box>
         </Toolbar>
       </Container>

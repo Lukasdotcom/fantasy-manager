@@ -200,13 +200,11 @@ function MainPage({
       </Head>
       <Menu league={league} />
       <h1>{t("Transfers for {leagueName}", { leagueName })}</h1>
-      <SessionProvider>
-        <TransfersLeft
-          ownership={ownership}
-          allowedTransfers={allowedTransfers}
-          transferCount={transferCount}
-        />
-      </SessionProvider>
+      <TransfersLeft
+        ownership={ownership}
+        allowedTransfers={allowedTransfers}
+        transferCount={transferCount}
+      />
       <p>{t("Money left: {amount} M", { amount: money / 1000000 })}</p>
       {transferMessage}
       <TextField
@@ -288,24 +286,22 @@ function MainPage({
       <Link href="/download">
         <Button>{t("Download Data")}</Button>
       </Link>
-      <SessionProvider>
-        {players.map((val) => (
-          <Player
-            key={val}
-            uid={val}
-            money={money}
-            ownership={ownership[val]}
-            league={league}
-            transferLeft={transferCount < allowedTransfers}
-            allOwnership={ownership}
-            transferData={transferData}
-            open={matchdayTransfers || open}
-            duplicatePlayers={duplicatePlayers}
-            leagueType={leagueType}
-            showHidden={showHidden}
-          />
-        ))}
-      </SessionProvider>
+      {players.map((val) => (
+        <Player
+          key={val}
+          uid={val}
+          money={money}
+          ownership={ownership[val]}
+          league={league}
+          transferLeft={transferCount < allowedTransfers}
+          allOwnership={ownership}
+          transferData={transferData}
+          open={matchdayTransfers || open}
+          duplicatePlayers={duplicatePlayers}
+          leagueType={leagueType}
+          showHidden={showHidden}
+        />
+      ))}
       {loading && <LinearProgress />}
     </div>
   );

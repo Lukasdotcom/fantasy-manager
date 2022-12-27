@@ -157,32 +157,34 @@ function MyApp({ Component, pageProps }: AppProps) {
   });
   return (
     <>
-      <TranslateContext.Provider value={t}>
-        <UserContext.Provider value={getUser}>
-          <NotifyContext.Provider value={notify}>
-            <ThemeProvider theme={theme}>
-              <CssBaseline />
-              <GlobalStyles styles={{ Button: { m: "5px" } }} />
-              {notifications.message && (
-                <Snackbar open={true} onClose={handleClose}>
-                  <Alert
-                    onClose={handleClose}
-                    severity={notifications.severity}
-                    sx={{ width: "100%" }}
-                  >
-                    {notifications.message}
-                  </Alert>
-                </Snackbar>
-              )}
-              {/* Adds loading screen whenever a new page is being opened */}
-              <Backdrop open={loading}>
-                <CircularProgress />
-              </Backdrop>
-              <Component {...pageProps} setColorMode={setColorMode} />
-            </ThemeProvider>
-          </NotifyContext.Provider>
-        </UserContext.Provider>
-      </TranslateContext.Provider>
+      <SessionProvider>
+        <TranslateContext.Provider value={t}>
+          <UserContext.Provider value={getUser}>
+            <NotifyContext.Provider value={notify}>
+              <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <GlobalStyles styles={{ Button: { m: "5px" } }} />
+                {notifications.message && (
+                  <Snackbar open={true} onClose={handleClose}>
+                    <Alert
+                      onClose={handleClose}
+                      severity={notifications.severity}
+                      sx={{ width: "100%" }}
+                    >
+                      {notifications.message}
+                    </Alert>
+                  </Snackbar>
+                )}
+                {/* Adds loading screen whenever a new page is being opened */}
+                <Backdrop open={loading}>
+                  <CircularProgress />
+                </Backdrop>
+                <Component {...pageProps} setColorMode={setColorMode} />
+              </ThemeProvider>
+            </NotifyContext.Provider>
+          </UserContext.Provider>
+        </TranslateContext.Provider>
+      </SessionProvider>
       <SessionProvider>
         <UserMatomo />
       </SessionProvider>

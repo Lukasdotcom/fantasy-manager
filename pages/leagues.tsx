@@ -359,9 +359,7 @@ export default function Home({
   return (
     <>
       <Menu />
-      <SessionProvider>
         <Leagues leagues={leagues} />
-      </SessionProvider>
     </>
   );
 }
