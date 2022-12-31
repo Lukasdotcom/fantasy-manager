@@ -1,5 +1,5 @@
 import "../styles/globals.css";
-import { init, push } from "@socialgouv/matomo-next";
+import { init } from "@socialgouv/matomo-next";
 import { useEffect, useState } from "react";
 import { SessionProvider, useSession } from "next-auth/react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
@@ -21,6 +21,7 @@ import {
   TranslateContext,
 } from "../Modules/context";
 import getLocales from "../locales/getLocales";
+import Head from "next/head";
 const MATOMO_URL = process.env.NEXT_PUBLIC_MATOMO_URL;
 const MATOMO_SITE_ID = process.env.NEXT_PUBLIC_MATOMO_SITE_ID;
 interface Notification {
@@ -29,6 +30,7 @@ interface Notification {
 }
 const userData: { [key: number]: string } = {};
 function MyApp({ Component, pageProps }: AppProps) {
+  const { data: session } = useSession();
   const [translationData, setTranslationData] = useState<
     Record<string, string>
   >(pageProps.t ? pageProps.t : {});
@@ -55,36 +57,64 @@ function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   // Grabs the translations if required
   useEffect(() => {
-    // If the locale that is wanted is different then the one requested a redirect happens.
-    if (
-      router.locale !== localStorage.locale &&
-      router.locales?.includes(localStorage.locale)
-    ) {
-      router.push(
-        {
-          pathname: router.pathname,
-          query: router.query,
-        },
-        undefined,
-        {
-          locale: localStorage.locale,
+    // If the user is logged in the locale is saved to local storage
+    if (session && session.user.locale) {
+      localStorage.locale = session.user.locale;
+    }
+    const findLocale = async () => {
+      // Requests the locale if it is not set by testing on the main page
+      if (!localStorage.locale) {
+        const data = (await fetch("/")).url.split("/").pop();
+        if (router.locales?.includes(String(data))) {
+          localStorage.locale = data;
+        } else {
+          localStorage.locale = "en";
         }
-      );
-      return;
-    }
-    const downloadTranslations = async (locale: string) => {
-      const data = await getLocales(locale);
-      setTranslationData(data ? data : {});
-    };
-    // Downloads the text data if it is needed
-    if (router.locale === "en") {
-      if (Object.values(translationData).length !== 0) {
-        setTranslationData({});
       }
-    } else if (router.locale !== translationData.locale) {
-      downloadTranslations(router.locale as string);
-    }
-  }, [router, translationData]);
+      // If the locale that is wanted is different then the one requested a redirect happens.
+      if (
+        router.locale !== localStorage.locale &&
+        router.locales?.includes(localStorage.locale)
+      ) {
+        router.push(
+          {
+            pathname: router.pathname,
+            query: router.query,
+          },
+          undefined,
+          {
+            locale: localStorage.locale,
+          }
+        );
+        return;
+      }
+      const downloadTranslations = async (locale: string) => {
+        const data = await getLocales(locale);
+        setTranslationData(data ? data : {});
+      };
+      // Downloads the text data if it is needed
+      if (router.locale === "en") {
+        if (Object.values(translationData).length !== 0) {
+          setTranslationData({});
+        }
+      } else if (router.locale !== translationData.locale) {
+        downloadTranslations(router.locale as string);
+      }
+      // If the session data shows a different locale then the one set then the locale is changed in the session
+      if (session && session.user.locale !== router.locale) {
+        await fetch("/api/user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            locale: router.locale,
+          }),
+        });
+      }
+    };
+    findLocale();
+  }, [router, translationData, session]);
   const t = (
     text: string,
     replacers?: Record<string, string | Date | number>
@@ -140,65 +170,114 @@ function MyApp({ Component, pageProps }: AppProps) {
   }
   // Used to create the theme for the website and starts of in dark to not blind dark theme users
   const [colorMode, setColorMode] = useState<"light" | "dark">("dark");
-  const prefersDark = useMediaQuery("(prefers-color-scheme: dark)");
+  function updateColorMode(theme: "light" | "dark", force: boolean = false) {
+    if (force || (session && session?.user.theme !== theme)) {
+      fetch("/api/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ theme }),
+      });
+    }
+    if (colorMode !== theme) {
+      setColorMode(theme);
+    }
+  }
+  // Defaults to dark if this is not supported by the browser
+  const prefersDark = !useMediaQuery("(prefers-color-scheme: light)");
   // Sets the color scheme based on preferences)
   useEffect(() => {
-    // Uses lo
-    if (localStorage.theme === "dark" || localStorage.theme === "light") {
-      setColorMode(localStorage.theme);
+    // Grabs the online preferences if they exist
+    if (
+      session &&
+      (session.user.theme === "dark" || session.user.theme === "light")
+    ) {
+      updateColorMode(session.user.theme);
+    } else if (
+      localStorage.theme === "dark" ||
+      localStorage.theme === "light"
+    ) {
+      // Uses localstorage if available
+      updateColorMode(localStorage.theme);
     } else {
-      setColorMode(prefersDark ? "dark" : "light");
+      // Uses the browser preferences
+      const theme = prefersDark ? "dark" : "light";
+      updateColorMode(theme);
     }
-  }, [prefersDark]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefersDark, session]);
   const theme = createTheme({
     palette: {
       mode: colorMode,
     },
   });
+  // Used to get the host
+  const host =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : process.env.NEXTAUTH_URL;
   return (
     <>
-      <SessionProvider>
-        <TranslateContext.Provider value={t}>
-          <UserContext.Provider value={getUser}>
-            <NotifyContext.Provider value={notify}>
-              <ThemeProvider theme={theme}>
-                <CssBaseline />
-                <GlobalStyles styles={{ Button: { m: "5px" } }} />
-                {notifications.message && (
-                  <Snackbar open={true} onClose={handleClose}>
-                    <Alert
-                      onClose={handleClose}
-                      severity={notifications.severity}
-                      sx={{ width: "100%" }}
-                    >
-                      {notifications.message}
-                    </Alert>
-                  </Snackbar>
-                )}
-                {/* Adds loading screen whenever a new page is being opened */}
-                <Backdrop open={loading}>
-                  <CircularProgress />
-                </Backdrop>
-                <Component {...pageProps} setColorMode={setColorMode} />
-              </ThemeProvider>
-            </NotifyContext.Provider>
-          </UserContext.Provider>
-        </TranslateContext.Provider>
-      </SessionProvider>
-      <SessionProvider>
-        <UserMatomo />
-      </SessionProvider>
+      <Head>
+        {
+          /* Adds the hreflang to the head for SEO purposes */
+          router.locales?.map((e) => {
+            return e == "en" ? (
+              <link
+                key={e}
+                rel="alternate"
+                hrefLang={e}
+                href={`${host}${router.asPath}`}
+              />
+            ) : (
+              <link
+                key={e}
+                rel="alternate"
+                hrefLang={e}
+                href={`${host}/${e}${router.asPath}`}
+              />
+            );
+          })
+        }
+        <link rel="alternate" hrefLang="lang_code" href="url_of_page" />
+      </Head>
+      <TranslateContext.Provider value={t}>
+        <UserContext.Provider value={getUser}>
+          <NotifyContext.Provider value={notify}>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <GlobalStyles styles={{ Button: { m: "5px" } }} />
+              {notifications.message && (
+                <Snackbar open={true} onClose={handleClose}>
+                  <Alert
+                    onClose={handleClose}
+                    severity={notifications.severity}
+                    sx={{ width: "100%" }}
+                  >
+                    {notifications.message}
+                  </Alert>
+                </Snackbar>
+              )}
+              {/* Adds loading screen whenever a new page is being opened */}
+              <Backdrop open={loading}>
+                <CircularProgress />
+              </Backdrop>
+              <Component {...pageProps} setColorMode={updateColorMode} />
+            </ThemeProvider>
+          </NotifyContext.Provider>
+        </UserContext.Provider>
+      </TranslateContext.Provider>
     </>
   );
 }
 
-export default MyApp;
-
-// Gives the user id when logged in
-function UserMatomo() {
-  const { data: session } = useSession();
-  useEffect(() => {
-    if (session) push(["setUserId", String(session.user.id)]);
-  });
-  return <></>;
+function App(Data: AppProps) {
+  return (
+    <SessionProvider>
+      <MyApp {...Data} />
+    </SessionProvider>
+  );
 }
+
+export default App;

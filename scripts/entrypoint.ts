@@ -11,7 +11,7 @@ if (process.env.APP_ENV !== "test") {
 }
 const analyticsDomain = "https://fantasy.lschaefer.xyz";
 // Used to tell the program what version of the database to use
-const currentVersion = "1.10.2";
+const currentVersion = "1.11.0";
 const date = new Date();
 let day = date.getDay();
 
@@ -32,7 +32,7 @@ async function startUp() {
   await Promise.all([
     // Used to store the users
     connection.query(
-      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, active bool DEFAULT 0, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '', admin bool DEFAULT false, favoriteLeague int)"
+      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, active bool DEFAULT 0, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '', admin bool DEFAULT false, favoriteLeague int, theme varchar(10), locale varchar(5))"
     ),
     // Used to store the players data
     connection.query(
@@ -408,6 +408,13 @@ async function startUp() {
         "UPDATE leagueSettings SET matchdayTransfers=1 WHERE league='WorldCup2022'"
       );
       oldVersion = "1.10.2";
+    }
+    if (oldVersion === "1.10.2") {
+      console.log("Updating database to version 1.11.0");
+      // Adds User Preference saving to the database
+      await connection.query("ALTER TABLE users ADD theme varchar(10)");
+      await connection.query("ALTER TABLE users ADD locale varchar(5)");
+      oldVersion = "1.11.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date

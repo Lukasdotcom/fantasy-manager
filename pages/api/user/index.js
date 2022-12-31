@@ -67,6 +67,22 @@ export default async function handler(req, res) {
         }
         connection.end();
         res.status(200).end("Updated favorite");
+      } else if (req.body.theme) {
+        const connection = await connect();
+        connection.query("UPDATE users SET theme=? WHERE id=?", [
+          req.body.theme,
+          id,
+        ]);
+        connection.end();
+        res.status(200).end("Updated theme");
+      } else if (req.body.locale) {
+        const connection = await connect();
+        connection.query("UPDATE users SET locale=? WHERE id=?", [
+          req.body.locale,
+          id,
+        ]);
+        connection.end();
+        res.status(200).end("Updated locale");
       } else if (
         req.body.username === undefined ||
         String(req.body.username) === ""

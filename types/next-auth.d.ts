@@ -16,6 +16,8 @@ declare module "next-auth" {
       github: string;
       admin: Boolean;
       favoriteLeague: null | number;
+      theme: string | null;
+      locale: string | null;
     };
   }
 }

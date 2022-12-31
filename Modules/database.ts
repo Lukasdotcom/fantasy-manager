@@ -154,7 +154,9 @@ export interface users {
   google: string;
   github: string;
   admin: boolean;
-  favoriteLeague: number;
+  favoriteLeague: number | null;
+  theme: string | null;
+  locale: string | null;
 }
 export interface players {
   uid: string;
