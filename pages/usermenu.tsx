@@ -2,7 +2,16 @@ import { getSession, signOut } from "next-auth/react";
 import { ChangeEvent, Key, useContext, useState } from "react";
 import Menu from "../components/Menu";
 import Head from "next/head";
-import { Button, Icon, TextField, useTheme } from "@mui/material";
+import {
+  Button,
+  Icon,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  TextField,
+  useTheme,
+} from "@mui/material";
 import {
   GetServerSideProps,
   GetServerSidePropsContext,
@@ -121,7 +130,7 @@ export default function Home({
   const oppositeColor = theme.palette.mode === "dark" ? "light" : "dark";
   // Alternates the color mode
   function alternateColorMode() {
-    setColorMode(oppositeColor);
+    setColorMode(oppositeColor, true);
     localStorage.theme = oppositeColor;
   }
   // Used to change the users username
@@ -157,6 +166,25 @@ export default function Home({
       setPasswordExists(password !== "");
     });
   }
+  // Used to change the locale
+  function changeLocale(event: SelectChangeEvent<string>) {
+    let locale = event.target.value;
+    notify(t("Saving"));
+    fetch("/api/user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        locale: locale,
+      }),
+    }).then(async (response) => {
+      notify(t(await response.text()), response.ok ? "success" : "error");
+      localStorage.locale = locale;
+      const event = new Event("visibilitychange");
+      document.dispatchEvent(event);
+    });
+  }
   // Used to delete the user
   const router = useRouter();
   function deleteUser() {
@@ -185,6 +213,14 @@ export default function Home({
         {t("Switch to {theme} mode", { theme: t(oppositeColor) })}{" "}
         <Icon>{oppositeColor + "_mode"}</Icon>
       </Button>
+      <InputLabel htmlFor="locale">{t("Language")}</InputLabel>
+      <Select value={router.locale} onChange={changeLocale} id="locale">
+        {router.locales?.map((val) => (
+          <MenuItem key={val} value={val}>
+            {val}
+          </MenuItem>
+        ))}
+      </Select>
       <br />
       <br />
       <TextField

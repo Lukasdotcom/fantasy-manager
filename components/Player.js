@@ -485,13 +485,11 @@ export function TransferPlayer({
           ownership
             .filter((e) => e.seller != 0 && e.transfer)
             .map((e) => (
-              <>
-                <UserChip
-                  sx={{ margin: "10px" }}
-                  key={e.seller}
-                  userid={e.seller}
-                />
-              </>
+              <UserChip
+                sx={{ margin: "10px" }}
+                key={e.seller}
+                userid={e.seller}
+              />
             ))}
         <br />
         {Actions}

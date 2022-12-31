@@ -29,7 +29,14 @@ export default function Layout() {
     <>
       <Link id="usermenu" href="/usermenu" styled={false}>
         <Tooltip title={t("Open Usermenu")}>
-          <IconButton onClick={() => {}}>
+          <IconButton>
+            <Icon>settings</Icon>
+          </IconButton>
+        </Tooltip>
+      </Link>
+      <Link id="usermenu" href="/usermenu" styled={false}>
+        <Tooltip title={t("Open Usermenu")}>
+          <IconButton>
             <UserAvatar userid={session.user.id} />
           </IconButton>
         </Tooltip>
