@@ -511,12 +511,12 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#username").type("Invite 3");
     cy.get("#password").type("password");
     cy.contains("Sign Up").click();
-    cy.reload().then(() => {
-      cy.visit("http://localhost:3000/api/invite/invite1", {
-        failOnStatusCode: false,
-      });
+    cy.contains(
+      "Your favorited league will be available in the menu when you are not in a league. Note that the menu only updates on a page navigation or reload."
+    );
+    cy.visit("http://localhost:3000/api/invite/invite1", {
+      failOnStatusCode: false,
     });
-
     cy.get(".center").contains("404"); //*/
   });
 });
