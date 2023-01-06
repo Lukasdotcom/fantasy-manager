@@ -1,57 +1,90 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import connect from "../../Modules/database";
+import connect, { detailedAnalytics } from "../../Modules/database";
+import { compareSemanticVersions } from "../../Modules/semantic";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   if (req.method == "POST") {
-    const connection = await connect();
-    // Collects all the analytics data
-    const day = Math.floor(Date.now() / 1000 / 86400);
-    const {
+    // Collects the data from the request
+    let {
       serverID = "fake",
       version = "0.0.0",
-      users = 0,
-      activeUsers = 0,
-      Bundesliga = 0,
-      BundesligaActive = 0,
-      EPL = 0,
-      EPLActive = 0,
-      WorldCup2022 = 0,
-      WorldCup2022Active = 0,
-    }: {
-      serverID: string;
-      version: string;
-      users: number;
-      activeUsers: number;
-      Bundesliga: number;
-      BundesligaActive: number;
-      EPL: number;
-      EPLActive: number;
-      WorldCup2022: number;
-      WorldCup2022Active: number;
-    } = req.body;
+      active = 0,
+      total = 0,
+      leagueActive = "{}",
+      leagueTotal = "{}",
+      themeActive = "{}",
+      themeTotal = "{}",
+      localeActive = "{}",
+      localeTotal = "{}",
+    }: detailedAnalytics = req.body;
+    // Makes sure that the JSON is valid
+    try {
+      JSON.parse(leagueActive);
+      JSON.parse(leagueTotal);
+      JSON.parse(themeActive);
+      JSON.parse(themeTotal);
+      JSON.parse(localeActive);
+      JSON.parse(localeTotal);
+    } catch (_) {
+      res.status(400).send("Invalid JSON");
+      return;
+    }
+    const connection = await connect();
+    const day = Math.floor(Date.now() / 1000 / 86400);
+    // Checks if the analytics have to be translated from the old version used before 1.11 to the new version.
+    if (compareSemanticVersions("1.11.0", version) === 1) {
+      if (req.body?.users) {
+        total = req.body.users;
+      }
+      if (req.body?.activeUsers) {
+        active = req.body.activeUsers;
+      }
+      let tempLeagueActive: { [Key: string]: number } = {};
+      if (req.body?.BundesligaActive) {
+        tempLeagueActive.Bundesliga = req.body.BundesligaActive;
+      }
+      if (req.body?.EPLActive) {
+        tempLeagueActive.EPL = req.body.EPLActive;
+      }
+      if (req.body?.WorldCup2022Active) {
+        tempLeagueActive.WorldCup2022 = req.body.WorldCup2022Active;
+      }
+      leagueActive = JSON.stringify(tempLeagueActive);
+      let tempLeagueTotal: { [Key: string]: number } = {};
+      if (req.body?.Bundesliga) {
+        tempLeagueTotal.Bundesliga = req.body.Bundesliga;
+      }
+      if (req.body?.EPL) {
+        tempLeagueTotal.EPL = req.body.EPL;
+      }
+      if (req.body?.WorldCup2022) {
+        tempLeagueTotal.WorldCup2022 = req.body.WorldCup2022;
+      }
+      leagueTotal = JSON.stringify(tempLeagueTotal);
+    }
     // Deletes the analytics data from the user if it already exists
-    await connection.query("DELETE FROM analytics WHERE serverID=? AND day=?", [
-      serverID,
-      day,
-    ]);
+    await connection.query(
+      "DELETE FROM detailedAnalytics WHERE serverID=? AND day=?",
+      [serverID, day]
+    );
     // Adds the analytics data
     connection.query(
-      "INSERT INTO analytics (serverID, day, version, users, activeUsers, Bundesliga, BundesligaActive, EPL, EPLActive, WorldCup2022, WorldCup2022Active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO detailedAnalytics (serverID, day, version, active, total, leagueActive, leagueTotal, themeActive, themeTotal, localeActive, localeTotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         serverID,
         day,
         version,
-        users,
-        activeUsers,
-        Bundesliga,
-        BundesligaActive,
-        EPL,
-        EPLActive,
-        WorldCup2022,
-        WorldCup2022Active,
+        active,
+        total,
+        leagueActive,
+        leagueTotal,
+        themeActive,
+        themeTotal,
+        localeActive,
+        localeTotal,
       ]
     );
     connection.end();

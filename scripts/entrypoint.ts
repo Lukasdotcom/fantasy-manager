@@ -1,4 +1,9 @@
-import connect, { data, leagues } from "../Modules/database";
+import connect, {
+  analytics,
+  data,
+  detailedAnalytics,
+  leagues,
+} from "../Modules/database";
 import { updateData } from "./update";
 import version from "./../package.json";
 import dotenv from "dotenv";
@@ -14,6 +19,138 @@ const analyticsDomain = "https://fantasy.lschaefer.xyz";
 const currentVersion = "1.11.0";
 const date = new Date();
 let day = date.getDay();
+//JSDocs
+/**
+ * Turns the days of the analytics in the db into one entry in the final analytics table
+ *
+ * @param day The day of the week that should be compiled
+ *
+ */
+async function compileAnalytics(day: number) {
+  const connection = await connect();
+  const analytics: detailedAnalytics[] = await connection.query(
+    "SELECT * FROM detailedAnalytics WHERE day = ?",
+    [day]
+  );
+  const previousAnalytics: analytics[] = await connection.query(
+    "SELECT * FROM analytics WHERE day = ?",
+    [day - 1]
+  );
+  type analyticsData = { [key: string]: number };
+  let versionActive: analyticsData = {};
+  let versionTotal: analyticsData = {};
+  let leagueActive: analyticsData = {};
+  let leagueTotal: analyticsData = {};
+  let themeActive: analyticsData = {};
+  let themeTotal: analyticsData = {};
+  let localeActive: analyticsData = {};
+  let localeTotal: analyticsData = {};
+  // Makes sure the dictionaries for the analytics are prefilled with all required information
+  if (previousAnalytics.length > 0) {
+    const previousEntry = previousAnalytics[0];
+    versionActive = JSON.parse(previousEntry.versionActive);
+    for (const version in versionActive) {
+      versionActive[version] = 0;
+    }
+    versionTotal = JSON.parse(previousEntry.versionTotal);
+    for (const version in versionTotal) {
+      versionTotal[version] = 0;
+    }
+    leagueActive = JSON.parse(previousEntry.leagueActive);
+    for (const league in leagueActive) {
+      leagueActive[league] = 0;
+    }
+    leagueTotal = JSON.parse(previousEntry.leagueTotal);
+    for (const league in leagueTotal) {
+      leagueTotal[league] = 0;
+    }
+    themeActive = JSON.parse(previousEntry.themeActive);
+    for (const theme in themeActive) {
+      themeActive[theme] = 0;
+    }
+    themeTotal = JSON.parse(previousEntry.themeTotal);
+    for (const theme in themeTotal) {
+      themeTotal[theme] = 0;
+    }
+    localeActive = JSON.parse(previousEntry.localeActive);
+    for (const locale in localeActive) {
+      localeActive[locale] = 0;
+    }
+    localeTotal = JSON.parse(previousEntry.localeTotal);
+    for (const locale in localeTotal) {
+      localeTotal[locale] = 0;
+    }
+  }
+  // Goes through every servers analytics and adds them to the dictionaries
+  for (const entry of analytics) {
+    if (versionActive[entry.version] === undefined) {
+      versionActive[entry.version] = 0;
+    }
+    versionActive[entry.version] += entry.active;
+    if (versionTotal[entry.version] === undefined) {
+      versionTotal[entry.version] = 0;
+    }
+    versionTotal[entry.version] += entry.total;
+    const leagueActiveEntry: analyticsData = JSON.parse(entry.leagueActive);
+    for (const league in leagueActiveEntry) {
+      if (leagueActive[league] === undefined) {
+        leagueActive[league] = 0;
+      }
+      leagueActive[league] += leagueActiveEntry[league];
+    }
+    const leagueTotalEntry = JSON.parse(entry.leagueTotal);
+    for (const league in leagueTotalEntry) {
+      if (leagueTotal[league] === undefined) {
+        leagueTotal[league] = 0;
+      }
+      leagueTotal[league] += leagueTotalEntry[league];
+    }
+    const themeActiveEntry = JSON.parse(entry.themeActive);
+    for (const theme in themeActiveEntry) {
+      if (themeActive[theme] === undefined) {
+        themeActive[theme] = 0;
+      }
+      themeActive[theme] += themeActiveEntry[theme];
+    }
+    const themeTotalEntry = JSON.parse(entry.themeTotal);
+    for (const theme in themeTotalEntry) {
+      if (themeTotal[theme] === undefined) {
+        themeTotal[theme] = 0;
+      }
+      themeTotal[theme] += themeTotalEntry[theme];
+    }
+    const localeActiveEntry = JSON.parse(entry.localeActive);
+    for (const locale in localeActiveEntry) {
+      if (localeActive[locale] === undefined) {
+        localeActive[locale] = 0;
+      }
+      localeActive[locale] += localeActiveEntry[locale];
+    }
+    const localeTotalEntry = JSON.parse(entry.localeTotal);
+    for (const locale in localeTotalEntry) {
+      if (localeTotal[locale] === undefined) {
+        localeTotal[locale] = 0;
+      }
+      localeTotal[locale] += localeTotalEntry[locale];
+    }
+  }
+  await connection.query("DELETE FROM analytics WHERE day = ?", [day]);
+  await connection.query(
+    "INSERT INTO analytics (day, versionActive, versionTotal, leagueActive, leagueTotal, themeActive, themeTotal, localeActive, localeTotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    [
+      day,
+      JSON.stringify(versionActive),
+      JSON.stringify(versionTotal),
+      JSON.stringify(leagueActive),
+      JSON.stringify(leagueTotal),
+      JSON.stringify(themeActive),
+      JSON.stringify(themeTotal),
+      JSON.stringify(localeActive),
+      JSON.stringify(localeTotal),
+    ]
+  );
+  await connection.end();
+}
 
 async function startUp() {
   if (process.env.APP_ENV === "test") {
@@ -88,7 +225,11 @@ async function startUp() {
     ),
     // Used to store analytics data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS analytics (serverID varchar(10), day int, version varchar(10), users int, activeUsers int, Bundesliga int, BundesligaActive int, EPL int, EPLActive int, WorldCup2022 int, WorldCup2022Active int)"
+      "CREATE TABLE IF NOT EXISTS analytics (day int PRIMARY KEY, versionActive varchar(255), versionTotal varchar(255), leagueActive varchar(255), leagueTotal varchar(255), themeActive varchar(255), themeTotal varchar(255), localeActive varchar(255), localeTotal varchar(255))"
+    ),
+    // Used to store every server's analytics data
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS detailedAnalytics (serverID int, day int, version varchar(255), active int, total int, leagueActive varchar(255), leagueTotal varchar(255), themeActive varchar(255), themeTotal varchar(255), localeActive varchar(255), localeTotal varchar(255))"
     ),
     // Used to store league announcements
     connection.query(
@@ -414,6 +555,55 @@ async function startUp() {
       // Adds User Preference saving to the database
       await connection.query("ALTER TABLE users ADD theme varchar(10)");
       await connection.query("ALTER TABLE users ADD locale varchar(5)");
+      // Updates the format for the analytics
+      const data = await connection.query("SELECT * FROM analytics");
+      await Promise.all(
+        data.map(
+          (e) =>
+            new Promise<void>(async (res) => {
+              await connection.query(
+                "INSERT INTO detailedAnalytics (serverID, day, version, active, total, leagueActive, leagueTotal, themeActive, themeTotal, localeActive, localeTotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [
+                  e.serverID,
+                  e.day,
+                  e.version,
+                  e.activeUsers,
+                  e.users,
+                  JSON.stringify({
+                    Bundesliga: e.BundesligaActive,
+                    ELP: e.EPLActive,
+                    WorldCup2022: e.WorldCup2022Active,
+                  }),
+                  JSON.stringify({
+                    Bundesliga: e.Bundesliga,
+                    ELP: e.EPL,
+                    WorldCup2022: e.WorldCup2022,
+                  }),
+                  "{}",
+                  "{}",
+                  "{}",
+                  "{}",
+                ]
+              );
+              res();
+            })
+        )
+      );
+      // Drops the table for the analytics and creates the correct table.
+      await connection.query("DROP TABLE analytics");
+      await connection.query(
+        "CREATE TABLE IF NOT EXISTS analytics (day int PRIMARY KEY, versionActive varchar(255), versionTotal varchar(255), leagueActive varchar(255), leagueTotal varchar(255), themeActive varchar(255), themeTotal varchar(255), localeActive varchar(255), localeTotal varchar(255))"
+      );
+      // Compiles the analytics for every single day that has happened
+      const minDate: number = (
+        await connection.query("SELECT min(day) AS min FROM detailedAnalytics")
+      )[0].min;
+      const maxDate: number = (
+        await connection.query("SELECT max(day) AS max FROM detailedAnalytics")
+      )[0].max;
+      for (let i = minDate; i <= maxDate; i++) {
+        await compileAnalytics(i);
+      }
       oldVersion = "1.11.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
@@ -454,44 +644,73 @@ async function update() {
     day = newDate.getDay();
     // Gathers the analytics data
     const users = await connection3.query("SELECT * FROM users");
+    let localeActive: { [Key: string]: number } = {};
+    let localeTotal: { [Key: string]: number } = {};
+    let themeActive: { [Key: string]: number } = {};
+    let themeTotal: { [Key: string]: number } = {};
+    for (const user of users) {
+      if (user.locale !== "" && user.locale) {
+        // Calculates all the locales for the users
+        if (user.locale in localeTotal) {
+          localeTotal[user.locale]++;
+        } else {
+          localeTotal[user.locale] = 1;
+        }
+        if (user.active) {
+          if (user.locale in localeActive) {
+            localeActive[user.locale]++;
+          } else {
+            localeActive[user.locale] = 1;
+          }
+        }
+      }
+      if (user.theme !== "" && user.theme) {
+        // Calculates all the themes for the users
+        if (user.theme in themeTotal) {
+          themeTotal[user.theme]++;
+        } else {
+          themeTotal[user.theme] = 1;
+        }
+        if (user.active) {
+          if (user.theme in themeActive) {
+            themeActive[user.theme]++;
+          } else {
+            themeActive[user.theme] = 1;
+          }
+        }
+      }
+    }
+    // Gets all the statistics for the leagues
+    let leagueActive: { [Key: string]: number } = {};
+    let leagueTotal: { [Key: string]: number } = {};
+    for (const league of leagues) {
+      // Calculates all the leagues for the users
+      leagueActive[league] = (
+        await connection3.query(
+          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=? AND leagueSettings.archived=0) AND EXISTS (SELECT * FROM users WHERE users.id=leagueUsers.user AND active='1')",
+          [league]
+        )
+      ).length;
+      leagueTotal[league] = (
+        await connection3.query(
+          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=? AND leagueSettings.archived=0)",
+          [league]
+        )
+      ).length;
+    }
     const JSONbody = JSON.stringify({
       serverID: await connection3
         .query("SELECT value2 FROM data WHERE value1='serverID'")
         .then((res) => res[0].value2),
-      users: users.length,
-      activeUsers: users.filter((e) => e.active).length,
+      total: users.length,
+      active: users.filter((e) => e.active).length,
       version: version.version,
-      // Gets all the statistics for the leagues
-      Bundesliga: (
-        await connection3.query(
-          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league='Bundesliga')"
-        )
-      ).length,
-      BundesligaActive: (
-        await connection3.query(
-          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league='Bundesliga') AND EXISTS (SELECT * FROM users WHERE users.id=leagueUsers.user AND active='1')"
-        )
-      ).length,
-      EPL: (
-        await connection3.query(
-          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league='EPL')"
-        )
-      ).length,
-      EPLActive: (
-        await connection3.query(
-          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league='EPL') AND EXISTS (SELECT * FROM users WHERE users.id=leagueUsers.user AND active='1')"
-        )
-      ).length,
-      WorldCup2022: (
-        await connection3.query(
-          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league='WorldCup2022')"
-        )
-      ).length,
-      WorldCup2022Active: (
-        await connection3.query(
-          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league='WorldCup2022') AND EXISTS (SELECT * FROM users WHERE users.id=leagueUsers.user AND active='1')"
-        )
-      ).length,
+      leagueActive: JSON.stringify(leagueActive),
+      leagueTotal: JSON.stringify(leagueTotal),
+      themeActive: JSON.stringify(themeActive),
+      themeTotal: JSON.stringify(themeTotal),
+      localeActive: JSON.stringify(localeActive),
+      localeTotal: JSON.stringify(localeTotal),
     });
     if (
       process.env.APP_ENV !== "development" &&
@@ -515,6 +734,18 @@ async function update() {
       body: JSONbody,
     });
     connection3.query("UPDATE users SET active=0");
+    // Has the analytics get compiled for all days that have happened since this day
+    const lastDay = await connection3.query(
+      "SELECT max(day) AS max FROM analytics"
+    );
+    if (lastDay.length > 0) {
+      let max = lastDay[0].max;
+      while (max < day - 1) {
+        compileAnalytics(max);
+        max++;
+      }
+    }
+    compileAnalytics(day - 1);
     console.log("Downloading new data for today");
     // Updates every single league
     leagues.forEach((e) => {
