@@ -103,7 +103,7 @@ Read the contributing guidelines.
 
 ## Analytics
 
-This service collects some simple analytics when you host this service that currently includes only the following information. This is collected daily.
+This service collects some simple analytics when you host this service that currently includes only the following information. This is collected daily and in aggregate so individual user data is never sent to the analytics server.
 
 1. serverID - This is a random id that is generated the first time the server boots.
 2. version - The version of the server.
@@ -112,3 +112,7 @@ This service collects some simple analytics when you host this service that curr
 5. Then for every type of league (Bundesliga, EPL, etc) there are 2 pieces of data collected:
    1. Active Users - The number of Active Users in a league with that type.
    2. Users - The number of users in a league of this type.
+6. The total number of users using dark or light theme.
+7. From the active users the total of the dark and light theme.
+8. The total number of users using a certain language.
+9. From the active users the total of a certain language.
