@@ -259,18 +259,31 @@ export interface clubs {
   opponent: string;
   league: string;
 }
-export interface analytics {
+// Stores every servers analytics data
+export interface detailedAnalytics {
   serverID: string;
   day: number;
   version: string;
-  users: number;
-  activeUsers: number;
-  Bundesliga: number;
-  BundesligaActive: number;
-  EPL: number;
-  EPLActive: number;
-  WorldCup2022: number;
-  WorldCup2022Active: number;
+  active: number;
+  total: number;
+  leagueActive: string;
+  leagueTotal: string;
+  themeActive: string;
+  themeTotal: string;
+  localeActive: string;
+  localeTotal: string;
+}
+// Stores the analytics data combined for all the servers
+export interface analytics {
+  day: number;
+  versionActive: string;
+  versionTotal: string;
+  leagueActive: string;
+  leagueTotal: string;
+  themeActive: string;
+  themeTotal: string;
+  localeActive: string;
+  localeTotal: string;
 }
 export type anouncementColor = "error" | "info" | "success" | "warning";
 export interface announcements {
