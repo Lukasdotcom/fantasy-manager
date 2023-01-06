@@ -27,7 +27,7 @@
     "@types/node": "18.11.18",
     "@types/react": "18.0.26",
     "bcryptjs": "2.4.3",
-    "chart.js": "4.1.1",
+    "chart.js": "4.1.2",
     "csv-stringify": "6.2.3",
     "dotenv": "16.0.3",
     "mysql": "2.18.1",
@@ -46,7 +46,7 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "cypress": "12.2.0",
+    "cypress": "12.3.0",
     "eslint": "8.31.0",
     "eslint-config-next": "13.1.1",
     "eslint-plugin-cypress": "2.12.1",
