@@ -134,7 +134,7 @@ async function compileAnalytics(day: number) {
       localeTotal[locale] += localeTotalEntry[locale];
     }
   }
-  await connection.query("DELETE FROM analytics WHERE day = ?", [day]);
+  await connection.query("DELETE FROM analytics WHERE day=?", [day]);
   await connection.query(
     "INSERT INTO analytics (day, versionActive, versionTotal, leagueActive, leagueTotal, themeActive, themeTotal, localeActive, localeTotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
     [
@@ -150,6 +150,7 @@ async function compileAnalytics(day: number) {
     ]
   );
   await connection.end();
+  return;
 }
 
 async function startUp() {
@@ -571,12 +572,12 @@ async function startUp() {
                   e.users,
                   JSON.stringify({
                     Bundesliga: e.BundesligaActive,
-                    ELP: e.EPLActive,
+                    EPL: e.EPLActive,
                     WorldCup2022: e.WorldCup2022Active,
                   }),
                   JSON.stringify({
                     Bundesliga: e.Bundesliga,
-                    ELP: e.EPL,
+                    EPL: e.EPL,
                     WorldCup2022: e.WorldCup2022,
                   }),
                   "{}",
@@ -735,17 +736,23 @@ async function update() {
     });
     connection3.query("UPDATE users SET active=0");
     // Has the analytics get compiled for all days that have happened since this day
-    const lastDay = await connection3.query(
-      "SELECT max(day) AS max FROM analytics"
-    );
-    if (lastDay.length > 0) {
-      let max = lastDay[0].max;
-      while (max < day - 1) {
-        compileAnalytics(max);
-        max++;
+    setTimeout(async () => {
+      const connection3 = await connect();
+      const lastDay = await connection3.query(
+        "SELECT max(day) AS max FROM analytics"
+      );
+      const today = Math.floor(Date.now() / 1000 / 86400);
+      if (lastDay.length > 0) {
+        let max = lastDay[0].max;
+        while (max < today) {
+          await compileAnalytics(max);
+          max++;
+        }
       }
-    }
-    compileAnalytics(day - 1);
+      await compileAnalytics(today);
+      console.log("Compiled server analytics");
+      connection3.end();
+    }, 10000);
     console.log("Downloading new data for today");
     // Updates every single league
     leagues.forEach((e) => {

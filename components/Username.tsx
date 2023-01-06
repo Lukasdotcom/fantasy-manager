@@ -67,7 +67,10 @@ export function UserAvatar({ userid }: Props) {
 }
 // This turns a number into a random color.
 export function stringToColor(string: number) {
-  let hash = string * 10070325;
+  let hash =
+    (string * (1 + Math.sqrt(5))) / 2 -
+    Math.floor((string * (1 + Math.sqrt(5))) / 2);
+  hash = Math.floor(hash * 256 * 256 * 256);
   let i;
   let color = "#";
   for (i = 0; i < 3; i += 1) {
