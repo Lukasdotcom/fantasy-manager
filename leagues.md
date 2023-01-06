@@ -7,11 +7,11 @@ Not every league has perfect support.
 - :3rd_place_medal: means that the league has no support anymore or is done.
 - :new: means that the league is new and may have some unforeseen bugs.
 
-| League             | Support           |
-| ------------------ | ----------------- |
-| Bundesliga         | :1st_place_medal: |
-| EPL                | :2nd_place_medal: |
-| WorldCup2022 :new: | :1st_place_medal: |
+| League       | Support           |
+| ------------ | ----------------- |
+| Bundesliga   | :1st_place_medal: |
+| EPL          | :2nd_place_medal: |
+| WorldCup2022 | :3rd_place_medal: |
 
 # How to Enable leagues
 
@@ -41,7 +41,4 @@ Not every league has perfect support.
 
 ## Not Required Owner of Repository Will do this
 
-- Did you add add the league to the analytics database table and add it in the analytics request(entrypoint.ts) and api response(./pages/api/analytics.ts).
-- Did you add the league to the analytics graph in the admin page.
-- Did you add the league to the enabled disabled chart on the admin page.
 - Add to support list.
