@@ -30,9 +30,9 @@ export default function SignIn({ enabledProviders }: Props) {
   if (enabledProviders.includes("google")) {
     providers.push({
       name: "google",
-      logo: "https://raw.githubusercontent.com/nextauthjs/next-auth/main/packages/next-auth/provider-logos/google.svg",
+      logo: "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/google.svg",
       logoDark:
-        "https://raw.githubusercontent.com/nextauthjs/next-auth/main/packages/next-auth/provider-logos/google.svg",
+        "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/google.svg",
       bgDark: "#fff",
       bg: "#fff",
       text: "#000",
@@ -42,9 +42,9 @@ export default function SignIn({ enabledProviders }: Props) {
   if (enabledProviders.includes("github")) {
     providers.push({
       name: "github",
-      logo: "https://raw.githubusercontent.com/nextauthjs/next-auth/main/packages/next-auth/provider-logos/github.svg",
+      logo: "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/github.svg",
       logoDark:
-        "https://raw.githubusercontent.com/nextauthjs/next-auth/main/packages/next-auth/provider-logos/github-dark.svg",
+        "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/github-dark.svg",
       bg: "#fff",
       bgDark: "#000",
       text: "#000",
