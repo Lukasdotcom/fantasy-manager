@@ -233,7 +233,11 @@ function MyApp({ Component, pageProps }: AppProps) {
             );
           })
         }
-        <link rel="alternate" hrefLang="lang_code" href="url_of_page" />
+        <link
+          rel="alternate"
+          hrefLang="x-default"
+          href={`${host}${router.asPath}`}
+        />
       </Head>
       <TranslateContext.Provider value={t}>
         <UserContext.Provider value={getUser}>
