@@ -27,10 +27,7 @@ function MenuItems({ league, handleCloseNavMenu }: MenuItemsInterface) {
       : undefined;
   }
   const t = useContext(TranslateContext);
-  const pages = [
-    { name: t("Home"), link: "/" },
-    { name: "Rules", link: "/rules" },
-  ];
+  const pages = [{ name: t("Home"), link: "/" }];
   pages.push({ name: t("Download"), link: `/download` });
   // Checks if the player is logged in
   if (session || league) {
