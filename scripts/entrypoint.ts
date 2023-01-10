@@ -186,7 +186,7 @@ async function startUp() {
     ),
     // Used to store the leagues users
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, points int, money int, formation varchar(255), admin bool DEFAULT 0)"
+      "CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, points int, money int, formation varchar(255), admin bool DEFAULT 0, tutorial bool DEFAULT 1)"
     ),
     // Used to store the Historical Points
     connection.query(
@@ -605,6 +605,10 @@ async function startUp() {
       for (let i = minDate; i <= maxDate; i++) {
         await compileAnalytics(i);
       }
+      await connection.query(
+        "ALTER TABLE leagueUsers ADD tutorial bool DEFAULT 1"
+      );
+      await connection.query("UPDATE leagueUsers SET tutorial=1");
       oldVersion = "1.11.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT

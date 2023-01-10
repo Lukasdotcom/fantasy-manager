@@ -5,6 +5,7 @@ import { TranslateContext } from "../../Modules/context";
 import connect, { leagueSettings } from "../../Modules/database";
 import { Button, Icon, IconButton, Tooltip } from "@mui/material";
 import { useRouter } from "next/router";
+import { getSession } from "next-auth/react";
 export default function Home(props: leagueSettings) {
   const t = useContext(TranslateContext);
   const [tutorialIndex, setTutorialIndex] = useState(0);
@@ -59,7 +60,7 @@ export default function Home(props: leagueSettings) {
       title: t("Final Tips"),
       text: t(
         t(
-          "This is all you have to do for now. Between every matchday you can buy or sell {amount} players to improve your squad. You can click on the settings gear to change your user's settings. You can also click on the leagues page to show all the leagues you are in. ",
+          "This is all you have to do for now. Between every matchday you can buy or sell {amount} players to improve your squad. You can click on the settings gear to change your user's settings. You can also click on the leagues page to show all the leagues you are in. On the league standings page is also a list of all the rules inside of this league. ",
           { amount: props.transfers }
         )
       ),
@@ -163,5 +164,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       notFound: true,
     };
   }
+  // Makes sure to say that the league tutorial has been looked at
+  connection.query(
+    "UPDATE leagueUsers SET tutorial=0 WHERE leagueID=? AND user=?",
+    [context?.params?.league, (await getSession(context))?.user.id]
+  );
   return { props: JSON.parse(JSON.stringify(settings[0])) };
 };

@@ -8,7 +8,7 @@ import connect, {
   announcements,
   anouncementColor,
   invite,
-  leagueSettings,
+  leagueUsers,
 } from "../../Modules/database";
 import Link from "../../components/Link";
 import {
@@ -299,6 +299,7 @@ function AdminPanel({
             });
           }}
           variant="contained"
+          color="success"
         >
           {t("Save admin settings")}
         </Button>
@@ -484,7 +485,7 @@ interface Props {
   league: number;
   leagueType: string;
   archived: boolean;
-  transfer: boolean;
+  tutorial: boolean;
 }
 export default function Home({
   OGannouncement,
@@ -497,7 +498,7 @@ export default function Home({
   leagueName,
   leagueType,
   archived,
-  transfer,
+  tutorial,
 }: Props) {
   const t = useContext(TranslateContext);
   const notify = useContext(NotifyContext);
@@ -516,6 +517,7 @@ export default function Home({
       Math.random().toString(36).substring(2)
     );
   };
+  const [showTutorial, setShowTutorial] = useState(tutorial);
   const [announcementPriority, setAnouncementPriority] =
     useState<anouncementColor>("info");
   const [announcementDescription, setAnouncementDescription] = useState("");
@@ -596,14 +598,26 @@ export default function Home({
         </title>
       </Head>
       <Menu league={league} />
-      <Alert severity="info">
-        <AlertTitle>{t("Help")}</AlertTitle>
-        <Button variant="outlined">
-          <Link href={`/${league}/help`} underline="none">
-            {t("Click Here For a Tutorial")}
-          </Link>
-        </Button>
-      </Alert>
+      {Boolean(showTutorial) && (
+        <Alert severity="info">
+          <AlertTitle>{t("Help")}</AlertTitle>
+          <p>
+            {t(
+              "A tutorial can always be found at the bottom of this page just under the invite links. "
+            )}
+          </p>
+          <Button
+            onClick={() => {
+              fetch(`/${league}/help`);
+              setShowTutorial(false);
+            }}
+            variant="outlined"
+            color="error"
+          >
+            {t("Don't show this message")}
+          </Button>
+        </Alert>
+      )}
       <h1>
         {t("Standings for {leagueName}", { leagueName: inputLeagueName })}
       </h1>
@@ -783,6 +797,13 @@ export default function Home({
       >
         {t("Add invite")}
       </Button>
+      <br />
+      <br />
+      <Link href={`/${league}/help`}>
+        <Button variant="contained" color="info">
+          {t("Click Here For a Tutorial")}
+        </Button>
+      </Link>
       <AdminPanel
         leagueName={inputLeagueName}
         setLeagueName={setInputLeagueName}
@@ -863,13 +884,16 @@ export const getServerSideProps: GetServerSideProps = async (
     resolve(inviteLinks);
   }).then((val) => JSON.parse(JSON.stringify(val)));
   // Checks if the user is an admin
-  const admin = new Promise<boolean>(async (res) => {
+  const data = new Promise<[boolean, boolean]>(async (res) => {
     const connection = await connect();
-    const result = await connection.query(
-      "SELECT admin FROM leagueUsers WHERE admin=1 AND leagueID=? AND user=?",
+    const result: leagueUsers[] = await connection.query(
+      "SELECT * FROM leagueUsers WHERE leagueID=? AND user=?",
       [ctx.params?.league, user]
     );
-    res(result.length > 0);
+
+    res(
+      result.length > 0 ? [result[0].admin, result[0].tutorial] : [false, false]
+    );
   });
   const announcements = new Promise<announcements[]>(async (res) => {
     const connection = await connect();
@@ -879,28 +903,13 @@ export const getServerSideProps: GetServerSideProps = async (
       ])
     );
   });
-  const transfer = new Promise<boolean>(async (res) => {
-    const connection = await connect();
-    const result = await connection.query(
-      "SELECT value2 FROM data WHERE value1=?",
-      [
-        "transferOpen" +
-          (await connection
-            .query("SELECT league FROM leagueSettings WHERE leagueID=?", [
-              ctx.params?.league,
-            ])
-            .then((e: leagueSettings[]) => (e.length > 0 ? e[0].league : ""))),
-      ]
-    );
-    res(result.length > 0 ? result[0].value2 == "true" : true);
-  });
   return redirect(ctx, {
     OGannouncement: await announcements,
-    admin: await admin,
+    admin: (await data)[0],
+    tutorial: (await data)[1],
     standings: await standings,
     historicalPoints: await historicalPoints,
     inviteLinks: await inviteLinks,
     host: ctx.req.headers.host,
-    transfer: await transfer,
   });
 };

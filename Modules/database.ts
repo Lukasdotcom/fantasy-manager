@@ -196,6 +196,7 @@ export interface leagueUsers {
   money: number;
   formation: string;
   admin: boolean;
+  tutorial: boolean;
 }
 export interface points {
   leagueID: number;
