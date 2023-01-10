@@ -2,7 +2,6 @@ import playerStyles from "../styles/Player.module.css";
 import { useContext, useEffect, useState } from "react";
 import { NotifyContext, TranslateContext } from "../Modules/context";
 import Image from "next/image";
-import { push } from "@socialgouv/matomo-next";
 import { useSession } from "next-auth/react";
 import fallbackImg from "../public/playerFallback.png";
 import Link from "./Link";
@@ -269,7 +268,6 @@ export function TransferPlayer({
     amount = amount * 1000000;
     setFocused(false);
     notify("Buying/Selling");
-    push(["trackEvent", "Purchase/Sell", String(league), String(uid)]);
     fetch(`/api/transfer/${league}`, {
       method: "POST",
       headers: {
@@ -560,7 +558,6 @@ export function SquadPlayer({
         variant="outlined"
         onClick={() => {
           notify(t("Moving"));
-          push(["trackEvent", "Move Player", league, uid]);
           // Used to move the player
           fetch(`/api/squad/${league}`, {
             method: "POST",
@@ -589,7 +586,6 @@ export function SquadPlayer({
           color="secondary"
           onClick={() => {
             notify(t("Starring"));
-            push(["trackEvent", "Star Player", league, uid]);
             fetch(`/api/squad/${league}`, {
               method: "POST",
               headers: {

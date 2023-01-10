@@ -3,7 +3,6 @@ import redirect from "../../Modules/league";
 import Head from "next/head";
 import { SyntheticEvent, useContext, useEffect, useState } from "react";
 import { stringToColor, UserChip } from "../../components/Username";
-import { push } from "@socialgouv/matomo-next";
 import { getSession } from "next-auth/react";
 import connect, {
   announcements,
@@ -350,7 +349,6 @@ function Invite({ link, league, host, remove }: InviteProps) {
       <Button
         onClick={async () => {
           notify(t("Deleting"));
-          push(["trackEvent", "Delete Invite", league, link]);
           const response = await fetch("/api/invite", {
             method: "DELETE",
             headers: {

@@ -4,7 +4,6 @@ import { getSession, useSession } from "next-auth/react";
 import { LeagueListPart, LeagueListResult } from "./api/league";
 import Link from "../components/Link";
 import Menu from "../components/Menu";
-import { push } from "@socialgouv/matomo-next";
 import {
   TextField,
   Button,
@@ -88,7 +87,6 @@ function MakeLeague({ getLeagueData, leagues }: MakeLeagueProps) {
       <Button
         variant="contained"
         onClick={async () => {
-          push(["trackEvent", "League", "Create", leagueName]);
           notify("Saving");
           // Used to create a league
           const response = await fetch("/api/league", {
@@ -138,7 +136,6 @@ function LeaveLeague({
   async function deleteLeague() {
     setOpen(false);
     notify("Leaving");
-    push(["trackEvent", "League", "Leave", leagueID]);
     const response = await fetch(`/api/league/${leagueID}`, {
       method: "DELETE",
       headers: {
