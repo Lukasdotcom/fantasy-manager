@@ -282,6 +282,9 @@ function Leagues({ leagues }: LeaguesProps) {
         {t(
           "Your favorited league will be available in the menu when you are not in a league. Note that the menu only updates on a page navigation or reload. "
         )}
+        {t(
+          "You can favorite a league by clicking on the star next to the league. "
+        )}
       </p>
       {favoriteLeague && (
         <p>

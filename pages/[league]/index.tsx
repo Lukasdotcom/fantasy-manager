@@ -9,6 +9,7 @@ import connect, {
   announcements,
   anouncementColor,
   invite,
+  leagueSettings,
 } from "../../Modules/database";
 import Link from "../../components/Link";
 import {
@@ -485,6 +486,7 @@ interface Props {
   league: number;
   leagueType: string;
   archived: boolean;
+  transfer: boolean;
 }
 export default function Home({
   OGannouncement,
@@ -497,6 +499,7 @@ export default function Home({
   leagueName,
   leagueType,
   archived,
+  transfer,
 }: Props) {
   const t = useContext(TranslateContext);
   const notify = useContext(NotifyContext);
@@ -595,6 +598,14 @@ export default function Home({
         </title>
       </Head>
       <Menu league={league} />
+      <Alert severity="info">
+        <AlertTitle>{t("Help")}</AlertTitle>
+        <Button variant="outlined">
+          <Link href={`/${league}/help`} underline="none">
+            {t("Click Here For a Tutorial")}
+          </Link>
+        </Button>
+      </Alert>
       <h1>
         {t("Standings for {leagueName}", { leagueName: inputLeagueName })}
       </h1>
@@ -870,6 +881,21 @@ export const getServerSideProps: GetServerSideProps = async (
       ])
     );
   });
+  const transfer = new Promise<boolean>(async (res) => {
+    const connection = await connect();
+    const result = await connection.query(
+      "SELECT value2 FROM data WHERE value1=?",
+      [
+        "transferOpen" +
+          (await connection
+            .query("SELECT league FROM leagueSettings WHERE leagueID=?", [
+              ctx.params?.league,
+            ])
+            .then((e: leagueSettings[]) => (e.length > 0 ? e[0].league : ""))),
+      ]
+    );
+    res(result.length > 0 ? result[0].value2 == "true" : true);
+  });
   return redirect(ctx, {
     OGannouncement: await announcements,
     admin: await admin,
@@ -877,5 +903,6 @@ export const getServerSideProps: GetServerSideProps = async (
     historicalPoints: await historicalPoints,
     inviteLinks: await inviteLinks,
     host: ctx.req.headers.host,
+    transfer: await transfer,
   });
 };
