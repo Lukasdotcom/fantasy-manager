@@ -3,7 +3,6 @@ import redirect from "../../Modules/league";
 import Head from "next/head";
 import { SquadPlayer as Player } from "../../components/Player";
 import { useContext, useState } from "react";
-import { push } from "@socialgouv/matomo-next";
 import connect from "../../Modules/database";
 import {
   Alert,
@@ -100,7 +99,6 @@ export default function Home({
         onChange={(e) => {
           // Used to change the formation
           let newFormation = JSON.parse(e.target.value);
-          push(["trackEvent", "New Formation", JSON.stringify(newFormation)]);
           setFormation(newFormation);
           notify("Saving");
           fetch(`/api/squad/${league}`, {

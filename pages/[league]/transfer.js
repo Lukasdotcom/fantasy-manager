@@ -3,7 +3,6 @@ import redirect from "../../Modules/league";
 import Head from "next/head";
 import { useState, useEffect, useContext } from "react";
 import { TransferPlayer as Player } from "../../components/Player";
-import { push } from "@socialgouv/matomo-next";
 import { useSession } from "next-auth/react";
 import connect from "../../Modules/database";
 import Link from "../../components/Link";
@@ -138,21 +137,6 @@ function MainPage({
       }
     } else {
       setPlayers([]);
-      push(["trackEvent", "Search Transfer", "Search Term", searchTerm]);
-      push([
-        "trackEvent",
-        "Search Transfer",
-        "Positions",
-        JSON.stringify(positions),
-      ]);
-      push(["trackEvent", "Search Transfer", "Order By", orderBy]);
-      push([
-        "trackEvent",
-        "Search Transfer",
-        "Show Hidden",
-        JSON.stringify(showHidden),
-      ]);
-      push(["trackEvent", "Search Transfer", "Club Search", clubSearch]);
       setFinished(false);
     }
     // Gets the data and returns the amount of players found

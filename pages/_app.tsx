@@ -1,5 +1,4 @@
 import "../styles/globals.css";
-import { init } from "@socialgouv/matomo-next";
 import { useEffect, useState } from "react";
 import { SessionProvider, useSession } from "next-auth/react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
@@ -22,8 +21,6 @@ import {
 } from "../Modules/context";
 import getLocales from "../locales/getLocales";
 import Head from "next/head";
-const MATOMO_URL = process.env.NEXT_PUBLIC_MATOMO_URL;
-const MATOMO_SITE_ID = process.env.NEXT_PUBLIC_MATOMO_SITE_ID;
 interface Notification {
   message?: string;
   severity?: AlertColor;
@@ -34,10 +31,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [translationData, setTranslationData] = useState<
     Record<string, string>
   >(pageProps.t ? pageProps.t : {});
-  // Used to start up matomo analytics
-  useEffect(() => {
-    init({ url: String(MATOMO_URL), siteId: String(MATOMO_SITE_ID) });
-  }, []);
   const [notifications, setNotifications] = useState<Notification>({});
   // Used to send notification
   function notify(message: string, severity: AlertColor = "info") {
