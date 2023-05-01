@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: test
+      SQLITE: db.db
     strategy:
       matrix:
         node-version: [18.x, 19.x]
