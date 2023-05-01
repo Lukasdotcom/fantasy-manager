@@ -32,7 +32,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#announcementDescription").type(
       "Very great description for this announcement"
     );
-    cy.contains('Add announcement').click();
+    cy.contains("Add announcement").click();
     // Creates invites and deletes the randomly generated one
     cy.contains("Add invite").click();
     cy.get("#invite").clear().type("invite1");
