@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-import connect, { leagues } from "../../../Modules/database";
+import connect, { validLeagues } from "../../../Modules/database";
 
 export default async function handler(
   req: NextApiRequest,
@@ -25,6 +25,7 @@ export default async function handler(
           break;
         }
         const leagueType = req.body.leagueType;
+        const leagues = await validLeagues();
         if (!leagues.includes(leagueType)) {
           res.status(404).end("Invalid league type given");
           break;

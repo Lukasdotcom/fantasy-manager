@@ -1,22 +1,25 @@
 {
   "name": "fantasy-manager",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "private": true,
   "scripts": {
-    "dev": "export NODE_ENV=development APP_ENV=development; npm run build:ts; node scripts/entrypoint.js & next dev",
-    "build": "npm ci; npm run build:ts; next build;",
-    "analyze": "export ANALYZE=true; next build",
-    "start": "export NODE_ENV=production APP_ENV=production; npm run start2",
+    "dev": "export NODE_ENV=development APP_ENV=development && npm run build2:ts && node scripts/startup.js && npm run build3:ts && node scripts/entrypoint.js & next dev",
+    "build": "npm ci && next build",
+    "build:all": "npm ci && npm run build2:ts && node scripts/startup.js && npm run build3:ts && next build",
+    "analyze": "export ANALYZE=true && next build",
+    "start": "export NODE_ENV=production APP_ENV=production && npm run start2",
     "test": "npm run cypress & npm run start:test",
-    "start:test": "export NODE_ENV=test APP_ENV=test; npm run start2",
-    "start2": "npm run build:ts; node scripts/entrypoint.js & next build; next start",
+    "start:test": "export NODE_ENV=test APP_ENV=test && npm run clean && npm run start2",
+    "start2": "npm run build2:ts && node scripts/startup.js && npm run build3:ts && node scripts/entrypoint.js & next build && next start",
     "lint": "eslint . --max-warnings 0",
     "pretty": "prettier --check .",
     "format": "prettier --write .",
     "cypress:open": "cypress open",
-    "cypress": "wait-on http://127.0.0.1:3000; cypress run",
-    "build:ts": "tsc -p tsconfig2.json;",
-    "start:no-build": "node scripts/entrypoint.js & next start"
+    "cypress": "wait-on http://127.0.0.1:3000 && cypress run",
+    "build2:ts": "tsc -p tsconfig2.json",
+    "build3:ts": "tsc -p tsconfig3.json",
+    "start:no-build": "node scripts/entrypoint.js & next start",
+    "clean": "rm -f tsconfig2.tsbuildinfo; rm -f tsconfig3.tsbuildinfo; rm -f test.db; rm -rf ./scripts/data"
   },
   "dependencies": {
     "@emotion/react": "11.10.5",
@@ -33,6 +36,7 @@
     "next": "13.1.1",
     "next-auth": "4.18.8",
     "next-pwa": "5.6.0",
+    "node-downloader-helper": "2.1.6",
     "react": "18.2.0",
     "react-chartjs-2": "5.2.0",
     "react-dom": "18.2.0",
@@ -52,5 +56,13 @@
     "eslint-plugin-unused-imports": "2.0.0",
     "prettier": "2.8.4",
     "wait-on": "7.0.1"
+  },
+  "imports": {
+    "#/*": "./*.js",
+    "#components/*": "./components/*.js",
+    "#Modules/*": "./Modules/*.js",
+    "#type/*": "./types/*.js",
+    "#scripts/*": "./scripts/*.js",
+    "#database": "./Modules/database.js"
   }
 }

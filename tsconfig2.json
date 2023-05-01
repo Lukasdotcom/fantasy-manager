@@ -1,5 +1,13 @@
 {
   "compilerOptions": {
+    "paths": {
+      "#/*": ["./*"],
+      "#components/*": ["./components/*"],
+      "#Modules/*": ["./Modules/*"],
+      "#type/*": ["./types/*"],
+      "#scripts/*": ["./scripts/*.js"],
+      "#database": ["./Modules/database"]
+    },
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
@@ -15,5 +23,5 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": ["./scripts/entrypoint.ts"]
+  "include": ["./scripts/startup.ts"]
 }

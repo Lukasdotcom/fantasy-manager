@@ -32,7 +32,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#announcementDescription").type(
       "Very great description for this announcement"
     );
-    cy.get(".MuiButton-containedSuccess").click();
+    cy.contains('Add announcement').click();
     // Creates invites and deletes the randomly generated one
     cy.contains("Add invite").click();
     cy.get("#invite").clear().type("invite1");
@@ -474,7 +474,7 @@ describe("Invite User into league and change some league Settings and run throug
     // Archives the league
     cy.contains("Open league").click();
     cy.get(
-      ":nth-child(38) > .MuiButtonBase-root > .PrivateSwitchBase-input"
+      ":nth-child(41) > .MuiButtonBase-root > .PrivateSwitchBase-input"
     ).click();
     cy.get("#confirmation").type("New Sample League");
     cy.contains("Save admin settings").click();

@@ -6,7 +6,7 @@ Provide summary of changes with issue number if any.
 
 - [ ] Run `npm run format` to format everything with prettier.
 - [ ] Run `npm run lint` and fix all errors and warnings.
-- [ ] Made sure that all database changes have update code in entrypoint.ts and the database schema was updated in database.ts.
+- [ ] Made sure that all database changes have update code in startup.ts and the database schema was updated in database.ts.
 - [ ] Made sure to test your changes.
 - [ ] All sql syntax would work on mysql.
 - [ ] Made sure to test your changes whith [cypress](#cypress) by running `npm test` and when it is done stopping the server with ctr-c. If this fails and you don't know why look in the contributing guidelines or ask in this pull request.

@@ -1,27 +1,33 @@
-import connect, { clubs, leagues, players } from "../Modules/database";
-import dataGetter from "../types/data";
+import noAccents from "#Modules/normalize";
+import connect, { clubs, plugins as pluginsType } from "../Modules/database";
 import { calcPoints } from "./calcPoints";
+import plugins from "./data";
 // Used to update all the data
 export async function updateData(
-  league: string,
-  file = "../../sample/data1.json"
+  url: string,
+  file = "../../../sample/data1.json"
 ) {
+  // Defaults to the first plugin in the list if testing(should be Bundesliga)
+  if (process.env.APP_ENV === "test") {
+    url = Object.keys(plugins)[0];
+  }
   const currentTime = Math.floor(Date.now() / 1000);
-  // A dictionary of all the data generators
-  const dataGetter: {
-    [Key: string]: (arg0: string | undefined) => Promise<dataGetter>;
-  } = {
-    Bundesliga: (await import("./data/Bundesliga")).default,
-    EPL: (await import("./data/EPL")).default,
-    WorldCup2022: (await import("./data/WorldCup2022")).default,
-  };
   // Checks if the league is included
-  if (!leagues.includes(league)) {
-    console.error(`Unknown league ${league} data was requested`);
+  if (!Object.keys(plugins).includes(url)) {
+    console.error(`Unknown league ${url} data was requested`);
     return;
   }
   const connection = await connect();
   // Updates the internal data for the player update data
+  let leagueData: pluginsType[] = await connection.query(
+    "SELECT * FROM plugins WHERE url=?",
+    [url]
+  );
+  if (leagueData.length == 0) {
+    console.error(`Can not locate league ${url}`);
+    return;
+  }
+  const league = leagueData[0].name;
   connection.query(
     "INSERT INTO data (value1, value2) VALUES(?, ?) ON DUPLICATE KEY UPDATE value2=?",
     ["playerUpdate" + league, currentTime, currentTime]
@@ -52,9 +58,14 @@ export async function updateData(
         return result[0].value2 === "true";
       }
     });
+  const settings = JSON.parse(leagueData[0].settings);
+  // If testing mode is enabled a local file is read
+  if (process.env.APP_ENV == "test") {
+    settings.file = file;
+  }
   // Gets the data. Note that the last match points are ignored and calculated using total points
-  const [newTransfer, countdown, players, clubs] = await dataGetter[league](
-    process.env.APP_ENV === "test" ? file : undefined
+  const [newTransfer, countdown, players, clubs] = await plugins[url](
+    settings
   ).catch((e) => {
     console.error(
       `Error - Failed to get data for ${league}(if this happens to often something is wrong) with error ${e}`
@@ -92,7 +103,6 @@ export async function updateData(
   let index = 0;
   let club = "";
   let clubDone = false;
-  let gameStart = 0;
   const getClub = (club: string): clubs => {
     const result = clubs.filter((e) => e.club == club);
     if (result.length == 0) {
@@ -103,173 +113,134 @@ export async function updateData(
   while (index < players.length) {
     let val = players[index];
     index++;
-    // Checks if it is a matchday
-    if (newTransfer) {
-      // Updates the club info if it is a new club
-      if (club !== val.club) {
-        club = val.club;
-        const clubData = getClub(club);
-        // Makes sure to only update the match starts in stat if it is greater than 0
-        if (clubData.gameStart > currentTime) {
-          await connection.query(
-            "INSERT INTO clubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE gameStart=?, opponent=?",
-            [
-              club,
-              clubData.gameStart,
-              clubData.opponent,
-              league,
-              clubData.gameStart,
-              clubData.opponent,
-            ]
-          );
-        } else {
-          await connection.query(
-            "INSERT INTO clubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?",
-            [
-              club,
-              clubData.gameStart,
-              clubData.opponent,
-              league,
-              clubData.opponent,
-            ]
-          );
-        }
+    // Gets the club data
+    if (val.club != club) {
+      club = val.club;
+      const clubData = getClub(club);
+      // Checks if the game has started
+      clubDone = !(clubData.gameStart >= currentTime || newTransfer);
+      connection.query(
+        "INSERT INTO clubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?, league=?",
+        [
+          clubData.club,
+          clubData.gameStart,
+          clubData.opponent,
+          clubData.league,
+          clubData.opponent,
+          clubData.league,
+        ]
+      );
+      // If the game has not started yet the game start time is updated
+      if (!clubDone) {
+        connection.query("UPDATE clubs SET gameStart=? WHERE club=?", [
+          clubData.gameStart,
+          clubData.club,
+        ]);
       }
+    }
+    // Checks if the player exists
+    if (
+      await connection
+        .query("SELECT * FROM players WHERE uid=? AND league=?", [
+          val.uid,
+          league,
+        ])
+        .then((res) => res.length == 0)
+    ) {
+      // Creates the player
       await connection.query(
-        "INSERT INTO players (uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?) ON DUPLICATE KEY UPDATE name=?, nameAscii=?, value=?, forecast=?, total_points=?, average_points=?, locked=?, `exists`=1, club=?, pictureUrl=?, position=?",
+        "INSERT INTO players (uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           val.uid,
           val.name,
-          val.nameAscii,
+          noAccents(val.name),
           val.club,
           val.pictureUrl,
           val.value,
           val.position,
-          val.forecast,
-          val.total_points,
-          val.average_points,
-          val.last_match,
-          val.locked,
+          val.forecast || "a",
+          val.total_points || val.last_match || 0,
+          val.average_points || val.total_points || val.last_match || 0,
+          val.last_match || val.total_points || 0,
+          clubDone,
+          val.exists || true,
           league,
-          /*Start of have to update*/
-          val.name,
-          val.nameAscii,
-          val.value,
-          val.forecast,
-          val.total_points,
-          val.average_points,
-          val.locked,
-          val.club,
-          val.pictureUrl,
-          val.position,
         ]
       );
     } else {
-      // Updates the club info if it changed
-      if (club !== val.club) {
-        club = val.club;
-        // Gets the club data
-        const clubData = getClub(club);
-        // Checks if the club is already done
-        clubDone = await connection
-          .query("SELECT * FROM clubs WHERE club=? AND league=?", [
-            club,
-            league,
-          ])
-          .then((res) =>
-            res.length > 0 ? clubData.opponent !== res[0].opponent : false
-          );
-        gameStart = clubData.gameStart;
-        // Checks if the club has not changed during the matchday
-        if (!clubDone) {
-          // Checks if the game is supposed to have already started
-          if (gameStart > currentTime) {
-            await connection.query(
-              "INSERT INTO clubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE gameStart=?, opponent=?",
-              [
-                club,
-                clubData.gameStart,
-                clubData.opponent,
-                league,
-                clubData.gameStart,
-                clubData.opponent,
-              ]
-            );
-          } else {
-            await connection.query(
-              "INSERT INTO clubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?",
-              [
-                club,
-                clubData.gameStart,
-                clubData.opponent,
-                league,
-                clubData.opponent,
-              ]
-            );
-          }
-        }
-      }
-      // Checks if the player already is in the database or not
-      const playerExists: players[] = await connection.query(
-        "SELECT * FROM players WHERE uid=?",
-        [val.uid]
+      let {
+        uid,
+        name,
+        club,
+        pictureUrl,
+        value,
+        position,
+        forecast,
+        total_points,
+        average_points,
+        last_match,
+        exists,
+      } = val;
+      let nameAscii = noAccents(name);
+      // Updates the player that always will get updated
+      await connection.query(
+        "UPDATE players SET name=?, nameAscii=?, `exists`=?, locked=? WHERE uid=? AND league=?",
+        [name, nameAscii, exists, clubDone, uid, league]
       );
-      if (playerExists.length == 0) {
+      // Updates the player that will only get updated if the game has not started
+      if (!clubDone) {
         await connection.query(
-          "INSERT INTO players (uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)",
-          [
-            val.uid,
-            val.name,
-            val.nameAscii,
-            val.club,
-            val.pictureUrl,
-            val.value,
-            val.position,
-            val.forecast,
-            val.total_points,
-            val.average_points,
-            val.last_match,
-            val.locked,
-            league,
-          ]
+          "UPDATE players SET forecast=?, total_points=?, average_points=? WHERE uid=? AND league=?",
+          [forecast, total_points, average_points, uid, league]
         );
-        // Makes sure that the club is not done for the matchday
-      } else if (!clubDone) {
-        // Does not update the forecast if you are too far through the game
-        if (gameStart + 600 <= currentTime) {
+      }
+      // Updates player data that will only get updated if the transfer market is open
+      if (newTransfer) {
+        await connection.query(
+          "UPDATE players SET club=?, pictureUrl=?, value=?, position=? WHERE uid=? AND league=?",
+          [club, pictureUrl, value, position, uid, league]
+        );
+      }
+      // Updates player stats if the game has started and it is not a new transfer period
+      if (clubDone) {
+        // Calculate all the values if they need to be calculated for last_match and total_points
+        if (total_points === undefined) {
           await connection.query(
-            "UPDATE players SET value=?, total_points=?, average_points=?, last_match=?, locked=?, `exists`=1 WHERE uid=?",
-            [
-              val.value,
-              val.total_points,
-              val.average_points,
-              playerExists[0].last_match +
-                val.total_points -
-                playerExists[0].total_points,
-              val.locked,
-              val.uid,
-            ]
+            "UPDATE players SET total_points=total_points+?-last_match, last_match=? WHERE uid=? AND league=?",
+            [last_match || 0, last_match || 0, uid, league]
+          );
+        } else if (last_match === undefined) {
+          await connection.query(
+            "UPDATE players SET last_match=last_match+?-total_points, total_points=? WHERE uid=? AND league=?",
+            [total_points || 0, total_points || 0, uid, league]
           );
         } else {
           await connection.query(
-            "UPDATE players SET value=?, forecast=?, total_points=?, average_points=?, last_match=?, locked=?, `exists`=1 WHERE uid=?",
-            [
-              val.value,
-              val.forecast,
-              val.total_points,
-              val.average_points,
-              playerExists[0].last_match +
-                val.total_points -
-                playerExists[0].total_points,
-              val.locked,
-              val.uid,
-            ]
+            "UPDATE players SET last_match=?, total_points=? WHERE uid=? AND league=?",
+            [last_match, total_points, uid, league]
           );
         }
-      } else {
-        await connection.query("UPDATE players SET `exists`=1 WHERE uid=?", [
-          val.uid,
-        ]);
+        // Calculate all the values if they need to be calculated for average_points
+        if (average_points === undefined) {
+          average_points =
+            (total_points ||
+              (await connection
+                .query("SELECT * FROM players WHERE uid=? AND league=?")
+                .then((e) => e[0].total_points))) /
+            ((await connection
+              .query(
+                "SELECT COUNT(*) as num FROM historicalPlayers WHERE uid=?",
+                [uid]
+              )
+              .then((e) => e[0].num)) +
+              1);
+          // Rounds average points to the nearest 10th
+          average_points = Math.round(average_points * 10) / 10;
+        }
+        await connection.query(
+          "UPDATE players SET average_points=? WHERE uid=? AND league=?",
+          [average_points, uid, league]
+        );
       }
     }
   }

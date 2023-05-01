@@ -47,3 +47,6 @@ scripts/data/*.js
 scripts/*.js
 Modules/*.js
 tsconfig2.tsbuildinfo
+tsconfig3.tsbuildinfo
+scripts/data
+scripts/data.ts

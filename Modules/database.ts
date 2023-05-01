@@ -286,6 +286,13 @@ export interface analytics {
   localeActive: string;
   localeTotal: string;
 }
+export interface plugins {
+  name: string;
+  settings: string; // JSON of all the settings
+  enabled: boolean;
+  url: string;
+  version: string;
+}
 export type anouncementColor = "error" | "info" | "success" | "warning";
 export interface announcements {
   leagueID: number;
@@ -293,13 +300,18 @@ export interface announcements {
   title: string;
   description: string;
 }
-const validLeagues = (): string[] => {
-  const leagues = [];
-  if (process.env.APP_ENV === "test") return ["Bundesliga"];
-  if (process.env.BUNDESLIGA_API) leagues.push("Bundesliga");
-  if (process.env.ENABLE_EPL) leagues.push("EPL");
-  if (process.env.ENABLE_WORDCUP2022) leagues.push("WorldCup2022");
-  return leagues;
+export const validLeagues = async (): Promise<string[]> => {
+  const connection = await connect();
+  const result = await connection.query(
+    "SELECT * FROM plugins WHERE enabled=1"
+  );
+  return result.map((e) => e.name);
 };
 
-export const leagues = validLeagues();
+export const validLeagueUrls = async (): Promise<string[]> => {
+  const connection = await connect();
+  const result = await connection.query(
+    "SELECT * FROM plugins WHERE enabled=1"
+  );
+  return result.map((e) => e.url);
+};

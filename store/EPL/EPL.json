@@ -1,0 +1,9 @@
+{
+  "id": "EPL",
+  "version": "1.0.0",
+  "description": "This is for the English Premier League.",
+  "files": [
+    "http://localhost:8000/EPL/index.ts",
+    "http://localhost:8000/EPL/types.d.ts"
+  ]
+}

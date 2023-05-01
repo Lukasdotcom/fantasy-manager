@@ -12,7 +12,7 @@ import Head from "next/head";
 import Link from "../components/Link";
 import { useContext, useState } from "react";
 import Menu from "../components/Menu";
-import connect, { leagues as leagueTypes } from "../Modules/database";
+import connect, { validLeagues } from "../Modules/database";
 import { GetServerSideProps } from "next";
 import { TranslateContext } from "../Modules/context";
 import getLocales from "../locales/getLocales";
@@ -104,6 +104,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const connection = await connect();
   // Gets a list of all the times stored by each league
   const historicalTimes: historicalTimes = {};
+  const leagueTypes = await validLeagues();
   await Promise.all(
     leagueTypes.map((league) =>
       connection
