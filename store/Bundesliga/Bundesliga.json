@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "This is for the German Bundesliga.",
   "files": [
-    "http://localhost:8000/Bundesliga/index.ts",
-    "http://localhost:8000/Bundesliga/types.d.ts"
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/plugins/store/Bundesliga/index.ts",
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/plugins/store/Bundesliga/types.d.ts"
   ],
   "input": [
     {
