@@ -24,7 +24,7 @@ import {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
-import { leagues as leagueTypes } from "../Modules/database";
+import { validLeagues } from "../Modules/database";
 interface MakeLeagueProps {
   getLeagueData: () => Promise<void>;
   leagues: string[];
@@ -370,7 +370,7 @@ export const getServerSideProps: GetServerSideProps = async (
   if (session) {
     return {
       props: {
-        leagues: leagueTypes,
+        leagues: await validLeagues(),
       },
     };
   } else {

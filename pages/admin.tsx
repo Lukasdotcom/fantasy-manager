@@ -2,8 +2,9 @@ import Menu from "../components/Menu";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head.js";
 import { getSession } from "next-auth/react";
-import connect, { analytics, leagues } from "../Modules/database";
-import React, { useState } from "react";
+import connect, { analytics, plugins } from "../Modules/database";
+import pluginList from "#scripts/data";
+import React, { useContext, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,14 +17,211 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { Slider, Typography, useTheme } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Slider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import { compareSemanticVersions } from "../Modules/semantic";
+import store from "#/types/store";
+import { NotifyContext } from "#Modules/context";
 
-interface props {
-  analytics: analytics[];
-  leagues: string[];
+interface LeaguePluginsProps {
+  plugins: plugins[];
+  pluginData: (store | "error")[];
+  version: string;
+  installed: string[];
 }
-export default function Home({ analytics, leagues }: props) {
+
+function LeaguePlugins({
+  plugins,
+  pluginData,
+  version,
+  installed,
+}: LeaguePluginsProps) {
+  return (
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell>Description</TableCell>
+            <TableCell>Link</TableCell>
+            <TableCell>Enabled</TableCell>
+            <TableCell>Installed</TableCell>
+            <TableCell>Settings</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {plugins.map((plugin, idx) => (
+            <LeaguePlugin
+              key={idx}
+              data={plugin}
+              store={pluginData[idx]}
+              version={version}
+              installed={installed.includes(plugin.url)}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+}
+interface LeaguePluginProps {
+  data: plugins;
+  store: store | "error";
+  version: string;
+  installed: boolean;
+}
+function LeaguePlugin({ data, store, version, installed }: LeaguePluginProps) {
+  const notify = useContext(NotifyContext);
+  const [enabled, setEnabled] = useState(data.enabled);
+  const [settings, setSettings] = useState<{ [Key: string]: string }>(
+    JSON.parse(data.settings)
+  );
+  const checkboxChange = (_: any, checked: boolean) => {
+    setEnabled(checked);
+  };
+  const changeSettings = (value: string, name: string) => {
+    setSettings((prev) => {
+      prev[name] = value;
+      return prev;
+    });
+  };
+  // Used to save the preferences for the plugin
+  const save = async () => {
+    const res = await fetch("/api/admin/plugins", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: data.url,
+        enabled,
+        settings: JSON.stringify(settings),
+      }),
+    });
+    notify(await res.text(), res.ok ? "success" : "error");
+  };
+  let installedText = <></>;
+  // Gets the text for the installed column
+  if (installed) {
+    if (store === "error") {
+      installedText = (
+        <Typography color="secondary">
+          Installed, but failed to Check for Update
+        </Typography>
+      );
+    } else if (store.version !== data.version) {
+      if (
+        store.min_version &&
+        compareSemanticVersions(store.min_version, version) === -1
+      ) {
+        installedText = (
+          <Typography color="warning.main">
+            Installed but unsupported(Update Fantasy Manger to Update)
+          </Typography>
+        );
+      } else {
+        installedText = (
+          <Typography color="warning.main">
+            Installed but out of Date
+          </Typography>
+        );
+      }
+    } else {
+      installedText = <Typography color="success.main">Installed</Typography>;
+    }
+  } else {
+    if (store === "error") {
+      installedText = (
+        <Typography color="secondary">
+          Uninstalled and not accessible
+        </Typography>
+      );
+    } else if (
+      store.min_version &&
+      compareSemanticVersions(store.min_version, version) === -1
+    ) {
+      installedText = (
+        <Typography color="warning.main">
+          Unsupported (Update Fantasy Manger to Install)
+        </Typography>
+      );
+    } else {
+      installedText = (
+        <Typography color="error">
+          Not Installed(Restart Server to Install)
+        </Typography>
+      );
+    }
+  }
+  return (
+    <TableRow>
+      <TableCell>{data.name}</TableCell>
+      <TableCell>
+        {store !== "error" && store.description
+          ? store.description
+          : "No Description"}
+      </TableCell>
+      <TableCell>{data.url}</TableCell>
+      <TableCell>
+        {enabled ? (
+          <Typography color="success.main">Enabled</Typography>
+        ) : (
+          <Typography color="error">Disabled</Typography>
+        )}
+      </TableCell>
+      <TableCell>{installedText}</TableCell>
+      <TableCell>
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Checkbox checked={Boolean(enabled)} onChange={checkboxChange} />
+            }
+            label="Enabled"
+          />
+          {store !== "error" &&
+            /* Creates a form with all the inputs needed for this plugin*/
+            store.input &&
+            store.input.map((input) => {
+              return (
+                <TextField
+                  key={input.name}
+                  label={input.name}
+                  helperText={input.description}
+                  value={
+                    Object.keys(settings).includes(input.name)
+                      ? settings[input.name]
+                      : ""
+                  }
+                  onChange={(e) => {
+                    changeSettings(e.target.value, input.name);
+                  }}
+                ></TextField>
+              );
+            })}
+          <Button variant="outlined" color="success" onClick={save}>
+            Save
+          </Button>
+        </FormGroup>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+function Analytics({ analytics }: { analytics: analytics[] }) {
   const [graphLength, setGraphLength] = useState(30);
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
@@ -248,12 +446,6 @@ export default function Home({ analytics, leagues }: props) {
   }
   return (
     <>
-      <Head>
-        <title>Admin Panel</title>
-      </Head>
-      <Menu />
-      <h1>Admin Panel</h1>
-      <h2>Analytics</h2>
       <h3>Version Data</h3>
       <p>
         This graph shows how many users are using each (server) version. Active
@@ -294,19 +486,43 @@ export default function Home({ analytics, leagues }: props) {
           aria-labelledby="non-linear-slider"
         />
       </div>
-      <h2>Enabled League Types</h2>
-      <p>
-        The Bundesliga is{" "}
-        {leagues.includes("Bundesliga")
-          ? "enabled."
-          : "disabled. To enable enter a bundesliga api key as directed in the leagues.md file into the enviromental variable BUNDESLIGA_API."}
-      </p>
-      <p>
-        The English Premier League is{" "}
-        {leagues.includes("EPL")
-          ? "enabled."
-          : "disabled. To enable set the enviromental variable ENABLE_EPL to enable."}
-      </p>
+    </>
+  );
+}
+interface props {
+  analytics: analytics[];
+  plugins: plugins[];
+  pluginData: (store | "error")[];
+  version: string;
+  installed: string[]; // Note that this list is a list of hashes
+}
+export default function Home({
+  analytics,
+  plugins,
+  pluginData,
+  version,
+  installed,
+}: props) {
+  return (
+    <>
+      <Head>
+        <title>Admin Panel</title>
+      </Head>
+      <Menu />
+      <h1>Admin Panel</h1>
+      <h2>League Plugins</h2>
+      <Typography variant="body1">
+        For a league to be useable it needs to be installed and enabled.
+      </Typography>
+      <LeaguePlugins
+        plugins={plugins}
+        pluginData={pluginData}
+        version={version}
+        installed={installed}
+      />
+      <h2>Analytics</h2>
+      {Object.keys(analytics).length > 0 && <Analytics analytics={analytics} />}
+      {Object.keys(analytics).length == 0 && <p>No Analytics Data Exists</p>}
     </>
   );
 }
@@ -332,9 +548,22 @@ export const getServerSideProps: GetServerSideProps = async (
     const analytics = await connection.query(
       "SELECT * FROM analytics ORDER By day ASC"
     );
+    const plugins = await connection.query("SELECT * FROM plugins");
+    const pluginData: (store | "error")[] = await Promise.all(
+      plugins.map(async (plugin: plugins) => {
+        const request = await fetch(plugin.url).catch(() => "error");
+        if (!(request instanceof Response)) {
+          return "error";
+        } else {
+          return await request.json().catch(() => "error");
+        }
+      })
+    );
+    const version = (await import("#/package.json")).default.version;
+    const installed = Object.keys(pluginList);
     connection.end();
     return {
-      props: { analytics, leagues },
+      props: { analytics, plugins, pluginData, version, installed },
     };
   }
   return {

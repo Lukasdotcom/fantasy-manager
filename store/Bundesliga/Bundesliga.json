@@ -1,0 +1,16 @@
+{
+  "id": "Bundesliga",
+  "version": "1.0.0",
+  "description": "This is for the German Bundesliga.",
+  "files": [
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/plugins/store/Bundesliga/index.ts",
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/plugins/store/Bundesliga/types.d.ts"
+  ],
+  "input": [
+    {
+      "variant": "string",
+      "name": "access_token",
+      "description": "Make an account on the official fantasy manager fantasy.bundesliga.com and get the cookie access_token and add it here"
+    }
+  ]
+}
