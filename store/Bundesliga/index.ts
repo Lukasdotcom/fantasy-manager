@@ -1,11 +1,12 @@
 import { clubs, forecast, position } from "#Modules/database";
 import dataGetter, { players } from "#type/data";
 import { Bundesliga } from "./types";
+import { readFile } from "fs/promises";
 const Main: dataGetter = async (settings) => {
   const nowTime = Math.floor(Date.now() / 1000);
   // Gets the data for the league, note that if a file is specified it will be used instead this is for testing purposes
   const data: Bundesliga = settings.file
-    ? (await import(settings.file)).default
+    ? JSON.parse((await readFile(settings.file)).toString("utf-8"))
     : await fetch("https://fantasy.bundesliga.com/api/player_transfers/init", {
         method: "POST",
         headers: {

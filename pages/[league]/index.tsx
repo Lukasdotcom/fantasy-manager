@@ -681,7 +681,7 @@ export default function Home({
       {announcements.map((e: announcements, idx) => (
         <Alert key={idx} severity={e.priority} sx={{ position: "relative" }}>
           <AlertTitle>{e.title}</AlertTitle>
-          {admin && (
+          {!!admin && (
             <IconButton
               id="close"
               aria-label="close"
@@ -701,7 +701,7 @@ export default function Home({
           {e.description}
         </Alert>
       ))}
-      {admin && (
+      {!!admin && (
         <>
           <TextField
             id="announcementTitle"
