@@ -1,6 +1,6 @@
 {
   "id": "Bundesliga",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This is for the German Bundesliga.",
   "files": [
     "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/index.ts",
