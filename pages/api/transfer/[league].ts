@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getSession } from "next-auth/react";
 import connect, {
   leagueSettings,
   leagueUsers,
@@ -7,6 +6,8 @@ import connect, {
   squad,
   transfers,
 } from "../../../Modules/database";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
+import { getServerSession } from "next-auth";
 // This is the structure of the get response
 export interface getLeagues {
   money: number;
@@ -29,7 +30,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const session = await getSession({ req });
+  const session = await getServerSession(req, res, authOptions);
   const league = req.query.league;
   if (!session) {
     res.status(401).end("Not logged in");

@@ -14,8 +14,9 @@ import {
   Switch,
 } from "@mui/material";
 import { getLeagueInfo } from "../api/squad/[league]";
-import { getSession } from "next-auth/react";
 import { NotifyContext, TranslateContext } from "../../Modules/context";
+import { getServerSession } from "next-auth";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
 
 export default function Home({
   league,
@@ -226,7 +227,7 @@ export default function Home({
 // Gets the users session
 export async function getServerSideProps(ctx) {
   const connection = await connect();
-  const session = await getSession(ctx);
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
   const starredPercentage = await connection
     .query("SELECT starredPercentage FROM leagueSettings WHERE leagueID=?", [
       ctx.query.league,
@@ -236,7 +237,7 @@ export async function getServerSideProps(ctx) {
   const leagueInfo = await getLeagueInfo(
     ctx.query.league,
     session?.user?.id ? session?.user?.id : -1
-  ).catch(() => {});
+  ).catch((e) => {console.error(e)});
   connection.end();
   return await redirect(ctx, { starredPercentage, leagueInfo });
 }

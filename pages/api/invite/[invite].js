@@ -1,8 +1,9 @@
-import { getSession } from "next-auth/react";
 import connect from "../../../Modules/database";
+import { getServerSession } from "next-auth";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
 // Used to join a league
 export default async function handler(req, res) {
-  const session = await getSession({ req });
+  const session = await getServerSession(req, res, authOptions);
   if (session) {
     const connection = await connect();
     // Checks if it is a valid invite

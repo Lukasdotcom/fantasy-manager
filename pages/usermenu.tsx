@@ -1,4 +1,4 @@
-import { getSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { ChangeEvent, Key, useContext, useState } from "react";
 import Menu from "../components/Menu";
 import Head from "next/head";
@@ -17,7 +17,7 @@ import {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
-import { Session } from "next-auth";
+import { Session, getServerSession } from "next-auth";
 import {
   NotifyContext,
   NotifyType,
@@ -27,6 +27,7 @@ import {
 import { getProviders, Providers } from "../types/providers";
 import connect from "../Modules/database";
 import { useRouter } from "next/router";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
 interface ProviderProps {
   provider: Providers;
   notify: NotifyType;
@@ -293,7 +294,7 @@ export default function Home({
 export const getServerSideProps: GetServerSideProps = async (
   ctx: GetServerSidePropsContext
 ) => {
-  const session = await getSession(ctx);
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
   if (session) {
     const connection = await connect();
     const user = session.user;

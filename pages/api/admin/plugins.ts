@@ -1,14 +1,15 @@
 import { updateData } from "#/scripts/update";
 import connect from "#database";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getSession } from "next-auth/react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   // Check if the user is logged in and an admin
-  const user = await getSession({ req });
+  const user = await getServerSession(req, res, authOptions);
   if (!user) {
     res.status(401).end("Not logged in");
     return;
@@ -51,7 +52,7 @@ export default async function handler(
                 .query("SELECT name FROM plugins WHERE url=?", [url])
                 .then((res) => (res.length > 0 ? res[0].name : "")),
             ]
-          ))
+          )).length > 0
         ) {
           res.status(400).end("A plugin with the same name is already enabled");
           return;

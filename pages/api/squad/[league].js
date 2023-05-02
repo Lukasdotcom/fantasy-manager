@@ -1,6 +1,7 @@
-import { getSession } from "next-auth/react";
 import connect from "../../../Modules/database";
 import { calcPoints } from "../../../scripts/calcPoints";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
+import { getServerSession } from "next-auth";
 // An array of valid formations
 const validFormations = [
   [1, 3, 5, 2],
@@ -60,7 +61,7 @@ export const getLeagueInfo = async (league, user) => {
 };
 
 export default async function handler(req, res) {
-  const session = await getSession({ req });
+  const session = await getServerSession(req, res, authOptions);
   const league = req.query.league;
   const connection = await connect();
   if (!session) {

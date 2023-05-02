@@ -211,3 +211,4 @@ export default async function authenticate(req, res) {
   }
   await NextAuth(req, res, options);
 }
+export const authOptions = options;

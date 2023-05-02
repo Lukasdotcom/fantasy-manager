@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { useContext, useEffect, useState } from "react";
-import { getSession, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { LeagueListPart, LeagueListResult } from "./api/league";
 import Link from "../components/Link";
 import Menu from "../components/Menu";
@@ -25,6 +25,8 @@ import {
   InferGetServerSidePropsType,
 } from "next";
 import { validLeagues } from "../Modules/database";
+import { getServerSession } from "next-auth";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
 interface MakeLeagueProps {
   getLeagueData: () => Promise<void>;
   leagues: string[];
@@ -366,7 +368,7 @@ export default function Home({
 export const getServerSideProps: GetServerSideProps = async (
   ctx: GetServerSidePropsContext
 ) => {
-  const session = await getSession(ctx);
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
   if (session) {
     return {
       props: {

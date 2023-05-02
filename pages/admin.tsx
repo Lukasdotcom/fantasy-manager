@@ -1,7 +1,6 @@
 import Menu from "../components/Menu";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head.js";
-import { getSession } from "next-auth/react";
 import connect, { analytics, plugins } from "../Modules/database";
 import pluginList from "#scripts/data";
 import React, { useContext, useState } from "react";
@@ -36,6 +35,8 @@ import {
 import { compareSemanticVersions } from "../Modules/semantic";
 import store from "#/types/store";
 import { NotifyContext } from "#Modules/context";
+import { getServerSession } from "next-auth";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
 
 interface LeaguePluginsProps {
   plugins: plugins[];
@@ -530,7 +531,7 @@ export default function Home({
 export const getServerSideProps: GetServerSideProps = async (
   ctx: GetServerSidePropsContext
 ) => {
-  const user = await getSession(ctx);
+  const user = await getServerSession(ctx.req, ctx.res, authOptions);
   // Makes sure the user is logged in
   if (!user) {
     return {

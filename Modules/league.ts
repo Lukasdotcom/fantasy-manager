@@ -1,13 +1,14 @@
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
-import { getSession } from "next-auth/react";
 import connect, { leagueSettings } from "./database";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
+import { getServerSession } from "next-auth";
 // Used to get information about the redirect for the league runs on every league page
 const redirect = async (
   ctx: GetServerSidePropsContext,
   data: { [key: string]: any }
 ): Promise<GetServerSidePropsResult<{ [key: string]: any }>> => {
   const league = parseInt(String(ctx.params?.league));
-  const session = await getSession(ctx);
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
   const connection = await connect();
   if (session) {
     // Checks if the user is in the league or not
