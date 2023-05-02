@@ -1,8 +1,9 @@
-import { getSession } from "next-auth/react";
 import connect from "../../../Modules/database";
+import { getServerSession } from "next-auth";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
 
 export default async function handler(req, res) {
-  const session = await getSession({ req });
+  const session = await getServerSession(req, res, authOptions);
   const connection = await connect();
   if (!session) {
     res.status(401).end("Not logged in");

@@ -1,20 +1,16 @@
-import { clubs, forecast, players, position } from "../../Modules/database";
-import noAccents from "../../Modules/normalize";
-import dataGetter from "../../types/data";
-import { Bundesliga } from "../../types/data/Bundesliga";
-
-export default async function Main(
-  file: string | undefined = undefined
-): Promise<dataGetter> {
+import { clubs, forecast, position } from "#Modules/database";
+import dataGetter, { players } from "#type/data";
+import { Bundesliga } from "./types";
+const Main: dataGetter = async (settings) => {
   const nowTime = Math.floor(Date.now() / 1000);
-  // Gets the data for the league
-  const data: Bundesliga = file
-    ? (await import(file)).default
+  // Gets the data for the league, note that if a file is specified it will be used instead this is for testing purposes
+  const data: Bundesliga = settings.file
+    ? (await import(settings.file)).default
     : await fetch("https://fantasy.bundesliga.com/api/player_transfers/init", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Cookie: `access_token=${process.env.BUNDESLIGA_API}`,
+          Cookie: `access_token=${settings.access_token}`,
         },
         body: JSON.stringify({
           payload: {
@@ -47,7 +43,6 @@ export default async function Main(
     return {
       uid: e.player.uid,
       name: e.player.nickname,
-      nameAscii: noAccents(e.player.nickname),
       club,
       pictureUrl: e.player.image_urls.default,
       value: e.transfer_value,
@@ -55,10 +50,7 @@ export default async function Main(
       forecast: e.attendance.forecast.substring(0, 1) as forecast,
       total_points: e.player.statistics.total_points,
       average_points: e.player.statistics.average_points,
-      last_match: e.player.statistics.last_match_points,
-      locked: e.player.is_locked,
       exists: true,
-      league: "Bundesliga",
     };
   });
   return [
@@ -67,4 +59,5 @@ export default async function Main(
     playerList,
     Object.values(clubList),
   ];
-}
+};
+export default Main;

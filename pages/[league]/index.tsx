@@ -3,7 +3,6 @@ import redirect from "../../Modules/league";
 import Head from "next/head";
 import { SyntheticEvent, useContext, useEffect, useState } from "react";
 import { stringToColor, UserChip } from "../../components/Username";
-import { getSession } from "next-auth/react";
 import connect, {
   announcements,
   anouncementColor,
@@ -56,6 +55,8 @@ import {
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { Box } from "@mui/system";
 import Router from "next/router";
+import { getServerSession } from "next-auth";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
 interface AdminPanelProps {
   league: number;
   leagueName: string;
@@ -827,7 +828,7 @@ export const getServerSideProps: GetServerSideProps = async (
   ctx: GetServerSidePropsContext
 ) => {
   // Gets the user id
-  const session = await getSession(ctx);
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
   const user = session ? session.user.id : -1;
   // Gets the leaderboard for the league
   const standings = new Promise<standingsData[]>(async (resolve) => {

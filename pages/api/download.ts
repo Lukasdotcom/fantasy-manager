@@ -1,4 +1,4 @@
-import connect, { leagues } from "../../Modules/database";
+import connect, { validLeagues } from "../../Modules/database";
 import { stringify } from "csv-stringify/sync";
 import { NextApiRequest, NextApiResponse } from "next";
 interface players {
@@ -8,6 +8,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const leagues = await validLeagues();
   const connection = await connect();
   let extraText = "";
   const league = req.query.league as string;

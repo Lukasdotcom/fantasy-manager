@@ -1,12 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getSession } from "next-auth/react";
-import connect, { leagues } from "../../../Modules/database";
+import connect, { validLeagues } from "../../../Modules/database";
+import { getServerSession } from "next-auth";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const session = await getSession({ req });
+  const session = await getServerSession(req, res, authOptions);
   if (session) {
     const connection = await connect();
     switch (req.method) {
@@ -25,6 +26,7 @@ export default async function handler(
           break;
         }
         const leagueType = req.body.leagueType;
+        const leagues = await validLeagues();
         if (!leagues.includes(leagueType)) {
           res.status(404).end("Invalid league type given");
           break;

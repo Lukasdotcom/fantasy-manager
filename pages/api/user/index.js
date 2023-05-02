@@ -1,9 +1,10 @@
-import { getSession } from "next-auth/react";
 import connect from "../../../Modules/database";
+import { getServerSession } from "next-auth";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
 
 // Used to change a users username
 export default async function handler(req, res) {
-  const session = await getSession({ req });
+  const session = await getServerSession(req, res, authOptions);
   const id = session.user.id;
   switch (req.method) {
     case "POST":

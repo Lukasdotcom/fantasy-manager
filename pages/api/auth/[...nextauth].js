@@ -101,8 +101,8 @@ const options = {
   callbacks: {
     async signIn({ account, profile, user }) {
       // Will make sure that if this was sign in with google only a verified user logs in.
+      const connection = await connect();
       if (account.provider === "google" || account.provider === "github") {
-        const connection = await connect();
         // Checks if the user has already registered and if no then the user is created
         const registered = await connection
           .query(`SELECT * FROM users WHERE ${account.provider}=?`, [
@@ -119,6 +119,13 @@ const options = {
         if (account.provider === "google") return profile.email_verified;
         return true;
       }
+      connection.query("UPDATE users SET admin=1 WHERE id=?", [
+        process.env.ADMIN,
+      ]);
+      connection.query("UPDATE users SET admin=0 WHERE id!=?", [
+        process.env.ADMIN,
+      ]);
+      connection.end();
       return user;
     },
     async jwt({ token, account }) {
@@ -204,3 +211,4 @@ export default async function authenticate(req, res) {
   }
   await NextAuth(req, res, options);
 }
+export const authOptions = options;

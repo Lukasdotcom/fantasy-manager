@@ -1,12 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getSession } from "next-auth/react";
 import connect, { announcements } from "../../../../Modules/database";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
+import { getServerSession } from "next-auth";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const session = await getSession({ req });
+  const session = await getServerSession(req, res, authOptions);
   if (session) {
     const connection = await connect();
     const league = req.query.league;

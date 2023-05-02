@@ -5,3 +5,4 @@ node_modules
 scripts/data/*.js
 scripts/*.js
 Modules/*.js
+scripts/data

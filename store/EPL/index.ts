@@ -1,9 +1,8 @@
-import { clubs, forecast, players, position } from "../../Modules/database";
-import noAccents from "../../Modules/normalize";
-import dataGetter from "../../types/data";
-import { EPLPlayers, EPLTeams } from "../../types/data/EPL";
+import { clubs, forecast, position } from "#Modules/database";
+import dataGetter, { players } from "#type/data";
+import { EPLPlayers, EPLTeams } from "./types";
 
-export default async function Main(): Promise<dataGetter> {
+const Main: dataGetter = async function () {
   const nowTime = Math.floor(Date.now() / 1000);
   // Gets the data for the league
   const data: EPLPlayers = await fetch(
@@ -74,7 +73,6 @@ export default async function Main(): Promise<dataGetter> {
       return {
         uid: String(e.code),
         name: e.first_name + " " + e.second_name,
-        nameAscii: noAccents(e.first_name + " " + e.second_name),
         club: teamData.short_name,
         pictureUrl: `https://resources.premierleague.com/premierleague/photos/players/110x140/p${e.code}.png`,
         value: e.now_cost * 100000,
@@ -82,11 +80,9 @@ export default async function Main(): Promise<dataGetter> {
         forecast,
         total_points: e.total_points,
         average_points: parseFloat(e.points_per_game),
-        last_match: 0,
-        locked: teamData.played === 1,
         exists: true,
-        league: "EPL",
       };
     });
   return [newTransfer, countdown, players, teams];
-}
+};
+export default Main;

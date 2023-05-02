@@ -32,7 +32,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#announcementDescription").type(
       "Very great description for this announcement"
     );
-    cy.get(".MuiButton-containedSuccess").click();
+    cy.contains("Add announcement").click();
     // Creates invites and deletes the randomly generated one
     cy.contains("Add invite").click();
     cy.get("#invite").clear().type("invite1");
@@ -96,9 +96,11 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Standings")
       .click()
       .then(() => {
-        cy.setCookie("next-auth.session-token", user1).then(() => {
-          cy.reload();
-        });
+        cy.clearCookies().then(() =>
+          cy.setCookie("next-auth.session-token", user1).then(() => {
+            cy.reload();
+          })
+        );
       });
     // Gives other user admin rights
     cy.get("#admins").click();
@@ -164,9 +166,11 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Standings")
       .click()
       .then(() => {
-        cy.setCookie("next-auth.session-token", user2).then(() => {
-          cy.reload();
-        });
+        cy.clearCookies().then(() =>
+          cy.setCookie("next-auth.session-token", user2).then(() => {
+            cy.reload();
+          })
+        );
       });
     // Changes the amount of times a player can be in a squad and buys lewandowski
     cy.get("#duplicatePlayers").clear().type(2);
@@ -356,7 +360,9 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Robert Lewandowski")
       .should("not.exist")
       .then(() => {
-        cy.setCookie("next-auth.session-token", user1);
+        cy.clearCookies().then(() =>
+          cy.setCookie("next-auth.session-token", user1)
+        );
       })
       .then(() => {
         cy.reload().then(() => {
@@ -437,11 +443,14 @@ describe("Invite User into league and change some league Settings and run throug
     // Simulates an empty matchday
     cy.exec("export APP_ENV=test; node cypress/e2e/invite5.js");
     // Adds a third user that joins late
-    cy.get("#logout")
-      .click()
-      .then(() => {
-        cy.visit("http://localhost:3000/api/invite/invite1");
-      });
+    cy.clearCookies().then(() =>
+      cy
+        .get("#logout")
+        .click()
+        .then(() => {
+          cy.visit("http://localhost:3000/api/invite/invite1");
+        })
+    );
     cy.get("#username").type("Invite 3");
     cy.get("#password").type("password");
     cy.contains("Sign Up")
@@ -466,7 +475,9 @@ describe("Invite User into league and change some league Settings and run throug
         cy.get(".MuiDialogActions-root > .MuiButton-contained").click();
       })
       .then(() => {
-        cy.setCookie("next-auth.session-token", user2);
+        cy.clearCookies().then(() =>
+          cy.setCookie("next-auth.session-token", user2)
+        );
       })
       .then(() => {
         cy.reload();
@@ -474,7 +485,7 @@ describe("Invite User into league and change some league Settings and run throug
     // Archives the league
     cy.contains("Open league").click();
     cy.get(
-      ":nth-child(38) > .MuiButtonBase-root > .PrivateSwitchBase-input"
+      ":nth-child(41) > .MuiButtonBase-root > .PrivateSwitchBase-input"
     ).click();
     cy.get("#confirmation").type("New Sample League");
     cy.contains("Save admin settings").click();
@@ -496,7 +507,9 @@ describe("Invite User into league and change some league Settings and run throug
         cy.get(".MuiDialogActions-root > .MuiButton-contained").click();
       })
       .then(() => {
-        cy.setCookie("next-auth.session-token", user1);
+        cy.clearCookies().then(() =>
+          cy.setCookie("next-auth.session-token", user1)
+        );
       })
       .then(() => {
         cy.reload();
@@ -506,7 +519,7 @@ describe("Invite User into league and change some league Settings and run throug
       "New Sample League"
     );
     cy.get(".MuiDialogActions-root > .MuiButton-contained").click();
-    cy.get("#logout").click();
+    cy.clearCookies().then(() => cy.get("#logout").click());
     // Checks if the league is actually deleted
     cy.get("#username").type("Invite 3");
     cy.get("#password").type("password");

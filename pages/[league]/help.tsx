@@ -5,7 +5,8 @@ import { TranslateContext } from "../../Modules/context";
 import connect, { leagueSettings } from "../../Modules/database";
 import { Button, Icon, IconButton, Tooltip } from "@mui/material";
 import { useRouter } from "next/router";
-import { getSession } from "next-auth/react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "#/pages/api/auth/[...nextauth]";
 export default function Home(props: leagueSettings) {
   const t = useContext(TranslateContext);
   const [tutorialIndex, setTutorialIndex] = useState(0);
@@ -167,7 +168,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   // Makes sure to say that the league tutorial has been looked at
   connection.query(
     "UPDATE leagueUsers SET tutorial=0 WHERE leagueID=? AND user=?",
-    [context?.params?.league, (await getSession(context))?.user.id]
+    [
+      context?.params?.league,
+      (await getServerSession(context.req, context.res, authOptions))?.user.id,
+    ]
   );
   return { props: JSON.parse(JSON.stringify(settings[0])) };
 };
