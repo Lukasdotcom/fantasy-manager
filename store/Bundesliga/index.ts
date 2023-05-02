@@ -2,8 +2,6 @@ import { clubs, forecast, position } from "#Modules/database";
 import dataGetter, { players } from "#type/data";
 import { Bundesliga } from "./types";
 const Main: dataGetter = async (settings) => {
-  const access_token = settings.access_token;
-  console.log(`Acess token: ${access_token}`);
   const nowTime = Math.floor(Date.now() / 1000);
   // Gets the data for the league, note that if a file is specified it will be used instead this is for testing purposes
   const data: Bundesliga = settings.file
@@ -12,7 +10,7 @@ const Main: dataGetter = async (settings) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Cookie: `access_token=${process.env.BUNDESLIGA_API}`,
+          Cookie: `access_token=${settings.access_token}`,
         },
         body: JSON.stringify({
           payload: {

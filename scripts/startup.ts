@@ -24,7 +24,7 @@ async function compilePlugins() {
   const request =
     process.env.APP_ENV !== "test"
       ? await fetch(
-          "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/plugins/store/default_store.json"
+          "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/default_store.json"
         ).catch(() => {
           console.error("Could not get the default store");
           return "error";
@@ -38,7 +38,7 @@ async function compilePlugins() {
         })
       : // Uses a fallback store if the request fails(this is also the testing store)
         [
-          "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/plugins/store/Bundesliga/Bundesliga.json",
+          "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/Bundesliga.json",
         ];
   // Installs all plugins that should be installed by default
   await Promise.all(
