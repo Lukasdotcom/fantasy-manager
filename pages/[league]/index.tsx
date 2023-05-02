@@ -23,7 +23,6 @@ import {
   TextField,
   InputAdornment,
   Autocomplete,
-  BoxTypeMap,
   Slider,
   Checkbox,
   FormControlLabel,
@@ -57,6 +56,7 @@ import { Box } from "@mui/system";
 import Router from "next/router";
 import { getServerSession } from "next-auth";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
+import { BoxTypeMap } from "@mui/system";
 interface AdminPanelProps {
   league: number;
   leagueName: string;
