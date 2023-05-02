@@ -9,7 +9,7 @@ export async function calcPoints(league: string | number) {
   const connection = await connect();
   let leagueID: false | number = false;
   // Checks if a league number was requested instead of an entire league type
-  if (league > 0) {
+  if (parseInt(String(league)) > 0) {
     let leagueData: leagueSettings[] = await connection.query(
       "SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0",
       [league]
