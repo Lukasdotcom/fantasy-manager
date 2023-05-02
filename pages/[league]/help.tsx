@@ -168,7 +168,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   // Makes sure to say that the league tutorial has been looked at
   connection.query(
     "UPDATE leagueUsers SET tutorial=0 WHERE leagueID=? AND user=?",
-    [context?.params?.league, (await getServerSession(context.req, context.res, authOptions))?.user.id]
+    [
+      context?.params?.league,
+      (await getServerSession(context.req, context.res, authOptions))?.user.id,
+    ]
   );
   return { props: JSON.parse(JSON.stringify(settings[0])) };
 };

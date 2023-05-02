@@ -43,16 +43,18 @@ export default async function handler(
         // Checks if the plugin should be enabled and if it is it checks that there is no other plugin with the same name enabled
         if (
           enabled &&
-          (await connection.query(
-            "SELECT * FROM plugins WHERE enabled=? AND url!=? AND name=?",
-            [
-              true,
-              url,
-              await connection
-                .query("SELECT name FROM plugins WHERE url=?", [url])
-                .then((res) => (res.length > 0 ? res[0].name : "")),
-            ]
-          )).length > 0
+          (
+            await connection.query(
+              "SELECT * FROM plugins WHERE enabled=? AND url!=? AND name=?",
+              [
+                true,
+                url,
+                await connection
+                  .query("SELECT name FROM plugins WHERE url=?", [url])
+                  .then((res) => (res.length > 0 ? res[0].name : "")),
+              ]
+            )
+          ).length > 0
         ) {
           res.status(400).end("A plugin with the same name is already enabled");
           return;

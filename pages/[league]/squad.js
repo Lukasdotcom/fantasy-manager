@@ -237,7 +237,9 @@ export async function getServerSideProps(ctx) {
   const leagueInfo = await getLeagueInfo(
     ctx.query.league,
     session?.user?.id ? session?.user?.id : -1
-  ).catch((e) => {console.error(e)});
+  ).catch((e) => {
+    console.error(e);
+  });
   connection.end();
   return await redirect(ctx, { starredPercentage, leagueInfo });
 }
