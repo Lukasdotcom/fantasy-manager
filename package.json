@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "cypress": "12.11.0",
-    "eslint": "8.36.0",
+    "eslint": "8.39.0",
     "eslint-config-next": "13.3.4",
     "eslint-plugin-cypress": "2.12.1",
     "eslint-plugin-unused-imports": "2.0.0",
