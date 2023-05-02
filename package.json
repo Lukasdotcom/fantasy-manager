@@ -23,7 +23,7 @@
   "dependencies": {
     "@emotion/react": "11.10.5",
     "@emotion/styled": "11.10.5",
-    "@mui/material": "5.11.4",
+    "@mui/material": "5.12.2",
     "@types/mysql": "2.15.21",
     "@types/node": "18.14.6",
     "@types/react": "18.0.26",
