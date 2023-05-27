@@ -210,6 +210,7 @@ export default function Home({
       </Head>
       <Menu />
       <h1>{t("Usermenu")}</h1>
+      <p>Your userID is {user.id}.</p>
       <Button variant="contained" onClick={alternateColorMode}>
         {t("Switch to {theme} mode", { theme: t(oppositeColor) })}{" "}
         <Icon>{oppositeColor + "_mode"}</Icon>
