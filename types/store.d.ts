@@ -5,6 +5,7 @@ interface store {
   description?: string; // A description of the plugin
   files: string[]; // The files that are used by the plugin. These links will be downloaded. Note that the main file should be called index.ts/index.js.
   input?: inputs[]; // The inputs that are used by the plugin(If it requires any api keys or other inputs)
+  [key: string]: unknown; // This is so the type definition will work for new versions
 }
 export interface inputs {
   variant: "string"; // The type of the input string is just any string

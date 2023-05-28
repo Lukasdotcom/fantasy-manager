@@ -41,7 +41,7 @@ Here is a sample screenshot for more go to the [screenshots folder](public/scree
 
 ## Production or Installation
 
-There are 2 options to run this Sqlite and Mariadb. If you are unsure I would recommend sqlite it is faster. If you would like to install this without docker-compose you can use the [Dockerless](#dockerless) version.
+There are 2 options to run this Sqlite and Mariadb. If you are unsure I would recommend sqlite it is faster. If you would like to install this without docker-compose you can use the [Dockerless](#dockerless) version. After these steps follow the [post-installation guide](#Post-Installation)
 
 ### Sqlite
 
@@ -97,6 +97,12 @@ npm run start
 git pull
 ```
 
+## Post-Installation
+
+1. You need to first of all login to the admin user. By default this should be the very first user to login. If your user is not the admin or you want to change the admin go to [admin](#Admin User) for help changing the admin user.
+2. Then go into the admin panel for that user. (You should see it in the menu)
+3. Enable all the plugins you want. Plugins are basically leagues and you can add custom ones, but all the official ones should be listed.
+
 ## Development
 
 Read the contributing guidelines.
@@ -116,3 +122,11 @@ This service collects some simple analytics when you host this service that curr
 7. From the active users the total of the dark and light theme.
 8. The total number of users using a certain language.
 9. From the active users the total of a certain language.
+
+## Admin User
+
+To change a user to the admin user follow these steps:
+
+1. You need to figure out the userID of the user that you want to change. To do this go to the usermenu of the user and it should tell you the userID.
+2. Then edit the enviromental variables for the server and change it to the userID you just found.
+3. Then restart the server.

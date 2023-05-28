@@ -473,7 +473,7 @@ describe("Invite User into league and change some league Settings and run throug
     // Archives the league
     cy.contains("Open league").click();
     cy.get(
-      ":nth-child(41) > .MuiButtonBase-root > .PrivateSwitchBase-input"
+      ":nth-child(42) > .MuiButtonBase-root > .PrivateSwitchBase-input"
     ).click();
     cy.get("#confirmation").type("New Sample League");
     cy.contains("Save admin settings").click();

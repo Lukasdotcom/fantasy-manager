@@ -32,11 +32,10 @@ export default async function handler(
       );
       if (plugin.length === 0) {
         // Creates the plugin
-        await connection.query("INSERT INTO plugins (settings, enabled, url)", [
-          settings,
-          enabled,
-          url,
-        ]);
+        await connection.query(
+          "INSERT INTO plugins (settings, enabled, url) VALUES (?, ?, ?)",
+          [settings, enabled, url]
+        );
         res.status(200).end("Created Plugin");
       } else {
         // Update the plugin
@@ -74,10 +73,12 @@ export default async function handler(
       break;
     case "DELETE":
       // Deletes the plugin
-      const { body } = req;
       const connection2 = await connect();
-      await connection2.query("DELETE FROM plugins WHERE url=?", [body.url]);
+      await connection2.query("DELETE FROM plugins WHERE url=?", [
+        req.query.url,
+      ]);
       res.status(200).end("Plugin deleted");
+      break;
     default:
       res.status(405).end(`Method ${req.method} Not Allowed`);
       break;

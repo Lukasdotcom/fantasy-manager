@@ -37,6 +37,7 @@ import store from "#/types/store";
 import { NotifyContext } from "#Modules/context";
 import { getServerSession } from "next-auth";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
+import { useRouter } from "next/router";
 
 interface LeaguePluginsProps {
   plugins: plugins[];
@@ -86,6 +87,7 @@ interface LeaguePluginProps {
   installed: boolean;
 }
 function LeaguePlugin({ data, store, version, installed }: LeaguePluginProps) {
+  const [deleted, setDeleted] = useState(false);
   const notify = useContext(NotifyContext);
   const [enabled, setEnabled] = useState(data.enabled);
   const [settings, setSettings] = useState<{ [Key: string]: string }>(
@@ -114,6 +116,22 @@ function LeaguePlugin({ data, store, version, installed }: LeaguePluginProps) {
       }),
     });
     notify(await res.text(), res.ok ? "success" : "error");
+  };
+  // Used to delete the plugin
+  const deletePlugin = async () => {
+    const res = await fetch(
+      `/api/admin/plugins?url=${encodeURIComponent(data.url)}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    notify(await res.text(), res.ok ? "success" : "error");
+    if (res.ok) {
+      setDeleted(true);
+    }
   };
   let installedText = <></>;
   // Gets the text for the installed column
@@ -168,6 +186,7 @@ function LeaguePlugin({ data, store, version, installed }: LeaguePluginProps) {
       );
     }
   }
+  if (deleted) return <></>;
   return (
     <TableRow>
       <TableCell>{data.name}</TableCell>
@@ -215,6 +234,10 @@ function LeaguePlugin({ data, store, version, installed }: LeaguePluginProps) {
             })}
           <Button variant="outlined" color="success" onClick={save}>
             Save
+          </Button>
+          <br />
+          <Button variant="outlined" color="error" onClick={deletePlugin}>
+            Delete
           </Button>
         </FormGroup>
       </TableCell>
@@ -504,6 +527,28 @@ export default function Home({
   version,
   installed,
 }: props) {
+  const [newPlugin, setNewPlugin] = useState("");
+  const router = useRouter();
+  const notify = useContext(NotifyContext);
+  // Used to install a plugin
+  async function installPlugin() {
+    const res = await fetch("/api/admin/plugins", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: newPlugin,
+        enabled: false,
+        settings: "{}",
+      }),
+    });
+    notify(await res.text(), res.ok ? "success" : "error");
+    if (res.ok) {
+      console.log(1321);
+    }
+    router.push("/admin");
+  }
   return (
     <>
       <Head>
@@ -513,7 +558,8 @@ export default function Home({
       <h1>Admin Panel</h1>
       <h2>League Plugins</h2>
       <Typography variant="body1">
-        For a league to be useable it needs to be installed and enabled.
+        For a league to be useable it needs to be installed and enabled. Leagues
+        will be installed on a server restart.
       </Typography>
       <LeaguePlugins
         plugins={plugins}
@@ -521,6 +567,18 @@ export default function Home({
         version={version}
         installed={installed}
       />
+      <br />
+      <TextField
+        value={newPlugin}
+        onChange={(e) => setNewPlugin(e.target.value)}
+        fullWidth
+        label="Plugin Url"
+        placeholder="https://raw.githubusercontent.com/"
+      />
+      <br />
+      <Button variant="outlined" color="success" onClick={installPlugin}>
+        Install New Plugin
+      </Button>
       <h2>Analytics</h2>
       {Object.keys(analytics).length > 0 && <Analytics analytics={analytics} />}
       {Object.keys(analytics).length == 0 && <p>No Analytics Data Exists</p>}

@@ -3,10 +3,7 @@ import connect, { clubs, plugins as pluginsType } from "../Modules/database";
 import { calcPoints } from "./calcPoints";
 import plugins from "./data";
 // Used to update all the data
-export async function updateData(
-  url: string,
-  file = "../../../sample/data1.json"
-) {
+export async function updateData(url: string, file = "./sample/data1.json") {
   // Defaults to the first plugin in the list if testing(should be Bundesliga)
   if (process.env.APP_ENV === "test") {
     url = Object.keys(plugins)[0];
