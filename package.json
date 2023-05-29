@@ -23,7 +23,7 @@
   "dependencies": {
     "@emotion/react": "11.10.8",
     "@emotion/styled": "11.10.8",
-    "@mui/material": "5.12.3",
+    "@mui/material": "5.13.3",
     "@types/mysql": "2.15.21",
     "@types/node": "18.16.3",
     "@types/react": "18.2.0",
@@ -42,7 +42,7 @@
     "react-chartjs-2": "5.2.0",
     "react-dom": "18.2.0",
     "sharp": "0.32.1",
-    "sqlite": "4.2.0",
+    "sqlite": "4.2.1",
     "sqlite3": "5.1.6",
     "typescript": "5.0.4"
   },
