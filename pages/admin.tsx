@@ -98,7 +98,7 @@ function LeaguePlugin({ data, store, version, installed }: LeaguePluginProps) {
   };
   const changeSettings = (value: string, name: string) => {
     setSettings((prev) => {
-      prev[name] = value;
+      prev = { ...prev, [name]: value };
       return prev;
     });
   };

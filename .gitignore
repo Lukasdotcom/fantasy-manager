@@ -38,6 +38,8 @@ cypress/videos
 cache
 docker-compose.yaml
 *.db
+*.db-shm
+*.db-wal
 public/*.js
 !.env.test.local
 !docker/mariadb/docker-compose.yaml
