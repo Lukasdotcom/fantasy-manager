@@ -1,5 +1,9 @@
 {
-  "extends": ["next/core-web-vitals", "plugin:cypress/recommended", "plugin:@typescript-eslint/recommended"],
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:cypress/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "plugins": ["cypress", "@typescript-eslint"],
   "parser": "@typescript-eslint/parser",
   "rules": {
