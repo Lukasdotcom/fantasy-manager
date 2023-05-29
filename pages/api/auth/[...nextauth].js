@@ -22,6 +22,7 @@ const options = {
       },
       // Used to make sure that the credentails are correct
       authorize: async (credentials) => {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const bcrypt = require("bcryptjs");
         // Goes through every user that has the email or username that was given and has password authentication enabled
         const connection = await connect();
@@ -69,6 +70,7 @@ const options = {
       },
       // Used to make sure that the credentails are correct
       authorize: async (credentials) => {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const bcrypt = require("bcryptjs");
         // Goes through every user that has the email or username that was given
         const connection = await connect();

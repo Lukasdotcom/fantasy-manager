@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Connection, createConnection } from "mysql";
 import dotenv from "dotenv";
 import { Database, open } from "sqlite";
@@ -71,7 +72,7 @@ class connection {
   // Used to query a statement
   async query(
     statement: string,
-    prepare: any[] = [],
+    prepare: unknown[] = [],
     logError = false
   ): Promise<any[]> {
     const connection = this.connection;

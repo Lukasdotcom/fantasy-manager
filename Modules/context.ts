@@ -3,11 +3,13 @@ import { Context, createContext } from "react";
 
 export type NotifyType = (message: string, severity?: AlertColor) => void;
 export const NotifyContext: Context<NotifyType> = createContext(
-  (message: string, severity: AlertColor = "info") => {}
+  (message: string, severity: AlertColor = "info") => {
+    console.log(message, severity);
+  }
 );
 export type UserType = (id: number, reset?: boolean) => Promise<string>;
 export const UserContext: Context<UserType> = createContext(
-  async (id: number, reset: boolean = false) => ""
+  async (id: number, reset = false) => `${reset}`
 );
 
 export type TranslateType = (
@@ -21,5 +23,6 @@ export type TranslateType = (
  * @return {string} The translated text
  */
 export const TranslateContext: Context<TranslateType> = createContext(
-  (text: string, replacers?: Record<string, string | Date | number>) => ""
+  (text: string, replacers?: Record<string, string | Date | number>) =>
+    `${text}${Object.values(replacers || {}).join("")}`
 );

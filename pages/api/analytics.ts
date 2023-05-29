@@ -9,12 +9,14 @@ export default async function handler(
   if (req.method == "POST") {
     // Collects the data from the request
     let {
-      serverID = "fake",
-      version = "0.0.0",
       active = 0,
       total = 0,
       leagueActive = "{}",
       leagueTotal = "{}",
+    }: detailedAnalytics = req.body;
+    const {
+      serverID = "fake",
+      version = "0.0.0",
       themeActive = "{}",
       themeTotal = "{}",
       localeActive = "{}",
@@ -42,7 +44,7 @@ export default async function handler(
       if (req.body?.activeUsers) {
         active = req.body.activeUsers;
       }
-      let tempLeagueActive: { [Key: string]: number } = {};
+      const tempLeagueActive: { [Key: string]: number } = {};
       if (req.body?.BundesligaActive) {
         tempLeagueActive.Bundesliga = req.body.BundesligaActive;
       }
@@ -53,7 +55,7 @@ export default async function handler(
         tempLeagueActive.WorldCup2022 = req.body.WorldCup2022Active;
       }
       leagueActive = JSON.stringify(tempLeagueActive);
-      let tempLeagueTotal: { [Key: string]: number } = {};
+      const tempLeagueTotal: { [Key: string]: number } = {};
       if (req.body?.Bundesliga) {
         tempLeagueTotal.Bundesliga = req.body.Bundesliga;
       }

@@ -56,7 +56,7 @@ export default function Home({ historicalTimes, leagues }: props) {
         onChange={(val) => setMatchday(val.target.value as number)}
       >
         {historicalTimes[league].map((e: number) => {
-          let date = new Date(e * 1000);
+          const date = new Date(e * 1000);
           return (
             <MenuItem key={e} value={e}>
               {t("{date}", { date })}

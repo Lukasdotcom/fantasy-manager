@@ -5,8 +5,8 @@ import { getServerSession } from "next-auth";
 // Used to get information about the redirect for the league runs on every league page
 const redirect = async (
   ctx: GetServerSidePropsContext,
-  data: { [key: string]: any }
-): Promise<GetServerSidePropsResult<{ [key: string]: any }>> => {
+  data: { [key: string]: unknown }
+): Promise<GetServerSidePropsResult<{ [key: string]: unknown }>> => {
   const league = parseInt(String(ctx.params?.league));
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
   const connection = await connect();

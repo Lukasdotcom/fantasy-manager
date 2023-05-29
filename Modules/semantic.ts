@@ -6,8 +6,8 @@
  */
 export function compareSemanticVersions(a: string, b: string): 1 | -1 | 0 {
   // 1. Split the strings into their parts.
-  let a1 = a.split(".");
-  let b1 = b.split(".");
+  const a1 = a.split(".");
+  const b1 = b.split(".");
   const len = Math.min(a1.length, b1.length); // Look through each part of the version number and compare.
   for (let i = 0; i < len; i++) {
     const a2 = +a1[i] || 0;

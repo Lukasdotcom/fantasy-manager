@@ -1,12 +1,17 @@
 {
-  "extends": ["next/core-web-vitals", "plugin:cypress/recommended"],
-  "plugins": ["cypress", "unused-imports"],
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:cypress/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": ["cypress", "@typescript-eslint"],
+  "parser": "@typescript-eslint/parser",
   "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
     "no-var": "error",
     "no-implied-eval": "error",
     "no-eval": "error",
     "no-const-assign": "error",
-    "unused-imports/no-unused-imports": "error",
     "no-restricted-imports": [
       "error",
       {

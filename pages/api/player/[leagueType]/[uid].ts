@@ -15,7 +15,7 @@ export default async function handler(
     const connection = await connect();
     const league = String(req.query.leagueType);
     const time = parseInt(String(req.query.time));
-    let returnValue: result[] = [];
+    const returnValue: result[] = [];
     // Checks if new data needs to be requested
     await checkUpdate(league);
     if (time > 0) {

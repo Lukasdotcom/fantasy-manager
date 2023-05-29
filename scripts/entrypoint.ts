@@ -31,10 +31,10 @@ async function update() {
     day = newDate.getDay();
     // Gathers the analytics data
     const users = await connection3.query("SELECT * FROM users");
-    let localeActive: { [Key: string]: number } = {};
-    let localeTotal: { [Key: string]: number } = {};
-    let themeActive: { [Key: string]: number } = {};
-    let themeTotal: { [Key: string]: number } = {};
+    const localeActive: { [Key: string]: number } = {};
+    const localeTotal: { [Key: string]: number } = {};
+    const themeActive: { [Key: string]: number } = {};
+    const themeTotal: { [Key: string]: number } = {};
     for (const user of users) {
       if (user.locale !== "" && user.locale) {
         // Calculates all the locales for the users
@@ -68,8 +68,8 @@ async function update() {
       }
     }
     // Gets all the statistics for the leagues
-    let leagueActive: { [Key: string]: number } = {};
-    let leagueTotal: { [Key: string]: number } = {};
+    const leagueActive: { [Key: string]: number } = {};
+    const leagueTotal: { [Key: string]: number } = {};
     for (const league of leagues) {
       // Calculates all the leagues for the users
       leagueActive[league] = (
@@ -110,7 +110,9 @@ async function update() {
           "Content-Type": "application/json",
         },
         body: JSONbody,
-      }).catch(() => {});
+      }).catch((e) => {
+        console.error("Failed to send analytics data with error: ", e);
+      });
     }
     // Sends the analytics data to the server
     fetch(`http://localhost:3000/api/analytics`, {

@@ -40,7 +40,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     });
   }
   // Gets the username asyncronously
-  async function getUser(id: number, reset: boolean = false): Promise<string> {
+  async function getUser(id: number, reset = false): Promise<string> {
     if (!userData[id] || reset) {
       const data = await fetch(`/api/user/${id}`).then((e) => e.json());
       userData[id] = data;
@@ -163,7 +163,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   }
   // Used to create the theme for the website and starts of in dark to not blind dark theme users
   const [colorMode, setColorMode] = useState<"light" | "dark">("dark");
-  function updateColorMode(theme: "light" | "dark", force: boolean = false) {
+  function updateColorMode(theme: "light" | "dark", force = false) {
     if (force || (session && session?.user.theme !== theme)) {
       fetch("/api/user", {
         method: "POST",

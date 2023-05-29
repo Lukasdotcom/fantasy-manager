@@ -20,7 +20,6 @@ import { authOptions } from "#/pages/api/auth/[...nextauth]";
 
 export default function Home({
   league,
-  starredPercentage,
   leagueName,
   leagueInfo,
   leagueType,
@@ -228,11 +227,6 @@ export default function Home({
 export async function getServerSideProps(ctx) {
   const connection = await connect();
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
-  const starredPercentage = await connection
-    .query("SELECT starredPercentage FROM leagueSettings WHERE leagueID=?", [
-      ctx.query.league,
-    ])
-    .then((res) => (res.length > 0 ? res[0].starredPercentage : 150));
   // Gets the league info
   const leagueInfo = await getLeagueInfo(
     ctx.query.league,
@@ -241,5 +235,5 @@ export async function getServerSideProps(ctx) {
     console.error(e);
   });
   connection.end();
-  return await redirect(ctx, { starredPercentage, leagueInfo });
+  return await redirect(ctx, { leagueInfo });
 }

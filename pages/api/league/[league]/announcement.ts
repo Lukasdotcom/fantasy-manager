@@ -11,12 +11,6 @@ export default async function handler(
   if (session) {
     const connection = await connect();
     const league = req.query.league;
-    // Variable to check if the league is archived
-    const isArchived = connection
-      .query("SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0", [
-        league,
-      ])
-      .then((e) => e.length === 0);
     switch (req.method) {
       // Used to add an anouncement
       case "POST":
@@ -40,8 +34,8 @@ export default async function handler(
               "INSERT INTO announcements (leagueID, priority, title, description) VALUES (?, ?, ?, ?)",
               [league, priority, title, description]
             )
-            .then((e) => res.status(200).end("Added anouncement"))
-            .catch((e) => res.status(500).end("Failed to create announcement"));
+            .then(() => res.status(200).end("Added anouncement"))
+            .catch(() => res.status(500).end("Failed to create announcement"));
         } else {
           res.status(401).end("You are not admin of this league");
         }
