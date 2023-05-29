@@ -24,8 +24,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
       # Installs packages
-      - run: npm run build
+      - run: npm run ci
       # Makes sure the code is formatted correctly
       - run: npm run pretty
       # Runs eslint
       - run: npm run lint
+      # Builds the project
+      - run: npm run build
