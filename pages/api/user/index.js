@@ -14,6 +14,7 @@ export default async function handler(req, res) {
         // Updates the password if one is given.
         const password = req.body.password;
         const connection = await connect();
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const bcrypt = require("bcryptjs");
         connection.query("UPDATE users SET password=? WHERE id=?", [
           password === ""

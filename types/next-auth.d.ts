@@ -1,4 +1,4 @@
-// eslint-disable-next-line unused-imports/no-unused-imports
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import NextAuth from "next-auth";
 
 declare module "next-auth" {
@@ -11,10 +11,10 @@ declare module "next-auth" {
       username: string;
       password: boolean;
       throttle: number;
-      active: Boolean;
+      active: boolean;
       google: string;
       github: string;
-      admin: Boolean;
+      admin: boolean;
       favoriteLeague: null | number;
       theme: string | null;
       locale: string | null;

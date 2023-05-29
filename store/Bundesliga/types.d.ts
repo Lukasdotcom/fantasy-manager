@@ -182,7 +182,7 @@ export interface Squad {
 
 export interface SquadItem {
   sellable: boolean;
-  denials_for_selling: any[];
+  denials_for_selling: unknown[];
   transfer_value: number;
   marked_to_buy: boolean;
   marked_to_sell: boolean;
@@ -209,6 +209,6 @@ export interface FluffyArgs {
 export interface Transaction {
   pending: boolean;
   first_transaction: boolean;
-  commit_denials: any[];
+  commit_denials: unknown[];
 }
 export default Welcome9;

@@ -227,7 +227,7 @@ function Leagues({ leagues }: LeaguesProps) {
   });
   // Used to get a list of all the leagues
   const getLeagueData = async () => {
-    let data = await fetch("/api/league");
+    const data = await fetch("/api/league");
     setLeagueList(await data.json());
   };
   // Makes sure to get the league data on the mount

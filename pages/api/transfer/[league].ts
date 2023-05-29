@@ -62,7 +62,7 @@ export default async function handler(
       ])
     )[0];
     // Checks if the transfer market is open
-    const transferOpen: Boolean = await connection
+    const transferOpen: boolean = await connection
       .query("SELECT value2 FROM data WHERE value1=?", [
         "transferOpen" + leagueSettings.league,
       ])
@@ -89,7 +89,7 @@ export default async function handler(
                 .then((result) => parseInt(result[0].value2)),
             ]);
           // Puts all the ownership and transfer info in a dictionary
-          let ownership: { [Key: string]: (ownershipInfo | transferInfo)[] } =
+          const ownership: { [Key: string]: (ownershipInfo | transferInfo)[] } =
             {};
           let transferCount = 0;
           squads.forEach((e) => {
@@ -261,7 +261,7 @@ export default async function handler(
           ) {
             // Increments all the offers by 100000 until someone drops their transfer
             while (true) {
-              let cheapest: transfers[] = await connection.query(
+              const cheapest: transfers[] = await connection.query(
                 "SELECT * FROM transfers WHERE leagueID=? AND playeruid=? ORDER BY value ASC LIMIT 1",
                 [league, playeruid]
               );

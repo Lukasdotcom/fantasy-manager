@@ -21,7 +21,7 @@ interface InnerUpdateType {
   text: string;
   link?: string;
 }
-type UpdateType = InnerUpdateType | {};
+type UpdateType = InnerUpdateType | object;
 interface CurrentPictureProps {
   picture: number;
 }

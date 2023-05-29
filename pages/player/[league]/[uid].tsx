@@ -52,7 +52,7 @@ interface Column {
     | "club"
     | "position";
   label: string;
-  format: (value: any) => string;
+  format: (value: string | number) => string;
 }
 interface Data {
   time: number;
@@ -81,34 +81,43 @@ export default function Home({
     {
       id: "time",
       label: "Time",
-      format: (value: number) => {
-        const date = new Date(value * 1000);
+      format: (value: string | number) => {
+        const date = new Date(parseInt(String(value)) * 1000);
         return value === 0 ? t("Now") : t("{date}", { date });
       },
     },
     {
       id: "value",
       label: "Value",
-      format: (value: number) => t("{amount} M", { amount: value / 1000000 }),
+      format: (value: string | number) =>
+        t("{amount} M", { amount: parseInt(String(value)) / 1000000 }),
     },
     {
       id: "last_match",
       label: "Last Match Points",
-      format: (value: number) => t("{value}", { value }),
+      format: (value: string | number) => t("{value}", { value }),
     },
     {
       id: "average_points",
       label: "Average Points",
-      format: (value: number) => t("{value}", { value }),
+      format: (value: string | number) => t("{value}", { value }),
     },
     {
       id: "total_points",
       label: "Total Points",
-      format: (value: number) => t("{value}", { value }),
+      format: (value: string | number) => t("{value}", { value }),
     },
-    { id: "opponent", label: "Opponent", format: (value: string) => value },
-    { id: "club", label: "Club", format: (value: string) => value },
-    { id: "position", label: "Position", format: (value: string) => t(value) },
+    {
+      id: "opponent",
+      label: "Opponent",
+      format: (value: string | number) => String(value),
+    },
+    { id: "club", label: "Club", format: (value: unknown) => String(value) },
+    {
+      id: "position",
+      label: "Position",
+      format: (value: string | number) => t(String(value)),
+    },
   ];
   // Stores the amount of time left until the game starts
   const [countdown, setCountown] = useState<number>(
@@ -148,7 +157,7 @@ export default function Home({
       if (count > 0) {
         if (rows[String(time)] === undefined) {
           setRows((rows) => {
-            let newRows = { ...rows };
+            const newRows = { ...rows };
             newRows[String(time)] = { time, loading: true };
             return newRows;
           });
@@ -156,7 +165,7 @@ export default function Home({
             .then((e) => e.json())
             .then((data: apiPlayerResult) => {
               setRows((rows) => {
-                let newRows = { ...rows };
+                const newRows = { ...rows };
                 newRows[String(time)] = {
                   time,
                   value: data.value,
@@ -437,7 +446,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       [uid, league]
     )
     .then((res) => {
-      let result: number[] = [];
+      const result: number[] = [];
       res.forEach((e: historicalPlayers) => {
         result.push(e.time);
         pictures.add(e.pictureUrl);

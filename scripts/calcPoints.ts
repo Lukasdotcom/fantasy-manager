@@ -10,7 +10,7 @@ export async function calcPoints(league: string | number) {
   let leagueID: false | number = false;
   // Checks if a league number was requested instead of an entire league type
   if (parseInt(String(league)) > 0) {
-    let leagueData: leagueSettings[] = await connection.query(
+    const leagueData: leagueSettings[] = await connection.query(
       "SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0",
       [league]
     );
@@ -48,7 +48,7 @@ export async function calcPoints(league: string | number) {
   let currentleagueID = -1;
   let matchday = 1;
   while (index < leagueUsers.length) {
-    let e = leagueUsers[index];
+    const e = leagueUsers[index];
     index++;
     const [oldPoints, newPoints] = await Promise.all([
       // Gets how many points the user had for the matchday with the previous calculation

@@ -45,14 +45,14 @@ const Main: dataGetter = async function () {
   };
   // Gets the list of teams and gets their data
   const teams = data.teams.map((club): clubs => {
-    let homeGame = matchdayData.filter((e) => e.team_h === club.id);
+    const homeGame = matchdayData.filter((e) => e.team_h === club.id);
     let opponent = "";
     let gameStart = 0;
     if (homeGame.length > 0) {
       gameStart = Date.parse(String(homeGame[0].kickoff_time)) / 1000;
       opponent = getTeam(homeGame[0].team_a);
     }
-    let awayGame = matchdayData.filter((e) => e.team_a === club.id);
+    const awayGame = matchdayData.filter((e) => e.team_a === club.id);
     if (awayGame.length > 0) {
       gameStart = Date.parse(String(awayGame[0].kickoff_time)) / 1000;
       opponent = getTeam(awayGame[0].team_h);

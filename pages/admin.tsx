@@ -93,7 +93,7 @@ function LeaguePlugin({ data, store, version, installed }: LeaguePluginProps) {
   const [settings, setSettings] = useState<{ [Key: string]: string }>(
     JSON.parse(data.settings)
   );
-  const checkboxChange = (_: any, checked: boolean) => {
+  const checkboxChange = (_: unknown, checked: boolean) => {
     setEnabled(checked);
   };
   const changeSettings = (value: string, name: string) => {

@@ -16,7 +16,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
   }
   const connection = await connect();
   // Updates the internal data for the player update data
-  let leagueData: pluginsType[] = await connection.query(
+  const leagueData: pluginsType[] = await connection.query(
     "SELECT * FROM plugins WHERE url=?",
     [url]
   );
@@ -108,7 +108,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
     return result[0];
   };
   while (index < players.length) {
-    let val = players[index];
+    const val = players[index];
     index++;
     // Gets the club data
     if (val.club != club) {
@@ -165,7 +165,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
         ]
       );
     } else {
-      let {
+      const {
         uid,
         name,
         club,
@@ -174,11 +174,11 @@ export async function updateData(url: string, file = "./sample/data1.json") {
         position,
         forecast,
         total_points,
-        average_points,
         last_match,
         exists,
       } = val;
-      let nameAscii = noAccents(name);
+      let { average_points } = val;
+      const nameAscii = noAccents(name);
       // Updates the player that always will get updated
       await connection.query(
         "UPDATE players SET name=?, nameAscii=?, `exists`=?, locked=? WHERE uid=? AND league=?",
@@ -270,7 +270,7 @@ export async function startMatchday(league: string) {
   );
   let index = 0;
   while (index < transfers.length) {
-    let e = transfers[index];
+    const e = transfers[index];
     index++;
     // Moves the player
     await connection.query(
@@ -317,7 +317,7 @@ export async function startMatchday(league: string) {
   index = 0;
   // Goes through every league and adds another matchday
   while (index < leagues.length) {
-    let e = leagues[index];
+    const e = leagues[index];
     index++;
     if (e.leagueID !== currentleagueID) {
       currentleagueID = e.leagueID;

@@ -169,7 +169,7 @@ export default function Home({
   }
   // Used to change the locale
   function changeLocale(event: SelectChangeEvent<string>) {
-    let locale = event.target.value;
+    const locale = event.target.value;
     notify(t("Saving"));
     fetch("/api/user", {
       method: "POST",

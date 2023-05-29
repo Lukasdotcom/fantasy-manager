@@ -6,3 +6,7 @@ scripts/data/*.js
 scripts/*.js
 Modules/*.js
 scripts/data
+cypress.config.js
+cypress/e2e/*.js
+!cypress/e2e/*.cy.js
+next.config.js

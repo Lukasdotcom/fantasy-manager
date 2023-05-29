@@ -200,7 +200,9 @@ function AdminPanel({
             e: SyntheticEvent<Element, Event>,
             value: (string | userData)[]
           ): void => {
-            let admins = value.map((e) => (typeof e === "string" ? e : e.user));
+            const admins = value.map((e) =>
+              typeof e === "string" ? e : e.user
+            );
             setUsers((e2) => {
               // Updates the value for all of the users
               e2.forEach((e3) => {
@@ -402,7 +404,33 @@ function Graph({ historicalPoints }: { historicalPoints: historialData }) {
     Tooltip,
     Legend
   );
-  const options: any = {
+  const options: {
+    maintainAspectRatio: boolean;
+    responsive: boolean;
+    plugins: {
+      legend: {
+        position: "top";
+      };
+      title: {
+        display: boolean;
+        text: string;
+      };
+    };
+    scales: {
+      x: {
+        title: {
+          display: boolean;
+          text: string;
+        };
+      };
+      y: {
+        title: {
+          display: boolean;
+          text: string;
+        };
+      };
+    };
+  } = {
     maintainAspectRatio: false,
     responsive: true,
     plugins: {
@@ -433,7 +461,11 @@ function Graph({ historicalPoints }: { historicalPoints: historialData }) {
   const labels = Array(dataRange[1] - dataRange[0] + 1)
     .fill(0)
     .map((_, index) => index + dataRange[0]);
-  const datasets: any[] = [];
+  const datasets: {
+    label: string;
+    data: number[];
+    borderColor: string;
+  }[] = [];
   // Adds every dataset
   Object.keys(historicalPoints).forEach((e, index) => {
     let counter = 0;
@@ -776,7 +808,7 @@ export default function Home({
       />
       <Button
         onClick={async () => {
-          let link = newInvite;
+          const link = newInvite;
           notify(t("Creating new invite link"));
           const response = await fetch("/api/invite", {
             method: "POST",
@@ -856,7 +888,7 @@ export const getServerSideProps: GetServerSideProps = async (
     connection.end();
     // Reformats the result into a dictionary that has an entry for each user and each entry for that user is an array of all the points the user has earned in chronological order.
     if (results.length > 0) {
-      let points: historialData = {};
+      const points: historialData = {};
       results.forEach((element: historialPlayerData) => {
         if (points[element.user]) {
           points[String(element.user)].push(element.points);
@@ -878,7 +910,7 @@ export const getServerSideProps: GetServerSideProps = async (
     );
     connection.end();
     // Turns the result into a list of valid invite links
-    let inviteLinks: string[] = [];
+    const inviteLinks: string[] = [];
     results.forEach((val) => {
       inviteLinks.push(val.inviteID);
     });

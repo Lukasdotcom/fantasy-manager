@@ -15,7 +15,7 @@ import Link from "./Link";
 import { useSession } from "next-auth/react";
 import { TranslateContext } from "../Modules/context";
 interface MenuItemsInterface {
-  league: undefined | Number;
+  league: undefined | number;
   handleCloseNavMenu: MouseEventHandler;
 }
 // Returns all the menu items

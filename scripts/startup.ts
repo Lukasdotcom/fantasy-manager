@@ -257,7 +257,7 @@ async function startUp() {
     connection.query("DELETE FROM data WHERE value1=?", ["locked" + e]);
   });
   // Checks the version of the database is out of date
-  let getOldVersion: data[] = await connection.query(
+  const getOldVersion: data[] = await connection.query(
     "SELECT value2 FROM data WHERE value1='version'"
   );
   let oldVersion = "";
@@ -332,14 +332,14 @@ async function startUp() {
           "ALTER TABLE historicalPlayers ADD nameAscii varchar(255)"
         ),
       ]);
-      let players = await connection.query("SELECT * FROM players");
+      const players = await connection.query("SELECT * FROM players");
       players.forEach((e) => {
         connection.query("UPDATE players SET nameAscii=? WHERE uid=?", [
           noAccents(e.name),
           e.uid,
         ]);
       });
-      let historicalPlayers = await connection.query(
+      const historicalPlayers = await connection.query(
         "SELECT * FROM historicalPlayers"
       );
       historicalPlayers.forEach((e) => {

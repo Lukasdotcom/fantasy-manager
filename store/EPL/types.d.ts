@@ -180,7 +180,7 @@ export interface GameSettings {
   squad_total_spend: number;
   ui_currency_multiplier: number;
   ui_use_special_shirts: boolean;
-  ui_special_shirt_exclusions: any[];
+  ui_special_shirt_exclusions: unknown[];
   stats_form_days: number;
   sys_vice_captain_enabled: boolean;
   transfers_cap: number;
