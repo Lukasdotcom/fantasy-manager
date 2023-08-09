@@ -24,9 +24,14 @@ import {
   useTheme,
 } from "@mui/material";
 import { result as apiPlayerResult } from "../../api/player/[leagueType]/[uid]";
-import { getLeaguePicWidth } from "../../../components/Player";
 import { TranslateContext } from "../../../Modules/context";
 import getLocales from "../../../locales/getLocales";
+import { downloadPicture } from "#/scripts/pictures";
+interface pictures {
+  id: number;
+  height?: number;
+  width?: number;
+}
 interface extendedPlayers extends players {
   game: {
     opponent: string;
@@ -39,7 +44,7 @@ interface props {
   times: number[];
   league: string;
   otherLeagues: { league: string; uid: string }[];
-  pictures: string[];
+  pictures: pictures[];
 }
 interface Column {
   id:
@@ -220,6 +225,11 @@ export default function Home({
   const unloadedRows = tempUnloaded > 0 ? tempUnloaded : 0;
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
+  // Calculates the height and width for the official picture
+  const pictureHeight =
+    pictures.filter((e) => e.id === player.pictureID)[0].height || 200;
+  const pictureWidth =
+    pictures.filter((e) => e.id === player.pictureID)[0].width || 200;
   return (
     <>
       <Head>
@@ -230,10 +240,10 @@ export default function Home({
         {player.name} ({t(player.position)}) - {player.club}
       </h1>
       <Image
-        src={player.pictureUrl}
+        src={"/api/picture/" + player.pictureID}
         alt=""
-        width={parseInt(getLeaguePicWidth(league)) * 3}
-        height={300}
+        width={pictureWidth * 3}
+        height={pictureHeight * 3}
       />
       <Dialog
         onClose={handleDialogToggle}
@@ -243,12 +253,12 @@ export default function Home({
         <>
           <p>{t("The newest pictures are on the top. ")}</p>
           {pictures.map((e) => (
-            <div key={e}>
+            <div key={e.id}>
               <Image
-                src={e}
+                src={"/api/picture/" + e.id}
                 alt=""
-                width={parseInt(getLeaguePicWidth(league)) * 3}
-                height={300}
+                width={(e.width || 200) * 3}
+                height={(e.height || 200) * 3}
               />
             </div>
           ))}
@@ -437,8 +447,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     );
   if (gameData) player[0].game = gameData;
   // Gets all the pictures in a set
-  const pictures = new Set();
-  pictures.add(player[0].pictureUrl);
+  const pictures = new Set<number>();
+  pictures.add(player[0].pictureID);
   // Gets all the historical times in an array
   const times = await connection
     .query(
@@ -449,11 +459,21 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       const result: number[] = [];
       res.forEach((e: historicalPlayers) => {
         result.push(e.time);
-        pictures.add(e.pictureUrl);
+        pictures.add(e.pictureID);
       });
       return result;
     });
   connection.end();
+  // Sends a request to download every picture needed
+  const pictureData: pictures[] = await Promise.all(
+    Array.from(pictures).map(
+      (e) =>
+        new Promise<pictures>(async (res) => {
+          const data = await downloadPicture(e);
+          res({ ...data, id: e });
+        })
+    )
+  );
   return {
     props: {
       uid,
@@ -461,7 +481,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       times,
       league,
       otherLeagues,
-      pictures: Array.from(pictures),
+      pictures: pictureData,
       t: await getLocales(ctx.locale),
     },
   };

@@ -52,3 +52,6 @@ tsconfig2.tsbuildinfo
 tsconfig3.tsbuildinfo
 scripts/data
 scripts/data.ts
+
+# Ignores downloaded pictures
+players

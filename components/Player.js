@@ -60,7 +60,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
     }
     // Checks if the player has a picture url set
     if (pictureUrl === undefined) {
-      setPictureUrl(data.pictureUrl);
+      setPictureUrl("/api/picture/" + data.pictureID);
     }
     // Checks if the game has started less than 120 minutes ago and that this is the squad view
     const gameRunning = countdown < 0 && countdown > -120;
@@ -95,7 +95,9 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
           }}
           src={pictureUrl}
           width={
-            pictureUrl !== fallbackImg ? getLeaguePicWidth(data.league) : "100"
+            pictureUrl !== fallbackImg
+              ? (data.width / data.height) * 100
+              : "100"
           }
           height="100"
         />
@@ -647,10 +649,3 @@ export function HistoricalPlayer({ uid, time, children, starred, leagueType }) {
     </InternalPlayer>
   );
 }
-
-// Gets the width of the picture for that league
-export const getLeaguePicWidth = (league) => {
-  if (league === "WorldCup2022") return "72";
-  if (league === "EPL") return "78";
-  return "100";
-};

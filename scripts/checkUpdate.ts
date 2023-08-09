@@ -20,10 +20,10 @@ export async function checkUpdate(league: string) {
           : String(process.env.MIN_UPDATE_TIME)
       )
   ) {
-    connection.query(
+    await connection.query(
       "INSERT INTO data (value1, value2) VALUES(?, '1') ON DUPLICATE KEY UPDATE value2=1",
       ["update" + league]
     );
   }
-  connection.end();
+  await connection.end();
 }

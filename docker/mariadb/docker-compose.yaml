@@ -13,8 +13,6 @@ services:
       - MYSQL_DATABASE=bundesliga
       - MIN_UPDATE_TIME=120 # Minimum amount of seconds to pass before the data updates on Fri, Sat, and Sun to prevent spamming the api.
       - MIN_UPDATE_TIME_TRANSFER=3600 # Minimum amount of seconds to pass before the data is updated during the transfer period
-      # Look at the leagues.md file for steps to enable every league
-      #- ENABLE_EPL=enabled # Uncomment this to enable the premier league
       # Get your oauth details for sign in with google or github and fill it in below(not required)
       #- GOOGLE_ID=
       #- GOOGLE_SECRET=
@@ -24,6 +22,7 @@ services:
       - BCRYPT_ROUNDS=9 # The number of rounds the password should be hashed
       # The admin user is whatever id is given, and the count starts at 1
       - ADMIN=1
+      - DOWNLOAD_PICTURE=needed # This is the setting to decide if player pictures should be downloaded to disk.  No means that they will never be downloaded to disk, needed means they will be downloaded when needed, and yes means they will be downloaded when a new picture is discovered. The default is needed.
     ports:
       - 80:3000
     restart: always
@@ -37,6 +36,10 @@ services:
     restart: always
     volumes:
       - bundesliga:/var/lib/mysql
+    # Uncomment the following if you want the downloaded pictures to persist between updates. Leave this commented if you set DOWNLOAD_PICTURE to no. If you set DOWNLOAD_PICTURE to yes you should uncomment it.
+    #  - pictures:/app/players
 volumes:
   bundesliga:
     external: true
+  #pictures:
+  #  external: true

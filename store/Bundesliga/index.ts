@@ -46,6 +46,8 @@ const Main: dataGetter = async (settings) => {
       name: e.player.nickname,
       club,
       pictureUrl: e.player.image_urls.default,
+      height: 200,
+      width: 200,
       value: e.transfer_value,
       position: e.player.positions[0] as position,
       forecast: e.attendance.forecast.substring(0, 1) as forecast,
