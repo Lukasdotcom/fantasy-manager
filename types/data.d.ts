@@ -5,6 +5,8 @@ export interface players {
   name: string; // This is the name of the player
   club: string; // This is the club of the player
   pictureUrl: string; // This is the url of the picture of the player
+  height: number; // This is the height of the picture of the player
+  width: number; // This is the width of the picture of the player
   value: number; // This is the value of the player
   position: position; // This is the position of the player
   forecast?: forecast; // This is the forecast of the player where a is attending u is unknown and m is missing

@@ -6,6 +6,7 @@ import connect, {
   players,
 } from "../../../../Modules/database";
 import { checkUpdate } from "../../../../scripts/checkUpdate";
+import { downloadPicture } from "#/scripts/pictures";
 // Used to return a dictionary on the data for a player
 export default async function handler(
   req: NextApiRequest,
@@ -88,7 +89,12 @@ export default async function handler(
           `public, max-age=${time > 0 ? 604800 : await cache(league)}`
         );
       }
-      res.status(200).json(returnValue[0]);
+      const picture = await downloadPicture(returnValue[0].pictureID);
+      const returnData = {
+        ...returnValue[0],
+        ...picture,
+      };
+      res.status(200).json(returnData);
     } else {
       res.status(404).end("Player not found");
     }
@@ -108,4 +114,6 @@ export type result = (players | historicalPlayers) & {
   forecast: forecast;
   game?: gameData;
   updateRunning: boolean;
+  pictureHeight?: number;
+  pictureWidth?: number;
 };

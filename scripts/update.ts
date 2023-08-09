@@ -2,6 +2,7 @@ import noAccents from "#Modules/normalize";
 import connect, { clubs, plugins as pluginsType } from "../Modules/database";
 import { calcPoints } from "./calcPoints";
 import plugins from "./data";
+import { downloadPicture } from "./pictures";
 // Used to update all the data
 export async function updateData(url: string, file = "./sample/data1.json") {
   // Defaults to the first plugin in the list if testing(should be Bundesliga)
@@ -109,6 +110,23 @@ export async function updateData(url: string, file = "./sample/data1.json") {
   };
   while (index < players.length) {
     const val = players[index];
+    let picture = await connection.query("SELECT * FROM pictures WHERE url=?", [
+      val.pictureUrl,
+    ]);
+    // Adds a new picture to the db if it has not existed yet
+    if (picture.length == 0) {
+      await connection.query(
+        "INSERT INTO pictures (url, height, width) VALUES (?, ?, ?)",
+        [val.pictureUrl, val.height, val.width]
+      );
+      picture = await connection.query("SELECT * FROM pictures WHERE url=?", [
+        val.pictureUrl,
+      ]);
+      if (process.env.DOWNLOAD_PICTURE === "yes") {
+        downloadPicture(picture[0].id);
+      }
+    }
+    const pictureID = picture[0].id;
     index++;
     // Gets the club data
     if (val.club != club) {
@@ -146,13 +164,13 @@ export async function updateData(url: string, file = "./sample/data1.json") {
     ) {
       // Creates the player
       await connection.query(
-        "INSERT INTO players (uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO players (uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           val.uid,
           val.name,
           noAccents(val.name),
           val.club,
-          val.pictureUrl,
+          pictureID,
           val.value,
           val.position,
           val.forecast || "a",
@@ -169,7 +187,6 @@ export async function updateData(url: string, file = "./sample/data1.json") {
         uid,
         name,
         club,
-        pictureUrl,
         value,
         position,
         forecast,
@@ -194,8 +211,8 @@ export async function updateData(url: string, file = "./sample/data1.json") {
       // Updates player data that will only get updated if the transfer market is open
       if (newTransfer) {
         await connection.query(
-          "UPDATE players SET club=?, pictureUrl=?, value=?, position=? WHERE uid=? AND league=?",
-          [club, pictureUrl, value, position, uid, league]
+          "UPDATE players SET club=?, pictureID=?, value=?, position=? WHERE uid=? AND league=?",
+          [club, pictureID, value, position, uid, league]
         );
       }
       // Updates player stats if the game has started and it is not a new transfer period
@@ -363,7 +380,7 @@ async function endMatchday(league: string) {
   console.log(`Archiving player data for ${league}`);
   // Copies all the player data to the historical player data
   await connection.query(
-    "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, `exists`, league) SELECT ? as time, uid, name, nameAscii, club, pictureUrl, value, position, forecast, total_points, average_points, last_match, `exists`, league FROM players WHERE league=?",
+    "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, `exists`, league) SELECT ? as time, uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, `exists`, league FROM players WHERE league=?",
     [time, league]
   );
   console.log(`Archiving matchday data for ${league}`);

@@ -75,6 +75,8 @@ const Main: dataGetter = async function () {
         name: e.first_name + " " + e.second_name,
         club: teamData.short_name,
         pictureUrl: `https://resources.premierleague.com/premierleague/photos/players/110x140/p${e.code}.png`,
+        height: 140,
+        width: 110,
         value: e.now_cost * 100000,
         position: ["", "gk", "def", "mid", "att"][e.element_type] as position,
         forecast,

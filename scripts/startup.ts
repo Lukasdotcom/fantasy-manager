@@ -7,13 +7,14 @@ import { compareSemanticVersions } from "../Modules/semantic";
 import store from "../types/store";
 import compileAnalytics from "./compileAnalytics";
 import dotenv from "dotenv";
+import { checkPictures } from "./pictures";
 if (process.env.APP_ENV !== "test") {
   dotenv.config({ path: ".env.local" });
 } else {
   dotenv.config({ path: ".env.test.local" });
 }
 // Used to tell the program what version the database should get to
-const currentVersion = "1.11.0";
+const currentVersion = "1.12.0";
 // Downloads and generates all the plugin code
 async function compilePlugins() {
   const connection = await connect();
@@ -181,7 +182,7 @@ async function startUp() {
     ),
     // Used to store the players data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))"
+      "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))"
     ),
     // Creates a table that contains some key value pairs for data that is needed for some things
     connection.query(
@@ -217,7 +218,7 @@ async function startUp() {
     ),
     // Used to store historical player data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureUrl varchar(255), value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))"
+      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))"
     ),
     // Used to store historical transfer data
     connection.query(
@@ -243,8 +244,13 @@ async function startUp() {
     connection.query(
       "CREATE TABLE IF NOT EXISTS announcements (leagueID int, priority varchar(10) check(priority = 'error' or priority = 'info' or priority = 'success' or priority='warning'), title varchar(255), description varchar(255))"
     ),
+    // Used to store plugin settings
     connection.query(
       "CREATE TABLE IF NOT EXISTS plugins (name varchar(255), settings varchar(255), enabled boolean, url varchar(255) PRIMARY KEY, version varchar(255))"
+    ),
+    // Used to store picture IDs
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS pictures (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, url varchar(255), downloaded boolean DEFAULT 0, height int, width int)"
     ),
   ]);
   // Checks if the server hash has been created and if not makes one
@@ -621,6 +627,62 @@ async function startUp() {
       await connection.query("UPDATE leagueUsers SET tutorial=1");
       oldVersion = "1.11.0";
     }
+    if (oldVersion === "1.11.0") {
+      console.log("Updating database to version 1.12.0");
+      // Adds the plugins if they were enabled with then enviromental variables in previous versions
+      if (process.env.BUNDESLIGA_API) {
+        await connection.query(
+          "INSERT IGNORE INTO plugins (name, settings, enabled, url) VALUES ('Bundesliga', ?, 1, 'https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/Bundesliga.json')",
+          [JSON.stringify({ access_token: process.env.BUNDESLIGA_API })]
+        );
+      }
+      if (process.env.ENABLE_EPL) {
+        await connection.query(
+          "INSERT IGNORE INTO plugins (name, settings, enabled, url) VALUES ('EPL','{}', 1, 'https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/EPL/EPL.json')"
+        );
+      }
+      // Moves the picture urls to a new table
+      await connection.query(
+        "CREATE TABLE IF NOT EXISTS pictures2 (pictureUrl varchar(255))"
+      );
+      await connection.query("ALTER TABLE players RENAME TO playersTemp");
+      await connection.query(
+        "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))"
+      );
+      await connection.query(
+        "ALTER TABLE historicalPlayers RENAME TO historicalPlayersTemp"
+      );
+      connection.query(
+        "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))"
+      );
+      await connection.query(
+        "INSERT INTO pictures2 (pictureUrl) SELECT DISTINCT pictureUrl FROM historicalPlayersTemp"
+      );
+      await connection.query(
+        "INSERT INTO pictures2 (pictureUrl) SELECT DISTINCT pictureUrl FROM playersTemp"
+      );
+      await connection.query(
+        "INSERT INTO pictures (pictureUrl) SELECT DISTINCT pictureUrl FROM pictures"
+      );
+      await connection.query("DROP TABLE pictures2");
+      await connection.query(
+        "INSERT INTO players (uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) SELECT uid, name, nameAscii, club, (SELECT pictureID FROM pictures WHERE pictureUrl=playersTemp.pictureUrl), value, position, forecast, total_points, average_points, last_match, locked, `exists`, league FROM playersTemp"
+      );
+      await connection.query(
+        "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, `exists`, league) SELECT uid, name, nameAscii, club, (SELECT pictureID FROM pictures WHERE pictureUrl=historicalPlayersTemp.pictureUrl), value, position, forecast, total_points, average_points, last_match, `exists`, league FROM historicalPlayersTemp"
+      );
+      await connection.query("DROP TABLE playersTemp");
+      await connection.query("DROP TABLE historicalPlayersTemp");
+      // Sets the height and width of each picture to what they should be
+      await connection.query("UPDATE pictures SET height=200, width=200");
+      await connection.query(
+        "UPDATE pictures SET height=280, width=220 WHERE pictureUrl LIKE 'https://resources.premierleague.com/premierleague/photos/players/%'"
+      );
+      await connection.query(
+        "UPDATE pictures SET height=265, width=190 WHERE pictureUrl LIKE 'https://play.fifa.com/media/image/headshots/%'"
+      );
+      oldVersion = "1.12.0";
+    }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date
     if (oldVersion !== currentVersion) {
@@ -642,6 +704,7 @@ async function startUp() {
     [currentVersion, currentVersion]
   );
   connection.end();
+  checkPictures();
   compilePlugins();
 }
 startUp();
