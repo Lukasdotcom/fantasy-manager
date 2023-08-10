@@ -50,7 +50,7 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "cypress": "12.13.0",
+    "cypress": "12.17.3",
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.4",
     "eslint-plugin-cypress": "2.13.3",
