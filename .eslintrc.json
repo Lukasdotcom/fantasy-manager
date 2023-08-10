@@ -12,6 +12,7 @@
     "no-implied-eval": "error",
     "no-eval": "error",
     "no-const-assign": "error",
+    "cypress/unsafe-to-chain-command": "off",
     "no-restricted-imports": [
       "error",
       {
