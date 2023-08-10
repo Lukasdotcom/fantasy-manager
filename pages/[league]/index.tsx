@@ -180,7 +180,7 @@ function AdminPanel({
           value={starredPercentage}
         />
         <br></br>
-        <Autocomplete
+        <Autocomplete<userData, true, false, true, "div">
           sx={{ width: "99%" }}
           multiple
           id="admins"
@@ -211,7 +211,7 @@ function AdminPanel({
               return [...e2];
             });
           }}
-          renderOption={(props, option) => {
+          renderOption={(props, option: userData) => {
             const newprops = props as BoxTypeMap;
             return (
               <Box {...newprops} key={option.user}>
