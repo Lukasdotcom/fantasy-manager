@@ -54,7 +54,7 @@
     "eslint": "8.41.0",
     "eslint-config-next": "13.4.4",
     "eslint-plugin-cypress": "2.13.3",
-    "prettier": "2.8.8",
+    "prettier": "3.0.1",
     "wait-on": "7.0.1"
   },
   "imports": {
