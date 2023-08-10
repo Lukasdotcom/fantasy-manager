@@ -21,7 +21,7 @@
     "clean": "rm -f tsconfig2.tsbuildinfo; rm -f tsconfig3.tsbuildinfo; rm -f test.db; rm -rf ./scripts/data; rm -rf ./pictures; rm -rf ./.next/cache/images"
   },
   "dependencies": {
-    "@emotion/react": "11.11.0",
+    "@emotion/react": "11.11.1",
     "@emotion/styled": "11.11.0",
     "@mui/material": "5.13.3",
     "@types/mysql": "2.15.21",
