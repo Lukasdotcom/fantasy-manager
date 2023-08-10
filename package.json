@@ -26,7 +26,7 @@
     "@mui/material": "5.13.3",
     "@types/mysql": "2.15.21",
     "@types/node": "18.17.4",
-    "@types/react": "18.2.7",
+    "@types/react": "18.2.20",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "bcryptjs": "2.4.3",
