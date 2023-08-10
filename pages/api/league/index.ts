@@ -5,7 +5,7 @@ import { authOptions } from "#/pages/api/auth/[...nextauth]";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const session = await getServerSession(req, res, authOptions);
   if (session) {
@@ -45,12 +45,12 @@ export default async function handler(
               startMoney,
               leagueType,
               leagueType === "WorldCup2022",
-            ]
+            ],
           );
         } else {
           await connection.query(
             "INSERT INTO leagueSettings (leagueName, leagueID, league, matchdayTransfers) VALUES (?, ?, ?, ?)",
-            [req.body.name, id, leagueType, leagueType === "WorldCup2022"]
+            [req.body.name, id, leagueType, leagueType === "WorldCup2022"],
           );
         }
         // Makes sure that the id was created
@@ -63,7 +63,7 @@ export default async function handler(
         }
         connection.query(
           "INSERT INTO leagueUsers (leagueID, user, points, money, formation, admin) VALUES(?, ?, 0, (SELECT startMoney FROM leagueSettings WHERE leagueId=?), '[1, 4, 4, 2]', 1)",
-          [id, session.user.id, id]
+          [id, session.user.id, id],
         );
         // Checks if the game is in a transfer period and if yes it starts the first matchday automatically
         const transferClosed = await connection
@@ -74,23 +74,23 @@ export default async function handler(
         if (transferClosed) {
           connection.query(
             "INSERT INTO points (leagueID, user, points, matchday, time, money) VALUES(?, ?, 0, 1, 0, 0)",
-            [id, session.user.id]
+            [id, session.user.id],
           );
         }
         res.status(200).end("Created League");
         console.log(
-          `User ${session.user.id} created league of ${id} with name ${req.body.name}`
+          `User ${session.user.id} created league of ${id} with name ${req.body.name}`,
         );
         break;
       case "GET": // Returns all leagues and archived leagues the user is in
         res.status(200).json({
           leagues: await connection.query(
             "SELECT leagueName, leagueID FROM leagueSettings WHERE archived=0 AND EXISTS (SELECT * FROM leagueUsers WHERE user=? and leagueUsers.leagueID = leagueSettings.leagueID)",
-            [session.user.id]
+            [session.user.id],
           ),
           archived: await connection.query(
             "SELECT leagueName, leagueID FROM leagueSettings WHERE archived!=0 AND EXISTS (SELECT * FROM leagueUsers WHERE user=? and leagueUsers.leagueID = leagueSettings.leagueID) ORDER BY archived DESC",
-            [session.user.id]
+            [session.user.id],
           ),
         });
         break;

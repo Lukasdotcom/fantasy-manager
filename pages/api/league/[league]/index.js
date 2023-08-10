@@ -25,7 +25,7 @@ export default async function handler(req, res) {
           (
             await connection.query(
               "SELECT * FROM leagueUsers WHERE leagueID=? AND user=? AND admin=1",
-              [league, session.user.id]
+              [league, session.user.id],
             )
           ).length > 0
         ) {
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
             req.body.users.forEach((e) => {
               connection.query(
                 "UPDATE leagueUsers SET admin=? WHERE leagueID=? and user=?",
-                [e.admin, league, e.user]
+                [e.admin, league, e.user],
               );
             });
           }
@@ -43,39 +43,39 @@ export default async function handler(req, res) {
             if (parseInt(settings.startingMoney) > 10000)
               connection.query(
                 "UPDATE leagueSettings SET startMoney=? WHERE leagueID=?",
-                [parseInt(settings.startingMoney), league]
+                [parseInt(settings.startingMoney), league],
               );
             if (parseInt(settings.transfers) > 0)
               connection.query(
                 "UPDATE leagueSettings SET transfers=? WHERE leagueID=?",
-                [parseInt(settings.transfers), league]
+                [parseInt(settings.transfers), league],
               );
             if (parseInt(settings.duplicatePlayers) > 0)
               connection.query(
                 "UPDATE leagueSettings SET duplicatePlayers=? WHERE leagueID=?",
-                [parseInt(settings.duplicatePlayers), league]
+                [parseInt(settings.duplicatePlayers), league],
               );
             if (parseInt(settings.starredPercentage) > 100)
               connection.query(
                 "UPDATE leagueSettings SET starredPercentage=? WHERE leagueID=?",
-                [parseInt(settings.starredPercentage), league]
+                [parseInt(settings.starredPercentage), league],
               );
             if (settings.leagueName !== undefined) {
               connection.query(
                 "UPDATE leagueSettings SET leagueName=? WHERE leagueID=?",
-                [settings.leagueName, league]
+                [settings.leagueName, league],
               );
             }
             connection.query(
               "UPDATE leagueSettings SET matchdayTransfers=? WHERE leagueID=?",
-              [Boolean(settings.matchdayTransfers), league]
+              [Boolean(settings.matchdayTransfers), league],
             );
             // Archives the league when told to do so
             if (settings.archive === true) {
               console.log(`League ${league} was archived`);
               connection.query(
                 "UPDATE leagueSettings SET archived=? WHERE leagueID=?",
-                [Math.floor(Date.now() / 1000), league]
+                [Math.floor(Date.now() / 1000), league],
               );
             }
           }
@@ -90,7 +90,7 @@ export default async function handler(req, res) {
           (
             await connection.query(
               "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
-              [league, session.user.id]
+              [league, session.user.id],
             )
           ).length > 0
         ) {
@@ -101,7 +101,7 @@ export default async function handler(req, res) {
               .then((res) => res[0]),
             connection.query(
               "SELECT user, admin FROM leagueUsers WHERE leagueID=?",
-              [league]
+              [league],
             ),
           ]);
           res.status(200).json({ settings, users });
@@ -113,7 +113,7 @@ export default async function handler(req, res) {
         // Used to leave a league
         await connection.query(
           "DELETE FROM leagueUsers WHERE leagueID=? and user=?",
-          [league, session.user.id]
+          [league, session.user.id],
         );
         connection.query("DELETE FROM points WHERE leagueID=? and user=?", [
           league,
@@ -125,11 +125,11 @@ export default async function handler(req, res) {
         ]);
         connection.query(
           "UPDATE transfers SET seller='' WHERE leagueID=? and seller=?",
-          [league, session.user.id]
+          [league, session.user.id],
         );
         connection.query(
           "UPDATE transfers SET buyer='' WHERE leagueID=? and buyer=?",
-          [league, session.user.id]
+          [league, session.user.id],
         );
         console.log(`User ${session.user.id} left league ${league}`);
         // Checks if the league still has users

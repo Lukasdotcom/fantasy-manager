@@ -13,7 +13,7 @@ export async function getServerSideProps(ctx) {
   // Checks if the matchday exists
   const timeData = await connection.query(
     "SELECT * FROM points WHERE matchday=? AND leagueID=?",
-    [matchday, league]
+    [matchday, league],
   );
   if (timeData.length === 0) {
     return {
@@ -27,7 +27,7 @@ export async function getServerSideProps(ctx) {
       // Gets all transfers at the moment from the user
       connection.query(
         "SELECT * FROM historicalTransfers WHERE leagueID=? AND matchday=? AND (buyer=? OR seller=?)",
-        [league, matchday, user, user]
+        [league, matchday, user, user],
       ),
       // Gets the username of the user
       connection
@@ -37,14 +37,14 @@ export async function getServerSideProps(ctx) {
       connection
         .query(
           "SELECT matchday FROM points WHERE leagueID=? and user=? ORDER BY matchday DESC",
-          [league, user]
+          [league, user],
         )
         .then((res) => (res.length > 0 ? res[0].matchday : 0)),
       // Gets the money
       connection
         .query(
           "SELECT money FROM points WHERE leagueID=? and user=? and matchday=?",
-          [league, user, matchday]
+          [league, user, matchday],
         )
         .then((res) => (res.length > 0 ? res[0].money : 0)),
       // Gets the league type
@@ -60,26 +60,26 @@ export async function getServerSideProps(ctx) {
         "transferOpen" + leagueType,
       ])
       .then((result) =>
-        result.length > 0 ? result[0].value2 !== "true" : false
+        result.length > 0 ? result[0].value2 !== "true" : false,
       ))
   );
   // Gets the squad of the user on that matchday
   const squad = historicalSquadExists
     ? await connection.query(
         "SELECT * FROM historicalSquad WHERE leagueID=? AND user=? AND matchday=?",
-        [league, user, matchday]
+        [league, user, matchday],
       )
     : await connection.query(
         "SELECT * FROM squad WHERE leagueID=? AND user=?",
-        [league, user]
+        [league, user],
       );
   // Calculates the value of the squad
   const values = await Promise.all(
     squad.map((e) =>
       connection
         .query("SELECT value FROM players WHERE uid=?", [e.playeruid])
-        .then((e) => (e.length > 0 ? e[0].value : 0))
-    )
+        .then((e) => (e.length > 0 ? e[0].value : 0)),
+    ),
   );
   let value = money;
   values.forEach((e) => {

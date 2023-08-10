@@ -49,7 +49,7 @@ export default async function handler(req, res) {
         ])
         .then(() => {
           console.log(
-            `League ${req.body.leagueID} created invite link of ${req.body.link}`
+            `League ${req.body.leagueID} created invite link of ${req.body.link}`,
           );
           res.status(200).end("Created invite link");
         })
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     case "GET": // Used to get a list of invite links for a league
       const invites = await connection.query(
         "SELECT * FROM invite WHERE leagueID=?",
-        [req.query.leagueID]
+        [req.query.leagueID],
       );
       res.status(200).json(invites);
       break;
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
         req.body.link,
       ]);
       console.log(
-        `League ${req.body.leagueID} removed invite link of ${req.body.link}`
+        `League ${req.body.leagueID} removed invite link of ${req.body.link}`,
       );
       res.status(200).end("Deleted invite link");
       break;

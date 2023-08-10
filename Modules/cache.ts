@@ -18,7 +18,7 @@ export const cache = async (league: string): Promise<number> => {
         ])
         .then((res) => res.length > 0))
         ? String(process.env.MIN_UPDATE_TIME_TRANSFER)
-        : String(process.env.MIN_UPDATE_TIME)
+        : String(process.env.MIN_UPDATE_TIME),
     );
   connection.end();
   timeLeft = timeLeft > 0 ? timeLeft : 0;

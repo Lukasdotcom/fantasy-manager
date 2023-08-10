@@ -6,14 +6,14 @@ import { Readable } from "stream";
 // This exists for the purpose of making it easier for the next image component to get the data it needs
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   res.setHeader("Cache-Control", `public, max-age=108000`);
   if (process.env.DOWNLOAD_PICTURE === "no") {
     const connection = await connect();
     const picture = await connection.query(
       "SELECT * FROM pictures WHERE id=?",
-      [req.query.id]
+      [req.query.id],
     );
     if (picture.length === 0) {
       res.status(404).end();

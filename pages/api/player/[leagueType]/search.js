@@ -65,13 +65,13 @@ export default async function handler(req, res) {
                 ? parseInt(req.query.maxPrice)
                 : Number.MAX_SAFE_INTEGER,
               league,
-            ]
-          )
+            ],
+          ),
         );
         // Organizes the data in a list instead of a list of dictionaries
       }).then((e) => {
         return e.map((val) => val.uid);
-      })
+      }),
     );
     connection.end();
   } else {

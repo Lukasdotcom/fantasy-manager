@@ -108,7 +108,7 @@ export default function SignIn({ enabledProviders }: Props) {
 
         <p>
           {t(
-            "It is recommended against using password authorization unless strictly necessary. "
+            "It is recommended against using password authorization unless strictly necessary. ",
           )}
         </p>
         <div style={{ height: "20px" }} />
@@ -149,7 +149,7 @@ export default function SignIn({ enabledProviders }: Props) {
           {" "}
           <Link href="privacy">
             {t(
-              "Note that by logging in or signing up you agree to the privacy policy. "
+              "Note that by logging in or signing up you agree to the privacy policy. ",
             )}
           </Link>
         </p>

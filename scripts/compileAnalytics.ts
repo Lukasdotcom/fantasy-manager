@@ -10,11 +10,11 @@ export default async function compileAnalytics(day: number) {
   const connection = await connect();
   const analytics: detailedAnalytics[] = await connection.query(
     "SELECT * FROM detailedAnalytics WHERE day = ?",
-    [day]
+    [day],
   );
   const previousAnalytics: analytics[] = await connection.query(
     "SELECT * FROM analytics WHERE day = ?",
-    [day - 1]
+    [day - 1],
   );
   type analyticsData = { [key: string]: number };
   let versionActive: analyticsData = {};
@@ -127,7 +127,7 @@ export default async function compileAnalytics(day: number) {
       JSON.stringify(themeTotal),
       JSON.stringify(localeActive),
       JSON.stringify(localeTotal),
-    ]
+    ],
   );
   await connection.end();
   return;

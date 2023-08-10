@@ -126,7 +126,7 @@ export default function Home({
   ];
   // Stores the amount of time left until the game starts
   const [countdown, setCountown] = useState<number>(
-    (player.game.gameStart - Date.now() / 1000) / 60
+    (player.game.gameStart - Date.now() / 1000) / 60,
   );
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -197,7 +197,7 @@ export default function Home({
   };
   // Used to change the number of rows per page
   const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
@@ -210,7 +210,7 @@ export default function Home({
   useEffect(() => {
     const id = setInterval(
       () => setCountown((countdown) => (countdown > 0 ? countdown - 1 : 0)),
-      60000
+      60000,
     );
     return () => {
       clearInterval(id);
@@ -417,7 +417,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
   const player: extendedPlayers[] = await connection.query(
     "SELECT * FROM players WHERE uid=? AND league=?",
-    [uid, league]
+    [uid, league],
   );
   if (player.length == 0) {
     return {
@@ -432,7 +432,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     .then((e: players[]) =>
       e.map((e) => {
         return { league: e.league, uid: e.uid };
-      })
+      }),
     );
   // Gets some more player data
   const gameData = await connection
@@ -443,7 +443,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     .then((res) =>
       res.length > 0
         ? { opponent: res[0].opponent, gameStart: res[0].gameStart }
-        : undefined
+        : undefined,
     );
   if (gameData) player[0].game = gameData;
   // Gets all the pictures in a set
@@ -453,7 +453,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const times = await connection
     .query(
       "SELECT * FROM historicalPlayers WHERE uid=? AND league=? ORDER BY time DESC",
-      [uid, league]
+      [uid, league],
     )
     .then((res) => {
       const result: number[] = [];
@@ -471,8 +471,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         new Promise<pictures>(async (res) => {
           const data = await downloadPicture(e);
           res({ ...data, id: e });
-        })
-    )
+        }),
+    ),
   );
   return {
     props: {

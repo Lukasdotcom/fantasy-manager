@@ -6,7 +6,7 @@ import { authOptions } from "#/pages/api/auth/[...nextauth]";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   // Check if the user is logged in and an admin
   const user = await getServerSession(req, res, authOptions);
@@ -28,13 +28,13 @@ export default async function handler(
       // Check if the plugin existss
       const plugin = await connection.query(
         "SELECT * FROM plugins WHERE url=?",
-        [url]
+        [url],
       );
       if (plugin.length === 0) {
         // Creates the plugin
         await connection.query(
           "INSERT INTO plugins (settings, enabled, url) VALUES (?, ?, ?)",
-          [settings, enabled, url]
+          [settings, enabled, url],
         );
         res.status(200).end("Created Plugin");
       } else {
@@ -51,7 +51,7 @@ export default async function handler(
                 await connection
                   .query("SELECT name FROM plugins WHERE url=?", [url])
                   .then((res) => (res.length > 0 ? res[0].name : "")),
-              ]
+              ],
             )
           ).length > 0
         ) {
@@ -60,7 +60,7 @@ export default async function handler(
         } else {
           await connection.query(
             "UPDATE plugins SET enabled=?, settings=? WHERE url=?",
-            [enabled, settings, url]
+            [enabled, settings, url],
           );
           res.status(200).end("Plugin updated");
           // Runs the plugin once

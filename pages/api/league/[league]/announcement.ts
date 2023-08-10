@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const session = await getServerSession(req, res, authOptions);
   if (session) {
@@ -19,7 +19,7 @@ export default async function handler(
           (
             await connection.query(
               "SELECT * FROM leagueUsers WHERE leagueID=? and user=? AND admin=1",
-              [league, session.user.id]
+              [league, session.user.id],
             )
           ).length > 0
         ) {
@@ -32,7 +32,7 @@ export default async function handler(
           await connection
             .query(
               "INSERT INTO announcements (leagueID, priority, title, description) VALUES (?, ?, ?, ?)",
-              [league, priority, title, description]
+              [league, priority, title, description],
             )
             .then(() => res.status(200).end("Added anouncement"))
             .catch(() => res.status(500).end("Failed to create announcement"));
@@ -46,14 +46,14 @@ export default async function handler(
           (
             await connection.query(
               "SELECT * FROM leagueUsers WHERE leagueID=? and user=? AND admin=1",
-              [league, session.user.id]
+              [league, session.user.id],
             )
           ).length > 0
         ) {
           const { title = "", description = "" }: announcements = req.body;
           await connection.query(
             "DELETE FROM announcements WHERE leagueID=? AND title=? AND description=?",
-            [league, title, description]
+            [league, title, description],
           );
           res.status(200).end("Deleted announcement");
         } else {

@@ -91,7 +91,7 @@ function LeaguePlugin({ data, store, version, installed }: LeaguePluginProps) {
   const notify = useContext(NotifyContext);
   const [enabled, setEnabled] = useState(data.enabled);
   const [settings, setSettings] = useState<{ [Key: string]: string }>(
-    JSON.parse(data.settings)
+    JSON.parse(data.settings),
   );
   const checkboxChange = (_: unknown, checked: boolean) => {
     setEnabled(checked);
@@ -126,7 +126,7 @@ function LeaguePlugin({ data, store, version, installed }: LeaguePluginProps) {
         headers: {
           "Content-Type": "application/json",
         },
-      }
+      },
     );
     notify(await res.text(), res.ok ? "success" : "error");
     if (res.ok) {
@@ -257,7 +257,7 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
     Title,
     Tooltip,
     Filler,
-    Legend
+    Legend,
   );
 
   const options = {
@@ -281,13 +281,13 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
   };
   // List of all the versions
   const versions: string[] = Object.keys(
-    JSON.parse(analytics[analytics.length - 1].versionTotal)
+    JSON.parse(analytics[analytics.length - 1].versionTotal),
   );
   const leagueList: string[] = Object.keys(
-    JSON.parse(analytics[analytics.length - 1].leagueTotal)
+    JSON.parse(analytics[analytics.length - 1].leagueTotal),
   );
   const locales: string[] = Object.keys(
-    JSON.parse(analytics[analytics.length - 1].localeTotal)
+    JSON.parse(analytics[analytics.length - 1].localeTotal),
   );
   // Calculates colors for things
   const calculateColor = (idx: number, length: number) => {
@@ -313,7 +313,7 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
           fill: true,
           label: version + " Active",
           data: slicedAnalytics.map(
-            (e) => JSON.parse(e.versionActive)[version] ?? 0
+            (e) => JSON.parse(e.versionActive)[version] ?? 0,
           ),
           borderColor: `hsla(${calculateVersionColor(idx)}, 100%, 50%, 1)`,
           backgroundColor: `hsla(${calculateVersionColor(idx)}, 100%, 50%, 1)`,
@@ -326,7 +326,7 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
           data: slicedAnalytics.map(
             (e) =>
               (JSON.parse(e.versionTotal)[version] ?? 0) -
-              (JSON.parse(e.versionActive)[version] ?? 0)
+              (JSON.parse(e.versionActive)[version] ?? 0),
           ),
           borderColor: `hsla(${calculateVersionColor(idx)}, 100%, 50%, 1)`,
           backgroundColor: `hsla(${calculateVersionColor(idx)}, 100%, 50%, 0)`,
@@ -343,15 +343,15 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
           fill: true,
           label: league + " Active",
           data: slicedAnalytics.map(
-            (e) => JSON.parse(e.leagueActive)[league] ?? 0
+            (e) => JSON.parse(e.leagueActive)[league] ?? 0,
           ),
           borderColor: `hsla(${calculateColor(
             idx,
-            league.length
+            league.length,
           )}, 100%, 50%, 1)`,
           backgroundColor: `hsla(${calculateColor(
             idx,
-            league.length
+            league.length,
           )}, 100%, 50%, 1)`,
         };
       }),
@@ -362,15 +362,15 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
           data: slicedAnalytics.map(
             (e) =>
               (JSON.parse(e.leagueTotal)[league] ?? 0) -
-              (JSON.parse(e.leagueActive)[league] ?? 0)
+              (JSON.parse(e.leagueActive)[league] ?? 0),
           ),
           borderColor: `hsla(${calculateColor(
             idx,
-            league.length
+            league.length,
           )}, 100%, 50%, 1)`,
           backgroundColor: `hsla(${calculateColor(
             idx,
-            league.length
+            league.length,
           )}, 100%, 50%, 0)`,
         };
       }),
@@ -385,15 +385,15 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
           fill: true,
           label: locale + " Active",
           data: slicedAnalytics.map(
-            (e) => JSON.parse(e.localeActive)[locale] ?? 0
+            (e) => JSON.parse(e.localeActive)[locale] ?? 0,
           ),
           borderColor: `hsla(${calculateColor(
             idx,
-            locale.length
+            locale.length,
           )}, 100%, 50%, 1)`,
           backgroundColor: `hsla(${calculateColor(
             idx,
-            locale.length
+            locale.length,
           )}, 100%, 50%, 1)`,
         };
       }),
@@ -404,15 +404,15 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
           data: slicedAnalytics.map(
             (e) =>
               (JSON.parse(e.localeTotal)[locale] ?? 0) -
-              (JSON.parse(e.localeActive)[locale] ?? 0)
+              (JSON.parse(e.localeActive)[locale] ?? 0),
           ),
           borderColor: `hsla(${calculateColor(
             idx,
-            locale.length
+            locale.length,
           )}, 100%, 50%, 1)`,
           backgroundColor: `hsla(${calculateColor(
             idx,
-            locale.length
+            locale.length,
           )}, 100%, 50%, 0)`,
         };
       }),
@@ -444,7 +444,7 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
         data: slicedAnalytics.map(
           (e) =>
             (JSON.parse(e.themeTotal).dark ?? 0) -
-            (JSON.parse(e.themeActive).dark ?? 0)
+            (JSON.parse(e.themeActive).dark ?? 0),
         ),
         borderColor: `hsla(0, 0%, ${darkColor}%, 1)`,
         backgroundColor: `hsla(0, 0%, ${darkColor}%, 0)`,
@@ -455,7 +455,7 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
         data: slicedAnalytics.map(
           (e) =>
             (JSON.parse(e.themeTotal).light ?? 0) -
-            (JSON.parse(e.themeActive).light ?? 0)
+            (JSON.parse(e.themeActive).light ?? 0),
         ),
         borderColor: `hsla(120, 0%, ${lightColor}%, 1)`,
         backgroundColor: `hsla(120, 0%, ${lightColor}%, 0)`,
@@ -587,7 +587,7 @@ export default function Home({
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  ctx: GetServerSidePropsContext
+  ctx: GetServerSidePropsContext,
 ) => {
   const user = await getServerSession(ctx.req, ctx.res, authOptions);
   // Makes sure the user is logged in
@@ -595,7 +595,7 @@ export const getServerSideProps: GetServerSideProps = async (
     return {
       redirect: {
         destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(
-          ctx.resolvedUrl
+          ctx.resolvedUrl,
         )}`,
         permanent: false,
       },
@@ -605,7 +605,7 @@ export const getServerSideProps: GetServerSideProps = async (
     // Used to find the amount of historical data to get
     const connection = await connect();
     const analytics = await connection.query(
-      "SELECT * FROM analytics ORDER By day ASC"
+      "SELECT * FROM analytics ORDER By day ASC",
     );
     const plugins = await connection.query("SELECT * FROM plugins");
     const pluginData: (store | "error")[] = await Promise.all(
@@ -616,7 +616,7 @@ export const getServerSideProps: GetServerSideProps = async (
         } else {
           return await request.json().catch(() => "error");
         }
-      })
+      }),
     );
     const version = (await import("#/package.json")).default.version;
     const installed = Object.keys(pluginList);

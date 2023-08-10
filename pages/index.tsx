@@ -127,10 +127,10 @@ InferGetStaticPropsType<typeof getStaticProps>) {
           {t("The source code is available on Github. ")}
         </Link>
         {t(
-          "The goal of this site is to be the best place to play a Fantasy Manager with your friends and family. "
+          "The goal of this site is to be the best place to play a Fantasy Manager with your friends and family. ",
         )}
         {t(
-          "To play you must have an account which is free to do in the log in button in the top right of the screen. "
+          "To play you must have an account which is free to do in the log in button in the top right of the screen. ",
         )}
       </p>
       <h2>{t("Features")}</h2>
@@ -143,25 +143,25 @@ InferGetStaticPropsType<typeof getStaticProps>) {
         <li>{t("Limit transfer amount. ")}</li>
         <li>
           {t(
-            "Ability to allow players to be bought by multiple users in the same league. "
+            "Ability to allow players to be bought by multiple users in the same league. ",
           )}
         </li>
         <li>{t("Ranking tables for matchday points and total points. ")}</li>
         <li>
           {t(
-            "Many ways to search through players including price, points, position, club, name, etc. "
+            "Many ways to search through players including price, points, position, club, name, etc. ",
           )}
         </li>
         <li>{t("Download historical player data as json or csv. ")}</li>
         <li>
           {t(
-            "View historical data for a player and what leagues player played in. "
+            "View historical data for a player and what leagues player played in. ",
           )}
         </li>
         <li>{t("See historical squads for every league. ")}</li>
         <li>
           {t(
-            "And all of these features in a Modern Responsive UI available in a light and dark theme and multiple languages. "
+            "And all of these features in a Modern Responsive UI available in a light and dark theme and multiple languages. ",
           )}
         </li>
       </ol>
@@ -172,7 +172,7 @@ InferGetStaticPropsType<typeof getStaticProps>) {
         target="_blank"
       >
         {t(
-          "You can go to the Github Discussions to ask questions or find leagues to join. "
+          "You can go to the Github Discussions to ask questions or find leagues to join. ",
         )}
       </Link>{" "}
       <h2>{t("Screenshots")}</h2>
@@ -208,7 +208,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
       version: string;
     }
     const data: data | undefined = await fetch(
-      "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/stable/package.json"
+      "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/stable/package.json",
     ).then((res) => (res.ok ? res.json() : undefined));
     if (!data) {
       console.log("Failed to get version data from Github.");

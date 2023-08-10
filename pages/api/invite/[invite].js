@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     // Checks if it is a valid invite
     let invite = await connection.query(
       "SELECT leagueID FROM invite WHERE inviteID=?",
-      [req.query.invite]
+      [req.query.invite],
     );
     // Checks if the invite exists
     if (invite.length == 0) {
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     // Gets the info for the league
     let leagueName = await connection.query(
       "SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0",
-      [invite.leagueID]
+      [invite.leagueID],
     );
     // Checks if the league exists
     if (leagueName.length > 0) {
@@ -28,19 +28,19 @@ export default async function handler(req, res) {
       // Checks if the user has already joined the league
       const leagueUsers = await connection.query(
         "SELECT * FROM leagueUsers WHERE leagueId=? and user=?",
-        [invite.leagueID, session.user.id]
+        [invite.leagueID, session.user.id],
       );
       // Adds the user in the database if they have not joined yet
       if (leagueUsers.length == 0) {
         connection.query(
           "INSERT INTO leagueUsers (leagueID, user, points, money, formation) VALUES(?, ?, 0, (SELECT startMoney FROM leagueSettings WHERE leagueId=?), '[1, 4, 4, 2]')",
-          [invite.leagueID, session.user.id, invite.leagueID]
+          [invite.leagueID, session.user.id, invite.leagueID],
         );
         // Makes sure to add 0 point matchdays for every matchday that has already happened.
         await connection
           .query(
             "SELECT * FROM points WHERE leagueID=? ORDER BY matchday DESC",
-            [invite.leagueID]
+            [invite.leagueID],
           )
           .then(async (point) => {
             let matchday = 0;
@@ -56,12 +56,12 @@ export default async function handler(req, res) {
                   session.user.id,
                   matchday,
                   time.length > 0 ? time[0].time : 0,
-                ]
+                ],
               );
               matchday--;
             }
             console.log(
-              `User ${session.user.id} joined league ${invite.leagueID}`
+              `User ${session.user.id} joined league ${invite.leagueID}`,
             );
           });
       }
@@ -79,8 +79,8 @@ export default async function handler(req, res) {
       .redirect(
         307,
         `/api/auth/signin?callbackUrl=${encodeURIComponent(
-          process.env.NEXTAUTH_URL + "/api/invite/" + req.query.invite
-        )}`
+          process.env.NEXTAUTH_URL + "/api/invite/" + req.query.invite,
+        )}`,
       )
       .end();
   }

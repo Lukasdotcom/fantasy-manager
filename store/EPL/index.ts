@@ -6,7 +6,7 @@ const Main: dataGetter = async function () {
   const nowTime = Math.floor(Date.now() / 1000);
   // Gets the data for the league
   const data: EPLPlayers = await fetch(
-    "https://fantasy.premierleague.com/api/bootstrap-static/"
+    "https://fantasy.premierleague.com/api/bootstrap-static/",
   ).then((e) => e.json());
   let newTransfer = true;
   let countdown = 0;
@@ -19,7 +19,7 @@ const Main: dataGetter = async function () {
       newTransfer = currentData.deadline_time_epoch - nowTime > 0;
       // Gets the team data for the matchday
       matchdayData = await fetch(
-        `https://fantasy.premierleague.com/api/fixtures/?event=${currentData.id}`
+        `https://fantasy.premierleague.com/api/fixtures/?event=${currentData.id}`,
       )
         .then(async (val) => {
           if (val.ok) {

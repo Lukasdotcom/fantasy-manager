@@ -11,7 +11,7 @@ export default async function handler(req, res) {
         // Checks if the user exists
         const users = await connection.query(
           "SELECT username FROM users WHERE id=?",
-          [id]
+          [id],
         );
         if (users.length > 0) {
           res.status(200).json(users[0].username);

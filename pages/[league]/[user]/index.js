@@ -60,7 +60,7 @@ export default function HistoricalView({
         count={latestMatchday + 1}
         onChange={(e, v) => {
           router.push(
-            `/${league}/${user}/${v === latestMatchday + 1 ? "" : v}`
+            `/${league}/${user}/${v === latestMatchday + 1 ? "" : v}`,
           );
         }}
         renderItem={(item) => {
@@ -252,7 +252,7 @@ export async function getServerSideProps(ctx) {
       // Gets all transfers at the moment from the user
       connection.query(
         "SELECT * FROM transfers WHERE leagueID=? AND (buyer=? OR seller=?)",
-        [league, user, user]
+        [league, user, user],
       ),
       // Gets the username of the user
       connection
@@ -262,7 +262,7 @@ export async function getServerSideProps(ctx) {
       connection
         .query(
           "SELECT matchday FROM points WHERE leagueID=? and user=? ORDER BY matchday DESC",
-          [league, user]
+          [league, user],
         )
         .then((res) => (res.length > 0 ? res[0].matchday : 0)),
       connection
@@ -271,7 +271,7 @@ export async function getServerSideProps(ctx) {
           user,
         ])
         .then((res) => (res.length > 0 ? res[0].money : 0)),
-    ]
+    ],
   );
   connection.end();
   // Checks if the user exists

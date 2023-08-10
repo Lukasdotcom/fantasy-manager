@@ -16,13 +16,13 @@ export default function Home() {
       <h2>{t("What is Wrong")}</h2>
       <p>
         {t(
-          "The server cannot contact Github to check if this is the latest version of the software. "
+          "The server cannot contact Github to check if this is the latest version of the software. ",
         )}
       </p>
       <h2>{t("How to Fix")}</h2>
       <p>
         {t(
-          "This error is not critical and just means that this website can not check if this is actually the latest version. "
+          "This error is not critical and just means that this website can not check if this is actually the latest version. ",
         )}
         <Link
           href="https://github.com/Lukasdotcom/fantasy-manager/releases"
@@ -30,7 +30,7 @@ export default function Home() {
           target="_blank"
         >
           {t(
-            "You can manually check the github releases to see if this is the latest release. "
+            "You can manually check the github releases to see if this is the latest release. ",
           )}
         </Link>
       </p>

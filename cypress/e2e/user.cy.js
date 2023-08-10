@@ -50,7 +50,7 @@ describe("User", () => {
     cy.contains("Leagues").click();
     cy.contains("Leave league").click();
     cy.get(".MuiDialogContent-root > .MuiFormControl-root").type(
-      "Sample League"
+      "Sample League",
     );
     cy.get(".MuiDialogActions-root > .MuiButton-contained").click();
     // Deletes the User

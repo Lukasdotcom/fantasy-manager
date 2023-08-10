@@ -12,7 +12,7 @@ export async function calcPoints(league: string | number) {
   if (parseInt(String(league)) > 0) {
     const leagueData: leagueSettings[] = await connection.query(
       "SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0",
-      [league]
+      [league],
     );
     if (leagueData.length > 0) {
       leagueID = leagueData[0].leagueID;
@@ -33,16 +33,16 @@ export async function calcPoints(league: string | number) {
   console.log(
     `Calculating user points for ${
       leagueID ? `leagueID ${leagueID} in the ` : ""
-    }${league}`
+    }${league}`,
   );
   const leagueUsers: leagueUsers[] = leagueID
     ? await connection.query(
         "SELECT leagueID, user, points FROM leagueUsers WHERE leagueID=?",
-        [leagueID]
+        [leagueID],
       )
     : await connection.query(
         "SELECT leagueID, user, points FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=?) ORDER BY leagueID",
-        [league]
+        [league],
       );
   let index = 0;
   let currentleagueID = -1;
@@ -55,7 +55,7 @@ export async function calcPoints(league: string | number) {
       connection
         .query(
           "SELECT points FROM points WHERE leagueID=? AND user=? AND time IS NULL ORDER BY matchday DESC LIMIT 1",
-          [e.leagueID, e.user]
+          [e.leagueID, e.user],
         )
         .then((result: points[]) => (result.length > 0 ? result[0].points : 0)),
       // Calculates the amont of points the user should have for the matchday
@@ -65,7 +65,7 @@ export async function calcPoints(league: string | number) {
           (await connection
             .query(
               "SELECT SUM(last_match) FROM players WHERE EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND position!='bench' AND leagueID=? AND user=? AND starred=0)",
-              [e.leagueID, e.user]
+              [e.leagueID, e.user],
             )
             .then((result: number[]) => {
               const value = Object.values(result[0])[0];
@@ -76,7 +76,7 @@ export async function calcPoints(league: string | number) {
               (await connection
                 .query(
                   "SELECT SUM(last_match) FROM players WHERE EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND position!='bench' AND leagueID=? AND user=? AND starred=1)",
-                  [e.leagueID, e.user]
+                  [e.leagueID, e.user],
                 )
                 .then((result: number[]) => {
                   const value = Object.values(result[0])[0];
@@ -85,12 +85,12 @@ export async function calcPoints(league: string | number) {
                 (await connection
                   .query(
                     "SELECT starredPercentage FROM leagueSettings WHERE leagueID=?",
-                    [e.leagueID]
+                    [e.leagueID],
                   )
                   .then((res: leagueSettings[]) =>
-                    res.length > 0 ? res[0].starredPercentage / 100 : 1.5
-                  ))
-            )
+                    res.length > 0 ? res[0].starredPercentage / 100 : 1.5,
+                  )),
+            ),
         );
       }),
     ]);
@@ -103,24 +103,24 @@ export async function calcPoints(league: string | number) {
         matchday = await connection
           .query(
             "SELECT matchday FROM points WHERE leagueID=? ORDER BY matchday DESC LIMIT 1",
-            [currentleagueID]
+            [currentleagueID],
           )
           .then((result) => (result.length > 0 ? result[0].matchday : 1));
       }
       connection.query(
         "UPDATE points SET points=? WHERE leagueID=? AND user=? AND matchday=?",
-        [newPoints, e.leagueID, e.user, matchday]
+        [newPoints, e.leagueID, e.user, matchday],
       );
       connection.query(
         "UPDATE leagueUsers SET points=? WHERE leagueID=? AND user=?",
-        [e.points - oldPoints + newPoints, e.leagueID, e.user]
+        [e.points - oldPoints + newPoints, e.leagueID, e.user],
       );
     }
   }
   console.log(
     `Updated user points for ${
       leagueID ? `leagueID ${leagueID} in the ` : ""
-    }${league}`
+    }${league}`,
   );
   connection.end();
   return;

@@ -18,7 +18,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.reload().then(() =>
       cy
         .getCookie("next-auth.session-token")
-        .then((cookie) => (user1 = cookie.value))
+        .then((cookie) => (user1 = cookie.value)),
     );
     // Creates league with alternate starting amount
     cy.contains("Leagues").click();
@@ -31,7 +31,7 @@ describe("Invite User into league and change some league Settings and run throug
     // Creates an anouncement
     cy.get("#announcementTitle").type("Super Aweosome Anouncement");
     cy.get("#announcementDescription").type(
-      "Very great description for this announcement"
+      "Very great description for this announcement",
     );
     cy.contains("Add announcement").click();
     // Creates invites and deletes the randomly generated one
@@ -66,7 +66,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("404");
     cy.get(".center").contains("404");
     cy.getCookie("next-auth.session-token").then(
-      (cookie) => (user2 = cookie.value)
+      (cookie) => (user2 = cookie.value),
     );
     // Joins the league
     cy.visit("http://localhost:3000/api/invite/invite1");
@@ -93,7 +93,7 @@ describe("Invite User into league and change some league Settings and run throug
       .contains("Edit purchase")
       .click();
     cy.get(".MuiTableBody-root > .MuiTableRow-root > :nth-child(3)").contains(
-      "25.8 M"
+      "25.8 M",
     );
     cy.get("#close").click();
     cy.contains(`Money left: ${user2Money} M`);
@@ -104,7 +104,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.clearCookies().then(() =>
       cy.setCookie("next-auth.session-token", user1).then(() => {
         cy.reload();
-      })
+      }),
     );
     // Gives other user admin rights
     cy.get("#admins").click();
@@ -173,7 +173,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.clearCookies().then(() =>
       cy.setCookie("next-auth.session-token", user2).then(() => {
         cy.reload();
-      })
+      }),
     );
     // Changes the amount of times a player can be in a squad and buys lewandowski
     cy.get("#duplicatePlayers").clear();
@@ -214,7 +214,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains(`Money left: ${user2Money}`);
     // Moves the squad slightly
     cy.intercept("/api/player/Bundesliga/87963521baf120631131").as(
-      "loadNkunku"
+      "loadNkunku",
     );
     cy.contains("Squad").click();
     cy.contains("Squad for");
@@ -261,7 +261,7 @@ describe("Invite User into league and change some league Settings and run throug
       .contains("Move to bench");
     // Moves Haaland to the field and stars him
     cy.intercept("/api/player/Bundesliga/a4e3b74d3b62fbd6376b").as(
-      "loadPlayer"
+      "loadPlayer",
     );
     cy.contains("Erling Haaland")
       .parent()
@@ -279,7 +279,7 @@ describe("Invite User into league and change some league Settings and run throug
         .parent()
         .children(".playerButton")
         .contains("Star")
-        .click()
+        .click(),
     );
     cy.contains("Erling Haaland").parent().parent().parent().contains("0");
     // Sims matchday until all players have played
@@ -310,10 +310,10 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("22");
     // Checks if the historical viewer can see the playerdata
     cy.get(
-      ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root"
+      ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root",
     ).click();
     cy.get(':nth-child(9) > [style="width: 70%;"] > :nth-child(1)').contains(
-      "Robert Lewandowski"
+      "Robert Lewandowski",
     );
     // Checks Nkunku button
     cy.contains("Squad").click();
@@ -329,7 +329,7 @@ describe("Invite User into league and change some league Settings and run throug
     // Starts the transfer period and sells Muller
     cy.exec("export APP_ENV=test; node cypress/e2e/invite4.js");
     cy.intercept("/api/player/Bundesliga/ef5112a9f971a1e40966").as(
-      "loadRobert"
+      "loadRobert",
     );
     cy.contains("Transfer").click();
     cy.wait("@loadRobert").then(() =>
@@ -339,7 +339,7 @@ describe("Invite User into league and change some league Settings and run throug
         .parent()
         .parent()
         .contains("Sell")
-        .click()
+        .click(),
     );
     user2Money += 25.8;
     cy.get(".MuiPaper-root > .MuiButton-root").click();
@@ -362,7 +362,7 @@ describe("Invite User into league and change some league Settings and run throug
       .should("not.exist")
       .then(() => {
         cy.clearCookies().then(() =>
-          cy.setCookie("next-auth.session-token", user1)
+          cy.setCookie("next-auth.session-token", user1),
         );
       })
       .then(() => {
@@ -418,7 +418,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("22");
     // Goes to historical view and checks if the title is correct
     cy.get(
-      ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root"
+      ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root",
     ).click();
     cy.contains("Invite 2's squad from New Sample League");
     cy.contains(`Money left: ${user2Money} M`);
@@ -426,7 +426,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Next").parent().contains("BVB");
     // Looks at the historical data for one of the users
     cy.get(':nth-child(13) > [style="width: 70%;"] > :nth-child(1)').contains(
-      "Robert Lewandowski"
+      "Robert Lewandowski",
     );
     cy.get('[alt="starred"]');
     cy.get(":nth-child(19) > .playerButton > p").contains("Selling for 25.8 M");
@@ -436,10 +436,10 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Next").should("not.exist");
     cy.get('[alt="starred"]');
     cy.get(':nth-child(9) > [style="width: 70%;"] > :nth-child(1)').contains(
-      "Robert Lewandowski"
+      "Robert Lewandowski",
     );
     cy.get(':nth-child(19) > [style="width: 70%;"] > :nth-child(1)').contains(
-      "Robert Lewandowski"
+      "Robert Lewandowski",
     );
     cy.contains("19.7 M");
     matchdays.push({ invite1: user1Money, invite2: user2Money });
@@ -463,17 +463,17 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Leagues").click();
     cy.contains("Leave league").click();
     cy.get(".MuiDialogContent-root > .MuiFormControl-root").type(
-      "New Sample League"
+      "New Sample League",
     );
     cy.get(".MuiDialogActions-root > .MuiButton-contained").click();
     cy.clearCookies().then(() =>
-      cy.setCookie("next-auth.session-token", user2)
+      cy.setCookie("next-auth.session-token", user2),
     );
     cy.reload();
     // Archives the league
     cy.contains("Open league").click();
     cy.get(
-      ":nth-child(42) > .MuiButtonBase-root > .PrivateSwitchBase-input"
+      ":nth-child(42) > .MuiButtonBase-root > .PrivateSwitchBase-input",
     ).click();
     cy.get("#confirmation").type("New Sample League");
     cy.contains("Save admin settings").click();
@@ -488,16 +488,16 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Leagues").click();
     cy.contains("Leave league").click();
     cy.get(".MuiDialogContent-root > .MuiFormControl-root").type(
-      "New Sample League"
+      "New Sample League",
     );
     cy.get(".MuiDialogActions-root > .MuiButton-contained").click();
     cy.clearCookies().then(() =>
-      cy.setCookie("next-auth.session-token", user1)
+      cy.setCookie("next-auth.session-token", user1),
     );
     cy.reload();
     cy.contains("Leave league").click();
     cy.get(".MuiDialogContent-root > .MuiFormControl-root").type(
-      "New Sample League"
+      "New Sample League",
     );
     cy.get(".MuiDialogActions-root > .MuiButton-contained").click();
     cy.clearCookies().then(() => cy.get("#logout").click());
@@ -506,7 +506,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#password").type("password");
     cy.contains("Sign Up").click();
     cy.contains(
-      "Your favorited league will be available in the menu when you are not in a league. Note that the menu only updates on a page navigation or reload."
+      "Your favorited league will be available in the menu when you are not in a league. Note that the menu only updates on a page navigation or reload.",
     );
     cy.visit("http://localhost:3000/api/invite/invite1", {
       failOnStatusCode: false,

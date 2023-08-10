@@ -198,10 +198,10 @@ function AdminPanel({
           }
           onChange={(
             e: SyntheticEvent<Element, Event>,
-            value: (string | userData)[]
+            value: (string | userData)[],
           ): void => {
             const admins = value.map((e) =>
-              typeof e === "string" ? e : e.user
+              typeof e === "string" ? e : e.user,
             );
             setUsers((e2) => {
               // Updates the value for all of the users
@@ -402,7 +402,7 @@ function Graph({ historicalPoints }: { historicalPoints: historialData }) {
     LineElement,
     Title,
     Tooltip,
-    Legend
+    Legend,
   );
   const options: {
     maintainAspectRatio: boolean;
@@ -636,7 +636,7 @@ export default function Home({
           <AlertTitle>{t("Help")}</AlertTitle>
           <p>
             {t(
-              "A tutorial can always be found at the bottom of this page just under the invite links. "
+              "A tutorial can always be found at the bottom of this page just under the invite links. ",
             )}
           </p>
           <Button
@@ -857,7 +857,7 @@ interface standingsData {
 }
 // Gets the users session
 export const getServerSideProps: GetServerSideProps = async (
-  ctx: GetServerSidePropsContext
+  ctx: GetServerSidePropsContext,
 ) => {
   // Gets the user id
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
@@ -868,8 +868,8 @@ export const getServerSideProps: GetServerSideProps = async (
     resolve(
       await connection.query(
         "SELECT user, points FROM leagueUsers WHERE leagueId=?",
-        [ctx.params?.league]
-      )
+        [ctx.params?.league],
+      ),
     );
     connection.end();
   }).then((val: standingsData[]) => val.sort((a, b) => b.points - a.points));
@@ -883,7 +883,7 @@ export const getServerSideProps: GetServerSideProps = async (
     }
     const results: historialPlayerData[] = await connection.query(
       "SELECT user, points, matchday FROM points WHERE leagueId=? ORDER BY matchday ASC",
-      [ctx.params?.league]
+      [ctx.params?.league],
     );
     connection.end();
     // Reformats the result into a dictionary that has an entry for each user and each entry for that user is an array of all the points the user has earned in chronological order.
@@ -906,7 +906,7 @@ export const getServerSideProps: GetServerSideProps = async (
     const connection = await connect();
     const results: invite[] = await connection.query(
       "SELECT * FROM invite WHERE leagueId=?",
-      [ctx.params?.league]
+      [ctx.params?.league],
     );
     connection.end();
     // Turns the result into a list of valid invite links
@@ -921,11 +921,13 @@ export const getServerSideProps: GetServerSideProps = async (
     const connection = await connect();
     const result: leagueUsers[] = await connection.query(
       "SELECT * FROM leagueUsers WHERE leagueID=? AND user=?",
-      [ctx.params?.league, user]
+      [ctx.params?.league, user],
     );
 
     res(
-      result.length > 0 ? [result[0].admin, result[0].tutorial] : [false, false]
+      result.length > 0
+        ? [result[0].admin, result[0].tutorial]
+        : [false, false],
     );
   });
   const announcements = new Promise<announcements[]>(async (res) => {
@@ -933,7 +935,7 @@ export const getServerSideProps: GetServerSideProps = async (
     res(
       await connection.query("SELECT * FROM announcements WHERE leagueID=?", [
         ctx.params?.league,
-      ])
+      ]),
     );
   });
   return redirect(ctx, {

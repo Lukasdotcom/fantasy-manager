@@ -55,7 +55,7 @@ class connection {
     | Database<sqlite3.Database, sqlite3.Statement>;
   private timeout;
   constructor(
-    connection: Connection | Database<sqlite3.Database, sqlite3.Statement>
+    connection: Connection | Database<sqlite3.Database, sqlite3.Statement>,
   ) {
     const mysql = "end" in connection;
     if (mysql) {
@@ -73,7 +73,7 @@ class connection {
   async query(
     statement: string,
     prepare: unknown[] = [],
-    logError = false
+    logError = false,
   ): Promise<any[]> {
     const connection = this.connection;
     const mysql = "query" in connection;
@@ -90,14 +90,14 @@ class connection {
               console.log(errors);
             }
             res(result);
-          }
+          },
         );
       });
     } else {
       // Converts all mysql statements to sqlite
       statement = statement.replace(
         /on duplicate key update/gi,
-        "ON CONFLICT DO UPDATE SET"
+        "ON CONFLICT DO UPDATE SET",
       );
       statement = statement.replace(/insert ignore/gi, "INSERT OR IGNORE");
       if (true) sqlite3.verbose();
@@ -118,7 +118,7 @@ class connection {
           statement = statement.replace(/ bool /gi, " NUMERIC ");
           statement = statement.replace(
             / AUTO_INCREMENT /gi,
-            " AUTOINCREMENT "
+            " AUTOINCREMENT ",
           );
         }
         if (logError) {
@@ -312,7 +312,7 @@ export interface announcements {
 export const validLeagues = async (): Promise<string[]> => {
   const connection = await connect();
   const result = await connection.query(
-    "SELECT * FROM plugins WHERE enabled=1"
+    "SELECT * FROM plugins WHERE enabled=1",
   );
   return result.map((e) => e.name);
 };
@@ -320,7 +320,7 @@ export const validLeagues = async (): Promise<string[]> => {
 export const validLeagueUrls = async (): Promise<string[]> => {
   const connection = await connect();
   const result = await connection.query(
-    "SELECT * FROM plugins WHERE enabled=1"
+    "SELECT * FROM plugins WHERE enabled=1",
   );
   return result.map((e) => e.url);
 };

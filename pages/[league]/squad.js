@@ -40,7 +40,7 @@ export default function Home({
   const [squad, setSquad] = useState(players);
   const [formation, setFormation] = useState(leagueInfo.formation);
   const [validFormations, setValidFormations] = useState(
-    leagueInfo.validFormations
+    leagueInfo.validFormations,
   );
   // Checks if the league is archived
   if (archived !== 0) {
@@ -129,7 +129,7 @@ export default function Home({
       <h2>{t("Attackers")}</h2>
       {squad["att"].map(
         (
-          e // Used to get the players for the attack
+          e, // Used to get the players for the attack
         ) => (
           <Player
             uid={e.playeruid}
@@ -140,12 +140,12 @@ export default function Home({
             status={e.status}
             leagueType={leagueType}
           />
-        )
+        ),
       )}
       <h2>{t("Midfielders")}</h2>
       {squad["mid"].map(
         (
-          e // Used to get the players for the mid
+          e, // Used to get the players for the mid
         ) => (
           <Player
             uid={e.playeruid}
@@ -156,12 +156,12 @@ export default function Home({
             status={e.status}
             leagueType={leagueType}
           />
-        )
+        ),
       )}
       <h2>{t("Defenders")}</h2>
       {squad["def"].map(
         (
-          e // Used to get the players for the defense
+          e, // Used to get the players for the defense
         ) => (
           <Player
             uid={e.playeruid}
@@ -172,12 +172,12 @@ export default function Home({
             status={e.status}
             leagueType={leagueType}
           />
-        )
+        ),
       )}
       <h2>{t("Goalkeeper")}</h2>
       {squad["gk"].map(
         (
-          e // Used to get the player for the goalkeeper
+          e, // Used to get the player for the goalkeeper
         ) => (
           <Player
             uid={e.playeruid}
@@ -187,7 +187,7 @@ export default function Home({
             status={e.status}
             leagueType={leagueType}
           />
-        )
+        ),
       )}
       <h2>{t("Bench")}</h2>
       <FormControlLabel
@@ -206,7 +206,7 @@ export default function Home({
         .filter((e) => showSelling || e.status !== "sell")
         .map(
           (
-            e // Used to get the players for the bench
+            e, // Used to get the players for the bench
           ) => (
             <Player
               uid={e.playeruid}
@@ -217,7 +217,7 @@ export default function Home({
               status={e.status}
               leagueType={leagueType}
             />
-          )
+          ),
         )}
     </>
   );
@@ -230,7 +230,7 @@ export async function getServerSideProps(ctx) {
   // Gets the league info
   const leagueInfo = await getLeagueInfo(
     ctx.query.league,
-    session?.user?.id ? session?.user?.id : -1
+    session?.user?.id ? session?.user?.id : -1,
   ).catch((e) => {
     console.error(e);
   });

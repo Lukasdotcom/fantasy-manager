@@ -28,7 +28,7 @@ const options = {
         const connection = await connect();
         const users = await connection.query(
           "SELECT * FROM users WHERE username=? AND password!=''",
-          [credentials.username]
+          [credentials.username],
         );
         const unthrottledUsers = users.filter((e) => e.throttle > 0);
         let finished = false;
@@ -44,7 +44,7 @@ const options = {
               // Lowers the throttle by 1
               connection.query(
                 "UPDATE users SET throttle=throttle-1 WHERE id=?",
-                [e.id]
+                [e.id],
               );
             }
           }
@@ -79,15 +79,15 @@ const options = {
         }
         const password = bcrypt.hashSync(
           credentials.password,
-          parseInt(process.env.BCRYPT_ROUNDS)
+          parseInt(process.env.BCRYPT_ROUNDS),
         );
         await connection.query(
           "INSERT INTO users (username, password) VALUES(?, ?)",
-          [credentials.username, password]
+          [credentials.username, password],
         );
         const users = await connection.query(
           "SELECT * FROM users WHERE (username=? AND password=?)",
-          [credentials.username, password]
+          [credentials.username, password],
         );
         let result = null;
         if (users.length > 0) {
@@ -114,7 +114,7 @@ const options = {
         if (!registered) {
           connection.query(
             `INSERT INTO users (${account.provider}, username, password) VALUES (?, ?, '')`,
-            [profile.email, profile.name]
+            [profile.email, profile.name],
           );
         }
         connection.end();

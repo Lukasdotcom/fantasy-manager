@@ -113,8 +113,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         ])
         .then((e) => {
           historicalTimes[league] = e.map((e: { time: number }) => e.time);
-        })
-    )
+        }),
+    ),
   );
   return {
     props: {

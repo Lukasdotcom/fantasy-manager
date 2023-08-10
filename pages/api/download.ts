@@ -6,7 +6,7 @@ interface players {
 }
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const leagues = await validLeagues();
   const connection = await connect();
@@ -30,7 +30,7 @@ export default async function handler(
       ? (
           await connection.query(
             `SELECT * FROM historicalPlayers WHERE league=?${extraText}`,
-            [league]
+            [league],
           )
         ).map((e: players) => {
           e.value = e.value / 1000000;
@@ -39,7 +39,7 @@ export default async function handler(
       : (
           await connection.query(
             `SELECT * FROM players WHERE league=?${extraText}`,
-            [league]
+            [league],
           )
         ).map((e: players) => {
           e.value = e.value / 1000000;
@@ -67,7 +67,7 @@ export default async function handler(
           league: "League",
         },
         ...data,
-      ])
+      ]),
     );
   } else {
     res.setHeader("Content-Type", "application/json");
@@ -79,7 +79,7 @@ export default async function handler(
       req.query.type === "csv" ? "csv" : "json"
     } download was requested for ${
       req.query.time ? parseInt(req.query.time) : "latest"
-    } time and for league ${league}`
+    } time and for league ${league}`,
   );
   connection.end();
 }

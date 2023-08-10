@@ -25,7 +25,7 @@ async function compilePlugins() {
   const request =
     process.env.APP_ENV !== "test"
       ? await fetch(
-          "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/default_store.json"
+          "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/default_store.json",
         ).catch(() => {
           console.error("Could not get the default store");
           return "error";
@@ -47,9 +47,9 @@ async function compilePlugins() {
       async (e) =>
         await connection.query(
           "INSERT IGNORE INTO plugins (name, settings, enabled, url) VALUES ('', '{}', 0, ?)",
-          [e]
-        )
-    )
+          [e],
+        ),
+    ),
   );
   // Makes sure that bundesliga is enabled when testing
   if (process.env.APP_ENV === "test") {
@@ -59,7 +59,7 @@ async function compilePlugins() {
   // Makes sure that the store is correct
   connection.query(
     "INSERT INTO data VALUES ('defaultStore', ?) ON DUPLICATE KEY UPDATE value2=?",
-    [defaultStore, defaultStore]
+    [defaultStore, defaultStore],
   );
   const plugins = await connection.query("SELECT * FROM plugins");
   await Promise.all(
@@ -86,7 +86,7 @@ async function compilePlugins() {
           // Makes sure the plugin is compatible with the current version
           if (compareSemanticVersions(json.version, currentVersion) !== 1) {
             console.error(
-              `Plugin ${e.name} is not compatible with the current version of the program`
+              `Plugin ${e.name} is not compatible with the current version of the program`,
             );
             res();
             return;
@@ -122,13 +122,13 @@ async function compilePlugins() {
                   new Promise<void>((res, rej) => {
                     const dl = new DownloaderHelper(
                       file,
-                      __dirname + "/data/" + hash
+                      __dirname + "/data/" + hash,
                     );
                     dl.on("end", () => res());
                     dl.on("error", (e) => rej(e));
                     dl.start().catch((e) => rej(e));
-                  })
-              )
+                  }),
+              ),
             ).then(
               () => {
                 console.log(`Finished downloading plugin ${e.name}`);
@@ -141,21 +141,21 @@ async function compilePlugins() {
               },
               () => {
                 console.error(
-                  `Failed to download plugin ${e.name}. Restart server to try again.`
+                  `Failed to download plugin ${e.name}. Restart server to try again.`,
                 );
                 connection.query(
                   "UPDATE plugins SET version='', enabled=0  WHERE url=?",
-                  [e.url]
+                  [e.url],
                 );
-              }
+              },
             );
           } else {
             mainFileTextStart += `import plugin${hash} from "./data/${hash}";\n`;
             mainFileText += `  "${e.url}":\n    plugin${hash},\n`;
           }
           res();
-        })
-    )
+        }),
+    ),
   );
   mainFileText += "};\nexport default plugins;\n";
   fs.writeFileSync("scripts/data.ts", mainFileTextStart + mainFileText);
@@ -178,85 +178,85 @@ async function startUp() {
   await Promise.all([
     // Used to store the users
     connection.query(
-      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, active bool DEFAULT 0, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '', admin bool DEFAULT false, favoriteLeague int, theme varchar(10), locale varchar(5))"
+      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, active bool DEFAULT 0, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '', admin bool DEFAULT false, favoriteLeague int, theme varchar(10), locale varchar(5))",
     ),
     // Used to store the players data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))"
+      "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))",
     ),
     // Creates a table that contains some key value pairs for data that is needed for some things
     connection.query(
-      "CREATE TABLE IF NOT EXISTS data (value1 varchar(25) PRIMARY KEY, value2 varchar(255))"
+      "CREATE TABLE IF NOT EXISTS data (value1 varchar(25) PRIMARY KEY, value2 varchar(255))",
     ),
     // Used to store the leagues settings
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0, matchdayTransfers boolean)"
+      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0, matchdayTransfers boolean)",
     ),
     // Used to store the leagues users
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, points int, money int, formation varchar(255), admin bool DEFAULT 0, tutorial bool DEFAULT 1)"
+      "CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, points int, money int, formation varchar(255), admin bool DEFAULT 0, tutorial bool DEFAULT 1)",
     ),
     // Used to store the Historical Points
     connection.query(
-      "CREATE TABLE IF NOT EXISTS points (leagueID int, user int, points int, matchday int, money int, time int)"
+      "CREATE TABLE IF NOT EXISTS points (leagueID int, user int, points int, matchday int, money int, time int)",
     ),
     // Used to store transfers
     connection.query(
-      "CREATE TABLE IF NOT EXISTS transfers (leagueID int, seller int, buyer int, playeruid varchar(25), value int, position varchar(5) DEFAULT 'bench', starred bool DEFAULT 0, max int)"
+      "CREATE TABLE IF NOT EXISTS transfers (leagueID int, seller int, buyer int, playeruid varchar(25), value int, position varchar(5) DEFAULT 'bench', starred bool DEFAULT 0, max int)",
     ),
     // Used to store invite links
     connection.query(
-      "CREATE TABLE IF NOT EXISTS invite (inviteID varchar(25) PRIMARY KEY, leagueID int)"
+      "CREATE TABLE IF NOT EXISTS invite (inviteID varchar(25) PRIMARY KEY, leagueID int)",
     ),
     // Used to store player squads
     connection.query(
-      "CREATE TABLE IF NOT EXISTS squad (leagueID int, user int, playeruid varchar(25), position varchar(5), starred bool DEFAULT 0)"
+      "CREATE TABLE IF NOT EXISTS squad (leagueID int, user int, playeruid varchar(25), position varchar(5), starred bool DEFAULT 0)",
     ),
     // Used to store historical squads
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalSquad (matchday int, leagueID int, user int, playeruid varchar(25), position varchar(5), starred bool DEFAULT 0)"
+      "CREATE TABLE IF NOT EXISTS historicalSquad (matchday int, leagueID int, user int, playeruid varchar(25), position varchar(5), starred bool DEFAULT 0)",
     ),
     // Used to store historical player data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))"
+      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))",
     ),
     // Used to store historical transfer data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalTransfers (matchday int, leagueID int, seller int, buyer int, playeruid varchar(25), value int)"
+      "CREATE TABLE IF NOT EXISTS historicalTransfers (matchday int, leagueID int, seller int, buyer int, playeruid varchar(25), value int)",
     ),
     // Used to store club data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, opponent varchar(3), league varchar(25))"
+      "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, opponent varchar(3), league varchar(25))",
     ),
     // Used to store club data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalClubs (club varchar(3), opponent varchar(3), league varchar(25), time int)"
+      "CREATE TABLE IF NOT EXISTS historicalClubs (club varchar(3), opponent varchar(3), league varchar(25), time int)",
     ),
     // Used to store analytics data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS analytics (day int PRIMARY KEY, versionActive varchar(255), versionTotal varchar(255), leagueActive varchar(255), leagueTotal varchar(255), themeActive varchar(255), themeTotal varchar(255), localeActive varchar(255), localeTotal varchar(255))"
+      "CREATE TABLE IF NOT EXISTS analytics (day int PRIMARY KEY, versionActive varchar(255), versionTotal varchar(255), leagueActive varchar(255), leagueTotal varchar(255), themeActive varchar(255), themeTotal varchar(255), localeActive varchar(255), localeTotal varchar(255))",
     ),
     // Used to store every server's analytics data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS detailedAnalytics (serverID int, day int, version varchar(255), active int, total int, leagueActive varchar(255), leagueTotal varchar(255), themeActive varchar(255), themeTotal varchar(255), localeActive varchar(255), localeTotal varchar(255))"
+      "CREATE TABLE IF NOT EXISTS detailedAnalytics (serverID int, day int, version varchar(255), active int, total int, leagueActive varchar(255), leagueTotal varchar(255), themeActive varchar(255), themeTotal varchar(255), localeActive varchar(255), localeTotal varchar(255))",
     ),
     // Used to store league announcements
     connection.query(
-      "CREATE TABLE IF NOT EXISTS announcements (leagueID int, priority varchar(10) check(priority = 'error' or priority = 'info' or priority = 'success' or priority='warning'), title varchar(255), description varchar(255))"
+      "CREATE TABLE IF NOT EXISTS announcements (leagueID int, priority varchar(10) check(priority = 'error' or priority = 'info' or priority = 'success' or priority='warning'), title varchar(255), description varchar(255))",
     ),
     // Used to store plugin settings
     connection.query(
-      "CREATE TABLE IF NOT EXISTS plugins (name varchar(255), settings varchar(255), enabled boolean, url varchar(255) PRIMARY KEY, version varchar(255))"
+      "CREATE TABLE IF NOT EXISTS plugins (name varchar(255), settings varchar(255), enabled boolean, url varchar(255) PRIMARY KEY, version varchar(255))",
     ),
     // Used to store picture IDs
     connection.query(
-      "CREATE TABLE IF NOT EXISTS pictures (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, url varchar(255), downloaded boolean DEFAULT 0, height int, width int)"
+      "CREATE TABLE IF NOT EXISTS pictures (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, url varchar(255), downloaded boolean DEFAULT 0, height int, width int)",
     ),
   ]);
   // Checks if the server hash has been created and if not makes one
   await connection.query(
     "INSERT IGNORE INTO data (value1, value2) VALUES ('serverID', ?)",
-    [String(Math.random() * 8980989890)]
+    [String(Math.random() * 8980989890)],
   );
   // Unlocks the database
   (await validLeagues()).forEach((e) => {
@@ -264,14 +264,14 @@ async function startUp() {
   });
   // Checks the version of the database is out of date
   const getOldVersion: data[] = await connection.query(
-    "SELECT value2 FROM data WHERE value1='version'"
+    "SELECT value2 FROM data WHERE value1='version'",
   );
   let oldVersion = "";
   if (getOldVersion.length > 0) {
     oldVersion = getOldVersion[0].value2;
     if (oldVersion == "0.1.1") {
       console.log(
-        "This version does not have a supported upgrade path to 1.*.*. Due to only me using this program in these versions."
+        "This version does not have a supported upgrade path to 1.*.*. Due to only me using this program in these versions.",
       );
     }
     if (oldVersion == "1.0.0") {
@@ -281,11 +281,11 @@ async function startUp() {
       leagues.forEach((e) => {
         connection.query(
           "INSERT IGNORE INTO leagueSettings (leagueName, leagueID) VALUES (?, ?)",
-          [e.leagueName, e.leagueID]
+          [e.leagueName, e.leagueID],
         );
         connection.query(
           "INSERT INTO leagueUsers (leagueID, user, points, money, formation) VALUES (?, ?, ?, ?, ?)",
-          [e.leagueID, e.user, e.points, e.money, e.formation]
+          [e.leagueID, e.user, e.points, e.money, e.formation],
         );
       });
       connection.query("DROP TABLE leagues");
@@ -294,13 +294,13 @@ async function startUp() {
     if (oldVersion == "1.0.7") {
       console.log("Updating database to version 1.1.0");
       connection.query(
-        "ALTER TABLE leagueSettings ADD startMoney int DEFAULT 150000000"
+        "ALTER TABLE leagueSettings ADD startMoney int DEFAULT 150000000",
       );
       connection.query(
-        "ALTER TABLE leagueSettings ADD transfers int DEFAULT 6"
+        "ALTER TABLE leagueSettings ADD transfers int DEFAULT 6",
       );
       connection.query(
-        "ALTER TABLE leagueSettings ADD duplicatePlayers int DEFAULT 1"
+        "ALTER TABLE leagueSettings ADD duplicatePlayers int DEFAULT 1",
       );
       connection.query("ALTER TABLE leagueUsers ADD admin bool DEFAULT 0");
       connection.query("UPDATE leagueUsers SET admin=1");
@@ -317,10 +317,10 @@ async function startUp() {
       await Promise.all([
         connection.query("ALTER TABLE squad ADD starred bool DEFAULT 0"),
         connection.query(
-          "ALTER TABLE historicalSquad ADD starred bool DEFAULT 0"
+          "ALTER TABLE historicalSquad ADD starred bool DEFAULT 0",
         ),
         connection.query(
-          "ALTER TABLE leagueSettings ADD starredPercentage int DEFAULT 150"
+          "ALTER TABLE leagueSettings ADD starredPercentage int DEFAULT 150",
         ),
       ]);
       await Promise.all([
@@ -335,7 +335,7 @@ async function startUp() {
       await Promise.all([
         connection.query("ALTER TABLE players ADD nameAscii varchar(255)"),
         connection.query(
-          "ALTER TABLE historicalPlayers ADD nameAscii varchar(255)"
+          "ALTER TABLE historicalPlayers ADD nameAscii varchar(255)",
         ),
       ]);
       const players = await connection.query("SELECT * FROM players");
@@ -346,12 +346,12 @@ async function startUp() {
         ]);
       });
       const historicalPlayers = await connection.query(
-        "SELECT * FROM historicalPlayers"
+        "SELECT * FROM historicalPlayers",
       );
       historicalPlayers.forEach((e) => {
         connection.query(
           "UPDATE historicalPlayers SET nameAscii=? WHERE uid=?",
-          [noAccents(e.name), e.uid]
+          [noAccents(e.name), e.uid],
         );
       });
       oldVersion = "1.3.1";
@@ -359,10 +359,10 @@ async function startUp() {
     if (oldVersion == "1.3.1") {
       console.log("Updating database to version 1.4.3");
       await connection.query(
-        "ALTER TABLE transfers ADD position varchar(5) DEFAULT 'bench'"
+        "ALTER TABLE transfers ADD position varchar(5) DEFAULT 'bench'",
       );
       await connection.query(
-        "ALTER TABLE transfers ADD starred bool DEFAULT 0"
+        "ALTER TABLE transfers ADD starred bool DEFAULT 0",
       );
       await connection.query("UPDATE transfers SET position='bench'");
       await connection.query("UPDATE transfers SET starred=0");
@@ -379,13 +379,13 @@ async function startUp() {
       await connection.query("ALTER TABLE users ADD active bool DEFAULT 0");
       await connection.query("ALTER TABLE users ADD throttle int DEFAULT 30");
       await connection.query(
-        "ALTER TABLE users ADD google varchar(255) DEFAULT ''"
+        "ALTER TABLE users ADD google varchar(255) DEFAULT ''",
       );
       await connection.query(
-        "ALTER TABLE users ADD github varchar(255) DEFAULT ''"
+        "ALTER TABLE users ADD github varchar(255) DEFAULT ''",
       );
       await connection.query(
-        "UPDATE users SET google=users.email, github=users.email"
+        "UPDATE users SET google=users.email, github=users.email",
       );
       await connection.query("DELETE FROM data WHERE value1='updateProgram'");
       await connection.query("ALTER TABLE users DROP COLUMN email");
@@ -405,7 +405,7 @@ async function startUp() {
         connection.query("ALTER TABLE players ADD league varchar(25)"),
         connection.query("ALTER TABLE leagueSettings ADD league varchar(25)"),
         connection.query(
-          "ALTER TABLE historicalPlayers ADD league varchar(25)"
+          "ALTER TABLE historicalPlayers ADD league varchar(25)",
         ),
         connection.query("ALTER TABLE clubs ADD league varchar(25)"),
       ]);
@@ -419,16 +419,16 @@ async function startUp() {
       // Deletes some old uneccessary data from the db and moves it to the new data
       await Promise.all([
         connection.query(
-          "UPDATE data SET value1='updateBundesliga' WHERE value1='update'"
+          "UPDATE data SET value1='updateBundesliga' WHERE value1='update'",
         ),
         connection.query(
-          "UPDATE data SET value1='transferOpenBundesliga' WHERE value1='transferOpen'"
+          "UPDATE data SET value1='transferOpenBundesliga' WHERE value1='transferOpen'",
         ),
         connection.query(
-          "UPDATE data SET value1='playerUpdateBundesliga' WHERE value1='playerUpdate'"
+          "UPDATE data SET value1='playerUpdateBundesliga' WHERE value1='playerUpdate'",
         ),
         connection.query(
-          "UPDATE data SET value1='countdownBundesliga' WHERE value1='countdown'"
+          "UPDATE data SET value1='countdownBundesliga' WHERE value1='countdown'",
         ),
         connection.query("DELETE FROM data WHERE value1='locked'"),
       ]);
@@ -440,7 +440,7 @@ async function startUp() {
         connection.query("ALTER TABLE analytics ADD EPLActive int"),
       ]);
       await connection.query(
-        "UPDATE analytics SET Bundesliga=0, BundesligaActive=0, EPL=0, EPLACTIVE=0"
+        "UPDATE analytics SET Bundesliga=0, BundesligaActive=0, EPL=0, EPLACTIVE=0",
       );
       oldVersion = "1.8.0";
     }
@@ -451,12 +451,12 @@ async function startUp() {
         connection.query("ALTER TABLE analytics ADD WorldCup2022 int"),
         connection.query("ALTER TABLE analytics ADD WorldCup2022Active int"),
         connection.query(
-          "ALTER TABLE leagueSettings ADD archived int DEFAULT 0"
+          "ALTER TABLE leagueSettings ADD archived int DEFAULT 0",
         ),
       ]);
       await Promise.all([
         connection.query(
-          "UPDATE analytics SET WorldCup2022=0, WorldCup2022Active=0"
+          "UPDATE analytics SET WorldCup2022=0, WorldCup2022Active=0",
         ),
         connection.query("UPDATE leagueSettings SET archived=0"),
       ]);
@@ -467,62 +467,62 @@ async function startUp() {
           connection.query("UPDATE players SET nameAscii=? WHERE uid=?", [
             noAccents(player.name),
             player.uid,
-          ])
-        )
+          ]),
+        ),
       );
       // Fixes all the player data to have the correct historical ascii name
       const historicalPlayers = await connection.query(
-        "SELECT * FROM historicalPlayers"
+        "SELECT * FROM historicalPlayers",
       );
       await Promise.all(
         historicalPlayers.map((player) =>
           connection.query(
             "UPDATE historicalPlayers SET nameAscii=? WHERE uid=?",
-            [noAccents(player.name), player.uid]
-          )
-        )
+            [noAccents(player.name), player.uid],
+          ),
+        ),
       );
       // Moves the leagues to a new table with the new league id style
       await connection.query(
-        "CREATE TABLE IF NOT EXISTS leagueSettingsTemp (leagueName varchar(255), newLeagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, leagueID int, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0)"
+        "CREATE TABLE IF NOT EXISTS leagueSettingsTemp (leagueName varchar(255), newLeagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, leagueID int, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0)",
       );
       await connection.query(
-        "INSERT INTO leagueSettingsTemp(leagueName, leagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived) SELECT leagueName, leagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived FROM leagueSettings"
+        "INSERT INTO leagueSettingsTemp(leagueName, leagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived) SELECT leagueName, leagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived FROM leagueSettings",
       );
       // Updates the league ids in the other tables
       await Promise.all([
         connection.query(
-          "UPDATE users SET favoriteLeague=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=users.favoriteLeague)"
+          "UPDATE users SET favoriteLeague=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=users.favoriteLeague)",
         ),
         connection.query(
-          "UPDATE leagueUsers SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=leagueUsers.leagueID)"
+          "UPDATE leagueUsers SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=leagueUsers.leagueID)",
         ),
         connection.query(
-          "UPDATE points SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=points.leagueID)"
+          "UPDATE points SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=points.leagueID)",
         ),
         connection.query(
-          "UPDATE transfers SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=transfers.leagueID)"
+          "UPDATE transfers SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=transfers.leagueID)",
         ),
         connection.query(
-          "UPDATE invite SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=invite.leagueID)"
+          "UPDATE invite SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=invite.leagueID)",
         ),
         connection.query(
-          "UPDATE squad SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=squad.leagueID)"
+          "UPDATE squad SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=squad.leagueID)",
         ),
         connection.query(
-          "UPDATE historicalSquad SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=historicalSquad.leagueID)"
+          "UPDATE historicalSquad SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=historicalSquad.leagueID)",
         ),
         connection.query(
-          "UPDATE historicalTransfers SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=historicalTransfers.leagueID)"
+          "UPDATE historicalTransfers SET leagueID=(SELECT newLeagueID FROM leagueSettingsTemp WHERE leagueID=historicalTransfers.leagueID)",
         ),
       ]);
       // Moves the leagues back to the original table in the correct form
       await connection.query("DROP TABLE leagueSettings");
       await connection.query(
-        "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0)"
+        "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0)",
       );
       await connection.query(
-        "INSERT INTO leagueSettings(leagueName, leagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived) SELECT leagueName, newLeagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived FROM leagueSettingsTemp"
+        "INSERT INTO leagueSettings(leagueName, leagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived) SELECT leagueName, newLeagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived FROM leagueSettingsTemp",
       );
       await connection.query("DROP TABLE leagueSettingsTemp");
       oldVersion = "1.9.0";
@@ -532,12 +532,12 @@ async function startUp() {
       // Checks if the forecast column actually exists because it was removed a long time ago but not actually dropped
       const forecastExists = await connection
         .query(
-          "SELECT COUNT(*) AS CNT FROM pragma_table_info('historicalPlayers') WHERE name='forecast'"
+          "SELECT COUNT(*) AS CNT FROM pragma_table_info('historicalPlayers') WHERE name='forecast'",
         )
         .then((e) => e[0].CNT === 1);
       if (!forecastExists) {
         await connection.query(
-          "ALTER TABLE historicalPlayers ADD forecast varchar(1)"
+          "ALTER TABLE historicalPlayers ADD forecast varchar(1)",
         );
       }
       // Sets all the forecasts for the historical players to attending because they were unknown.
@@ -550,7 +550,7 @@ async function startUp() {
       await Promise.all([
         connection.query("UPDATE clubs SET opponent='' WHERE opponent='NA'"),
         connection.query(
-          "UPDATE historicalClubs SET opponent='' WHERE opponent='NA'"
+          "UPDATE historicalClubs SET opponent='' WHERE opponent='NA'",
         ),
       ]);
       oldVersion = "1.10.0";
@@ -559,11 +559,11 @@ async function startUp() {
       console.log("Updating database to version 1.10.2");
       // Replaces all NA clubs names with empty showing that there is no opponent
       await connection.query(
-        "ALTER TABLE leagueSettings ADD matchdayTransfers boolean"
+        "ALTER TABLE leagueSettings ADD matchdayTransfers boolean",
       );
       await connection.query("UPDATE leagueSettings SET matchdayTransfers=0");
       await connection.query(
-        "UPDATE leagueSettings SET matchdayTransfers=1 WHERE league='WorldCup2022'"
+        "UPDATE leagueSettings SET matchdayTransfers=1 WHERE league='WorldCup2022'",
       );
       oldVersion = "1.10.2";
     }
@@ -600,16 +600,16 @@ async function startUp() {
                   "{}",
                   "{}",
                   "{}",
-                ]
+                ],
               );
               res();
-            })
-        )
+            }),
+        ),
       );
       // Drops the table for the analytics and creates the correct table.
       await connection.query("DROP TABLE analytics");
       await connection.query(
-        "CREATE TABLE IF NOT EXISTS analytics (day int PRIMARY KEY, versionActive varchar(255), versionTotal varchar(255), leagueActive varchar(255), leagueTotal varchar(255), themeActive varchar(255), themeTotal varchar(255), localeActive varchar(255), localeTotal varchar(255))"
+        "CREATE TABLE IF NOT EXISTS analytics (day int PRIMARY KEY, versionActive varchar(255), versionTotal varchar(255), leagueActive varchar(255), leagueTotal varchar(255), themeActive varchar(255), themeTotal varchar(255), localeActive varchar(255), localeTotal varchar(255))",
       );
       // Compiles the analytics for every single day that has happened
       const minDate: number = (
@@ -622,7 +622,7 @@ async function startUp() {
         await compileAnalytics(i);
       }
       await connection.query(
-        "ALTER TABLE leagueUsers ADD tutorial bool DEFAULT 1"
+        "ALTER TABLE leagueUsers ADD tutorial bool DEFAULT 1",
       );
       await connection.query("UPDATE leagueUsers SET tutorial=1");
       oldVersion = "1.11.0";
@@ -633,53 +633,53 @@ async function startUp() {
       if (process.env.BUNDESLIGA_API) {
         await connection.query(
           "INSERT IGNORE INTO plugins (name, settings, enabled, url) VALUES ('Bundesliga', ?, 1, 'https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/Bundesliga.json')",
-          [JSON.stringify({ access_token: process.env.BUNDESLIGA_API })]
+          [JSON.stringify({ access_token: process.env.BUNDESLIGA_API })],
         );
       }
       if (process.env.ENABLE_EPL) {
         await connection.query(
-          "INSERT IGNORE INTO plugins (name, settings, enabled, url) VALUES ('EPL','{}', 1, 'https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/EPL/EPL.json')"
+          "INSERT IGNORE INTO plugins (name, settings, enabled, url) VALUES ('EPL','{}', 1, 'https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/EPL/EPL.json')",
         );
       }
       // Moves the picture urls to a new table
       await connection.query(
-        "CREATE TABLE IF NOT EXISTS pictures2 (pictureUrl varchar(255))"
+        "CREATE TABLE IF NOT EXISTS pictures2 (pictureUrl varchar(255))",
       );
       await connection.query("ALTER TABLE players RENAME TO playersTemp");
       await connection.query(
-        "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))"
+        "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))",
       );
       await connection.query(
-        "ALTER TABLE historicalPlayers RENAME TO historicalPlayersTemp"
+        "ALTER TABLE historicalPlayers RENAME TO historicalPlayersTemp",
       );
       connection.query(
-        "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))"
+        "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))",
       );
       await connection.query(
-        "INSERT INTO pictures2 (pictureUrl) SELECT DISTINCT pictureUrl FROM historicalPlayersTemp"
+        "INSERT INTO pictures2 (pictureUrl) SELECT DISTINCT pictureUrl FROM historicalPlayersTemp",
       );
       await connection.query(
-        "INSERT INTO pictures2 (pictureUrl) SELECT DISTINCT pictureUrl FROM playersTemp"
+        "INSERT INTO pictures2 (pictureUrl) SELECT DISTINCT pictureUrl FROM playersTemp",
       );
       await connection.query(
-        "INSERT INTO pictures (pictureUrl) SELECT DISTINCT pictureUrl FROM pictures"
+        "INSERT INTO pictures (pictureUrl) SELECT DISTINCT pictureUrl FROM pictures",
       );
       await connection.query("DROP TABLE pictures2");
       await connection.query(
-        "INSERT INTO players (uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) SELECT uid, name, nameAscii, club, (SELECT pictureID FROM pictures WHERE pictureUrl=playersTemp.pictureUrl), value, position, forecast, total_points, average_points, last_match, locked, `exists`, league FROM playersTemp"
+        "INSERT INTO players (uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) SELECT uid, name, nameAscii, club, (SELECT pictureID FROM pictures WHERE pictureUrl=playersTemp.pictureUrl), value, position, forecast, total_points, average_points, last_match, locked, `exists`, league FROM playersTemp",
       );
       await connection.query(
-        "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, `exists`, league) SELECT uid, name, nameAscii, club, (SELECT pictureID FROM pictures WHERE pictureUrl=historicalPlayersTemp.pictureUrl), value, position, forecast, total_points, average_points, last_match, `exists`, league FROM historicalPlayersTemp"
+        "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, `exists`, league) SELECT uid, name, nameAscii, club, (SELECT pictureID FROM pictures WHERE pictureUrl=historicalPlayersTemp.pictureUrl), value, position, forecast, total_points, average_points, last_match, `exists`, league FROM historicalPlayersTemp",
       );
       await connection.query("DROP TABLE playersTemp");
       await connection.query("DROP TABLE historicalPlayersTemp");
       // Sets the height and width of each picture to what they should be
       await connection.query("UPDATE pictures SET height=200, width=200");
       await connection.query(
-        "UPDATE pictures SET height=280, width=220 WHERE pictureUrl LIKE 'https://resources.premierleague.com/premierleague/photos/players/%'"
+        "UPDATE pictures SET height=280, width=220 WHERE pictureUrl LIKE 'https://resources.premierleague.com/premierleague/photos/players/%'",
       );
       await connection.query(
-        "UPDATE pictures SET height=265, width=190 WHERE pictureUrl LIKE 'https://play.fifa.com/media/image/headshots/%'"
+        "UPDATE pictures SET height=265, width=190 WHERE pictureUrl LIKE 'https://play.fifa.com/media/image/headshots/%'",
       );
       oldVersion = "1.12.0";
     }
@@ -701,7 +701,7 @@ async function startUp() {
   // Updated version of database in table
   connection.query(
     "INSERT INTO data (value1, value2) VALUES('version', ?) ON DUPLICATE KEY UPDATE value2=?",
-    [currentVersion, currentVersion]
+    [currentVersion, currentVersion],
   );
   connection.end();
   checkPictures();

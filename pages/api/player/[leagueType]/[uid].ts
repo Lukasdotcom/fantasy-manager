@@ -10,7 +10,7 @@ import { downloadPicture } from "#/scripts/pictures";
 // Used to return a dictionary on the data for a player
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<result>
+  res: NextApiResponse<result>,
 ) {
   if (req.method == "GET") {
     const connection = await connect();
@@ -22,17 +22,17 @@ export default async function handler(
     if (time > 0) {
       const answer: historicalPlayers[] = await connection.query(
         "SELECT * FROM historicalPlayers WHERE uid=? AND time=? AND league=?",
-        [req.query.uid, time, league]
+        [req.query.uid, time, league],
       );
       if (answer.length > 0) {
         // Gets the game data
         const game: gameData | undefined = await connection
           .query(
             "SELECT * FROM historicalClubs WHERE club=? AND time=? AND league=?",
-            [answer[0].club, time, league]
+            [answer[0].club, time, league],
           )
           .then((res) =>
-            res.length > 0 ? { opponent: res[0].opponent } : undefined
+            res.length > 0 ? { opponent: res[0].opponent } : undefined,
           );
         returnValue.push({
           ...answer[0],
@@ -51,7 +51,7 @@ export default async function handler(
       }
       const answer: players[] = await connection.query(
         `SELECT * FROM players WHERE uid=? AND league=? LIMIT 1`,
-        [req.query.uid, league]
+        [req.query.uid, league],
       );
       // Adds the game information
       if (answer.length > 0) {
@@ -64,7 +64,7 @@ export default async function handler(
           .then((res) =>
             res.length > 0
               ? { opponent: res[0].opponent, gameStart: res[0].gameStart }
-              : undefined
+              : undefined,
           );
         returnValue.push({ ...answer[0], updateRunning: true, game });
       }
@@ -74,7 +74,9 @@ export default async function handler(
       returnValue[0].updateRunning = await connection
         .query("SELECT value2 FROM data WHERE value1='lastUpdateCheck'")
         .then((result) =>
-          result.length > 0 ? Date.now() / 1000 - 600 < result[0].value2 : false
+          result.length > 0
+            ? Date.now() / 1000 - 600 < result[0].value2
+            : false,
         );
     }
     // Checks if the player exists
@@ -86,7 +88,7 @@ export default async function handler(
       ) {
         res.setHeader(
           "Cache-Control",
-          `public, max-age=${time > 0 ? 604800 : await cache(league)}`
+          `public, max-age=${time > 0 ? 604800 : await cache(league)}`,
         );
       }
       const picture = await downloadPicture(returnValue[0].pictureID);

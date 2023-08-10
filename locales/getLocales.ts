@@ -4,7 +4,7 @@
  * @return {Promise<Record<string, string> | undefined>} The locale data.
  */
 export default async function getLocales(
-  locale: string | undefined
+  locale: string | undefined,
 ): Promise<Record<string, string> | null> {
   if (locale === "en") {
     return null;

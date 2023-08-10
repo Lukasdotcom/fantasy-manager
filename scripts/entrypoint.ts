@@ -75,13 +75,13 @@ async function update() {
       leagueActive[league] = (
         await connection3.query(
           "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=? AND leagueSettings.archived=0) AND EXISTS (SELECT * FROM users WHERE users.id=leagueUsers.user AND active='1')",
-          [league]
+          [league],
         )
       ).length;
       leagueTotal[league] = (
         await connection3.query(
           "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=? AND leagueSettings.archived=0)",
-          [league]
+          [league],
         )
       ).length;
     }
@@ -127,7 +127,7 @@ async function update() {
     setTimeout(async () => {
       const connection3 = await connect();
       const lastDay = await connection3.query(
-        "SELECT max(day) AS max FROM analytics"
+        "SELECT max(day) AS max FROM analytics",
       );
       const today = Math.floor(Date.now() / 1000 / 86400);
       if (lastDay.length > 0) {
@@ -153,7 +153,7 @@ async function update() {
         (
           await connection3.query(
             "SELECT * FROM data WHERE value1=? and value2='1'",
-            ["update" + e]
+            ["update" + e],
           )
         ).length > 0
       ) {
@@ -168,17 +168,17 @@ async function update() {
       return new Promise(async (res) => {
         connection3.query(
           "INSERT INTO data (value1, value2) VALUES(?, '0') ON DUPLICATE KEY UPDATE value2=0",
-          ["update" + e]
+          ["update" + e],
         );
         // Checks how much longer the transfer period is and lowers the value for the transfer period length and if the transfer period is about to end ends it
         const countdown = await connection3.query(
           "SELECT value2 FROM data WHERE value1=?",
-          ["countdown" + e]
+          ["countdown" + e],
         );
         const transferOpen = await connection3
           .query("SELECT value2 FROM data WHERE value1=?", ["transferOpen" + e])
           .then((res: data[]) =>
-            res.length > 0 ? res[0].value2 === "true" : false
+            res.length > 0 ? res[0].value2 === "true" : false,
           );
         if (countdown.length > 0) {
           const time = countdown[0].value2;
@@ -193,12 +193,15 @@ async function update() {
               // Makes sure that the amount of time left in the transfer is not unknown
               if (time > 0) {
                 console.log(
-                  `Predicting start of matchday in ${time} seconds for ${e}`
+                  `Predicting start of matchday in ${time} seconds for ${e}`,
                 );
                 // Makes sure to wait until the time is done
-                setTimeout(() => {
-                  updateData(e);
-                }, time * 1000 + 1);
+                setTimeout(
+                  () => {
+                    updateData(e);
+                  },
+                  time * 1000 + 1,
+                );
                 connection3.query("UPDATE data SET value2=? WHERE value1=?", [
                   time - 10,
                   "countdown" + e,
@@ -215,11 +218,14 @@ async function update() {
               // Makes sure that the amount of time left in the matchday is not unknown
               if (time > 0) {
                 console.log(
-                  `Predicting end of matchday in ${time} seconds for ${e}`
+                  `Predicting end of matchday in ${time} seconds for ${e}`,
                 );
-                setTimeout(() => {
-                  updateData(e);
-                }, time * 1000 + 1);
+                setTimeout(
+                  () => {
+                    updateData(e);
+                  },
+                  time * 1000 + 1,
+                );
                 connection3.query("UPDATE data SET value2=? WHERE value1=?", [
                   time - 10,
                   "countdown" + e,
@@ -230,7 +236,7 @@ async function update() {
         }
         res(1);
       });
-    })
+    }),
   );
   // Updates the latest update check value
   connection3.query(
@@ -238,7 +244,7 @@ async function update() {
     [
       String(Math.floor(Date.now() / 1000)),
       String(Math.floor(Date.now() / 1000)),
-    ]
+    ],
   );
   connection3.end();
 }

@@ -15,13 +15,13 @@ export default function Home() {
       <h2>{t("What is Wrong")}</h2>
       <p>
         {t(
-          "Your account has had too many failed login attempts recently and is being temporarily locked. "
+          "Your account has had too many failed login attempts recently and is being temporarily locked. ",
         )}
       </p>
       <h2>{t("How to Fix")}</h2>
       <p>
         {t(
-          "Log in through an OAuth provider like google or wait at least 10 seconds and try again. If this problem persists please contact the administrator of this website. "
+          "Log in through an OAuth provider like google or wait at least 10 seconds and try again. If this problem persists please contact the administrator of this website. ",
         )}
       </p>
       <BugReport />

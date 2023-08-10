@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 // Used to get information about the redirect for the league runs on every league page
 const redirect = async (
   ctx: GetServerSidePropsContext,
-  data: { [key: string]: unknown }
+  data: { [key: string]: unknown },
 ): Promise<GetServerSidePropsResult<{ [key: string]: unknown }>> => {
   const league = parseInt(String(ctx.params?.league));
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
@@ -14,7 +14,7 @@ const redirect = async (
     // Checks if the user is in the league or not
     const leagueInfo: leagueSettings[] = await connection.query(
       "SELECT * FROM leagueSettings WHERE leagueID=? and EXISTS (SELECT * FROM leagueUsers WHERE user=? and leagueUsers.leagueID = leagueSettings.leagueID)",
-      [league, session.user.id]
+      [league, session.user.id],
     );
     connection.end();
     if (leagueInfo.length > 0) {
@@ -44,7 +44,7 @@ const redirect = async (
       return {
         redirect: {
           destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(
-            ctx.resolvedUrl
+            ctx.resolvedUrl,
           )}`,
           permanent: false,
         },

@@ -39,7 +39,7 @@ function ProviderShow({ provider, notify, user }: ProviderProps) {
   const [email, setEmail] = useState(user[provider]);
   const [input, setInput] = useState("");
   function handleInputChange(
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) {
     setInput(e.target.value);
   }
@@ -58,7 +58,7 @@ function ProviderShow({ provider, notify, user }: ProviderProps) {
     }).then(async (response) => {
       notify(
         t(await response.text(), { provider }),
-        response.ok ? "success" : "error"
+        response.ok ? "success" : "error",
       );
       setEmail(input);
     });
@@ -78,7 +78,7 @@ function ProviderShow({ provider, notify, user }: ProviderProps) {
     }).then(async (response) => {
       notify(
         t(await response.text(), { provider }),
-        response.ok ? "success" : "error"
+        response.ok ? "success" : "error",
       );
       setInput("");
       setEmail("");
@@ -245,7 +245,7 @@ export default function Home({
           enabled: passwordExists ? t("enabled") : t("disabled"),
         })}
         {t(
-          "It is recommended against using password authorization unless strictly necessary. "
+          "It is recommended against using password authorization unless strictly necessary. ",
         )}
       </p>
       <TextField
@@ -293,7 +293,7 @@ export default function Home({
 }
 // Returns all the user data if logged in and if not logged in redirects to the login page
 export const getServerSideProps: GetServerSideProps = async (
-  ctx: GetServerSidePropsContext
+  ctx: GetServerSidePropsContext,
 ) => {
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
   if (session) {
@@ -315,7 +315,7 @@ export const getServerSideProps: GetServerSideProps = async (
     return {
       redirect: {
         destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(
-          ctx.resolvedUrl
+          ctx.resolvedUrl,
         )}`,
         permanent: false,
       },

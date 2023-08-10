@@ -77,7 +77,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           undefined,
           {
             locale: localStorage.locale,
-          }
+          },
         );
         return;
       }
@@ -110,7 +110,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [router, translationData, session]);
   const t = (
     text: string,
-    replacers?: Record<string, string | Date | number>
+    replacers?: Record<string, string | Date | number>,
   ): string => {
     let data = text;
     if (translationData[text]) {
@@ -126,12 +126,12 @@ function MyApp({ Component, pageProps }: AppProps) {
               year: "numeric",
               month: "short",
               day: "numeric",
-            })
+            }),
           );
         } else if (typeof replacers[e] === "number") {
           data = data.replaceAll(
             `{${e}}`,
-            replacers[e].toLocaleString(router.locale)
+            replacers[e].toLocaleString(router.locale),
           );
         } else {
           data = data.replaceAll(`{${e}}`, replacers[e] as string);
@@ -213,26 +213,24 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        {
-          /* Adds the hreflang to the head for SEO purposes */
-          router.locales?.map((e) => {
-            return e == "en" ? (
-              <link
-                key={e}
-                rel="alternate"
-                hrefLang={e}
-                href={`${host}${router.asPath}`}
-              />
-            ) : (
-              <link
-                key={e}
-                rel="alternate"
-                hrefLang={e}
-                href={`${host}/${e}${router.asPath}`}
-              />
-            );
-          })
-        }
+        {/* Adds the hreflang to the head for SEO purposes */
+        router.locales?.map((e) => {
+          return e == "en" ? (
+            <link
+              key={e}
+              rel="alternate"
+              hrefLang={e}
+              href={`${host}${router.asPath}`}
+            />
+          ) : (
+            <link
+              key={e}
+              rel="alternate"
+              hrefLang={e}
+              href={`${host}/${e}${router.asPath}`}
+            />
+          );
+        })}
         <link
           rel="alternate"
           hrefLang="x-default"

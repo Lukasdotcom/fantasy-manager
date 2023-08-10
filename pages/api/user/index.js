@@ -26,7 +26,7 @@ export default async function handler(req, res) {
           .status(200)
           .end(password === "" ? "Disabled password auth" : "Changed password");
         console.log(
-          `User ${id} ${password === "" ? "disabled" : "changed"} password`
+          `User ${id} ${password === "" ? "disabled" : "changed"} password`,
         );
         connection.end();
       } else if (
@@ -40,14 +40,14 @@ export default async function handler(req, res) {
         if (email == "") {
           connection.query(
             `UPDATE users SET ${req.body.provider}='' WHERE id=?`,
-            [id]
+            [id],
           );
           console.log(`User ${id} disconnected from ${req.body.provider}`);
           res.status(200).end(`Disconnected from {provider}`);
         } else {
           connection.query(
             `UPDATE users SET ${req.body.provider}=? WHERE id=?`,
-            [email, id]
+            [email, id],
           );
           console.log(`User ${id} connected to ${req.body.provider}`);
           res.status(200).end(`Connected to {provider}`);

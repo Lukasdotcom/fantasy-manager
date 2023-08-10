@@ -4,12 +4,12 @@ import { DownloaderHelper } from "node-downloader-helper";
 
 // Used to download a specific picture
 export async function downloadPicture(
-  id: number
+  id: number,
 ): Promise<{ height: number; width: number } | void> {
   const connection = await connect();
   const picture: pictures[] = await connection.query(
     "SELECT * FROM pictures WHERE id=?",
-    [id]
+    [id],
   );
   await connection.query("UPDATE pictures SET downloaded=1 WHERE id=?", [id]);
   if (picture.length == 0) {
@@ -45,8 +45,8 @@ async function downloadPictureURL(url: string, id: number) {
     })
     .catch((e) =>
       console.error(
-        "Failed to download picture with error: " + e + " and id: " + id
-      )
+        "Failed to download picture with error: " + e + " and id: " + id,
+      ),
     );
 }
 
@@ -71,13 +71,13 @@ export async function downloadAllPictures() {
 export async function checkPictures() {
   if (process.env.DOWNLOAD_PICTURE === "no") {
     console.log(
-      "Picture downloading is disabled due to DOWNLOAD_PICTURE being no"
+      "Picture downloading is disabled due to DOWNLOAD_PICTURE being no",
     );
     return;
   }
   const connection = await connect();
   const result = await connection.query(
-    "SELECT * FROM pictures WHERE downloaded=1"
+    "SELECT * FROM pictures WHERE downloaded=1",
   );
   result.forEach((e) => {
     if (!existsSync("./players/" + e.id + ".jpg")) {

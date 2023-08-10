@@ -172,7 +172,7 @@ function LeaveLeague({
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             {t(
-              "Leaving a league will permanently delete all the data that you generated in the league. Please confirm that you want to do this by typing the name of the league in the box below. "
+              "Leaving a league will permanently delete all the data that you generated in the league. Please confirm that you want to do this by typing the name of the league in the box below. ",
             )}
             {t("The name of the league is:")}
             <b>{leagueName}</b>.
@@ -244,12 +244,12 @@ function Leagues({ leagues }: LeaguesProps) {
       return;
     }
     const newFavoriteLeague = leagueList.leagues.filter(
-      (e) => e.leagueID === session.user.favoriteLeague
+      (e) => e.leagueID === session.user.favoriteLeague,
     );
     setFavoriteLeague(
       newFavoriteLeague.length > 0
         ? JSON.parse(JSON.stringify(newFavoriteLeague[0]))
-        : undefined
+        : undefined,
     );
   }, [session, leagueList, favoriteLeague]);
   // Used to update the favorite
@@ -279,10 +279,10 @@ function Leagues({ leagues }: LeaguesProps) {
       <h1>{t("Leagues")}</h1>
       <p>
         {t(
-          "Your favorited league will be available in the menu when you are not in a league. Note that the menu only updates on a page navigation or reload. "
+          "Your favorited league will be available in the menu when you are not in a league. Note that the menu only updates on a page navigation or reload. ",
         )}
         {t(
-          "You can favorite a league by clicking on the star next to the league. "
+          "You can favorite a league by clicking on the star next to the league. ",
         )}
       </p>
       {favoriteLeague && (
@@ -333,7 +333,7 @@ function Leagues({ leagues }: LeaguesProps) {
       <h1>{t("Archived Leagues")}</h1>
       <p>
         {t(
-          "These are leagues that can be viewed but you can not do anything in. "
+          "These are leagues that can be viewed but you can not do anything in. ",
         )}
       </p>
       {leagueList.archived.map((val) => (
@@ -366,7 +366,7 @@ export default function Home({
   );
 }
 export const getServerSideProps: GetServerSideProps = async (
-  ctx: GetServerSidePropsContext
+  ctx: GetServerSidePropsContext,
 ) => {
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
   if (session) {
@@ -379,7 +379,7 @@ export const getServerSideProps: GetServerSideProps = async (
     return {
       redirect: {
         destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(
-          ctx.resolvedUrl
+          ctx.resolvedUrl,
         )}`,
         permanent: false,
       },

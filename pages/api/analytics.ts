@@ -4,7 +4,7 @@ import { compareSemanticVersions } from "../../Modules/semantic";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (req.method == "POST") {
     // Collects the data from the request
@@ -70,7 +70,7 @@ export default async function handler(
     // Deletes the analytics data from the user if it already exists
     await connection.query(
       "DELETE FROM detailedAnalytics WHERE serverID=? AND day=?",
-      [serverID, day]
+      [serverID, day],
     );
     // Adds the analytics data
     connection.query(
@@ -87,7 +87,7 @@ export default async function handler(
         themeTotal,
         localeActive,
         localeTotal,
-      ]
+      ],
     );
     connection.end();
     res.status(200).end();

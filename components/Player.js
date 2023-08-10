@@ -32,7 +32,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
   useEffect(() => {
     const id = setInterval(
       () => setCountown((countdown) => countdown - 1),
-      60000
+      60000,
     );
     return () => {
       clearInterval(id);
@@ -41,7 +41,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
   // Makes sure that the countdown is up to date
   useEffect(() => {
     setCountown(
-      data.game ? parseInt((data.game.gameStart - Date.now() / 1000) / 60) : 0
+      data.game ? parseInt((data.game.gameStart - Date.now() / 1000) / 60) : 0,
     );
   }, [data]);
   const theme = useTheme();
@@ -250,7 +250,7 @@ export function TransferPlayer({
   if (
     user !== -1 &&
     Object.values(allOwnership).filter(
-      (e) => e.filter((e2) => e2.owner === user).length > 0
+      (e) => e.filter((e2) => e2.owner === user).length > 0,
     ).length == 0
   )
     transferLeft = true;
@@ -282,7 +282,7 @@ export function TransferPlayer({
     }).then(async (response) => {
       notify(
         t(await response.text(), { amount }),
-        response.ok ? "success" : "error"
+        response.ok ? "success" : "error",
       );
       transferData();
     });
@@ -430,7 +430,7 @@ export function TransferPlayer({
     !data.exists &&
     (!ownership ||
       ownership.filter((x) =>
-        x.transfer ? x.buyer == user || x.seller == user : x.owner == user
+        x.transfer ? x.buyer == user || x.seller == user : x.owner == user,
       ).length == 0)
   ) {
     return <></>;
@@ -573,7 +573,7 @@ export function SquadPlayer({
             .then(async (response) => {
               notify(
                 t(await response.text()),
-                response.ok ? "success" : "error"
+                response.ok ? "success" : "error",
               );
             })
             .then(update);
@@ -600,7 +600,7 @@ export function SquadPlayer({
               .then(async (response) => {
                 notify(
                   await t(response.text()),
-                  response.ok ? "success" : "error"
+                  response.ok ? "success" : "error",
                 );
               })
               .then(update);
@@ -638,7 +638,7 @@ export function HistoricalPlayer({ uid, time, children, starred, leagueType }) {
       setData(
         await (
           await fetch(`/api/player/${leagueType}/${uid}?time=${time}`)
-        ).json()
+        ).json(),
       );
     }
     getData();

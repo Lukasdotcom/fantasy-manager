@@ -34,7 +34,7 @@ function TransfersLeft({ ownership, allowedTransfers, transferCount }) {
       {t("{amount} transfers left", {
         amount:
           Object.values(ownership).filter(
-            (e) => e.filter((e) => e.owner === user).length > 0
+            (e) => e.filter((e) => e.owner === user).length > 0,
           ).length == 0
             ? t("Unlimited")
             : allowedTransfers - transferCount,
@@ -107,7 +107,7 @@ function MainPage({
   useEffect(() => {
     const id = setInterval(
       () => setTimeLeft((timeLeft) => (timeLeft > 0 ? timeLeft - 1 : 0)),
-      1000
+      1000,
     );
     return () => {
       clearInterval(id);
@@ -145,14 +145,14 @@ function MainPage({
       `/api/player/${leagueType}/search?${
         isNew ? "" : `limit=${players.length + 50}&`
       }searchTerm=${encodeURIComponent(
-        searchTerm
+        searchTerm,
       )}&clubSearch=${encodeURIComponent(
-        clubSearch
+        clubSearch,
       )}&positions=${encodeURIComponent(
-        JSON.stringify(positions)
+        JSON.stringify(positions),
       )}&order_by=${encodeURIComponent(orderBy)}&league=${league}&minPrice=${
         price[0] * 1000000
-      }&maxPrice=${price[1] * 1000000}`
+      }&maxPrice=${price[1] * 1000000}`,
     ).then(async (val) => {
       val = await val.json();
       setPlayers(val);
@@ -321,17 +321,17 @@ export async function getServerSideProps(ctx) {
   const [allowedTransfers, duplicatePlayers, league] = await connection
     .query(
       "SELECT transfers, duplicatePlayers, league FROM leagueSettings WHERE leagueID=?",
-      [ctx.params.league]
+      [ctx.params.league],
     )
     .then((result) =>
       result.length > 0
         ? [result[0].transfers, result[0].duplicatePlayers, result[0].league]
-        : [0, 0, "Bundesliga"]
+        : [0, 0, "Bundesliga"],
     );
   const maxPrice = await connection
     .query(
       "SELECT value FROM players WHERE league=? ORDER BY value DESC limit 1",
-      [league]
+      [league],
     )
     .then((res) => (res.length > 0 ? res[0].value : 0));
   connection.end();
