@@ -162,18 +162,6 @@ async function compilePlugins() {
   console.log("Done compiling plugins");
 }
 async function startUp() {
-  if (process.env.APP_ENV === "test") {
-    await new Promise<void>((res) => {
-      // Makes sure that the sqlite file is defined
-      if (process.env.SQLITE === undefined) {
-        res();
-        return;
-      }
-      fs.unlink(process.env.SQLITE, () => {
-        res();
-      });
-    });
-  }
   const connection = await connect();
   await Promise.all([
     // Used to store the users
@@ -226,7 +214,7 @@ async function startUp() {
     ),
     // Used to store club data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, opponent varchar(3), league varchar(25))",
+      "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, gameEnd int, opponent varchar(3), league varchar(25))",
     ),
     // Used to store club data
     connection.query(
@@ -681,6 +669,9 @@ async function startUp() {
       await connection.query(
         "UPDATE pictures SET height=265, width=190 WHERE pictureUrl LIKE 'https://play.fifa.com/media/image/headshots/%'",
       );
+      // Adds the game end and sets it to 4 hours after game start.
+      await connection.query("ALTER TABLE clubs ADD gameEnd int");
+      await connection.query("UPDATE clubs SET gameEnd=gameStart+14400");
       oldVersion = "1.12.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT

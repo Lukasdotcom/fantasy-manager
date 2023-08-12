@@ -1,5 +1,9 @@
 import noAccents from "#Modules/normalize";
-import connect, { clubs, plugins as pluginsType } from "../Modules/database";
+import connect, {
+  clubs,
+  data,
+  plugins as pluginsType,
+} from "../Modules/database";
 import { calcPoints } from "./calcPoints";
 import plugins from "./data";
 import { downloadPicture } from "./pictures";
@@ -26,6 +30,16 @@ export async function updateData(url: string, file = "./sample/data1.json") {
     return;
   }
   const league = leagueData[0].name;
+  const lastUpdate: data[] = await connection.query(
+    "SELECT * FROM data WHERE value1=?",
+    ["playerUpdate" + league],
+  );
+  if (lastUpdate.length == 0) {
+    lastUpdate.push({
+      value1: "playerUpdate" + league,
+      value2: "0",
+    });
+  }
   connection.query(
     "INSERT INTO data (value1, value2) VALUES(?, ?) ON DUPLICATE KEY UPDATE value2=?",
     ["playerUpdate" + league, currentTime, currentTime],
@@ -64,6 +78,13 @@ export async function updateData(url: string, file = "./sample/data1.json") {
   // Gets the data. Note that the last match points are ignored and calculated using total points
   const [newTransfer, countdown, players, clubs] = await plugins[url](
     settings,
+    {
+      players: await connection.query("SELECT * FROM players WHERE league=?", [
+        league,
+      ]),
+      clubs: await connection.query("SELECT * FROM clubs"),
+      timestamp: parseInt(lastUpdate[0].value2),
+    },
   ).catch((e) => {
     console.error(
       `Error - Failed to get data for ${league}(if this happens to often something is wrong) with error ${e}`,
@@ -104,7 +125,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
   const getClub = (club: string): clubs => {
     const result = clubs.filter((e) => e.club == club);
     if (result.length == 0) {
-      return { club, gameStart: 0, opponent: "", league };
+      return { club, gameStart: 0, opponent: "", league, gameEnd: 0 };
     }
     return result[0];
   };
@@ -135,10 +156,11 @@ export async function updateData(url: string, file = "./sample/data1.json") {
       // Checks if the game has started
       clubDone = !(clubData.gameStart >= currentTime || newTransfer);
       connection.query(
-        "INSERT INTO clubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?, league=?",
+        "INSERT INTO clubs (club, gameStart, gameEnd, opponent, league) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?, league=?",
         [
           clubData.club,
           clubData.gameStart,
+          clubData.gameEnd,
           clubData.opponent,
           clubData.league,
           clubData.opponent,
@@ -147,13 +169,13 @@ export async function updateData(url: string, file = "./sample/data1.json") {
       );
       // If the game has not started yet the game start time is updated
       if (!clubDone) {
-        connection.query("UPDATE clubs SET gameStart=? WHERE club=?", [
-          clubData.gameStart,
-          clubData.club,
-        ]);
+        connection.query(
+          "UPDATE clubs SET gameStart=?, gameEnd=? WHERE club=?",
+          [clubData.gameStart, clubData.gameEnd, clubData.club],
+        );
       }
     }
-    // Checks if the player exists
+    // Checks if the player has already been created
     if (
       await connection
         .query("SELECT * FROM players WHERE uid=? AND league=?", [
@@ -215,7 +237,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
           [club, pictureID, value, position, uid, league],
         );
       }
-      // Updates player stats if the game has started and it is not a new transfer period
+      // Updates player stats if the game is running
       if (clubDone) {
         // Calculate all the values if they need to be calculated for last_match and total_points
         if (total_points === undefined) {
@@ -269,7 +291,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
   connection.end();
 }
 
-// Used to start the matchday
+// Used to start the matchday. Runs the transfers and saves historicalTransfers to the table.
 export async function startMatchday(league: string) {
   console.log(`Starting matchday for ${league}`);
   const connection = await connect();
@@ -365,7 +387,7 @@ export async function startMatchday(league: string) {
   await calcPoints(league);
   return;
 }
-// Runs when the matchday ends
+// Runs when the matchday ends. It saves all the squads and players to archival tables.
 async function endMatchday(league: string) {
   console.log(`Ending Matchday for ${league}`);
   // Calculates all the points

@@ -2,7 +2,7 @@ import { clubs, forecast, position } from "#Modules/database";
 import dataGetter, { players } from "#type/data";
 import { Bundesliga } from "./types";
 import { readFile } from "fs/promises";
-const Main: dataGetter = async (settings) => {
+const Main: dataGetter = async (settings, past_data) => {
   const nowTime = Math.floor(Date.now() / 1000);
   // Gets the data for the league, note that if a file is specified it will be used instead this is for testing purposes
   const data: Bundesliga = settings.file
@@ -28,14 +28,20 @@ const Main: dataGetter = async (settings) => {
     const club = e.player.team.team_code;
     // If the club data for the team does not exist it gets added
     if (!clubList[club]) {
-      // Ift the game already starts a 100 second buffer is created
-      const gameStart =
-        e.player.match_starts_in > 0
-          ? e.player.match_starts_in + nowTime
-          : nowTime - 100;
+      let gameStart = e.player.match_starts_in + nowTime;
+      if (e.player.match_starts_in <= 0) {
+        const past_data_club = past_data.clubs.filter((e) => e.club == club);
+        // If the game already starts a 100 second buffer is created if the game start time is not known
+        gameStart =
+          past_data_club.length > 0 && past_data_club[0].gameStart < nowTime
+            ? past_data_club[0].gameStart
+            : nowTime - 100;
+      }
       clubList[club] = {
         club,
         gameStart,
+        // It is assumed that every game will take less than 2.5 hours
+        gameEnd: gameStart + 60 * 2.5 * 60,
         opponent: e.player.next_opponent.team_code,
         league: "Bundesliga",
       };

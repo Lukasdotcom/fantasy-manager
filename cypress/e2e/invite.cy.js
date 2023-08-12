@@ -472,8 +472,8 @@ describe("Invite User into league and change some league Settings and run throug
     cy.reload();
     // Archives the league
     cy.contains("Open league").click();
-    cy.get(
-      ":nth-child(42) > .MuiButtonBase-root > .PrivateSwitchBase-input",
+    cy.contains(
+      "Check this to archive the league when you press save.",
     ).click();
     cy.get("#confirmation").type("New Sample League");
     cy.contains("Save admin settings").click();

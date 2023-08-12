@@ -48,16 +48,30 @@ const Main: dataGetter = async function () {
     const homeGame = matchdayData.filter((e) => e.team_h === club.id);
     let opponent = "";
     let gameStart = 0;
+    // Sets the default game end time to the past
+    let gameEnd = nowTime - 100;
     if (homeGame.length > 0) {
       gameStart = Date.parse(String(homeGame[0].kickoff_time)) / 1000;
       opponent = getTeam(homeGame[0].team_a);
+      if (homeGame[0].finished !== true) {
+        gameEnd = gameStart + 60 * 2.5 * 60;
+      }
     }
     const awayGame = matchdayData.filter((e) => e.team_a === club.id);
     if (awayGame.length > 0) {
       gameStart = Date.parse(String(awayGame[0].kickoff_time)) / 1000;
       opponent = getTeam(awayGame[0].team_h);
+      if (awayGame[0].finished !== true) {
+        gameEnd = gameStart + 60 * 2.5 * 60;
+      }
     }
-    return { club: club.short_name, gameStart, opponent, league: "EPL" };
+    return {
+      club: club.short_name,
+      gameStart,
+      gameEnd,
+      opponent,
+      league: "EPL",
+    };
   });
   // Gets all the player data
   const players = data.elements
