@@ -63,7 +63,9 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
       setPictureUrl("/api/picture/" + data.pictureID);
     }
     // Checks if the game has started less than 120 minutes ago and that this is the squad view
-    const gameRunning = countdown < 0 && countdown > -120;
+    const gameRunning =
+      countdown < 0 &&
+      countdown > (data.game.gameStart - data.game.gameEnd) / 60;
     const border =
       gameRunning && condensed === "squad"
         ? {

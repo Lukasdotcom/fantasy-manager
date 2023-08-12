@@ -63,7 +63,11 @@ export default async function handler(
           ])
           .then((res) =>
             res.length > 0
-              ? { opponent: res[0].opponent, gameStart: res[0].gameStart }
+              ? {
+                  opponent: res[0].opponent,
+                  gameStart: res[0].gameStart,
+                  gameEnd: res[0].gameEnd,
+                }
               : undefined,
           );
         returnValue.push({ ...answer[0], updateRunning: true, game });
@@ -109,6 +113,7 @@ export default async function handler(
 type gameData = {
   opponent: string;
   gameStart?: number;
+  gameEnd?: number;
 };
 
 // This is the type returned by this API
