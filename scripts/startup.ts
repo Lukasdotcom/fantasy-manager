@@ -631,7 +631,7 @@ async function startUp() {
       }
       // Moves the picture urls to a new table
       await connection.query(
-        "CREATE TABLE IF NOT EXISTS pictures2 (pictureUrl varchar(255))",
+        "CREATE TABLE IF NOT EXISTS pictures2 (url varchar(255))",
       );
       await connection.query("ALTER TABLE players RENAME TO playersTemp");
       await connection.query(
@@ -644,30 +644,30 @@ async function startUp() {
         "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))",
       );
       await connection.query(
-        "INSERT INTO pictures2 (pictureUrl) SELECT DISTINCT pictureUrl FROM historicalPlayersTemp",
+        "INSERT INTO pictures2 (url) SELECT DISTINCT pictureUrl FROM historicalPlayersTemp",
       );
       await connection.query(
-        "INSERT INTO pictures2 (pictureUrl) SELECT DISTINCT pictureUrl FROM playersTemp",
+        "INSERT INTO pictures2 (url) SELECT DISTINCT pictureUrl FROM playersTemp",
       );
       await connection.query(
-        "INSERT INTO pictures (pictureUrl) SELECT DISTINCT pictureUrl FROM pictures",
+        "INSERT INTO pictures (url) SELECT DISTINCT url FROM pictures2",
       );
       await connection.query("DROP TABLE pictures2");
       await connection.query(
-        "INSERT INTO players (uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) SELECT uid, name, nameAscii, club, (SELECT pictureID FROM pictures WHERE pictureUrl=playersTemp.pictureUrl), value, position, forecast, total_points, average_points, last_match, locked, `exists`, league FROM playersTemp",
+        "INSERT INTO players (uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) SELECT uid, name, nameAscii, club, (SELECT id FROM pictures WHERE url=playersTemp.pictureUrl), value, position, forecast, total_points, average_points, last_match, locked, `exists`, league FROM playersTemp",
       );
       await connection.query(
-        "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, `exists`, league) SELECT uid, name, nameAscii, club, (SELECT pictureID FROM pictures WHERE pictureUrl=historicalPlayersTemp.pictureUrl), value, position, forecast, total_points, average_points, last_match, `exists`, league FROM historicalPlayersTemp",
+        "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, `exists`, league) SELECT time, uid, name, nameAscii, club, (SELECT id FROM pictures WHERE url=historicalPlayersTemp.pictureUrl), value, position, forecast, total_points, average_points, last_match, `exists`, league FROM historicalPlayersTemp",
       );
       await connection.query("DROP TABLE playersTemp");
       await connection.query("DROP TABLE historicalPlayersTemp");
       // Sets the height and width of each picture to what they should be
       await connection.query("UPDATE pictures SET height=200, width=200");
       await connection.query(
-        "UPDATE pictures SET height=280, width=220 WHERE pictureUrl LIKE 'https://resources.premierleague.com/premierleague/photos/players/%'",
+        "UPDATE pictures SET height=280, width=220 WHERE url LIKE 'https://resources.premierleague.com/premierleague/photos/players/%'",
       );
       await connection.query(
-        "UPDATE pictures SET height=265, width=190 WHERE pictureUrl LIKE 'https://play.fifa.com/media/image/headshots/%'",
+        "UPDATE pictures SET height=265, width=190 WHERE url LIKE 'https://play.fifa.com/media/image/headshots/%'",
       );
       // Adds the game end and sets it to 4 hours after game start.
       await connection.query("ALTER TABLE clubs ADD gameEnd int");
