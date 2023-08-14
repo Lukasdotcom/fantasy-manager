@@ -77,10 +77,11 @@ const options = {
         if (credentials.username == "" || credentials.password == "") {
           throw Error("no_username");
         }
-        const password = bcrypt.hashSync(
-          credentials.password,
-          parseInt(process.env.BCRYPT_ROUNDS),
-        );
+        const bcrypt_rounds =
+          parseInt(process.env.BCRYPT_ROUNDS) > 0
+            ? parseInt(process.env.BCRYPT_ROUNDS)
+            : 9;
+        const password = bcrypt.hashSync(credentials.password, bcrypt_rounds);
         await connection.query(
           "INSERT INTO users (username, password) VALUES(?, ?)",
           [credentials.username, password],

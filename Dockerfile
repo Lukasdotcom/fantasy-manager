@@ -23,8 +23,6 @@ ENV NEXTAUTH_SECRET=hkf9eUXAZKjw99/hZ4Rrw7aNe47qxB+QuojMwmxbFqA=
 ENV NEXTAUTH_URL_INTERNAL=http://127.0.0.1:3000
 ENV MIN_UPDATE_TIME=120
 ENV MIN_UPDATE_TIME_TRANSFER=3600
-ENV BCRYPT_ROUNDS=9
-# You only need to copy next.config.js if you are NOT using the default configuration
 
 EXPOSE 3000
 
