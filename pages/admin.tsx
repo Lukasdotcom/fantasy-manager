@@ -544,9 +544,6 @@ export default function Home({
       }),
     });
     notify(await res.text(), res.ok ? "success" : "error");
-    if (res.ok) {
-      console.log(1321);
-    }
     router.push("/admin");
   }
   return (
