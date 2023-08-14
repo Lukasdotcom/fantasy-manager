@@ -103,16 +103,18 @@ async function update() {
       process.env.APP_ENV !== "development" &&
       process.env.APP_ENV !== "test"
     ) {
-      // Sends the analytics data to the analytics server
-      await fetch(`${analyticsDomain}/api/analytics`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSONbody,
-      }).catch((e) => {
-        console.error("Failed to send analytics data with error: ", e);
-      });
+      if (process.env.ANALYTICS_OPT_OUT !== "optout") {
+        // Sends the analytics data to the analytics server
+        await fetch(`${analyticsDomain}/api/analytics`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSONbody,
+        }).catch((e) => {
+          console.error("Failed to send analytics data with error: ", e);
+        });
+      }
     }
     // Sends the analytics data to the server
     await fetch(`http://localhost:3000/api/analytics`, {
