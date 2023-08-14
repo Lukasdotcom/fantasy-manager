@@ -8,8 +8,9 @@ import connect, { analytics, detailedAnalytics } from "#database";
  */
 export default async function compileAnalytics(day: number) {
   const connection = await connect();
+  // Makes sure that if there was a duplicate for some reason it is ignored
   const analytics: detailedAnalytics[] = await connection.query(
-    "SELECT * FROM detailedAnalytics WHERE day = ?",
+    "SELECT DISTINCT * FROM detailedAnalytics WHERE day = ?",
     [day],
   );
   const previousAnalytics: analytics[] = await connection.query(

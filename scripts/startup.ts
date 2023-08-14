@@ -672,6 +672,17 @@ async function startUp() {
       // Adds the game end and sets it to 4 hours after game start.
       await connection.query("ALTER TABLE clubs ADD gameEnd int");
       await connection.query("UPDATE clubs SET gameEnd=gameStart+14400");
+      // Recompiles all analytics due to a samll bug that can occur
+      await connection.query("DELETE FROM analytics");
+      const minDate: number = (
+        await connection.query("SELECT min(day) AS min FROM detailedAnalytics")
+      )[0].min;
+      const maxDate: number = (
+        await connection.query("SELECT max(day) AS max FROM detailedAnalytics")
+      )[0].max;
+      for (let i = minDate; i <= maxDate; i++) {
+        await compileAnalytics(i);
+      }
       oldVersion = "1.12.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
