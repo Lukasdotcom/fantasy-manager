@@ -22,6 +22,11 @@ export interface players {
 export type result = [boolean, number, players[], clubs[]];
 type dataGetter = (
   settings: { [key: string]: string },
-  past_data: { players: players[]; clubs: clubs[]; timestamp: number },
+  past_data: {
+    players: players[];
+    clubs: clubs[];
+    timestamp: number;
+    [key: string]: unknown;
+  },
 ) => Promise<result>;
 export default dataGetter;
