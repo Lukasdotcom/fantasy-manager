@@ -252,8 +252,8 @@ export default function Home({
       <Image
         src={"/api/picture/" + player.pictureID}
         alt=""
-        width={pictureWidth * 3}
-        height={pictureHeight * 3}
+        width={pictureWidth * 2}
+        height={pictureHeight * 2}
       />
       <Dialog
         onClose={handleDialogToggle}
@@ -267,8 +267,8 @@ export default function Home({
               <Image
                 src={"/api/picture/" + e.id}
                 alt=""
-                width={(e.width || 200) * 3}
-                height={(e.height || 200) * 3}
+                width={(e.width || 200) * 2}
+                height={(e.height || 200) * 2}
               />
             </div>
           ))}
