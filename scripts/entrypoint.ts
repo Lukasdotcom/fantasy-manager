@@ -104,7 +104,7 @@ async function update() {
       process.env.APP_ENV !== "test"
     ) {
       // Sends the analytics data to the analytics server
-      fetch(`${analyticsDomain}/api/analytics`, {
+      await fetch(`${analyticsDomain}/api/analytics`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -115,7 +115,7 @@ async function update() {
       });
     }
     // Sends the analytics data to the server
-    fetch(`http://localhost:3000/api/analytics`, {
+    await fetch(`http://localhost:3000/api/analytics`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

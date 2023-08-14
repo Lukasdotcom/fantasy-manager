@@ -73,7 +73,7 @@ export default async function handler(
       [serverID, day],
     );
     // Adds the analytics data
-    connection.query(
+    await connection.query(
       "INSERT INTO detailedAnalytics (serverID, day, version, active, total, leagueActive, leagueTotal, themeActive, themeTotal, localeActive, localeTotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         serverID,
@@ -89,7 +89,7 @@ export default async function handler(
         localeTotal,
       ],
     );
-    connection.end();
+    await connection.end();
     res.status(200).end();
   } else {
     res.status(400).end("Method does not exist");
