@@ -31,7 +31,7 @@ async function compilePlugins() {
           return "error";
         })
       : "error";
-  const defaultStore: number[] =
+  const defaultStore: string[] =
     request instanceof Response
       ? await request.json().catch(() => {
           console.error("Could not get the default store");
@@ -59,7 +59,7 @@ async function compilePlugins() {
   // Makes sure that the store is correct
   connection.query(
     "INSERT INTO data VALUES ('defaultStore', ?) ON DUPLICATE KEY UPDATE value2=?",
-    [defaultStore, defaultStore],
+    [JSON.stringify(defaultStore), JSON.stringify(defaultStore)],
   );
   const plugins = await connection.query("SELECT * FROM plugins");
   await Promise.all(

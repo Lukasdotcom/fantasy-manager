@@ -122,6 +122,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
   let index = 0;
   let club = "";
   let clubDone = false;
+  let gameDone = false;
   const getClub = (club: string): clubs => {
     const result = clubs.filter((e) => e.club == club);
     if (result.length == 0) {
@@ -155,6 +156,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
       const clubData = getClub(club);
       // Checks if the game has started
       clubDone = !(clubData.gameStart >= currentTime || newTransfer);
+      gameDone = parseInt(lastUpdate[0].value2) > clubData.gameEnd;
       connection.query(
         "INSERT INTO clubs (club, gameStart, gameEnd, opponent, league) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?, league=?",
         [
@@ -173,6 +175,13 @@ export async function updateData(url: string, file = "./sample/data1.json") {
           "UPDATE clubs SET gameStart=?, gameEnd=? WHERE club=?",
           [clubData.gameStart, clubData.gameEnd, clubData.club],
         );
+      }
+      // If the game has not been finished the game end time is updated
+      if (!gameDone) {
+        connection.query("UPDATE clubs SET gameEnd=? WHERE club=?", [
+          clubData.gameEnd,
+          clubData.club,
+        ]);
       }
     }
     // Checks if the player has already been created
@@ -225,7 +234,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
         "UPDATE players SET name=?, nameAscii=?, `exists`=?, locked=? WHERE uid=? AND league=?",
         [name, nameAscii, exists, clubDone, uid, league],
       );
-      // Updates the player that will only get updated if the game has not started
+      // Updates the player that will only get updated if the game has not started(This includes when the transfermarket is open)
       if (!clubDone) {
         await connection.query(
           "UPDATE players SET forecast=?, total_points=?, average_points=? WHERE uid=? AND league=?",
@@ -239,8 +248,8 @@ export async function updateData(url: string, file = "./sample/data1.json") {
           [club, pictureID, value, sale_price, position, uid, league],
         );
       }
-      // Updates player stats if the game is running
-      if (clubDone) {
+      // Updates player stats if the game is running and has not ended for too long yet
+      if (clubDone && !gameDone) {
         // Calculate all the values if they need to be calculated for last_match and total_points
         if (total_points === undefined) {
           await connection.query(
