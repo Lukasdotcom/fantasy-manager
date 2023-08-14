@@ -50,6 +50,7 @@ interface Column {
   id:
     | "time"
     | "value"
+    | "sale_price"
     | "last_match"
     | "average_points"
     | "total_points"
@@ -62,6 +63,7 @@ interface Column {
 interface Data {
   time: number;
   value: number;
+  sale_price: number;
   last_match: number;
   average_points: number;
   total_points: number;
@@ -94,6 +96,12 @@ export default function Home({
     {
       id: "value",
       label: "Value",
+      format: (value: string | number) =>
+        t("{amount} M", { amount: parseInt(String(value)) / 1000000 }),
+    },
+    {
+      id: "sale_price",
+      label: "Sale Price",
       format: (value: string | number) =>
         t("{amount} M", { amount: parseInt(String(value)) / 1000000 }),
     },
@@ -142,6 +150,7 @@ export default function Home({
       "9999999999999999": {
         time: 0,
         value: player.value,
+        sale_price: player.sale_price,
         last_match: player.last_match,
         average_points: player.average_points,
         total_points: player.total_points,
@@ -174,6 +183,7 @@ export default function Home({
                 newRows[String(time)] = {
                   time,
                   value: data.value,
+                  sale_price: data.sale_price,
                   last_match: data.last_match,
                   average_points: data.average_points,
                   total_points: data.total_points,
@@ -275,6 +285,11 @@ export default function Home({
       <p>
         {t("Value")} : {player.value / 1000000}M
       </p>
+      {player.value !== player.sale_price && (
+        <p>
+          {t("Sale Price")} : {player.sale_price / 1000000}M
+        </p>
+      )}
       <p>
         {t("Total Points")} : {player.total_points}
       </p>

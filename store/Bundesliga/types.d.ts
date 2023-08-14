@@ -136,6 +136,7 @@ export interface Player {
   total_scores: TotalScores;
   team: Team;
   next_opponent: NextOpponent;
+  on_sale?: OnSale;
 }
 
 export interface NextOpponent {
@@ -146,6 +147,10 @@ export interface NextOpponent {
 export enum MatchVenue {
   Away = "away",
   Home = "home",
+}
+
+export interface OnSale {
+  suggested_transfer_value: number;
 }
 
 export interface Statistics {

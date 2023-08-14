@@ -170,7 +170,7 @@ async function startUp() {
     ),
     // Used to store the players data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))",
+      "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, sale_price int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))",
     ),
     // Creates a table that contains some key value pairs for data that is needed for some things
     connection.query(
@@ -206,7 +206,7 @@ async function startUp() {
     ),
     // Used to store historical player data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))",
+      "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, sale_price int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))",
     ),
     // Used to store historical transfer data
     connection.query(
@@ -635,13 +635,13 @@ async function startUp() {
       );
       await connection.query("ALTER TABLE players RENAME TO playersTemp");
       await connection.query(
-        "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))",
+        "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, sale_price, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))",
       );
       await connection.query(
         "ALTER TABLE historicalPlayers RENAME TO historicalPlayersTemp",
       );
       connection.query(
-        "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))",
+        "CREATE TABLE IF NOT EXISTS historicalPlayers (time int, uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, sale_price, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, `exists` bool, league varchar(25))",
       );
       await connection.query(
         "INSERT INTO pictures2 (url) SELECT DISTINCT pictureUrl FROM historicalPlayersTemp",
@@ -654,10 +654,10 @@ async function startUp() {
       );
       await connection.query("DROP TABLE pictures2");
       await connection.query(
-        "INSERT INTO players (uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) SELECT uid, name, nameAscii, club, (SELECT id FROM pictures WHERE url=playersTemp.pictureUrl), value, position, forecast, total_points, average_points, last_match, locked, `exists`, league FROM playersTemp",
+        "INSERT INTO players (uid, name, nameAscii, club, pictureID, value, sale_price, position, forecast, total_points, average_points, last_match, locked, `exists`, league) SELECT uid, name, nameAscii, club, (SELECT id FROM pictures WHERE url=playersTemp.pictureUrl), value, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league FROM playersTemp",
       );
       await connection.query(
-        "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, `exists`, league) SELECT time, uid, name, nameAscii, club, (SELECT id FROM pictures WHERE url=historicalPlayersTemp.pictureUrl), value, position, forecast, total_points, average_points, last_match, `exists`, league FROM historicalPlayersTemp",
+        "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureID, value, sale_price, position, forecast, total_points, average_points, last_match, `exists`, league) SELECT time, uid, name, nameAscii, club, (SELECT id FROM pictures WHERE url=historicalPlayersTemp.pictureUrl), value, value, position, forecast, total_points, average_points, last_match, `exists`, league FROM historicalPlayersTemp",
       );
       await connection.query("DROP TABLE playersTemp");
       await connection.query("DROP TABLE historicalPlayersTemp");

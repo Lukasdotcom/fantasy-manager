@@ -8,6 +8,7 @@ export interface players {
   height: number; // This is the height of the picture of the player
   width: number; // This is the width of the picture of the player
   value: number; // This is the value of the player
+  sale_price?: number; // This is the sale price of the player
   position: position; // This is the position of the player
   forecast?: forecast; // This is the forecast of the player where a is attending u is unknown and m is missing
   total_points?: number; // This is the total points of the player

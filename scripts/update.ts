@@ -186,7 +186,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
     ) {
       // Creates the player
       await connection.query(
-        "INSERT INTO players (uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, locked, `exists`, league) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO players (uid, name, nameAscii, club, pictureID, value, sale_price, position, forecast, total_points, average_points, last_match, locked, `exists`, league) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           val.uid,
           val.name,
@@ -194,6 +194,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
           val.club,
           pictureID,
           val.value,
+          val.sale_price || val.value,
           val.position,
           val.forecast || "a",
           val.total_points || val.last_match || 0,
@@ -216,6 +217,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
         last_match,
         exists,
       } = val;
+      const sale_price = val.sale_price || value;
       let { average_points } = val;
       const nameAscii = noAccents(name);
       // Updates the player that always will get updated
@@ -233,8 +235,8 @@ export async function updateData(url: string, file = "./sample/data1.json") {
       // Updates player data that will only get updated if the transfer market is open
       if (newTransfer) {
         await connection.query(
-          "UPDATE players SET club=?, pictureID=?, value=?, position=? WHERE uid=? AND league=?",
-          [club, pictureID, value, position, uid, league],
+          "UPDATE players SET club=?, pictureID=?, value=?, sale_price=?, position=? WHERE uid=? AND league=?",
+          [club, pictureID, value, sale_price, position, uid, league],
         );
       }
       // Updates player stats if the game is running

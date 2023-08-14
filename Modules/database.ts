@@ -166,6 +166,7 @@ export interface players {
   club: string;
   pictureID: number;
   value: number;
+  sale_price: number;
   position: position;
   forecast: forecast;
   total_points: number;
@@ -239,6 +240,7 @@ export interface historicalPlayers {
   club: string;
   pictureID: number;
   value: number;
+  sale_price: number;
   position: position;
   forecast: forecast;
   total_points: number;
