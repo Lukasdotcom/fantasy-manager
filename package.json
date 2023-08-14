@@ -18,7 +18,7 @@
     "build2:ts": "tsc -p tsconfig2.json",
     "build3:ts": "tsc -p tsconfig3.json",
     "start:no-build": "node scripts/entrypoint.js & next start",
-    "clean": "rm -f tsconfig2.tsbuildinfo; rm -f tsconfig3.tsbuildinfo; rm -f test.db; rm -rf ./scripts/data; rm -rf ./pictures; rm -rf ./.next/cache/images"
+    "clean": "rm -f tsconfig2.tsbuildinfo; rm -f tsconfig3.tsbuildinfo; rm -f test.db; rm -rf ./scripts/data; rm -rf ./players; rm -rf ./.next/cache/images"
   },
   "dependencies": {
     "@emotion/react": "11.11.1",
