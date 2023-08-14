@@ -47,7 +47,7 @@ const Main: dataGetter = async (settings, past_data) => {
       };
     }
     // Converts the data to the specified form
-    return {
+    const data: players = {
       uid: e.player.uid,
       name: e.player.nickname,
       club,
@@ -61,6 +61,12 @@ const Main: dataGetter = async (settings, past_data) => {
       average_points: e.player.statistics.average_points,
       exists: true,
     };
+    // Checks if the player has a sale price
+    if (e.player.on_sale) {
+      data.value = e.player.on_sale.suggested_transfer_value;
+      data.sale_price = e.transfer_value;
+    }
+    return data;
   });
   return [
     data.opening_hour.opened,

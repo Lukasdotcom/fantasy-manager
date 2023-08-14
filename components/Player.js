@@ -62,6 +62,16 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
     if (pictureUrl === undefined) {
       setPictureUrl("/api/picture/" + data.pictureID);
     }
+    // Sh
+    const price_component =
+      data.value === data.sale_price ? (
+        <p>{t("{amount} M", { amount: data.value / 1000000 })}</p>
+      ) : (
+        <p>
+          <s>{t("{amount} M", { amount: data.value / 1000000 })}</s>{" "}
+          {t("{amount} M", { amount: data.sale_price / 1000000 })}
+        </p>
+      );
     // Checks if the game has started less than 120 minutes ago and that this is the squad view
     const gameRunning =
       countdown < 0 &&
@@ -144,7 +154,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
             </div>
             <div>
               <p>{t("Value")}</p>
-              <p>{t("{amount} M", { amount: data.value / 1000000 })}</p>
+              {price_component}
             </div>
             {data.game && (
               <div>
@@ -189,7 +199,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
             {condensed != "squad" && (
               <div>
                 <p>{t("Value")}</p>
-                <p>{t("{amount} M", { amount: data.value / 1000000 })}</p>
+                {price_component}
               </div>
             )}
             {data.game && (
@@ -263,7 +273,7 @@ export function TransferPlayer({
         await fetch(`/api/player/${leagueType}/${uid}`)
       ).json();
       setData(info);
-      setAmount(info.value / 1000000);
+      setAmount(info.sale_price / 1000000);
     }
     getData();
   }, [uid, leagueType]);

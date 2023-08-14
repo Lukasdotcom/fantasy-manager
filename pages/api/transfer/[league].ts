@@ -216,8 +216,8 @@ export default async function handler(
               ).length <
             leagueSettings.duplicatePlayers
           ) {
-            // Checks if the user has enough money.
-            if (amount < player.value) {
+            // Checks if the user has offered enough money.
+            if (amount < player.sale_price) {
               res
                 .status(400)
                 .end(
@@ -225,20 +225,20 @@ export default async function handler(
                 );
               break;
             }
-            if (money < player.value) {
+            if (money < player.sale_price) {
               res.status(400).end("You do not have enough money");
               break;
             }
             connection.query(
               "INSERT INTO transfers (leagueID, seller, buyer, playeruid, value, max) VALUES (?, 0, ?, ?, ?, ?)",
-              [league, user, playeruid, player.value, amount],
+              [league, user, playeruid, player.sale_price, amount],
             );
             connection.query(
               "UPDATE leagueUsers SET money=? WHERE leagueID=? AND user=?",
-              [money - player.value, league, user],
+              [money - player.sale_price, league, user],
             );
             console.log(
-              `Player ${playeruid} bought for ${player.value} with max bid of ${amount} by user ${user} in league ${league}`,
+              `Player ${playeruid} bought for ${player.sale_price} with max bid of ${amount} by user ${user} in league ${league}`,
             );
             res.status(200).end("Bought player");
             break;
@@ -444,15 +444,16 @@ export default async function handler(
             break;
           }
           // Sells the player
-          const playerValue = player.value;
+          const playerValue = player.sale_price;
+          // Stores the amount that the user actually wants for the player
           const actualAmount =
-            amount * -1 > player.value ? amount * -1 : player.value;
+            amount * -1 > player.sale_price ? amount * -1 : player.sale_price;
           connection.query(
             "INSERT INTO transfers (leagueID, seller, buyer, playeruid, value, max) VALUES (?, ?, ?, ?, ?, ?)",
             [
               league,
               user,
-              actualAmount > player.value ? -1 : 0,
+              actualAmount > player.sale_price ? -1 : 0,
               playeruid,
               actualAmount,
               actualAmount,
@@ -467,14 +468,16 @@ export default async function handler(
           }
           console.log(
             `User ${user} is ${
-              actualAmount > player.value ? "planning to sell" : "selling"
+              actualAmount > player.sale_price ? "planning to sell" : "selling"
             } ${playeruid} for ${actualAmount} in league ${league}`,
           );
           res
             .status(200)
             .end(
               `${
-                actualAmount > player.value ? "Planning to sell" : "Selling"
+                actualAmount > player.sale_price
+                  ? "Planning to sell"
+                  : "Selling"
               } player for minimum of ${actualAmount / 1000000}M`,
             );
           break;
@@ -529,11 +532,11 @@ export default async function handler(
             // Removes the canceller from the transaction and refunds them the value of the player
             connection.query(
               "UPDATE leagueUsers SET money=money+? WHERE leagueID=? AND user=?",
-              [player.value, league, user],
+              [player.sale_price, league, user],
             );
             await connection.query(
               "UPDATE transfers SET max=?, buyer=0 WHERE leagueID=? AND buyer=? AND playeruid=?",
-              [purchase.value, league, user, playeruid],
+              [purchase.sale_price, league, user, playeruid],
             );
             connection.query(
               "DELETE FROM transfers WHERE leagueID=? AND buyer=0 AND seller=0 AND playeruid=?",
@@ -541,7 +544,7 @@ export default async function handler(
             );
             res.status(200).end("Cancelled transaction");
             console.log(
-              `User ${user} cancelled purchase of ${playeruid} from ${purchase.buyer} for ${player.value} in league ${league}`,
+              `User ${user} cancelled purchase of ${playeruid} from ${purchase.buyer} for ${player.sale_price} in league ${league}`,
             );
             break;
           }
