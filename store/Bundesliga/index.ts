@@ -62,7 +62,7 @@ const Main: dataGetter = async (settings, past_data) => {
       exists: true,
     };
     // Checks if the player has a sale price
-    if (e.player.on_sale) {
+    if (e.player.on_sale && e.player.on_sale.suggested_transfer_value > 0) {
       data.value = e.player.on_sale.suggested_transfer_value;
       data.sale_price = e.transfer_value;
     }

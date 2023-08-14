@@ -56,7 +56,8 @@
               "3x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png?fit=150"
             }
           },
-          "next_opponent": { "team_code": "WOB", "match_venue": "away" }
+          "next_opponent": { "team_code": "WOB", "match_venue": "away" },
+          "on_sale": { "suggested_transfer_value": 30800000 }
         },
         "attendance": {
           "forecast": "attending",
