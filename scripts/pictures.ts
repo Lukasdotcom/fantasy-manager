@@ -80,7 +80,6 @@ export async function checkPictures() {
       (e) =>
         new Promise<void>(async (res) => {
           if (!existsSync("./players/" + e.id + ".jpg")) {
-            console.log(e.id);
             await connection.query(
               "UPDATE pictures SET downloaded=0 WHERE id=?",
               [e.id],

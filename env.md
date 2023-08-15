@@ -45,7 +45,7 @@ This is the number of seconds that need to pass before data is updated during wh
 
 ### DOWNLOAD_PICTURE
 
-This is the setting to decide if player pictures should be downloaded to disk. No means that they will never be downloaded to disk, needed means they will be downloaded when needed, and yes means they will be downloaded when a new picture is discovered. The default is needed.
+This is the setting to decide if player pictures should be downloaded to disk. No means that they will never be downloaded to disk, needed means they will be downloaded when needed, and yes means they will be downloaded when a new picture is discovered. The default is needed. Note that yes should only temporarily be on otherwise all of the missing pictures will have a download attempted everytime you restart the server.
 
 ### BCRYPT_ROUNDS
 
