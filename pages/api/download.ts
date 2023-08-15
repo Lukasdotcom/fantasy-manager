@@ -1,8 +1,8 @@
-import connect from "#/Modules/database";
+import connect, { players } from "#/Modules/database";
 import { stringify } from "csv-stringify/sync";
 import { NextApiRequest, NextApiResponse } from "next";
-interface players {
-  value: number;
+interface returnType extends players {
+  pictureUrl: string;
 }
 export default async function handler(
   req: NextApiRequest,
@@ -31,26 +31,32 @@ export default async function handler(
     return;
   }
   const time = req.query.time ? parseInt(req.query.time) : 0;
-  const data =
+  const filter_function = (e: players) => {
+    e.value = e.value / 1000000;
+    e.sale_price = e.sale_price / 1000000;
+    return {
+      ...e,
+      pictureUrl:
+        process.env.NEXTAUTH_URL +
+        "/_next/image?url=%2Fapi%2Fpicture%2F" +
+        e.pictureID +
+        "&w=256&q=75",
+    };
+  };
+  const data: returnType[] =
     time > 0
       ? (
           await connection.query(
             `SELECT * FROM historicalPlayers WHERE league=?${extraText}`,
             [league],
           )
-        ).map((e: players) => {
-          e.value = e.value / 1000000;
-          return e;
-        })
+        ).map(filter_function)
       : (
           await connection.query(
             `SELECT * FROM players WHERE league=?${extraText}`,
             [league],
           )
-        ).map((e: players) => {
-          e.value = e.value / 1000000;
-          return e;
-        });
+        ).map(filter_function);
   // Checks if this is a download by csv or json
   if (req.query.type === "csv") {
     res.setHeader("Content-Type", "application/csv");
@@ -64,6 +70,7 @@ export default async function handler(
           club: "Club",
           pictureUrl: "Picture Url",
           value: "Value",
+          sale_price: "Sale Price",
           position: "Position",
           forecast: "Forecast",
           total_points: "Total Points",
