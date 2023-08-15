@@ -3,7 +3,8 @@
   "version": "1.12.1",
   "private": true,
   "scripts": {
-    "dev": "export NODE_ENV=development APP_ENV=development && npm run build2:ts && node scripts/startup.js && npm run build3:ts && node scripts/entrypoint.js & next dev",
+    "dev": "export NODE_ENV=development APP_ENV=development && npm run start2:part1 && npm run dev:part2",
+    "dev:part2": "node scripts/entrypoint.js & next dev",
     "build": "npm ci && npm run build2:ts && node scripts/startup.js && npm run build3:ts && next build",
     "analyze": "export ANALYZE=true && next build",
     "start": "export NODE_ENV=production APP_ENV=production && npm run start2",
