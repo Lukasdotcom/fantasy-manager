@@ -12,10 +12,10 @@ import Head from "next/head";
 import Link from "../components/Link";
 import { useContext, useState } from "react";
 import Menu from "../components/Menu";
-import connect, { validLeagues } from "../Modules/database";
 import { GetServerSideProps } from "next";
 import { TranslateContext } from "../Modules/context";
 import getLocales from "../locales/getLocales";
+import connect, { plugins } from "#/Modules/database";
 type historicalTimes = { [Key: string]: number[] };
 interface props {
   historicalTimes: historicalTimes;
@@ -104,7 +104,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const connection = await connect();
   // Gets a list of all the times stored by each league
   const historicalTimes: historicalTimes = {};
-  const leagueTypes = await validLeagues();
+  const leagueTypes: string[] = (
+    await connection.query("SELECT * FROM plugins WHERE enabled=1")
+  ).map((e: plugins) => e.name);
   await Promise.all(
     leagueTypes.map((league) =>
       connection

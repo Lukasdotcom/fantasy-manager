@@ -312,18 +312,3 @@ export interface announcements {
   title: string;
   description: string;
 }
-export const validLeagues = async (): Promise<string[]> => {
-  const connection = await connect();
-  const result = await connection.query(
-    "SELECT * FROM plugins WHERE enabled=1",
-  );
-  return result.map((e) => e.name);
-};
-
-export const validLeagueUrls = async (): Promise<string[]> => {
-  const connection = await connect();
-  const result = await connection.query(
-    "SELECT * FROM plugins WHERE enabled=1",
-  );
-  return result.map((e) => e.url);
-};

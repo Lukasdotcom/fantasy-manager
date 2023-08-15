@@ -1,4 +1,4 @@
-import connect, { data, validLeagueUrls } from "../Modules/database";
+import connect, { data, plugins } from "../Modules/database";
 import { updateData } from "./update";
 import version from "./../package.json";
 import dotenv from "dotenv";
@@ -14,15 +14,20 @@ if (process.env.APP_ENV !== "test") {
 // Makes sure to check if an action is neccessary every 10 seconds
 setInterval(update, 10000);
 async function updateAllLeagues() {
-  const leagues = await validLeagueUrls();
-  leagues.forEach((e) => {
-    updateData(e);
-  });
+  const connection4 = await connect();
+  (await connection4.query("SELECT * FROM plugins WHERE enabled=1")).forEach(
+    (e: plugins) => {
+      updateData(e.url);
+    },
+  );
+  connection4.end();
 }
 updateAllLeagues();
 async function update() {
-  const leagues = await validLeagueUrls();
   const connection3 = await connect();
+  const leagues: plugins[] = await connection3.query(
+    "SELECT * FROM plugins WHERE enabled=1",
+  );
   // Increases the throttle attempts left by 1
   connection3.query("UPDATE users SET throttle=throttle+1 WHERE throttle<30");
   const newDate = new Date();
@@ -72,13 +77,13 @@ async function update() {
     const leagueTotal: { [Key: string]: number } = {};
     for (const league of leagues) {
       // Calculates all the leagues for the users
-      leagueActive[league] = (
+      leagueActive[league.name] = (
         await connection3.query(
           "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=? AND leagueSettings.archived=0) AND EXISTS (SELECT * FROM users WHERE users.id=leagueUsers.user AND active='1')",
           [league],
         )
       ).length;
-      leagueTotal[league] = (
+      leagueTotal[league.name] = (
         await connection3.query(
           "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=? AND leagueSettings.archived=0)",
           [league],
@@ -146,7 +151,7 @@ async function update() {
     console.log("Downloading new data for today");
     // Updates every single league
     leagues.forEach((e) => {
-      updateData(e);
+      updateData(e.url);
     });
     // Checks if an update was requested
   } else {
@@ -155,27 +160,27 @@ async function update() {
         (
           await connection3.query(
             "SELECT * FROM data WHERE value1=? and value2='1'",
-            ["update" + e],
+            ["update" + e.name],
           )
         ).length > 0
       ) {
-        console.log(`Updating data for ${e} now`);
-        updateData(e);
+        console.log(`Updating data for ${e.name} now`);
+        updateData(e.url);
       }
     });
   }
   // Goes through every league and does stuff for them
   await Promise.all(
-    leagues.map((e) => {
+    leagues.map((e: plugins) => {
       return new Promise(async (res) => {
         connection3.query(
           "INSERT INTO data (value1, value2) VALUES(?, '0') ON DUPLICATE KEY UPDATE value2=0",
-          ["update" + e],
+          ["update" + e.name],
         );
         // Checks how much longer the transfer period is and lowers the value for the transfer period length and if the transfer period is about to end ends it
         const countdown = await connection3.query(
           "SELECT value2 FROM data WHERE value1=?",
-          ["countdown" + e],
+          ["countdown" + e.name],
         );
         const transferOpen = await connection3
           .query("SELECT value2 FROM data WHERE value1=?", ["transferOpen" + e])
@@ -189,24 +194,24 @@ async function update() {
             if (time - 11 > 0) {
               connection3.query("UPDATE data SET value2=? WHERE value1=?", [
                 time - 10,
-                "countdown" + e,
+                "countdown" + e.name,
               ]);
             } else {
               // Makes sure that the amount of time left in the transfer is not unknown
               if (time > 0) {
                 console.log(
-                  `Predicting start of matchday in ${time} seconds for ${e}`,
+                  `Predicting start of matchday in ${time} seconds for ${e.name}`,
                 );
                 // Makes sure to wait until the time is done
                 setTimeout(
                   () => {
-                    updateData(e);
+                    updateData(e.url);
                   },
                   time * 1000 + 1,
                 );
                 connection3.query("UPDATE data SET value2=? WHERE value1=?", [
                   time - 10,
-                  "countdown" + e,
+                  "countdown" + e.name,
                 ]);
               }
             }
@@ -214,7 +219,7 @@ async function update() {
             if (time - 11 > 0) {
               connection3.query("UPDATE data SET value2=? WHERE value1=?", [
                 time - 10,
-                "countdown" + e,
+                "countdown" + e.name,
               ]);
             } else {
               // Makes sure that the amount of time left in the matchday is not unknown
@@ -224,13 +229,13 @@ async function update() {
                 );
                 setTimeout(
                   () => {
-                    updateData(e);
+                    updateData(e.url);
                   },
                   time * 1000 + 1,
                 );
                 connection3.query("UPDATE data SET value2=? WHERE value1=?", [
                   time - 10,
-                  "countdown" + e,
+                  "countdown" + e.name,
                 ]);
               }
             }

@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import fs from "fs";
 import { DownloaderHelper } from "node-downloader-helper";
-import connect, { data, validLeagues, plugins } from "../Modules/database";
+import connect, { data, plugins } from "../Modules/database";
 import noAccents from "../Modules/normalize";
 import { compareSemanticVersions } from "../Modules/semantic";
 import store from "../types/store";
@@ -247,8 +247,8 @@ async function startUp() {
     [String(Math.random() * 8980989890)],
   );
   // Unlocks the database
-  (await validLeagues()).forEach((e) => {
-    connection.query("DELETE FROM data WHERE value1=?", ["locked" + e]);
+  (await connection.query("SELECT * FROM plugins")).forEach((e: plugins) => {
+    connection.query("DELETE FROM data WHERE value1=?", ["locked" + e.name]);
   });
   // Checks the version of the database is out of date
   const getOldVersion: data[] = await connection.query(

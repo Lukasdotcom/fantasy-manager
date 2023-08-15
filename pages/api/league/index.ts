@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import connect, { validLeagues } from "../../../Modules/database";
+import connect from "../../../Modules/database";
 import { getServerSession } from "next-auth";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 
@@ -26,8 +26,14 @@ export default async function handler(
           break;
         }
         const leagueType = req.body.leagueType;
-        const leagues = await validLeagues();
-        if (!leagues.includes(leagueType)) {
+        if (
+          (
+            await connection.query(
+              "SELECT * FROM plugins WHERE name=? AND enabled=1",
+              [leagueType],
+            )
+          ).length == 0
+        ) {
           res.status(404).end("Invalid league type given");
           break;
         }
