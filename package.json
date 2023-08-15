@@ -57,7 +57,7 @@
   },
   "devDependencies": {
     "cypress": "12.17.3",
-    "prettier": "3.0.1",
+    "prettier": "3.0.2",
     "wait-on": "7.0.1"
   },
   "imports": {
