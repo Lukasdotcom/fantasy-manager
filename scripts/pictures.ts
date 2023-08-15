@@ -54,16 +54,12 @@ async function downloadPictureURL(url: string, id: number) {
 export async function downloadAllPictures() {
   console.log("All pictures are being downloaded");
   const connection = await connect();
-  const result = await connection.query("SELECT * FROM pictures");
+  const result = await connection.query(
+    "SELECT * FROM pictures WHERE downloaded=0",
+  );
   connection.query("UPDATE pictures SET downloaded=1");
   result.forEach((e) => {
-    if (!e.downloaded) {
-      downloadPictureURL(e.url, e.id);
-    } else {
-      if (!existsSync("./players/" + e.id)) {
-        downloadPictureURL(e.url, e.id);
-      }
-    }
+    downloadPictureURL(e.url, e.id);
   });
   connection.end();
 }
@@ -79,11 +75,21 @@ export async function checkPictures() {
   const result = await connection.query(
     "SELECT * FROM pictures WHERE downloaded=1",
   );
-  result.forEach((e) => {
-    if (!existsSync("./players/" + e.id + ".jpg")) {
-      connection.query("UPDATE pictures SET downloaded=0 WHERE id=?", [e.id]);
-    }
-  });
+  await Promise.all(
+    result.map(
+      (e) =>
+        new Promise<void>(async (res) => {
+          if (!existsSync("./players/" + e.id + ".jpg")) {
+            console.log(e.id);
+            await connection.query(
+              "UPDATE pictures SET downloaded=0 WHERE id=?",
+              [e.id],
+            );
+          }
+          res();
+        }),
+    ),
+  );
   connection.end();
   if (process.env.DOWNLOAD_PICTURE === "yes") {
     downloadAllPictures();
