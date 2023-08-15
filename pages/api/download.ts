@@ -1,4 +1,4 @@
-import connect, { validLeagues } from "../../Modules/database";
+import connect from "#/Modules/database";
 import { stringify } from "csv-stringify/sync";
 import { NextApiRequest, NextApiResponse } from "next";
 interface players {
@@ -8,11 +8,17 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const leagues = await validLeagues();
   const connection = await connect();
   let extraText = "";
   const league = req.query.league as string;
-  if (!leagues.includes(league)) {
+  if (
+    (
+      await connection.query(
+        "SELECT * FROM plugins WHERE name=? AND enabled=1",
+        [league],
+      )
+    ).length == 0
+  ) {
     res.status(404).end("League does not exist");
     return;
   }

@@ -24,9 +24,9 @@ import {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
-import { validLeagues } from "../Modules/database";
 import { getServerSession } from "next-auth";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
+import connect from "#/Modules/database";
 interface MakeLeagueProps {
   getLeagueData: () => Promise<void>;
   leagues: string[];
@@ -369,10 +369,15 @@ export const getServerSideProps: GetServerSideProps = async (
   ctx: GetServerSidePropsContext,
 ) => {
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
+  const connection = await connect();
+  const leagues = await connection
+    .query("SELECT * FROM plugins WHERE enabled=1")
+    .then((e) => e.map((e) => e.name));
+  connection.end();
   if (session) {
     return {
       props: {
-        leagues: await validLeagues(),
+        leagues,
       },
     };
   } else {
