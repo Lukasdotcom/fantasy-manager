@@ -152,7 +152,7 @@ function MainPage({
         JSON.stringify(positions),
       )}&order_by=${encodeURIComponent(orderBy)}&league=${league}&minPrice=${
         price[0] * 1000000
-      }&maxPrice=${price[1] * 1000000}`,
+      }&maxPrice=${price[1] * 1000000}&showHidden=${showHidden}`,
     ).then(async (val) => {
       val = await val.json();
       setPlayers(val);

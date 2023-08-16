@@ -32,6 +32,10 @@ export default async function handler(req, res) {
     if (positionsSQL != "") {
       positionsSQL = `AND (${positionsSQL.slice(0, -4)})`;
     }
+    let hiddenSQL =
+      req.query.showHidden === "true"
+        ? ""
+        : "AND (`exists`=1 OR EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid))";
     // Gets the value to order by
     const order_by = [
       "value",
@@ -52,7 +56,7 @@ export default async function handler(req, res) {
       await new Promise(async (resolve) => {
         resolve(
           await connection.query(
-            `SELECT uid FROM players WHERE (name like ? OR nameAscii like ?) AND club like ? ${positionsSQL} AND value>=? AND value<=? AND league=? ORDER BY ${order_by} DESC LIMIT ${limit}`,
+            `SELECT uid FROM players WHERE (name like ? OR nameAscii like ?) AND club like ? ${positionsSQL} ${hiddenSQL} AND value>=? AND value<=? AND league=? ORDER BY ${order_by} DESC LIMIT ${limit}`,
             [
               searchTerm,
               searchTerm,
