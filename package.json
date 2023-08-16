@@ -56,7 +56,7 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "cypress": "12.17.3",
+    "cypress": "12.17.4",
     "prettier": "3.0.2",
     "wait-on": "7.0.1"
   },
