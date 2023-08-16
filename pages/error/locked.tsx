@@ -3,6 +3,8 @@ import Head from "next/head";
 import BugReport from "../../components/BugReport";
 import { useContext } from "react";
 import { TranslateContext } from "../../Modules/context";
+import { GetStaticProps } from "next";
+import getLocales from "#/locales/getLocales";
 export default function Home() {
   const t = useContext(TranslateContext);
   return (
@@ -21,10 +23,16 @@ export default function Home() {
       <h2>{t("How to Fix")}</h2>
       <p>
         {t(
-          "Log in through an OAuth provider like google or wait at least 10 seconds and try again. If this problem persists please contact the administrator of this website. ",
+          "Login through an OAuth provider like google or wait at least 10 seconds and try again. If this problem persists please contact the administrator of this website. ",
         )}
       </p>
       <BugReport />
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  return {
+    props: { t: await getLocales(context.locale) },
+  };
+};

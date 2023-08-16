@@ -10,22 +10,14 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>{t("No Update Error")}</title>
+        <title>{t("No League Types Exist")}</title>
       </Head>
       <Menu />
-      <h1>{t("No Update Error")}</h1>
+      <h1>{t("No League Types Exist")}</h1>
       <h2>{t("What is Wrong")}</h2>
-      <p>
-        {t(
-          "The server is no longer automatically updating it's player data in the database. ",
-        )}
-      </p>
+      <p>{t("There are no league plugins enabled. ")}</p>
       <h2>{t("How to Fix")}</h2>
-      <p>
-        {t(
-          "This is very easily fixed by just restarting the server or if you can not do that yourself, tell the website admin to do it.",
-        )}
-      </p>
+      <p>{t("Login as the admin user and enable a league plugin. ")}</p>
       <BugReport />
     </>
   );
