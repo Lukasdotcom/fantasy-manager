@@ -12,17 +12,22 @@ import Head from "next/head";
 import Link from "../components/Link";
 import { useContext, useState } from "react";
 import Menu from "../components/Menu";
-import { GetServerSideProps } from "next";
+import { GetStaticProps } from "next";
 import { TranslateContext } from "../Modules/context";
 import getLocales from "../locales/getLocales";
-import connect, { plugins } from "#/Modules/database";
+import connect from "#/Modules/database";
 type historicalTimes = { [Key: string]: number[] };
 interface props {
   historicalTimes: historicalTimes;
   leagues: string[];
+  league_enabled: { [Key: string]: boolean };
 }
 type fileTypes = "json" | "csv";
-export default function Home({ historicalTimes, leagues }: props) {
+export default function Home({
+  historicalTimes,
+  leagues,
+  league_enabled,
+}: props) {
   const [matchday, setMatchday] = useState(0);
   const [showHidden, setShowHidden] = useState(false);
   const [league, setLeague] = useState(leagues[0]);
@@ -73,7 +78,10 @@ export default function Home({ historicalTimes, leagues }: props) {
           </MenuItem>
         ))}
       </Select>
-      <br></br>
+      <br />
+      {!league_enabled[league] && (
+        <p>{t("Note that this league is not updated anymore.")}</p>
+      )}
       <FormControlLabel
         label={t("Download hidden players in addition to all other ones")}
         control={
@@ -84,7 +92,7 @@ export default function Home({ historicalTimes, leagues }: props) {
           />
         }
       />
-      <br></br>
+      <br />
       <ButtonGroup>
         <Button>
           <Link disableNext={true} href={downloadLink("json")}>
@@ -100,21 +108,32 @@ export default function Home({ historicalTimes, leagues }: props) {
     </>
   );
 }
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getStaticProps: GetStaticProps = async (context) => {
   const connection = await connect();
   // Gets a list of all the times stored by each league
   const historicalTimes: historicalTimes = {};
   const leagueTypes: string[] = (
-    await connection.query("SELECT * FROM plugins WHERE enabled=1")
-  ).map((e: plugins) => e.name);
+    await connection.query("SELECT DISTINCT league FROM players")
+  ).map((e) => e.league);
+  const league_enabled: { [Key: string]: boolean } = {};
   await Promise.all(
-    leagueTypes.map((league) =>
-      connection
-        .query("SELECT DISTINCT time FROM historicalPlayers WHERE league=?", [
-          league,
-        ])
-        .then((e) => {
-          historicalTimes[league] = e.map((e: { time: number }) => e.time);
+    leagueTypes.map(
+      (league) =>
+        new Promise<void>(async (res) => {
+          await connection
+            .query(
+              "SELECT DISTINCT time FROM historicalPlayers WHERE league=?",
+              [league],
+            )
+            .then((e) => {
+              historicalTimes[league] = e.map((e: { time: number }) => e.time);
+            });
+          await connection
+            .query("SELECT * FROM plugins WHERE name=? AND enabled=1", [league])
+            .then((e) => {
+              league_enabled[league] = e.length > 0;
+            });
+          res();
         }),
     ),
   );
@@ -122,6 +141,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     props: {
       historicalTimes,
       leagues: leagueTypes,
+      league_enabled,
       t: await getLocales(context.locale),
     },
   };

@@ -456,6 +456,17 @@ async function endMatchday(league: string) {
       ],
     );
   }
+  // Will revalidate the downloads page so it is up to date
+  fetch(process.env.NEXTAUTH_URL_INTERNAL + "/api/revalidate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      secret: process.env.NEXTAUTH_SECRET,
+      path: "/download",
+    }),
+  }).catch(() => {});
   connection.end();
   return;
 }
