@@ -80,13 +80,13 @@ async function update() {
       leagueActive[league.name] = (
         await connection3.query(
           "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=? AND leagueSettings.archived=0) AND EXISTS (SELECT * FROM users WHERE users.id=leagueUsers.user AND active='1')",
-          [league],
+          [league.name],
         )
       ).length;
       leagueTotal[league.name] = (
         await connection3.query(
           "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=? AND leagueSettings.archived=0)",
-          [league],
+          [league.name],
         )
       ).length;
     }
