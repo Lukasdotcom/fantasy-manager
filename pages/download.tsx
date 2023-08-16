@@ -109,7 +109,9 @@ export default function Home({
           </ButtonGroup>
         </>
       )}
-      {leagues.length === 0 && <p>{t("No leagues exist.")}</p>}
+      {leagues.length === 0 && (
+        <Link href="/error/no-league">{t("No league types exist. ")}</Link>
+      )}
     </>
   );
 }

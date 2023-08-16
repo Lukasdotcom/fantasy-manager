@@ -38,6 +38,14 @@ function MakeLeague({ getLeagueData, leagues }: MakeLeagueProps) {
   const [leagueType, setLeagueType] = useState<string>(leagues[0]);
   const [leagueName, setLeagueName] = useState("");
   const [startingMoney, setStartingMoney] = useState(150);
+  if (leagues.length === 0) {
+    return (
+      <>
+        <h2>{t("Create League")}</h2>
+        <Link href="/error/no-league">{t("No league types exist. ")}</Link>
+      </>
+    );
+  }
   return (
     <>
       <h2>{t("Create League")}</h2>
