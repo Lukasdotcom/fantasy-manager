@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     let hiddenSQL =
       req.query.showHidden === "true"
         ? ""
-        : "AND (`exists`=1 OR EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid))";
+        : "AND (`exists`=1 OR EXISTS (SELECT * FROM squad WHERE squad.playeruid=players.uid AND EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=squad.leagueID AND archived=0)))";
     // Gets the value to order by
     const order_by = [
       "value",
