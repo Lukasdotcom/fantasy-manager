@@ -122,7 +122,7 @@ export default function Home({
   deleteable,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const t = useContext(TranslateContext);
-  const getUser = useContext(UserContext);
+  const [getUser] = useContext(UserContext);
   const [username, setUsername] = useState(user.username);
   const [password, setPassword] = useState("");
   const [passwordExists, setPasswordExists] = useState(user.password);

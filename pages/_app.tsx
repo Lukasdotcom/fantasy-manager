@@ -47,6 +47,13 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
     return userData[id];
   }
+  // Gets the username syncronously or just returns an empty string
+  function getUserNow(id: number) {
+    if (userData[id]) {
+      return userData[id];
+    }
+    return "";
+  }
   const router = useRouter();
   // Grabs the translations if required
   useEffect(() => {
@@ -238,7 +245,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         />
       </Head>
       <TranslateContext.Provider value={t}>
-        <UserContext.Provider value={getUser}>
+        <UserContext.Provider value={[getUser, getUserNow]}>
           <NotifyContext.Provider value={notify}>
             <ThemeProvider theme={theme}>
               <CssBaseline />
