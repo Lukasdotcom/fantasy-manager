@@ -7,10 +7,14 @@ export const NotifyContext: Context<NotifyType> = createContext(
     console.log(message, severity);
   },
 );
-export type UserType = (id: number, reset?: boolean) => Promise<string>;
-export const UserContext: Context<UserType> = createContext(
+export type UserType = [
+  (id: number, reset?: boolean) => Promise<string>,
+  (id: number) => string,
+];
+export const UserContext: Context<UserType> = createContext([
   async (id: number, reset = false) => `${reset}`,
-);
+  (id: number) => `${id}`,
+]);
 
 export type TranslateType = (
   text: string,

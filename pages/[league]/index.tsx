@@ -377,9 +377,11 @@ function Invite({ link, league, host, remove }: InviteProps) {
 }
 // Used to generate the graph of the historical points
 function Graph({ historicalPoints }: { historicalPoints: historialData }) {
-  const getUser = useContext(UserContext);
+  const [getUser, getUserNow] = useContext(UserContext);
   const t = useContext(TranslateContext);
-  const [usernames, setUsernames] = useState(Object.keys(historicalPoints));
+  const [usernames, setUsernames] = useState(
+    Object.keys(historicalPoints).map((e) => getUserNow(parseInt(e))),
+  );
   const [dataRange, setDataRange] = useState<number[]>([
     1,
     Object.values(historicalPoints)[0].length,

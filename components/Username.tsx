@@ -6,8 +6,8 @@ interface Props {
 }
 // Simply just shows the name of the user given there userid
 export default function Username({ userid }: Props) {
-  const getUser = useContext(UserContext);
-  const [username, setUsername] = useState("");
+  const [getUser, getUserNow] = useContext(UserContext);
+  const [username, setUsername] = useState<string>(getUserNow(userid));
   useEffect(() => {
     getUser(userid).then((e) => setUsername(e));
   }, [userid, getUser]);
@@ -18,8 +18,8 @@ interface UserChipProps extends Props {
 }
 // Creates a simple chip for the user
 export function UserChip({ userid, sx }: UserChipProps) {
-  const getUser = useContext(UserContext);
-  const [username, setUsername] = useState("A");
+  const [getUser, getUserNow] = useContext(UserContext);
+  const [username, setUsername] = useState(getUserNow(userid));
   useEffect(() => {
     if (userid > 0) {
       getUser(userid).then((e) => setUsername(e));
@@ -47,8 +47,8 @@ export function UserChip({ userid, sx }: UserChipProps) {
 }
 // Shows an avatar for the user with a color based on the name
 export function UserAvatar({ userid }: Props) {
-  const getUser = useContext(UserContext);
-  const [username, setUsername] = useState("A");
+  const [getUser, getUserNow] = useContext(UserContext);
+  const [username, setUsername] = useState(getUserNow(userid));
   useEffect(() => {
     getUser(userid).then((e) => setUsername(e));
   }, [userid, getUser]);
