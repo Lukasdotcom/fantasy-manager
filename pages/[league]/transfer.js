@@ -83,6 +83,7 @@ function MainPage({
   const [transferCount, setTransferCount] = useState(0);
   const [orderBy, setOrderBy] = useState("value");
   const [showHidden, setShowHidden] = useState(false);
+  const [onlySales, setOnlySales] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const [open, setOpen] = useState(true);
   const [clubSearch, setClubSearch] = useState("");
@@ -91,7 +92,15 @@ function MainPage({
   useEffect(() => {
     search(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm, positions, orderBy, showHidden, clubSearch, price]);
+  }, [
+    searchTerm,
+    positions,
+    orderBy,
+    showHidden,
+    clubSearch,
+    price,
+    onlySales,
+  ]);
   // Used to get the data for a list of transfers and money
   function transferData() {
     fetch(`/api/transfer/${league}`).then(async (val) => {
@@ -152,7 +161,9 @@ function MainPage({
         JSON.stringify(positions),
       )}&order_by=${encodeURIComponent(orderBy)}&league=${league}&minPrice=${
         price[0] * 1000000
-      }&maxPrice=${price[1] * 1000000}&showHidden=${showHidden}`,
+      }&maxPrice=${
+        price[1] * 1000000
+      }&showHidden=${showHidden}&onlySales=${onlySales}`,
     ).then(async (val) => {
       val = await val.json();
       setPlayers(val);
@@ -265,6 +276,19 @@ function MainPage({
           />
         }
         label={t("Show hidden players")}
+      />
+      <br />
+      <FormControlLabel
+        control={
+          <Switch
+            id="onlySales"
+            onChange={(e) => {
+              setOnlySales(e.target.checked);
+            }}
+            checked={onlySales}
+          />
+        }
+        label={t("Show only players on sale")}
       />
       <br />
       <Link href="/download">
