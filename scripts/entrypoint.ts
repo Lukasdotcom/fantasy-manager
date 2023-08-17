@@ -3,6 +3,7 @@ import { updateData } from "./update";
 import version from "./../package.json";
 import dotenv from "dotenv";
 import compileAnalytics from "./compileAnalytics";
+import { checkPictures } from "./pictures";
 const analyticsDomain = "https://fantasy.lschaefer.xyz";
 const date = new Date();
 let day = date.getDay();
@@ -11,6 +12,7 @@ if (process.env.APP_ENV !== "test") {
 } else {
   dotenv.config({ path: ".env.test.local" });
 }
+checkPictures();
 // Makes sure to check if an action is neccessary every 10 seconds
 setInterval(update, 10000);
 async function updateAllLeagues() {

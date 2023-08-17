@@ -2,6 +2,7 @@ import { createReadStream, existsSync, statSync } from "fs";
 import connect from "#database";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Readable } from "stream";
+import { picturePath } from "#/scripts/pictures";
 
 // This exists for the purpose of making it easier for the next image component to get the data it needs
 export default async function handler(
@@ -30,7 +31,7 @@ export default async function handler(
         res.status(404).end();
       });
   } else {
-    const filePath = "./players/" + req.query.id + ".jpg";
+    const filePath = picturePath(parseInt(String(req.query.id)));
     if (!existsSync(filePath)) {
       res.status(404).end();
       return;
