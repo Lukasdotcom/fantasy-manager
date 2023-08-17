@@ -7,7 +7,6 @@ import { compareSemanticVersions } from "../Modules/semantic";
 import store from "../types/store";
 import compileAnalytics from "./compileAnalytics";
 import dotenv from "dotenv";
-import { checkPictures } from "./pictures";
 if (process.env.APP_ENV !== "test") {
   dotenv.config({ path: ".env.local" });
 } else {
@@ -706,7 +705,6 @@ async function startUp() {
     [currentVersion, currentVersion],
   );
   connection.end();
-  checkPictures();
   compilePlugins();
 }
 startUp();

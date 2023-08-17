@@ -1,7 +1,14 @@
 import connect, { pictures } from "../Modules/database";
 import { existsSync, mkdirSync, rmSync } from "fs";
+import { rename } from "fs/promises";
 import { DownloaderHelper } from "node-downloader-helper";
-
+// Used to get the correct path for a picture and will also make the folder if needed
+export function picturePath(id: number, makeFolder = false) {
+  if (makeFolder && !existsSync("./players/" + (id % 100))) {
+    mkdirSync("./players/" + (id % 100));
+  }
+  return "./players/" + (id % 100) + "/" + id + ".jpg";
+}
 // Used to download a specific picture
 export async function downloadPicture(
   id: number,
@@ -26,21 +33,23 @@ export async function downloadPicture(
 // Actually sends the request to download a picture
 async function downloadPictureURL(url: string, id: number) {
   console.log("Downloading picture with id: " + id);
+  const fileName = Math.random().toString(36).substring(2, 15) + ".jpg";
   await new Promise<void>((res, rej) => {
     if (!existsSync("./players/")) {
       mkdirSync("./players");
     }
-    if (existsSync("./players/" + id + ".jpg")) {
-      rmSync("./players/" + id + ".jpg");
+    if (!existsSync("./players/download")) {
+      mkdirSync("./players/download");
     }
-    const dl = new DownloaderHelper(url, "./players/", {
-      fileName: id + ".jpg",
+    const dl = new DownloaderHelper(url, "./players/download", {
+      fileName,
     });
     dl.on("end", () => res());
     dl.on("error", (e) => rej(e));
     dl.start().catch((e) => rej(e));
   })
     .then(async () => {
+      await rename("./players/download/" + fileName, picturePath(id, true));
       console.log("Finished downloading picture with id: " + id);
     })
     .catch((e) =>
@@ -65,6 +74,10 @@ export async function downloadAllPictures() {
 }
 // Checks every picture to make sure that it actually was downloaded
 export async function checkPictures() {
+  // Deletes all files in the downloaded folder
+  if (existsSync("./players/download/")) {
+    rmSync("./players/download/", { recursive: true });
+  }
   if (process.env.DOWNLOAD_PICTURE === "no") {
     console.log(
       "Picture downloading is disabled due to DOWNLOAD_PICTURE being no",
@@ -79,7 +92,7 @@ export async function checkPictures() {
     result.map(
       (e) =>
         new Promise<void>(async (res) => {
-          if (!existsSync("./players/" + e.id + ".jpg")) {
+          if (!existsSync(picturePath(e.id))) {
             await connection.query(
               "UPDATE pictures SET downloaded=0 WHERE id=?",
               [e.id],
