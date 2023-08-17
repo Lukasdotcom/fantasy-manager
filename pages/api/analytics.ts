@@ -37,7 +37,7 @@ export default async function handler(
     const connection = await connect();
     const day = Math.floor(Date.now() / 1000 / 86400);
     // Checks if the analytics have to be translated from the old version used before 1.11 to the new version.
-    if (compareSemanticVersions("1.11.0", version) === 1) {
+    if (compareSemanticVersions("1.11.0", version) === -1) {
       if (req.body?.users) {
         total = req.body.users;
       }
