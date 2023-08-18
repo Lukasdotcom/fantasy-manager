@@ -185,7 +185,9 @@ async function update() {
           ["countdown" + e.name],
         );
         const transferOpen = await connection3
-          .query("SELECT value2 FROM data WHERE value1=?", ["transferOpen" + e])
+          .query("SELECT value2 FROM data WHERE value1=?", [
+            "transferOpen" + e.name,
+          ])
           .then((res: data[]) =>
             res.length > 0 ? res[0].value2 === "true" : false,
           );
@@ -227,7 +229,7 @@ async function update() {
               // Makes sure that the amount of time left in the matchday is not unknown
               if (time > 0) {
                 console.log(
-                  `Predicting end of matchday in ${time} seconds for ${e}`,
+                  `Predicting end of matchday in ${time} seconds for ${e.name}`,
                 );
                 setTimeout(
                   () => {
