@@ -41,7 +41,7 @@ Here is a sample screenshot for more go to the [screenshots folder](public/scree
 
 ## Production or Installation
 
-There are 2 options to run this Sqlite and Mariadb. If you are unsure I would recommend sqlite it is faster. If you would like to install this without docker-compose you can use the [Dockerless](#dockerless) version. After these steps follow the [post-installation guide](#Post-Installation)
+There are 2 options to run this Sqlite and Mariadb. If you are unsure I would recommend sqlite it is faster. If you would like to install this without docker-compose you can use the [Dockerless](#dockerless) version. After these steps follow the [post-installation guide](#post-installation)
 
 ### Sqlite
 
@@ -99,7 +99,7 @@ git pull
 
 ## Post-Installation
 
-1. You need to first of all login to the admin user. By default this should be the very first user to login. If your user is not the admin or you want to change the admin go to [admin](#Admin User) for help changing the admin user.
+1. You need to first of all login to the admin user. By default this should be the very first user to login. If your user is not the admin or you want to change the admin go to [admin](#admin-user) for help changing the admin user.
 2. Then go into the admin panel for that user. (You should see it in the menu)
 3. Enable all the plugins you want. Plugins are basically leagues and you can add custom ones, but all the official ones should be listed.
 
