@@ -22,47 +22,33 @@ export async function getServerSideProps(ctx) {
   }
   // Calculates the timestamp for this matchday
   const time = timeData[0].time;
-  const [transfers, username, latestMatchday, money, leagueType] =
-    await Promise.all([
-      // Gets all transfers at the moment from the user
-      connection.query(
-        "SELECT * FROM historicalTransfers WHERE leagueID=? AND matchday=? AND (buyer=? OR seller=?)",
-        [league, matchday, user, user],
-      ),
-      // Gets the username of the user
-      connection
-        .query("SELECT username FROM users WHERE id=?", [user])
-        .then((e) => (e.length > 0 ? e[0].username : "")),
-      // Gets the latest matchday in that league
-      connection
-        .query(
-          "SELECT matchday FROM points WHERE leagueID=? and user=? ORDER BY matchday DESC",
-          [league, user],
-        )
-        .then((res) => (res.length > 0 ? res[0].matchday : 0)),
-      // Gets the money
-      connection
-        .query(
-          "SELECT money FROM points WHERE leagueID=? and user=? and matchday=?",
-          [league, user, matchday],
-        )
-        .then((res) => (res.length > 0 ? res[0].money : 0)),
-      // Gets the league type
-      connection
-        .query("SELECT * FROM leagueSettings WHERE leagueID=?", [league])
-        .then((res) => (res.length > 0 ? res[0].league : "")),
-    ]);
-  // Checks if it is the latest matchday and that the matchday is running because then the historicalSquad table does not have the squad data for the player
-  const historicalSquadExists = !(
-    latestMatchday == matchday &&
-    (await connection
-      .query("SELECT value2 FROM data WHERE value1=?", [
-        "transferOpen" + leagueType,
-      ])
-      .then((result) =>
-        result.length > 0 ? result[0].value2 !== "true" : false,
-      ))
-  );
+  const [transfers, username, latestMatchday, money] = await Promise.all([
+    // Gets all transfers at the moment from the user
+    connection.query(
+      "SELECT * FROM historicalTransfers WHERE leagueID=? AND matchday=? AND (buyer=? OR seller=?)",
+      [league, matchday, user, user],
+    ),
+    // Gets the username of the user
+    connection
+      .query("SELECT username FROM users WHERE id=?", [user])
+      .then((e) => (e.length > 0 ? e[0].username : "")),
+    // Gets the latest matchday in that league
+    connection
+      .query(
+        "SELECT matchday FROM points WHERE leagueID=? and user=? ORDER BY matchday DESC",
+        [league, user],
+      )
+      .then((res) => (res.length > 0 ? res[0].matchday : 0)),
+    // Gets the money
+    connection
+      .query(
+        "SELECT money FROM points WHERE leagueID=? and user=? and matchday=?",
+        [league, user, matchday],
+      )
+      .then((res) => (res.length > 0 ? res[0].money : 0)),
+  ]);
+  // Checks if this matchday was finished
+  const historicalSquadExists = !!time;
   // Gets the squad of the user on that matchday
   const squad = historicalSquadExists
     ? await connection.query(

@@ -126,6 +126,13 @@ function MyApp({ Component, pageProps }: AppProps) {
     if (replacers) {
       replacers.locale = translationData.locale ? translationData.locale : "en";
       Object.keys(replacers).forEach((e) => {
+        // Error logging when the translation replacment fails.
+        if (replacers[e] === null || replacers[e] === undefined) {
+          console.error(
+            "Missing locale data for " + e + ". With data: " + data,
+          );
+          return;
+        }
         if (typeof replacers[e] === "object") {
           data = data.replaceAll(
             `{${e}}`,
