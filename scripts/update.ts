@@ -236,10 +236,17 @@ export async function updateData(url: string, file = "./sample/data1.json") {
       );
       // Updates the player that will only get updated if the game has not started(This includes when the transfermarket is open)
       if (!clubDone) {
-        await connection.query(
-          "UPDATE players SET forecast=?, total_points=?, average_points=? WHERE uid=? AND league=?",
-          [forecast, total_points, average_points, uid, league],
-        );
+        const data: unknown[] = [forecast];
+        let query = "UPDATE players SET forecast=?, average_points=?";
+        if (total_points !== undefined) {
+          query += ", total_points=?";
+          data.push(total_points);
+        }
+        if (average_points !== undefined) {
+          query += ", average_points=?";
+          data.push(average_points);
+        }
+        await connection.query(query, data);
       }
       // Updates player data that will only get updated if the transfer market is open
       if (newTransfer) {
