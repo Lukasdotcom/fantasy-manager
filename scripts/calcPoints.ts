@@ -41,7 +41,7 @@ export async function calcPoints(league: string | number) {
         [leagueID],
       )
     : await connection.query(
-        "SELECT leagueID, user, points FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=?) ORDER BY leagueID",
+        "SELECT leagueID, user, points FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE league=? AND leagueSettings.leagueID=leagueUsers.leagueID AND EXISTS (SELECT * FROM points WHERE leagueUsers.leagueID=points.leagueID AND time IS NULL)) ORDER BY leagueID",
         [league],
       );
   let index = 0;
