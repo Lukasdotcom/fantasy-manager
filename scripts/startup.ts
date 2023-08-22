@@ -13,7 +13,14 @@ if (process.env.APP_ENV !== "test") {
   dotenv.config({ path: ".env.test.local" });
 }
 // Used to tell the program what version the database should get to
-const currentVersion = "1.12.0";
+const currentVersion = "1.13.0";
+// Creates the default config
+async function createConfig() {
+  const connection = await connect();
+  await connection.query(
+    "INSERT IGNORE INTO data (value1, value2) VALUES ('configMinTimeGame', '120'), ('configMaxTimeGame', '1200'), ('configMinTimeTransfer', '3600'), ('configMaxTimeTransfer', '86400')",
+  );
+}
 // Downloads and generates all the plugin code
 async function compilePlugins() {
   const connection = await connect();
@@ -684,12 +691,36 @@ async function startUp() {
       }
       oldVersion = "1.12.0";
     }
+    if (oldVersion === "1.12.0") {
+      console.log("Updating database to version 1.13.0");
+      if (parseInt(String(process.env.MIN_UPDATE_TIME)) > 0) {
+        await connection.query(
+          "INSERT INTO data (value1, value2) VALUES ('configMinTimeGame', ?) ON DUPLICATE KEY UPDATE value2=?",
+          [process.env.MIN_UPDATE_TIME, process.env.MIN_UPDATE_TIME],
+        );
+      }
+      if (parseInt(String(process.env.MIN_UPDATE_TIME_TRANSFER)) > 0) {
+        await connection.query(
+          "INSERT INTO data (value1, value2) VALUES ('configMinTimeTransfer', ?) ON DUPLICATE KEY UPDATE value2=?",
+          [
+            process.env.MIN_UPDATE_TIME_TRANSFER,
+            process.env.MIN_UPDATE_TIME_TRANSFER,
+          ],
+        );
+      }
+      await connection.query(
+        "INSERT INTO data (value1, value2) VALUES ('configMaxTimeGame', '0'), ('configMaxTimeTransfer', '0') ON DUPLICATE KEY UPDATE value2='86400'",
+      );
+      oldVersion = "1.13.0";
+    }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date
     if (oldVersion !== currentVersion) {
       console.error("Database is corrupted or is too old");
     }
   }
+  // Creates the default config if needed
+  createConfig();
   // Makes sure that the admin user is the correct user
   await connection.query("UPDATE users SET admin=0");
   if (process.env.ADMIN !== undefined) {

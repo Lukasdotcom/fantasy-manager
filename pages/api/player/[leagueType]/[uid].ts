@@ -41,14 +41,6 @@ export default async function handler(
         });
       }
     } else {
-      // This makes the program wait until all updates are completed
-      while (
-        await connection
-          .query("SELECT * FROM data WHERE value1=?", ["locked" + league])
-          .then((res) => res.length > 0)
-      ) {
-        await new Promise((res) => setTimeout(res, 500));
-      }
       const answer: players[] = await connection.query(
         `SELECT * FROM players WHERE uid=? AND league=? LIMIT 1`,
         [req.query.uid, league],

@@ -13,8 +13,6 @@ services:
       - MYSQL_PASSWORD=password
       - MYSQL_HOST=db
       - MYSQL_DATABASE=bundesliga
-      - MIN_UPDATE_TIME=120
-      - MIN_UPDATE_TIME_TRANSFER=3600
       - ADMIN=1
     ports:
       - 80:3000
