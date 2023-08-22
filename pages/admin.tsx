@@ -3,7 +3,7 @@ import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head.js";
 import connect, { analytics, data, plugins } from "../Modules/database";
 import pluginList from "#scripts/data";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -271,8 +271,17 @@ function LeaguePlugin({ data, store, version, installed }: LeaguePluginProps) {
   );
 }
 
-function Analytics({ analytics }: { analytics: analytics[] }) {
-  const [graphLength, setGraphLength] = useState(30);
+function Analytics({
+  analytics,
+  firstDay,
+}: {
+  analytics: analytics[];
+  firstDay: number;
+}) {
+  const [graphLength, setGraphLength] = useState(
+    analytics.length > 28 ? 28 : analytics.length,
+  );
+  const [analyticsData, setAnalyticsData] = useState(analytics);
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
   ChartJS.register(
@@ -285,7 +294,6 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
     Filler,
     Legend,
   );
-
   const options = {
     maintainAspectRatio: false,
     responsive: true,
@@ -307,13 +315,13 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
   };
   // List of all the versions
   const versions: string[] = Object.keys(
-    JSON.parse(analytics[analytics.length - 1].versionTotal),
+    JSON.parse(analyticsData[analyticsData.length - 1].versionTotal),
   );
   const leagueList: string[] = Object.keys(
-    JSON.parse(analytics[analytics.length - 1].leagueTotal),
+    JSON.parse(analyticsData[analyticsData.length - 1].leagueTotal),
   );
   const locales: string[] = Object.keys(
-    JSON.parse(analytics[analytics.length - 1].localeTotal),
+    JSON.parse(analyticsData[analyticsData.length - 1].localeTotal),
   );
   // Calculates colors for things
   const calculateColor = (idx: number, length: number) => {
@@ -325,7 +333,7 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
     return calculateColor(idx, 14);
   };
   versions.sort((a, b) => compareSemanticVersions(a, b));
-  const slicedAnalytics = analytics.slice(graphLength * -1);
+  const slicedAnalytics = analyticsData.slice(graphLength * -1);
   const labels = slicedAnalytics.map((e) => {
     const date = new Date(e.day * 3600 * 24 * 1000);
     return date.toDateString();
@@ -488,6 +496,38 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
       },
     ],
   };
+  // Loads analytics data
+  useEffect(() => {
+    let canceled = false;
+    setTimeout(async () => {
+      if (canceled) {
+        return;
+      }
+      const loadUntilDay =
+        analyticsData[analyticsData.length - 1].day - graphLength - 10;
+      let firstLoadedDay = analyticsData[0].day;
+
+      while (loadUntilDay < firstLoadedDay && firstDay < firstLoadedDay) {
+        firstLoadedDay -= 50;
+        const result = await fetch(
+          `/api/admin/analytics?day=${firstLoadedDay}`,
+        );
+        const data: analytics[] = await result.json();
+        if (canceled) {
+          return;
+        }
+        setAnalyticsData((prev) => {
+          if (prev.length == analyticsData.length) {
+            return [...data, ...prev];
+          }
+          return prev;
+        });
+      }
+    }, 100);
+    return () => {
+      canceled = true;
+    };
+  }, [graphLength, analyticsData, firstDay]);
   // Handles when the graph slider changes
   function graphLengthChange(e: Event, value: number | number[]) {
     if (typeof value === "number") {
@@ -530,10 +570,9 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
           value={graphLength}
           min={1}
           step={1}
-          max={Math.max(analytics.length, 30)}
+          max={analyticsData[analyticsData.length - 1].day - firstDay}
           onChange={graphLengthChange}
           valueLabelDisplay="auto"
-          aria-labelledby="non-linear-slider"
         />
       </div>
     </>
@@ -576,6 +615,7 @@ function Config({ shortName, name, default_value }: configProps) {
 }
 interface props {
   analytics: analytics[];
+  firstDay: number | null;
   plugins: plugins[];
   pluginData: (store | "error")[];
   version: string;
@@ -584,6 +624,7 @@ interface props {
 }
 export default function Home({
   analytics,
+  firstDay,
   plugins,
   pluginData,
   version,
@@ -662,8 +703,10 @@ export default function Home({
         />
       ))}
       <h2>Analytics</h2>
-      {Object.keys(analytics).length > 0 && <Analytics analytics={analytics} />}
-      {Object.keys(analytics).length == 0 && <p>No Analytics Data Exists</p>}
+      {firstDay !== null && (
+        <Analytics analytics={analytics} firstDay={firstDay} />
+      )}
+      {firstDay === null && <p>No Analytics Data Exists</p>}
     </>
   );
 }
@@ -687,8 +730,11 @@ export const getServerSideProps: GetServerSideProps = async (
     // Used to find the amount of historical data to get
     const connection = await connect();
     const analytics = await connection.query(
-      "SELECT * FROM analytics ORDER By day ASC",
+      "SELECT * FROM analytics WHERE day>(SELECT MAX(day) FROM analytics WHERE day%50=0)-1;",
     );
+    const firstDay = await connection
+      .query("SELECT MIN(day) as MIN FROM analytics")
+      .then((e) => e[0].MIN);
     const plugins = await connection.query("SELECT * FROM plugins");
     const pluginData: (store | "error")[] = await Promise.all(
       plugins.map(async (plugin: plugins) => {
@@ -707,7 +753,15 @@ export const getServerSideProps: GetServerSideProps = async (
     );
     connection.end();
     return {
-      props: { analytics, plugins, pluginData, version, installed, config },
+      props: {
+        analytics,
+        firstDay,
+        plugins,
+        pluginData,
+        version,
+        installed,
+        config,
+      },
     };
   }
   return {
