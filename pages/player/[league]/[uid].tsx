@@ -422,14 +422,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const connection = await connect();
   const uid = ctx.params?.uid as string;
   const league = ctx.params?.league as string;
-  // This makes the program wait until all updates are completed
-  while (
-    await connection
-      .query("SELECT * FROM data WHERE value1=?", ["locked" + league])
-      .then((res) => res.length > 0)
-  ) {
-    await new Promise((res) => setTimeout(res, 500));
-  }
   const player: extendedPlayers[] = await connection.query(
     "SELECT * FROM players WHERE uid=? AND league=?",
     [uid, league],

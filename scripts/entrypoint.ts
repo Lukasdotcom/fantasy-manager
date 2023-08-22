@@ -4,6 +4,7 @@ import version from "./../package.json";
 import dotenv from "dotenv";
 import compileAnalytics from "./compileAnalytics";
 import { checkPictures } from "./pictures";
+import { timeUntilUpdate } from "./checkUpdate";
 const analyticsDomain = "https://fantasy.lschaefer.xyz";
 const date = new Date();
 let day = date.getDay();
@@ -150,22 +151,19 @@ async function update() {
       console.log("Compiled server analytics");
       connection3.end();
     }, 10000);
-    console.log("Downloading new data for today");
-    // Updates every single league
-    leagues.forEach((e) => {
-      updateData(e.url);
-    });
-    // Checks if an update was requested
   } else {
     leagues.forEach(async (e) => {
-      if (
+      // Checks if an update was requested
+      const updateRequested =
         (
           await connection3.query(
             "SELECT * FROM data WHERE value1=? and value2='1'",
             ["update" + e.name],
           )
-        ).length > 0
-      ) {
+        ).length > 0;
+      // Checks if an update is needed
+      const updateNeeded = (await timeUntilUpdate(e.name, true)) < 0;
+      if (updateRequested || updateNeeded) {
         console.log(`Updating data for ${e.name} now`);
         updateData(e.url);
       }

@@ -1,7 +1,7 @@
 import Menu from "../components/Menu";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head.js";
-import connect, { analytics, plugins } from "../Modules/database";
+import connect, { analytics, data, plugins } from "../Modules/database";
 import pluginList from "#scripts/data";
 import React, { useContext, useState } from "react";
 import {
@@ -38,7 +38,33 @@ import { NotifyContext } from "#Modules/context";
 import { getServerSession } from "next-auth";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { useRouter } from "next/router";
-
+interface settingsType {
+  name: string;
+  shortName: string;
+  variant: string;
+}
+export const settings: settingsType[] = [
+  {
+    name: "Minimum Time Before Updating during games",
+    shortName: "MinTimeGame",
+    variant: "number",
+  },
+  {
+    name: "Maximum Time Before Updating during games",
+    shortName: "MaxTimeGame",
+    variant: "number",
+  },
+  {
+    name: "Minimum Time Before Updating during no games",
+    shortName: "MinTimeTransfer",
+    variant: "number",
+  },
+  {
+    name: "Maximum Time Before Updating during no games",
+    shortName: "MaxTimeTransfer",
+    variant: "number",
+  },
+];
 interface LeaguePluginsProps {
   plugins: plugins[];
   pluginData: (store | "error")[];
@@ -513,12 +539,48 @@ function Analytics({ analytics }: { analytics: analytics[] }) {
     </>
   );
 }
+interface configProps extends settingsType {
+  default_value: string;
+}
+function Config({ shortName, name, default_value }: configProps) {
+  const [value, setValue] = useState(default_value);
+  const notify = useContext(NotifyContext);
+  const save = async () => {
+    notify("Saving");
+    const res = await fetch("/api/admin/config", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: shortName,
+        value,
+      }),
+    });
+    notify(await res.text(), res.ok ? "success" : "error");
+  };
+  return (
+    <>
+      <TextField
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        helperText={name}
+        type="number"
+      ></TextField>
+      <Button variant="outlined" color="success" onClick={save}>
+        Save
+      </Button>
+      <br />
+    </>
+  );
+}
 interface props {
   analytics: analytics[];
   plugins: plugins[];
   pluginData: (store | "error")[];
   version: string;
   installed: string[]; // Note that this list is a list of hashes
+  config: data[];
 }
 export default function Home({
   analytics,
@@ -526,6 +588,7 @@ export default function Home({
   pluginData,
   version,
   installed,
+  config,
 }: props) {
   const [newPlugin, setNewPlugin] = useState("");
   const router = useRouter();
@@ -576,6 +639,28 @@ export default function Home({
       <Button variant="outlined" color="success" onClick={installPlugin}>
         Install New Plugin
       </Button>
+      <h2>Settings</h2>
+      <h3>Information Update Settings</h3>
+      <p>
+        Data is automatically updated following these settings. There is a min
+        and a max time for during the game and one for the transfer times. The
+        data is updated when the maximum time is exceeded or a request is
+        recieved asking for data from the server when the minimum time is
+        exceeded.
+      </p>
+      {settings.map((setting) => (
+        <Config
+          key={setting.shortName}
+          default_value={
+            (
+              config.filter(
+                (e) => e.value1 === "config" + setting.shortName,
+              )[0] ?? { value2: "" }
+            ).value2
+          }
+          {...setting}
+        />
+      ))}
       <h2>Analytics</h2>
       {Object.keys(analytics).length > 0 && <Analytics analytics={analytics} />}
       {Object.keys(analytics).length == 0 && <p>No Analytics Data Exists</p>}
@@ -617,9 +702,12 @@ export const getServerSideProps: GetServerSideProps = async (
     );
     const version = (await import("#/package.json")).default.version;
     const installed = Object.keys(pluginList);
+    const config = await connection.query(
+      "SELECT * FROM data WHERE value1 LIKE 'config%'",
+    );
     connection.end();
     return {
-      props: { analytics, plugins, pluginData, version, installed },
+      props: { analytics, plugins, pluginData, version, installed, config },
     };
   }
   return {
