@@ -36,7 +36,7 @@
     "chart.js": "4.4.0",
     "csv-stringify": "6.4.2",
     "dotenv": "16.3.1",
-    "eslint": "8.47.0",
+    "eslint": "8.48.0",
     "eslint-config-next": "13.4.12",
     "eslint-plugin-cypress": "2.14.0",
     "mysql": "2.18.1",
