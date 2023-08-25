@@ -60,8 +60,12 @@ export async function timeUntilUpdate(
   const isBeforeGame =
     (
       await connection.query(
-        "SELECT * FROM clubs WHERE gameStart > ? AND gameEnd < ?",
-        [Date.now() / 1000 - gameTime + 120, Date.now() / 1000 + gameTime],
+        "SELECT * FROM clubs WHERE gameStart < ? AND gameEnd > ? AND league=?",
+        [
+          Date.now() / 1000 - gameTime + 120,
+          Date.now() / 1000 + gameTime,
+          league,
+        ],
       )
     ).length > 0;
   const value =
