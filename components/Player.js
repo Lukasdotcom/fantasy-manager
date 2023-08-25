@@ -28,7 +28,6 @@ import { useTheme } from "@emotion/react";
 function InternalPlayer({ data, children, starred, extraText, condensed }) {
   const t = useContext(TranslateContext);
   const [countdown, setCountown] = useState(0);
-  const [pictureUrl, setPictureUrl] = useState(undefined);
   useEffect(() => {
     const id = setInterval(
       () => setCountown((countdown) => countdown - 1),
@@ -58,11 +57,6 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
     if (data.exists === 0) {
       background = dark ? "rgb(50, 0, 50)" : "rgb(255, 235, 255)";
     }
-    // Checks if the player has a picture url set
-    if (pictureUrl === undefined) {
-      setPictureUrl("/api/picture/" + data.pictureID);
-    }
-    // Sh
     const price_component =
       data.value === data.sale_price ? (
         <p>{t("{amount} M", { amount: data.value / 1000000 })}</p>
@@ -101,16 +95,8 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
         </div>
         <Image
           alt=""
-          onError={() => {
-            // If the picture does not exist a fallback picture is used
-            setPictureUrl(fallbackImg);
-          }}
-          src={pictureUrl}
-          width={
-            pictureUrl !== fallbackImg
-              ? (data.width / data.height) * 100
-              : "100"
-          }
+          src={data.downloaded ? "/api/picture/" + data.pictureID : fallbackImg}
+          width={data.downloaded ? (data.width / data.height) * 100 : "100"}
           height="100"
         />
         <div style={{ width: "70%" }}>
