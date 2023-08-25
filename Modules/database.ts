@@ -301,7 +301,8 @@ export interface plugins {
 export interface pictures {
   id: number;
   url: string;
-  downloaded: boolean;
+  downloading: boolean; // If the picture has started downloading
+  downloaded: boolean; // If the picture exists as a valid file
   width: number;
   height: number;
 }

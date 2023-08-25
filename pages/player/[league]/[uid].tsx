@@ -7,6 +7,7 @@ import connect, {
   forecast,
   historicalPlayers,
   players,
+  pictures,
 } from "../../../Modules/database";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
@@ -27,11 +28,7 @@ import { result as apiPlayerResult } from "../../api/player/[leagueType]/[uid]";
 import { TranslateContext } from "../../../Modules/context";
 import getLocales from "../../../locales/getLocales";
 import { downloadPicture } from "#/scripts/pictures";
-interface pictures {
-  id: number;
-  height?: number;
-  width?: number;
-}
+import fallbackImg from "../../../public/playerFallback.png";
 interface extendedPlayers extends players {
   game: {
     opponent: string;
@@ -236,10 +233,10 @@ export default function Home({
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
   // Calculates the height and width for the official picture
-  const pictureHeight =
-    pictures.filter((e) => e.id === player.pictureID)[0].height || 200;
-  const pictureWidth =
-    pictures.filter((e) => e.id === player.pictureID)[0].width || 200;
+  const mainPicture = pictures.filter((e) => e.id === player.pictureID)[0];
+  const pictureHeight = mainPicture.height || 200;
+  const pictureWidth = mainPicture.width || 200;
+  const pictureExists = mainPicture.downloaded;
   return (
     <>
       <Head>
@@ -250,7 +247,7 @@ export default function Home({
         {player.name} ({t(player.position)}) - {player.club}
       </h1>
       <Image
-        src={"/api/picture/" + player.pictureID}
+        src={pictureExists ? "/api/picture/" + player.pictureID : fallbackImg}
         alt=""
         width={pictureWidth * 2}
         height={pictureHeight * 2}
@@ -265,7 +262,7 @@ export default function Home({
           {pictures.map((e) => (
             <div key={e.id}>
               <Image
-                src={"/api/picture/" + e.id}
+                src={e.downloaded ? "/api/picture/" + e.id : fallbackImg}
                 alt=""
                 width={(e.width || 200) * 2}
                 height={(e.height || 200) * 2}
@@ -470,17 +467,24 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       });
       return result;
     });
-  connection.end();
   // Sends a request to download every picture needed
   const pictureData: pictures[] = await Promise.all(
     Array.from(pictures).map(
       (e) =>
         new Promise<pictures>(async (res) => {
-          const data = await downloadPicture(e);
-          res({ ...data, id: e });
+          downloadPicture(e);
+          const data: pictures[] = await connection.query(
+            "SELECT * FROM pictures WHERE id=?",
+            [e],
+          );
+          if (process.env.DOWNLOAD_PICTURE === "no") {
+            data[0].downloaded = true;
+          }
+          res({ ...data[0], id: e });
         }),
     ),
   );
+  connection.end();
   return {
     props: {
       uid,

@@ -10,25 +10,22 @@ export function picturePath(id: number, makeFolder = false) {
   return "./players/" + (id % 100) + "/" + id + ".jpg";
 }
 // Used to download a specific picture
-export async function downloadPicture(
-  id: number,
-): Promise<{ height: number; width: number } | void> {
+export async function downloadPicture(id: number) {
   const connection = await connect();
   const picture: pictures[] = await connection.query(
     "SELECT * FROM pictures WHERE id=?",
     [id],
   );
-  await connection.query("UPDATE pictures SET downloaded=1 WHERE id=?", [id]);
+  await connection.query("UPDATE pictures SET downloading=1 WHERE id=?", [id]);
   if (picture.length == 0) {
     return;
   }
-  if (!picture[0].downloaded) {
+  if (!picture[0].downloading) {
     if (process.env.DOWNLOAD_PICTURE !== "no") {
       await downloadPictureURL(picture[0].url, id);
     }
   }
   connection.end();
-  return { height: picture[0].height, width: picture[0].width };
 }
 // Actually sends the request to download a picture
 async function downloadPictureURL(url: string, id: number) {
@@ -49,6 +46,10 @@ async function downloadPictureURL(url: string, id: number) {
     dl.start().catch((e) => rej(e));
   })
     .then(async () => {
+      const connection = await connect();
+      await connection.query("UPDATE pictures SET downloaded=1 WHERE id=?", [
+        id,
+      ]);
       await rename("./players/download/" + fileName, picturePath(id, true));
       console.log("Finished downloading picture with id: " + id);
     })
@@ -66,7 +67,7 @@ export async function downloadAllPictures() {
   const result = await connection.query(
     "SELECT * FROM pictures WHERE downloaded=0",
   );
-  connection.query("UPDATE pictures SET downloaded=1");
+  connection.query("UPDATE pictures SET downloading=1");
   result.forEach((e) => {
     downloadPictureURL(e.url, e.id);
   });
@@ -78,13 +79,14 @@ export async function checkPictures() {
   if (existsSync("./players/download/")) {
     rmSync("./players/download/", { recursive: true });
   }
+  const connection = await connect();
+  await connection.query("UPDATE pictures SET downloading=downloaded");
   if (process.env.DOWNLOAD_PICTURE === "no") {
     console.log(
       "Picture downloading is disabled due to DOWNLOAD_PICTURE being no",
     );
     return;
   }
-  const connection = await connect();
   const result = await connection.query(
     "SELECT * FROM pictures WHERE downloaded=1",
   );
@@ -94,7 +96,7 @@ export async function checkPictures() {
         new Promise<void>(async (res) => {
           if (!existsSync(picturePath(e.id))) {
             await connection.query(
-              "UPDATE pictures SET downloaded=0 WHERE id=?",
+              "UPDATE pictures SET downloaded=0, downloading=0 WHERE id=?",
               [e.id],
             );
           }

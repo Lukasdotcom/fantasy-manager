@@ -87,10 +87,17 @@ export default async function handler(
           `public, max-age=${time > 0 ? 604800 : await cache(league)}`,
         );
       }
-      const picture = await downloadPicture(returnValue[0].pictureID);
+      const picture = await connection.query(
+        "SELECT * FROM pictures WHERE id=?",
+        [returnValue[0].pictureID],
+      );
+      downloadPicture(returnValue[0].pictureID);
       const returnData = {
         ...returnValue[0],
-        ...picture,
+        height: picture[0].height,
+        width: picture[0].width,
+        downloaded:
+          process.env.DOWNLOAD_PICTURE === "no" ? true : picture[0].downloaded,
       };
       res.status(200).json(returnData);
     } else {
@@ -115,4 +122,5 @@ export type result = (players | historicalPlayers) & {
   updateRunning: boolean;
   pictureHeight?: number;
   pictureWidth?: number;
+  downloaded?: boolean;
 };

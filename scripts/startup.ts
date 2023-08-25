@@ -244,7 +244,7 @@ async function startUp() {
     ),
     // Used to store picture IDs
     connection.query(
-      "CREATE TABLE IF NOT EXISTS pictures (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, url varchar(255), downloaded boolean DEFAULT 0, height int, width int)",
+      "CREATE TABLE IF NOT EXISTS pictures (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, url varchar(255), downloading boolean DEFAULT 0, downloaded boolean DEFAULT 0, height int, width int)",
     ),
   ]);
   // Checks if the server hash has been created and if not makes one
@@ -713,7 +713,10 @@ async function startUp() {
       );
       // Fixes bug with previous version that had some historical sale prices at null
       await connection.query(
-        "UPDATE historicalPlayers SET sale_price=price WHERE sale_price IS NULL",
+        "UPDATE historicalPlayers SET sale_price=value WHERE sale_price IS NULL",
+      );
+      await connection.query(
+        "ALTER TABLE pictures ADD downloading bool DEFAULT 0",
       );
       oldVersion = "1.13.0";
     }
