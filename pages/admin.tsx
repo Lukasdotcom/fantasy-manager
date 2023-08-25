@@ -739,6 +739,13 @@ export default function Home({
         />
       ))}
       <h3>Picture Downloading</h3>
+      <p>
+        This is the setting for how player pictures should be downloaded. No
+        means they are never downloaded, needed means they are downloaded when
+        needed, new&needed means they are downloaded when needed and when a new
+        picture is found, and yes means every picture is downloaded on startup
+        and downloaded when discovered.
+      </p>
       <Config
         default_value={
           (
