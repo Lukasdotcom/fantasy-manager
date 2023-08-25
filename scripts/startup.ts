@@ -711,6 +711,10 @@ async function startUp() {
       await connection.query(
         "INSERT INTO data (value1, value2) VALUES ('configMaxTimeGame', '0'), ('configMaxTimeTransfer', '0') ON DUPLICATE KEY UPDATE value2='86400'",
       );
+      // Fixes bug with previous version that had some historical sale prices at null
+      await connection.query(
+        "UPDATE historicalPlayers SET sale_price=price WHERE sale_price IS NULL",
+      );
       oldVersion = "1.13.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
