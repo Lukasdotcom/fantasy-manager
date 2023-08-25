@@ -35,10 +35,6 @@ This supports github and google for oauth.
 
 There is an admin user that can change what plugins are being run in the admin panel. To set this to a user just find out the user id and put it into the enviromental variable ADMIN. The usermenu will tell you your users user id.
 
-### DOWNLOAD_PICTURE
-
-This is the setting to decide if player pictures should be downloaded to disk. No means that they will never be downloaded to disk, needed means they will be downloaded when needed, and yes means they will be downloaded when a new picture is discovered. The default is needed. Note that yes should only temporarily be on otherwise all of the missing pictures will have a download attempted everytime you restart the server.
-
 ### BCRYPT_ROUNDS
 
 This is the number of rounds to use for hashing passwords. Default is 9.

@@ -26,8 +26,8 @@ export default async function handler(
         [req.query.day, req.query.day],
       );
       if (
-        process.env.NODE_ENV !== "development" &&
-        process.env.NODE_ENV !== "production"
+        process.env.APP_ENV !== "development" &&
+        process.env.APP_ENV !== "production"
       ) {
         res.setHeader("Cache-Control", `public, max-age=108000`);
       }

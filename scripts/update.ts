@@ -144,7 +144,13 @@ export async function updateData(url: string, file = "./sample/data1.json") {
       picture = await connection.query("SELECT * FROM pictures WHERE url=?", [
         val.pictureUrl,
       ]);
-      if (process.env.DOWNLOAD_PICTURE === "yes") {
+      if (
+        (
+          await connection.query(
+            "SELECT * FROM data WHERE value1='configDownloadPicture' AND (value2='yes' OR value2='new&needed')",
+          )
+        ).length > 0
+      ) {
         downloadPicture(picture[0].id);
       }
     }

@@ -21,6 +21,9 @@ import {
   Checkbox,
   FormControlLabel,
   FormGroup,
+  InputLabel,
+  MenuItem,
+  Select,
   Slider,
   Table,
   TableBody,
@@ -42,6 +45,7 @@ interface settingsType {
   name: string;
   shortName: string;
   variant: string;
+  options?: string[];
 }
 export const settings: settingsType[] = [
   {
@@ -581,7 +585,13 @@ function Analytics({
 interface configProps extends settingsType {
   default_value: string;
 }
-function Config({ shortName, name, default_value }: configProps) {
+function Config({
+  shortName,
+  name,
+  default_value,
+  variant,
+  options,
+}: configProps) {
   const [value, setValue] = useState(default_value);
   const notify = useContext(NotifyContext);
   const save = async () => {
@@ -598,20 +608,46 @@ function Config({ shortName, name, default_value }: configProps) {
     });
     notify(await res.text(), res.ok ? "success" : "error");
   };
-  return (
-    <>
-      <TextField
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        helperText={name}
-        type="number"
-      ></TextField>
-      <Button variant="outlined" color="success" onClick={save}>
-        Save
-      </Button>
-      <br />
-    </>
-  );
+  switch (variant) {
+    case "number":
+      return (
+        <>
+          <TextField
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            helperText={name}
+            type="number"
+          ></TextField>
+          <Button variant="outlined" color="success" onClick={save}>
+            Save
+          </Button>
+          <br />
+        </>
+      );
+    case "select":
+      return (
+        <>
+          <InputLabel htmlFor={shortName}>{name}</InputLabel>
+          <Select
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            id={shortName}
+          >
+            {options?.map((e) => (
+              <MenuItem key={e} value={e}>
+                {e}
+              </MenuItem>
+            ))}
+          </Select>
+          <Button variant="outlined" color="success" onClick={save}>
+            Save
+          </Button>
+          <br />
+        </>
+      );
+    default:
+      return <></>;
+  }
 }
 interface props {
   analytics: analytics[];
@@ -702,6 +738,20 @@ export default function Home({
           {...setting}
         />
       ))}
+      <h3>Picture Downloading</h3>
+      <Config
+        default_value={
+          (
+            config.filter((e) => e.value1 === "configDownloadPicture")[0] ?? {
+              value2: "",
+            }
+          ).value2
+        }
+        name={"Picture Downloading"}
+        shortName="DownloadPicture"
+        variant="select"
+        options={["no", "needed", "new&needed", "yes"]}
+      />
       <h2>Analytics</h2>
       {firstDay !== null && (
         <Analytics analytics={analytics} firstDay={firstDay} />
