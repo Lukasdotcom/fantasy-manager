@@ -422,7 +422,7 @@ async function endMatchday(league: string) {
   console.log(`Archiving player data for ${league}`);
   // Copies all the player data to the historical player data
   await connection.query(
-    "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, `exists`, league) SELECT ? as time, uid, name, nameAscii, club, pictureID, value, position, forecast, total_points, average_points, last_match, `exists`, league FROM players WHERE league=?",
+    "INSERT INTO historicalPlayers (time, uid, name, nameAscii, club, pictureID, value, sale_price, position, forecast, total_points, average_points, last_match, `exists`, league) SELECT ? as time, uid, name, nameAscii, club, pictureID, value, sale_price, position, forecast, total_points, average_points, last_match, `exists`, league FROM players WHERE league=?",
     [time, league],
   );
   console.log(`Archiving matchday data for ${league}`);
