@@ -10,8 +10,14 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   res.setHeader("Cache-Control", `public, max-age=108000`);
-  if (process.env.DOWNLOAD_PICTURE === "no") {
-    const connection = await connect();
+  const connection = await connect();
+  if (
+    (
+      await connection.query(
+        "SELECT * FROM data WHERE value1='configDownloadPicture' AND value2='no'",
+      )
+    ).length > 0
+  ) {
     const picture = await connection.query(
       "SELECT * FROM pictures WHERE id=?",
       [req.query.id],
@@ -30,7 +36,9 @@ export default async function handler(
       .catch(() => {
         res.status(404).end();
       });
+    connection.end();
   } else {
+    connection.end();
     const filePath = picturePath(parseInt(String(req.query.id)));
     if (!existsSync(filePath)) {
       res.status(404).end();

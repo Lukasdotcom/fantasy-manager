@@ -477,7 +477,13 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
             "SELECT * FROM pictures WHERE id=?",
             [e],
           );
-          if (process.env.DOWNLOAD_PICTURE === "no") {
+          if (
+            (
+              await connection.query(
+                "SELECT * FROM data WHERE value1='configDownloadPicture' AND value2='no'",
+              )
+            ).length > 0
+          ) {
             data[0].downloaded = true;
           }
           res({ ...data[0], id: e });

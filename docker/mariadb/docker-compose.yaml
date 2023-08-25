@@ -27,8 +27,7 @@ services:
     restart: always
     volumes:
       - bundesliga:/var/lib/mysql
-    # Uncomment the following if you want the downloaded pictures to persist between updates. Leave this commented if you set DOWNLOAD_PICTURE to no. If you set DOWNLOAD_PICTURE to yes you should uncomment it.
-    #  - pictures:/app/players
+    #  - pictures:/app/players # Stores the player pictures can be uncommented to persist updates
 volumes:
   bundesliga:
     external: true

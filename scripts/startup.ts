@@ -18,8 +18,14 @@ const currentVersion = "1.13.0";
 async function createConfig() {
   const connection = await connect();
   await connection.query(
-    "INSERT IGNORE INTO data (value1, value2) VALUES ('configMinTimeGame', '120'), ('configMaxTimeGame', '1200'), ('configMinTimeTransfer', '3600'), ('configMaxTimeTransfer', '86400')",
+    "INSERT IGNORE INTO data (value1, value2) VALUES ('configMinTimeGame', '120'), ('configMaxTimeGame', '1200'), ('configMinTimeTransfer', '3600'), ('configMaxTimeTransfer', '86400'), ('configDownloadPicture', 'needed')",
   );
+  if (process.env.APP_ENV === "test") {
+    await connection.query(
+      "UPDATE data SET value2='no' WHERE value1='configDownloadPicture'",
+    );
+  }
+  connection.end();
 }
 // Downloads and generates all the plugin code
 async function compilePlugins() {
@@ -709,7 +715,7 @@ async function startUp() {
         );
       }
       await connection.query(
-        "INSERT INTO data (value1, value2) VALUES ('configMaxTimeGame', '0'), ('configMaxTimeTransfer', '0') ON DUPLICATE KEY UPDATE value2='86400'",
+        "INSERT INTO data (value1, value2) VALUES ('configMaxTimeGame', '86400'), ('configMaxTimeTransfer', '86400') ON DUPLICATE KEY UPDATE value2='86400'",
       );
       // Fixes bug with previous version that had some historical sale prices at null
       await connection.query(
@@ -718,6 +724,12 @@ async function startUp() {
       await connection.query(
         "ALTER TABLE pictures ADD downloading bool DEFAULT 0",
       );
+      if (process.env.DOWNLOAD_PICTURE) {
+        await connection.query(
+          "INSERT INTO data (value1, value2) VALUES ('configDownloadPicture', ?) ON DUPLICATE KEY UPDATE value2=?",
+          [process.env.DOWNLOAD_PICTURE, process.env.DOWNLOAD_PICTURE],
+        );
+      }
       oldVersion = "1.13.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT

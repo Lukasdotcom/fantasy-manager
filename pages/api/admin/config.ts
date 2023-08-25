@@ -27,26 +27,39 @@ export default async function handler(
       const {
         body: { name = "" },
       } = req;
-      const setting = settings.filter((e) => e.shortName === name);
-      if (setting.length > 0) {
-        // Makes sure that the config was valid
-        if (setting[0].variant === "number") {
-          value = parseInt(value);
-          if (!(value > 0)) {
-            res.status(400).end("Config value was invalid");
-            return;
+      let fail = false;
+      switch (name) {
+        case "DownloadPicture":
+          if (!["yes", "no", "needed", "new&needed"].includes(value)) {
+            fail = true;
           }
-        }
-        const connection = await connect();
-        await connection.query(
-          "INSERT INTO data (value1, value2) VALUES (?, ?) ON DUPLICATE KEY UPDATE value2=?",
-          ["config" + name, value, value],
-        );
-        res.status(200).end("Saved config change");
-        connection.end();
-      } else {
-        res.status(400).end("Config value not found");
+          break;
+        default:
+          const setting = settings.filter((e) => e.shortName === name);
+          if (setting.length > 0) {
+            // Makes sure that the config was valid
+            if (setting[0].variant === "number") {
+              value = parseInt(value);
+              if (!(value > 0)) {
+                fail = true;
+              }
+            }
+          } else {
+            res.status(400).end("Config value not found");
+            fail = true;
+          }
       }
+      if (fail) {
+        if (!res.writableEnded) res.status(400).end("Config value was invalid");
+        return;
+      }
+      const connection = await connect();
+      await connection.query(
+        "INSERT INTO data (value1, value2) VALUES (?, ?) ON DUPLICATE KEY UPDATE value2=?",
+        ["config" + name, value, value],
+      );
+      res.status(200).end("Saved config change");
+      connection.end();
       break;
     default:
       res.status(405).end(`Method ${req.method} Not Allowed`);

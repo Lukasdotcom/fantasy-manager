@@ -21,7 +21,13 @@ export async function downloadPicture(id: number) {
     return;
   }
   if (!picture[0].downloading) {
-    if (process.env.DOWNLOAD_PICTURE !== "no") {
+    if (
+      (
+        await connection.query(
+          "SELECT * FROM data WHERE value1='configDownloadPicture' AND value2='no'",
+        )
+      ).length === 0
+    ) {
       await downloadPictureURL(picture[0].url, id);
     }
   }
@@ -81,10 +87,14 @@ export async function checkPictures() {
   }
   const connection = await connect();
   await connection.query("UPDATE pictures SET downloading=downloaded");
-  if (process.env.DOWNLOAD_PICTURE === "no") {
-    console.log(
-      "Picture downloading is disabled due to DOWNLOAD_PICTURE being no",
-    );
+  if (
+    (
+      await connection.query(
+        "SELECT * FROM data WHERE value1='configDownloadPicture' AND value2='no'",
+      )
+    ).length > 0
+  ) {
+    console.log("Picture downloading is disabled");
     return;
   }
   const result = await connection.query(
@@ -104,8 +114,14 @@ export async function checkPictures() {
         }),
     ),
   );
-  connection.end();
-  if (process.env.DOWNLOAD_PICTURE === "yes") {
+  if (
+    (
+      await connection.query(
+        "SELECT * FROM data WHERE value1='configDownloadPicture' AND value2='yes'",
+      )
+    ).length > 0
+  ) {
     downloadAllPictures();
   }
+  connection.end();
 }

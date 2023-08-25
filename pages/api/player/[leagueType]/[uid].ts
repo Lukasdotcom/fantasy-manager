@@ -97,7 +97,13 @@ export default async function handler(
         height: picture[0].height,
         width: picture[0].width,
         downloaded:
-          process.env.DOWNLOAD_PICTURE === "no" ? true : picture[0].downloaded,
+          (
+            await connection.query(
+              "SELECT * FROM data WHERE value1='configDownloadPicture' AND value2='no'",
+            )
+          ).length > 0
+            ? true
+            : picture[0].downloaded,
       };
       res.status(200).json(returnData);
     } else {
