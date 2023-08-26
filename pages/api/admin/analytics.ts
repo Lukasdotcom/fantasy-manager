@@ -27,9 +27,9 @@ export default async function handler(
       );
       if (
         process.env.APP_ENV !== "development" &&
-        process.env.APP_ENV !== "production"
+        process.env.APP_ENV !== "test"
       ) {
-        res.setHeader("Cache-Control", `public, max-age=108000`);
+        res.setHeader("Cache-Control", `private, max-age=108000`);
       }
       res.status(200).json(result);
       break;
