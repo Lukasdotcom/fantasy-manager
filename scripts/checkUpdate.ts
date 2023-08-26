@@ -70,7 +70,7 @@ export async function timeUntilUpdate(
     ).length > 0;
   const value =
     parseInt(result[0].value2) -
-    (Date.now() / 1000 - (isBeforeGame ? gameTime : transferTime));
+    (Math.floor(Date.now() / 1000) - (isBeforeGame ? gameTime : transferTime));
   connection.end();
   return value;
 }
