@@ -1,7 +1,7 @@
 # FAQs
 
 - Q: Why is the cypress test failing?
-- A: If you made any major UI changes it may cause the test to fail. You may have to change the tests slightly(For help with making tests go to [How to Make Tests](#how-to-make-tests)). Otherwise there should be a video and a picture in the cypress/videos or cypress/screenshots directories.
+- A: If you made any major UI changes it may cause the test to fail. You may have to change the tests slightly(For help with making tests go to [How to Make Tests](#how-to-make-tests)). Otherwise there should be a video and a picture in the cypress/videos or cypress/screenshots directories. If you can not get the cypress test to pass just create a pull request, and I will look at it and get the test to pass.
 - Q: Where are the types for the database?
 - A: There is an interface for every table in the database located in the same file as the database connector.
 - Q: What do all the `#` in the imports mean?
@@ -16,7 +16,7 @@ I am very slowly converting this project to typescript. I am almost done now the
 - [ ] Run `npm run format` to format everything with prettier.
 - [ ] Run `npm run lint` and fix all errors and new warnings.
 - [ ] Made sure that all database changes have update code in startup.ts.
-- [ ] Made sure to test your changes whith [cypress](#cypress) by running `npm test` and when it is done stopping the server with ctr-c. If this fails and you don't know why look in the [cypress section](#cypress).
+- [ ] Made sure to test your changes whith [cypress](#cypress) by running `npm test` and when it is done stopping the server with ctr-c. If this fails and you don't know why look in the [cypress section](#cypress), or just create the pull request anyway and leave this unchecked.
 - [ ] If you added any features it would be great if you tested them with cypress(Not required).
 - [ ] If you added another league did you follow all the steps in the [leagues.md How to add another league](leagues.md#how-to-add-another-league).
 - [ ] Did you make sure to have all text in the correct format as mentioned in [translating.md](TRANSLATING.MD#help)
