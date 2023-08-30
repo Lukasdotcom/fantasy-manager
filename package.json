@@ -30,15 +30,10 @@
     "@types/mysql": "2.15.21",
     "@types/node": "18.17.11",
     "@types/react": "18.2.21",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
     "bcryptjs": "2.4.3",
     "chart.js": "4.4.0",
     "csv-stringify": "6.4.2",
     "dotenv": "16.3.1",
-    "eslint": "8.48.0",
-    "eslint-config-next": "13.4.12",
-    "eslint-plugin-cypress": "2.14.0",
     "mysql": "2.18.1",
     "next": "13.4.12",
     "next-auth": "4.23.1",
@@ -56,7 +51,12 @@
     "node": ">=18"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
     "cypress": "12.17.4",
+    "eslint": "8.48.0",
+    "eslint-config-next": "13.4.12",
+    "eslint-plugin-cypress": "2.14.0",
     "prettier": "3.0.2",
     "wait-on": "7.0.1"
   },
