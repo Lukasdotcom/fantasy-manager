@@ -57,11 +57,12 @@ export function UserAvatar({ userid }: Props) {
 
   const theme = useTheme();
   const text = theme.palette.getContrastText(background);
+  const split_username = username.split(" ");
   return (
     <Avatar sx={{ bgcolor: background }}>
-      <div style={{ color: text }}>{`${username.split(" ")[0][0]}${
-        username.split(" ").length > 1 ? username.split(" ")[1][0] : ""
-      }`}</div>
+      <div style={{ color: text }}>{`${
+        split_username[0].length > 0 ? split_username[0][0] : ""
+      }${split_username.length > 1 ? split_username[1][0] : ""}`}</div>
     </Avatar>
   );
 }
