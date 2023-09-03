@@ -264,8 +264,8 @@ export default function Home({
               <Image
                 src={e.downloaded ? "/api/picture/" + e.id : fallbackImg}
                 alt=""
-                width={(e.width || 200) * 2}
-                height={(e.height || 200) * 2}
+                width={(e.width || 200) * 1.5}
+                height={(e.height || 200) * 1.5}
               />
             </div>
           ))}
