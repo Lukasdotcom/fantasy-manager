@@ -41,12 +41,26 @@ export default async function handler(
         });
       }
     } else {
-      const answer: players[] = await connection.query(
+      let answer: players[] = await connection.query(
         `SELECT * FROM players WHERE uid=? AND league=? LIMIT 1`,
         [req.query.uid, league],
       );
       // Adds the game information
       if (answer.length > 0) {
+        // Makes sure that the player data is up to date
+        while (
+          !answer[0].exists &&
+          (await connection
+            .query("SELECT * FROM data WHERE value1=?", ["locked" + league])
+            .then((res) => res.length > 0))
+        ) {
+          answer = await connection.query(
+            `SELECT * FROM players WHERE uid=? AND league=? LIMIT 1`,
+            [req.query.uid, league],
+          );
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+        const result = answer[0];
         // Finds the historical game that may exist on that day
         const game: gameData | undefined = await connection
           .query("SELECT * FROM clubs WHERE club=? AND league=?", [
@@ -62,7 +76,7 @@ export default async function handler(
                 }
               : undefined,
           );
-        returnValue.push({ ...answer[0], updateRunning: true, game });
+        returnValue.push({ ...result, updateRunning: true, game });
       }
     }
     // Tells the user if the updates are still running

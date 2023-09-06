@@ -30,6 +30,15 @@ export async function updateData(url: string, file = "./sample/data1.json") {
     return;
   }
   const league = leagueData[0].name;
+  // Does not update when the league is locked
+  if (
+    await connection
+      .query("SELECT * FROM data WHERE value1=?", ["locked" + league])
+      .then((res) => res.length > 0)
+  ) {
+    connection.end();
+    return;
+  }
   const lastUpdate: data[] = await connection.query(
     "SELECT * FROM data WHERE value1=?",
     ["playerUpdate" + league],
@@ -44,17 +53,6 @@ export async function updateData(url: string, file = "./sample/data1.json") {
     "INSERT INTO data (value1, value2) VALUES(?, ?) ON DUPLICATE KEY UPDATE value2=?",
     ["playerUpdate" + league, currentTime, currentTime],
   );
-  // Waits until the database is unlocked to prevent to scripts from updating at once
-  await new Promise<void>(async (res) => {
-    while (
-      await connection
-        .query("SELECT * FROM data WHERE value1=?", ["locked" + league])
-        .then((res) => res.length > 0)
-    ) {
-      await new Promise((res) => setTimeout(res, 1000));
-    }
-    res();
-  });
   // Locks the database to prevent updates
   connection.query("INSERT IGNORE INTO data (value1, value2) VALUES (?, ?)", [
     "locked" + league,

@@ -413,7 +413,7 @@ export function TransferPlayer({
     } else if (!transferLeft) {
       ButtonText = t("View transfers");
       // Checks if the user owns the player and can sell the player
-    } else if (data.value > money) {
+    } else if (data.sale_price > money) {
       ButtonText = t("View transfers");
     } else {
       ButtonText = t("Buy");

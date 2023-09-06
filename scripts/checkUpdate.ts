@@ -30,6 +30,14 @@ export async function timeUntilUpdate(
   max: boolean = false,
 ): Promise<number> {
   const connection = await connect();
+  // Checks if the data is currently being updated (means dont cache)
+  if (
+    await connection
+      .query("SELECT * FROM data WHERE value1=?", ["locked" + league])
+      .then((e) => e.length > 0)
+  ) {
+    return 0;
+  }
   // Checks if a game is currently or is about to happen and if it is so if the update time has passed for that
   // If there is no game it is checked if the update time for that has passed
   const result: data[] = await connection.query(
@@ -68,6 +76,21 @@ export async function timeUntilUpdate(
         ],
       )
     ).length > 0;
+  // Handles edge case for when the game will start in less than the transferTime but it is still to far away to switch to gameTime
+  if (!isBeforeGame) {
+    const timeUntilGame = await connection
+      .query(
+        "SELECT * FROM clubs WHERE gameStart < ? AND gameEnd > ? AND league=? ORDER BY gameStart ASC LIMIT 1",
+        [Date.now() / 1000 + transferTime - 120, Date.now() / 1000, league],
+      )
+      .then((res) =>
+        res.length > 0 ? Date.now() / 1000 - res[0].gameStart - 120 : 0,
+      );
+    if (timeUntilGame > 0) {
+      connection.end();
+      return timeUntilGame;
+    }
+  }
   const value =
     parseInt(result[0].value2) -
     (Math.floor(Date.now() / 1000) - (isBeforeGame ? gameTime : transferTime));
