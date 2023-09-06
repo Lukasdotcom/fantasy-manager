@@ -2,6 +2,14 @@ import connect, { data } from "../Modules/database";
 
 export async function checkUpdate(league: string) {
   const connection = await connect();
+  // Checks if the data is currently being updated (means dont cache)
+  if (
+    await connection
+      .query("SELECT * FROM data WHERE value1=?", ["locked" + league])
+      .then((e) => e.length > 0)
+  ) {
+    return 0;
+  }
   // Checks if matchdays are currently happening and if it is a matchday checks if the update time has passed
   // If it is not a matchday it is checked if the update time for that has passed
   const result: data[] = await connection.query(
