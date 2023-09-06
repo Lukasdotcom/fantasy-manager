@@ -41,7 +41,7 @@ export default async function handler(req, res) {
         ? "AND players.value!=players.sale_price"
         : "";
     // Gets the value to order by
-    const order_by = [
+    let order_by = [
       "value",
       "total_points",
       "average_points",
@@ -56,11 +56,15 @@ export default async function handler(req, res) {
     ) {
       res.setHeader("Cache-Control", `public, max-age=${await cache(league)}`);
     }
+    const salePrice = req.query.salePrice === "true" ? "sale_price" : "value";
+    if (req.query.salePrice === "true" && order_by === "value") {
+      order_by = "sale_price";
+    }
     res.status(200).json(
       await new Promise(async (resolve) => {
         resolve(
           await connection.query(
-            `SELECT uid FROM players WHERE (name like ? OR nameAscii like ?) AND club like ? ${positionsSQL} ${hiddenSQL} ${onlySale} AND value>=? AND value<=? AND league=? ORDER BY ${order_by} DESC LIMIT ${limit}`,
+            `SELECT uid FROM players WHERE (name like ? OR nameAscii like ?) AND club like ? ${positionsSQL} ${hiddenSQL} ${onlySale} AND ${salePrice} >=? AND ${salePrice}<=? AND league=? ORDER BY ${order_by} DESC LIMIT ${limit}`,
             [
               searchTerm,
               searchTerm,

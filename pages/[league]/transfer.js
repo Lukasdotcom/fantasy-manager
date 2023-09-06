@@ -88,6 +88,7 @@ function MainPage({
   const [open, setOpen] = useState(true);
   const [clubSearch, setClubSearch] = useState("");
   const [price, setPrice] = useState([0, Math.ceil(maxPrice / 500000) / 2]);
+  const [salePrice, setSalePrice] = useState(true);
   const t = useContext(TranslateContext);
   useEffect(() => {
     search(true);
@@ -100,6 +101,7 @@ function MainPage({
     clubSearch,
     price,
     onlySales,
+    salePrice,
   ]);
   // Used to get the data for a list of transfers and money
   function transferData() {
@@ -163,7 +165,7 @@ function MainPage({
         price[0] * 1000000
       }&maxPrice=${
         price[1] * 1000000
-      }&showHidden=${showHidden}&onlySales=${onlySales}`,
+      }&showHidden=${showHidden}&onlySales=${onlySales}&salePrice=${salePrice}`,
     ).then(async (val) => {
       val = await val.json();
       setPlayers(val);
@@ -235,6 +237,18 @@ function MainPage({
           max={Math.ceil(maxPrice / 500000) / 2}
         />
       </Box>
+      <FormControlLabel
+        control={
+          <Switch
+            id="sale"
+            onChange={(e) => {
+              setSalePrice(e.target.checked);
+            }}
+            checked={salePrice}
+          />
+        }
+        label={t("Use sale price for filter above")}
+      />
       <br></br>
       <FormLabel htmlFor="order">{t("Sort players by: ")}</FormLabel>
       <Select
