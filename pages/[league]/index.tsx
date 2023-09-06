@@ -198,7 +198,7 @@ function AdminPanel({
           }
           onChange={(
             e: SyntheticEvent<Element, Event>,
-            value: (string | userData)[],
+            value: readonly (string | userData)[],
           ): void => {
             const admins = value.map((e) =>
               typeof e === "string" ? e : e.user,
