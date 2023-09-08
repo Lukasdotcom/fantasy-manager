@@ -285,6 +285,7 @@ function Analytics({
   const [graphLength, setGraphLength] = useState(
     analytics.length > 28 ? 28 : analytics.length,
   );
+  const [graphPrecision, setGraphPrecision] = useState(30);
   const [analyticsData, setAnalyticsData] = useState(analytics);
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
@@ -301,6 +302,7 @@ function Analytics({
   const options = {
     maintainAspectRatio: false,
     responsive: true,
+    normalized: true,
     scales: {
       x: {
         title: {
@@ -338,7 +340,14 @@ function Analytics({
   };
   versions.sort((a, b) => compareSemanticVersions(a, b));
   const slicedAnalytics = analyticsData.slice(graphLength * -1);
-  const labels = slicedAnalytics.map((e) => {
+  const amountBetween = Math.ceil(slicedAnalytics.length / graphPrecision);
+  let remainder = (slicedAnalytics.length % amountBetween) - 1;
+  if (remainder === -1) remainder = amountBetween - 1;
+  const condensedAnalytics =
+    slicedAnalytics.length > graphPrecision
+      ? slicedAnalytics.filter((_, idx) => idx % amountBetween === remainder)
+      : slicedAnalytics;
+  const labels = condensedAnalytics.map((e) => {
     const date = new Date(e.day * 3600 * 24 * 1000);
     return date.toDateString();
   });
@@ -350,7 +359,7 @@ function Analytics({
         return {
           fill: true,
           label: version + " Active",
-          data: slicedAnalytics.map(
+          data: condensedAnalytics.map(
             (e) => JSON.parse(e.versionActive)[version] ?? 0,
           ),
           borderColor: `hsla(${calculateVersionColor(idx)}, 100%, 50%, 1)`,
@@ -361,7 +370,7 @@ function Analytics({
         return {
           fill: false,
           label: version + " Inactive",
-          data: slicedAnalytics.map(
+          data: condensedAnalytics.map(
             (e) =>
               (JSON.parse(e.versionTotal)[version] ?? 0) -
               (JSON.parse(e.versionActive)[version] ?? 0),
@@ -380,7 +389,7 @@ function Analytics({
         return {
           fill: true,
           label: league + " Active",
-          data: slicedAnalytics.map(
+          data: condensedAnalytics.map(
             (e) => JSON.parse(e.leagueActive)[league] ?? 0,
           ),
           borderColor: `hsla(${calculateColor(
@@ -397,7 +406,7 @@ function Analytics({
         return {
           fill: true,
           label: league + " Inactive",
-          data: slicedAnalytics.map(
+          data: condensedAnalytics.map(
             (e) =>
               (JSON.parse(e.leagueTotal)[league] ?? 0) -
               (JSON.parse(e.leagueActive)[league] ?? 0),
@@ -422,7 +431,7 @@ function Analytics({
         return {
           fill: true,
           label: locale + " Active",
-          data: slicedAnalytics.map(
+          data: condensedAnalytics.map(
             (e) => JSON.parse(e.localeActive)[locale] ?? 0,
           ),
           borderColor: `hsla(${calculateColor(
@@ -439,7 +448,7 @@ function Analytics({
         return {
           fill: true,
           label: locale + " Inactive",
-          data: slicedAnalytics.map(
+          data: condensedAnalytics.map(
             (e) =>
               (JSON.parse(e.localeTotal)[locale] ?? 0) -
               (JSON.parse(e.localeActive)[locale] ?? 0),
@@ -465,21 +474,25 @@ function Analytics({
       {
         fill: true,
         label: "Dark Active",
-        data: slicedAnalytics.map((e) => JSON.parse(e.themeActive).dark ?? 0),
+        data: condensedAnalytics.map(
+          (e) => JSON.parse(e.themeActive).dark ?? 0,
+        ),
         borderColor: `hsla(0, 0%, ${darkColor}%, 1)`,
         backgroundColor: `hsla(0, 0%, ${darkColor}%, 1)`,
       },
       {
         fill: true,
         label: "Light Active",
-        data: slicedAnalytics.map((e) => JSON.parse(e.themeActive).light ?? 0),
+        data: condensedAnalytics.map(
+          (e) => JSON.parse(e.themeActive).light ?? 0,
+        ),
         borderColor: `hsla(120, 0%, ${lightColor}%, 1)`,
         backgroundColor: `hsla(120, 0%, ${lightColor}%, 1)`,
       },
       {
         fill: true,
         label: "Dark Inactive",
-        data: slicedAnalytics.map(
+        data: condensedAnalytics.map(
           (e) =>
             (JSON.parse(e.themeTotal).dark ?? 0) -
             (JSON.parse(e.themeActive).dark ?? 0),
@@ -490,7 +503,7 @@ function Analytics({
       {
         fill: true,
         label: "Light Inactive",
-        data: slicedAnalytics.map(
+        data: condensedAnalytics.map(
           (e) =>
             (JSON.parse(e.themeTotal).light ?? 0) -
             (JSON.parse(e.themeActive).light ?? 0),
@@ -538,6 +551,11 @@ function Analytics({
       setGraphLength(value);
     }
   }
+  function graphPrecisionChange(e: Event, value: number | number[]) {
+    if (typeof value === "number") {
+      setGraphPrecision(value);
+    }
+  }
   return (
     <>
       <h3>Version Data</h3>
@@ -576,6 +594,19 @@ function Analytics({
           step={1}
           max={analyticsData[analyticsData.length - 1].day - firstDay}
           onChange={graphLengthChange}
+          valueLabelDisplay="auto"
+        />
+      </div>
+      <Typography id="graph-precision" gutterBottom>
+        Maximum points on the Graph: {graphPrecision}
+      </Typography>
+      <div style={{ width: "95%", margin: "2%" }}>
+        <Slider
+          value={graphPrecision}
+          min={1}
+          step={1}
+          max={analyticsData[analyticsData.length - 1].day - firstDay}
+          onChange={graphPrecisionChange}
           valueLabelDisplay="auto"
         />
       </div>
