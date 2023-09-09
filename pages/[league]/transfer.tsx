@@ -23,9 +23,19 @@ import {
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { TranslateContext } from "../../Modules/context";
+import { GetServerSideProps } from "next";
+import { GETResult } from "../api/transfer/[league]";
 
 // Shows the amount of transfers left
-function TransfersLeft({ ownership, allowedTransfers, transferCount }) {
+function TransfersLeft({
+  ownership,
+  allowedTransfers,
+  transferCount,
+}: {
+  ownership: GETResult["ownership"];
+  allowedTransfers: number;
+  transferCount: number;
+}) {
   const session = useSession();
   const t = useContext(TranslateContext);
   const user = session.data ? session.data.user.id : 1;
@@ -34,7 +44,7 @@ function TransfersLeft({ ownership, allowedTransfers, transferCount }) {
       {t("{amount} transfers left", {
         amount:
           Object.values(ownership).filter(
-            (e) => e.filter((e) => e.owner === user).length > 0,
+            (e) => e.filter((e) => !e.transfer && e.owner === user).length > 0,
           ).length == 0
             ? t("Unlimited")
             : allowedTransfers - transferCount,
@@ -43,7 +53,15 @@ function TransfersLeft({ ownership, allowedTransfers, transferCount }) {
   );
 }
 // Used for the selecting and unselecting of a position
-function Postion({ position, positions, setPositions }) {
+function Postion({
+  position,
+  positions,
+  setPositions,
+}: {
+  position: string;
+  positions: string[];
+  setPositions: React.Dispatch<React.SetStateAction<string[]>>;
+}) {
   const t = useContext(TranslateContext);
   return (
     <>
@@ -71,15 +89,23 @@ function MainPage({
   maxPrice,
   leagueType,
   matchdayTransfers,
+}: {
+  league: number;
+  allowedTransfers: number;
+  duplicatePlayers: number;
+  leagueName: string;
+  leagueType: string;
+  maxPrice: number;
+  matchdayTransfers: boolean;
 }) {
   const positionList = ["gk", "def", "mid", "att"];
-  const [players, setPlayers] = useState([]);
+  const [players, setPlayers] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [finished, setFinished] = useState(false);
   const [loading, setLoading] = useState(false);
   const [positions, setPositions] = useState(positionList);
   const [money, setMoney] = useState(0);
-  const [ownership, setOwnership] = useState({});
+  const [ownership, setOwnership] = useState<GETResult["ownership"]>({});
   const [transferCount, setTransferCount] = useState(0);
   const [orderBy, setOrderBy] = useState("value");
   const [showHidden, setShowHidden] = useState(false);
@@ -106,12 +132,12 @@ function MainPage({
   // Used to get the data for a list of transfers and money
   function transferData() {
     fetch(`/api/transfer/${league}`).then(async (val) => {
-      val = await val.json();
-      setMoney(val.money);
-      setOwnership(val.ownership);
-      setTransferCount(val.transferCount);
-      setTimeLeft(val.timeLeft);
-      setOpen(val.transferOpen);
+      const res: GETResult = await val.json();
+      setMoney(res.money);
+      setOwnership(res.ownership);
+      setTransferCount(res.transferCount);
+      setTimeLeft(res.timeLeft);
+      setOpen(res.transferOpen);
     });
   }
   // Used to lower the time left by one every second
@@ -125,7 +151,7 @@ function MainPage({
     };
   }, []);
   // Used to calculate transfer message
-  let transferMessage = (
+  const transferMessage = (
     <p>
       {t("Transfer Market {open} for {day} D {hour} H {minute} M {second} S", {
         open: open ? t("open") : t("closed"),
@@ -138,7 +164,7 @@ function MainPage({
   );
   useEffect(transferData, [league]);
   // Used to search the isNew is used to check if it should reload everything back from the start
-  async function search(isNew) {
+  async function search(isNew: boolean) {
     let length = -1;
     if (!isNew) {
       if (finished) {
@@ -167,9 +193,9 @@ function MainPage({
         price[1] * 1000000
       }&showHidden=${showHidden}&onlySales=${onlySales}&salePrice=${salePrice}`,
     ).then(async (val) => {
-      val = await val.json();
-      setPlayers(val);
-      return val.length;
+      const res: string[] = await val.json();
+      setPlayers(res);
+      return res.length;
     });
     setLoading(false);
     if (newLength == length) {
@@ -178,25 +204,8 @@ function MainPage({
       setFinished(false);
     }
   }
-  return (
-    <div
-      className="main-content"
-      onScroll={(e) => {
-        // Checks if scrolled to the bottom
-        const bottom =
-          e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight;
-        // Checks if there are only 2 players left that are not shown and if true requests 10 more players
-        if (bottom < (e.target.scrollHeight / players.length) * 2) {
-          search(false);
-          setFinished(true);
-        }
-      }}
-    >
-      <Head>
-        <title>{t("Transfers for {leagueName}", { leagueName })}</title>
-      </Head>
-      <Menu league={league} />
-      <h1>{t("Transfers for {leagueName}", { leagueName })}</h1>
+  const Part1 = (
+    <div>
       <TransfersLeft
         ownership={ownership}
         allowedTransfers={allowedTransfers}
@@ -222,7 +231,7 @@ function MainPage({
         helperText={t("Use the acronymn ex: FCB, VFB")}
       ></TextField>
       <br />
-      <Box sx={{ width: 300, marginLeft: 2 }}>
+      <Box sx={{ width: 300 }}>
         <FormLabel htmlFor="value">
           {t("Value: {price1} M to {price2} M", {
             price1: price[0],
@@ -232,7 +241,7 @@ function MainPage({
         <Slider
           step={0.5}
           value={price}
-          onChange={(a, value) => setPrice(value)}
+          onChange={(_, value) => setPrice(value as number[])}
           id="value"
           max={Math.ceil(maxPrice / 500000) / 2}
         />
@@ -247,7 +256,7 @@ function MainPage({
             checked={salePrice}
           />
         }
-        label={t("Use sale price for filter above")}
+        label={t("Use sale price instead of value")}
       />
       <br></br>
       <FormLabel htmlFor="order">{t("Sort players by: ")}</FormLabel>
@@ -268,6 +277,10 @@ function MainPage({
         ))}
       </Select>
       <br></br>
+    </div>
+  );
+  const Part2 = (
+    <div>
       <FormLabel component="legend">{t("Positions to search: ")}</FormLabel>
       <FormGroup>
         {positionList.map((position) => (
@@ -308,6 +321,45 @@ function MainPage({
       <Link href="/download">
         <Button>{t("Download Data")}</Button>
       </Link>
+    </div>
+  );
+  return (
+    <div
+      className="main-content"
+      onScroll={(e) => {
+        // Checks if scrolled to the bottom
+        const bottom =
+          e.currentTarget.scrollHeight -
+          e.currentTarget.scrollTop -
+          e.currentTarget.clientHeight;
+        // Checks if there are only 2 players left that are not shown and if true requests 10 more players
+        if (bottom < (e.currentTarget.scrollHeight / players.length) * 2) {
+          search(false);
+          setFinished(true);
+        }
+      }}
+    >
+      <Head>
+        <title>{t("Transfers for {leagueName}", { leagueName })}</title>
+      </Head>
+      <Menu league={league} />
+      <h1>{t("Transfers for {leagueName}", { leagueName })}</h1>
+      <Box sx={{ marginLeft: 2, display: { xs: "block", md: "none" } }}>
+        {Part1}
+        {Part2}
+      </Box>
+      <Box
+        sx={{
+          marginLeft: 2,
+          marginRight: 2,
+          gap: 10,
+          // justifyContent: "space-between",
+          display: { xs: "none", md: "flex" },
+        }}
+      >
+        {Part1}
+        {Part2}
+      </Box>
       {players.map((val) => (
         <Player
           key={val}
@@ -328,7 +380,16 @@ function MainPage({
     </div>
   );
 }
-export default function Home(props) {
+export default function Home(props: {
+  allowedTransfers: number;
+  archived: number;
+  duplicatePlayers: number;
+  matchdayTransfers: boolean;
+  maxPrice: number;
+  league: number;
+  leagueName: string;
+  leagueType: string;
+}) {
   const t = useContext(TranslateContext);
   // Checks if the league is archived
   if (props.archived !== 0) {
@@ -353,19 +414,20 @@ export default function Home(props) {
     return <MainPage {...props} />;
   }
 }
-export async function getServerSideProps(ctx) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const connection = await connect();
   // Gets the amount of allowed transfers
-  const [allowedTransfers, duplicatePlayers, league] = await connection
-    .query(
-      "SELECT transfers, duplicatePlayers, league FROM leagueSettings WHERE leagueID=?",
-      [ctx.params.league],
-    )
-    .then((result) =>
-      result.length > 0
-        ? [result[0].transfers, result[0].duplicatePlayers, result[0].league]
-        : [0, 0, "Bundesliga"],
-    );
+  const [allowedTransfers, duplicatePlayers, league]: [number, number, string] =
+    await connection
+      .query(
+        "SELECT transfers, duplicatePlayers, league FROM leagueSettings WHERE leagueID=?",
+        [ctx?.params?.league],
+      )
+      .then((result) =>
+        result.length > 0
+          ? [result[0].transfers, result[0].duplicatePlayers, result[0].league]
+          : [0, 0, "Bundesliga"],
+      );
   const maxPrice = await connection
     .query(
       "SELECT value FROM players WHERE league=? ORDER BY value DESC limit 1",
@@ -374,4 +436,4 @@ export async function getServerSideProps(ctx) {
     .then((res) => (res.length > 0 ? res[0].value : 0));
   connection.end();
   return await redirect(ctx, { allowedTransfers, duplicatePlayers, maxPrice });
-}
+};
