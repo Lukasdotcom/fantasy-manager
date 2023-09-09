@@ -1,12 +1,14 @@
 import { createHash } from "crypto";
 import fs from "fs";
-import { DownloaderHelper } from "node-downloader-helper";
 import connect, { data, plugins } from "../Modules/database";
 import noAccents from "../Modules/normalize";
 import { compareSemanticVersions } from "../Modules/semantic";
 import store from "../types/store";
 import compileAnalytics from "./compileAnalytics";
 import dotenv from "dotenv";
+import { finished } from "stream/promises";
+import { Readable } from "stream";
+import { ReadableStream } from "stream/web";
 if (process.env.APP_ENV !== "test") {
   dotenv.config({ path: ".env.local" });
 } else {
@@ -67,7 +69,7 @@ async function compilePlugins() {
   if (process.env.APP_ENV === "test") {
     await connection.query("UPDATE plugins SET enabled=1");
   }
-  const currentVersion = (await import("../package.json")).version;
+  const currentVersion = (await import("../package.json")).default.version;
   // Makes sure that the store is correct
   connection.query(
     "INSERT INTO data VALUES ('defaultStore', ?) ON DUPLICATE KEY UPDATE value2=?",
@@ -131,14 +133,21 @@ async function compilePlugins() {
             await Promise.all(
               json.files.map(
                 (file) =>
-                  new Promise<void>((res, rej) => {
-                    const dl = new DownloaderHelper(
-                      file,
-                      __dirname + "/data/" + hash,
+                  new Promise<void>(async (res, rej) => {
+                    const stream = fs.createWriteStream(
+                      __dirname + "/data/" + hash + "/" + file.split("/").pop(),
                     );
-                    dl.on("end", () => res());
-                    dl.on("error", (e) => rej(e));
-                    dl.start().catch((e) => rej(e));
+                    const { body } = await fetch(file);
+                    if (!body) {
+                      rej();
+                      return;
+                    }
+                    await finished(
+                      Readable.fromWeb(body as ReadableStream<Uint8Array>).pipe(
+                        stream,
+                      ),
+                    );
+                    res();
                   }),
               ),
             ).then(
