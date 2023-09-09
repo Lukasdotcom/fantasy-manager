@@ -597,7 +597,7 @@ export function SquadPlayer({
             })
               .then(async (response) => {
                 notify(
-                  await t(response.text()),
+                  t(await response.text()),
                   response.ok ? "success" : "error",
                 );
               })

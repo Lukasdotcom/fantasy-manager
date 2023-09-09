@@ -3,10 +3,11 @@ import redirect from "../../Modules/league";
 import Head from "next/head";
 import { SquadPlayer as Player } from "../../components/Player";
 import { useContext, useState } from "react";
-import connect from "../../Modules/database";
+import connect, { position } from "../../Modules/database";
 import {
   Alert,
   AlertTitle,
+  Box,
   FormControlLabel,
   InputLabel,
   MenuItem,
@@ -17,6 +18,18 @@ import { getLeagueInfo } from "../api/squad/[league]";
 import { NotifyContext, TranslateContext } from "../../Modules/context";
 import { getServerSession } from "next-auth";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
+import { GetServerSideProps } from "next";
+
+interface leageueInfo {
+  formation: number[];
+  players: {
+    playeruid: string;
+    position: position;
+    starred: boolean;
+    status: string;
+  }[];
+  validFormations: number[][];
+}
 
 export default function Home({
   league,
@@ -24,26 +37,51 @@ export default function Home({
   leagueInfo,
   leagueType,
   archived,
+}: {
+  league: number;
+  leagueName: string;
+  leagueInfo: leageueInfo;
+  leagueType: string;
+  archived: boolean;
 }) {
   const notify = useContext(NotifyContext);
   const t = useContext(TranslateContext);
-  // Turns the leagueInfo data into the data for the starting state
-  let players = { att: [], mid: [], def: [], gk: [], bench: [] };
-  leagueInfo.players.forEach((e) => {
-    players[e.position].push({
-      playeruid: e.playeruid,
-      starred: e.starred,
-      status: e.status,
-    });
-  });
   const [showSelling, setShowSelling] = useState(true);
-  const [squad, setSquad] = useState(players);
+  interface squadMember {
+    playeruid: string;
+    starred: boolean;
+    status: string;
+  }
+  const [squad, setSquad] = useState<{
+    att: squadMember[];
+    mid: squadMember[];
+    def: squadMember[];
+    gk: squadMember[];
+    bench: squadMember[];
+  }>(() => {
+    // Turns the leagueInfo data into the data for the starting state
+    const players: {
+      att: squadMember[];
+      mid: squadMember[];
+      def: squadMember[];
+      gk: squadMember[];
+      bench: squadMember[];
+    } = { att: [], mid: [], def: [], gk: [], bench: [] };
+    leagueInfo.players.forEach((e) => {
+      players[e.position].push({
+        playeruid: e.playeruid,
+        starred: e.starred,
+        status: e.status,
+      });
+    });
+    return players;
+  });
   const [formation, setFormation] = useState(leagueInfo.formation);
   const [validFormations, setValidFormations] = useState(
     leagueInfo.validFormations,
   );
   // Checks if the league is archived
-  if (archived !== 0) {
+  if (archived) {
     return (
       <>
         <Head>
@@ -66,8 +104,14 @@ export default function Home({
   };
   function getSquad() {
     fetch(`/api/squad/${league}`).then(async (e) => {
-      const val = await e.json();
-      let players = { att: [], mid: [], def: [], gk: [], bench: [] };
+      const val: leageueInfo = await e.json();
+      const players: {
+        att: squadMember[];
+        mid: squadMember[];
+        def: squadMember[];
+        gk: squadMember[];
+        bench: squadMember[];
+      } = { att: [], mid: [], def: [], gk: [], bench: [] };
       val.players.forEach((e) => {
         players[e.position].push({
           playeruid: e.playeruid,
@@ -81,51 +125,14 @@ export default function Home({
     });
   }
   // Checks if the player can change to the formation
-  function changeToFormation(newFormation) {
-    let defenders = newFormation[1] - squad["def"].length;
-    let midfielders = newFormation[2] - squad["mid"].length;
-    let forwards = newFormation[3] - squad["att"].length;
+  function changeToFormation(newFormation: number[]) {
+    const defenders = newFormation[1] - squad["def"].length;
+    const midfielders = newFormation[2] - squad["mid"].length;
+    const forwards = newFormation[3] - squad["att"].length;
     return !(defenders >= 0) || !(midfielders >= 0) || !(forwards >= 0);
   }
-  return (
-    <>
-      <Head>
-        <title>{t("Squad for {leagueName}", { leagueName })}</title>
-      </Head>
-      <Menu league={league} />
-      <h1>{t("Squad for {leagueName}", { leagueName })}</h1>
-      <InputLabel htmlFor="formation">{t("Formation")}</InputLabel>
-      <Select
-        onChange={(e) => {
-          // Used to change the formation
-          let newFormation = JSON.parse(e.target.value);
-          setFormation(newFormation);
-          notify("Saving");
-          fetch(`/api/squad/${league}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              formation: newFormation,
-            }),
-          }).then(async (response) => {
-            notify(await response.text(), response.ok ? "success" : "error");
-          });
-        }}
-        value={JSON.stringify(formation)}
-        id="formation"
-      >
-        {validFormations.map((val) => (
-          <MenuItem
-            key={JSON.stringify(val)}
-            disabled={changeToFormation(val)}
-            value={JSON.stringify(val)}
-          >
-            {val[1]}-{val[2]}-{val[3]}
-          </MenuItem>
-        ))}
-      </Select>
+  const FieldPlayers = (
+    <Box sx={{ flexGrow: 1 }}>
       <h2>{t("Attackers")}</h2>
       {squad["att"].map(
         (
@@ -139,6 +146,7 @@ export default function Home({
             update={getSquad}
             status={e.status}
             leagueType={leagueType}
+            field={undefined}
           />
         ),
       )}
@@ -155,6 +163,7 @@ export default function Home({
             update={getSquad}
             status={e.status}
             leagueType={leagueType}
+            field={undefined}
           />
         ),
       )}
@@ -171,6 +180,7 @@ export default function Home({
             update={getSquad}
             status={e.status}
             leagueType={leagueType}
+            field={undefined}
           />
         ),
       )}
@@ -186,9 +196,15 @@ export default function Home({
             update={getSquad}
             status={e.status}
             leagueType={leagueType}
+            field={undefined}
+            starred={undefined}
           />
         ),
       )}
+    </Box>
+  );
+  const BenchPlayers = (
+    <Box sx={{ flexGrow: 1 }}>
       <h2>{t("Bench")}</h2>
       <FormControlLabel
         control={
@@ -216,19 +232,74 @@ export default function Home({
               update={getSquad}
               status={e.status}
               leagueType={leagueType}
+              starred={undefined}
             />
           ),
         )}
+    </Box>
+  );
+  return (
+    <>
+      <Head>
+        <title>{t("Squad for {leagueName}", { leagueName })}</title>
+      </Head>
+      <Menu league={league} />
+      <h1>{t("Squad for {leagueName}", { leagueName })}</h1>
+      <InputLabel htmlFor="formation">{t("Formation")}</InputLabel>
+      <Select
+        onChange={(e) => {
+          // Used to change the formation
+          const newFormation = JSON.parse(e.target.value);
+          setFormation(newFormation);
+          notify("Saving");
+          fetch(`/api/squad/${league}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              formation: newFormation,
+            }),
+          }).then(async (response) => {
+            notify(await response.text(), response.ok ? "success" : "error");
+          });
+        }}
+        value={JSON.stringify(formation)}
+        id="formation"
+      >
+        {validFormations.map((val) => (
+          <MenuItem
+            key={JSON.stringify(val)}
+            disabled={changeToFormation(val)}
+            value={JSON.stringify(val)}
+          >
+            {val[1]}-{val[2]}-{val[3]}
+          </MenuItem>
+        ))}
+      </Select>
+      <Box sx={{ display: { xs: "block", lg: "none" } }}>
+        {FieldPlayers}
+        {BenchPlayers}
+      </Box>
+      <Box
+        sx={{
+          gap: 0.5,
+          display: { xs: "none", lg: "flex" },
+        }}
+      >
+        {FieldPlayers}
+        {BenchPlayers}
+      </Box>
     </>
   );
 }
 
 // Gets the users session
-export async function getServerSideProps(ctx) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const connection = await connect();
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
   // Gets the league info
-  const leagueInfo = await getLeagueInfo(
+  const leagueInfo: leageueInfo | void = await getLeagueInfo(
     ctx.query.league,
     session?.user?.id ? session?.user?.id : -1,
   ).catch((e) => {
@@ -236,4 +307,4 @@ export async function getServerSideProps(ctx) {
   });
   connection.end();
   return await redirect(ctx, { leagueInfo });
-}
+};
