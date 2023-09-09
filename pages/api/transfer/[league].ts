@@ -26,6 +26,13 @@ interface transferInfo {
   buyer: number;
   amount: number;
 }
+export interface GETResult {
+  money: number;
+  transferCount: number;
+  timeLeft: number;
+  ownership: { [Key: string]: (ownershipInfo | transferInfo)[] };
+  transferOpen: boolean;
+}
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -118,13 +125,14 @@ export default async function handler(
               transferCount++;
             }
           });
-          res.status(200).json({
+          const result: GETResult = {
             money: await money,
             transferCount,
             timeLeft,
             ownership,
             transferOpen,
-          });
+          };
+          res.status(200).json(result);
         } else {
           res.status(404).end("League not found");
         }
