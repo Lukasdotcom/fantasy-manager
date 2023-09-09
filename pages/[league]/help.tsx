@@ -61,7 +61,7 @@ export default function Home(props: leagueSettings) {
       title: t("Final Tips"),
       text: t(
         t(
-          "This is all you have to do for now. Between every matchday you can buy or sell {amount} players to improve your squad. You can click on the settings gear to change your user's settings. You can also click on the leagues page to show all the leagues you are in. On the league standings page is also a list of all the rules inside of this league. ",
+          "This is all you have to do for now. Between every matchday you can buy or sell {amount} players to improve your squad. You can click on the settings gear to change your user's settings. You can also click on the leagues page to show all the leagues you are in. Click on the league standings page to see the rules for this league. ",
           { amount: props.transfers },
         ),
       ),

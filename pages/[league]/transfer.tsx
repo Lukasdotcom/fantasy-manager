@@ -205,7 +205,7 @@ function MainPage({
     }
   }
   const Part1 = (
-    <div>
+    <Box sx={{ flexGrow: 1 }}>
       <TransfersLeft
         ownership={ownership}
         allowedTransfers={allowedTransfers}
@@ -231,7 +231,7 @@ function MainPage({
         helperText={t("Use the acronymn ex: FCB, VFB")}
       ></TextField>
       <br />
-      <Box sx={{ width: 300 }}>
+      <Box sx={{ width: "90%" }}>
         <FormLabel htmlFor="value">
           {t("Value: {price1} M to {price2} M", {
             price1: price[0],
@@ -277,10 +277,10 @@ function MainPage({
         ))}
       </Select>
       <br></br>
-    </div>
+    </Box>
   );
   const Part2 = (
-    <div>
+    <Box sx={{ flexGrow: 1 }}>
       <FormLabel component="legend">{t("Positions to search: ")}</FormLabel>
       <FormGroup>
         {positionList.map((position) => (
@@ -321,7 +321,7 @@ function MainPage({
       <Link href="/download">
         <Button>{t("Download Data")}</Button>
       </Link>
-    </div>
+    </Box>
   );
   return (
     <div
@@ -352,8 +352,6 @@ function MainPage({
         sx={{
           marginLeft: 2,
           marginRight: 2,
-          gap: 10,
-          // justifyContent: "space-between",
           display: { xs: "none", md: "flex" },
         }}
       >
