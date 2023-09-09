@@ -1,7 +1,9 @@
 import connect, { pictures } from "../Modules/database";
-import { existsSync, mkdirSync, rmSync } from "fs";
+import { existsSync, mkdirSync, rmSync, createWriteStream } from "fs";
 import { rename } from "fs/promises";
-import { DownloaderHelper } from "node-downloader-helper";
+import { Readable } from "stream";
+import { finished } from "stream/promises";
+import { ReadableStream } from "stream/web";
 // Used to get the correct path for a picture and will also make the folder if needed
 export function picturePath(id: number, makeFolder = false) {
   if (makeFolder && !existsSync("./players/" + (id % 100))) {
@@ -37,19 +39,23 @@ export async function downloadPicture(id: number) {
 async function downloadPictureURL(url: string, id: number) {
   console.log("Downloading picture with id: " + id);
   const fileName = Math.random().toString(36).substring(2, 15) + ".jpg";
-  await new Promise<void>((res, rej) => {
+  await new Promise<void>(async (res, rej) => {
     if (!existsSync("./players/")) {
       mkdirSync("./players");
     }
     if (!existsSync("./players/download")) {
       mkdirSync("./players/download");
     }
-    const dl = new DownloaderHelper(url, "./players/download", {
-      fileName,
-    });
-    dl.on("end", () => res());
-    dl.on("error", (e) => rej(e));
-    dl.start().catch((e) => rej(e));
+    const stream = createWriteStream("./players/download/" + fileName);
+    const { body } = await fetch(url);
+    if (!body) {
+      rej();
+      return;
+    }
+    await finished(
+      Readable.fromWeb(body as ReadableStream<Uint8Array>).pipe(stream),
+    );
+    res();
   })
     .then(async () => {
       const connection = await connect();
