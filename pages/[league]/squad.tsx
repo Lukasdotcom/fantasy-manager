@@ -3,7 +3,7 @@ import redirect from "../../Modules/league";
 import Head from "next/head";
 import { SquadPlayer as Player } from "../../components/Player";
 import { useContext, useState } from "react";
-import connect, { position } from "../../Modules/database";
+import connect from "../../Modules/database";
 import {
   Alert,
   AlertTitle,
@@ -13,23 +13,13 @@ import {
   MenuItem,
   Select,
   Switch,
+  Typography,
 } from "@mui/material";
-import { getLeagueInfo } from "../api/squad/[league]";
+import { getLeagueInfo, LeagueInfo } from "../api/squad/[league]";
 import { NotifyContext, TranslateContext } from "../../Modules/context";
 import { getServerSession } from "next-auth";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { GetServerSideProps } from "next";
-
-interface leageueInfo {
-  formation: number[];
-  players: {
-    playeruid: string;
-    position: position;
-    starred: boolean;
-    status: string;
-  }[];
-  validFormations: number[][];
-}
 
 export default function Home({
   league,
@@ -40,7 +30,7 @@ export default function Home({
 }: {
   league: number;
   leagueName: string;
-  leagueInfo: leageueInfo;
+  leagueInfo: LeagueInfo;
   leagueType: string;
   archived: boolean;
 }) {
@@ -77,6 +67,9 @@ export default function Home({
     return players;
   });
   const [formation, setFormation] = useState(leagueInfo.formation);
+  const [position_total, setPosition_total] = useState(
+    leagueInfo.position_total,
+  );
   const [validFormations, setValidFormations] = useState(
     leagueInfo.validFormations,
   );
@@ -104,7 +97,7 @@ export default function Home({
   };
   function getSquad() {
     fetch(`/api/squad/${league}`).then(async (e) => {
-      const val: leageueInfo = await e.json();
+      const val: LeagueInfo = await e.json();
       const players: {
         att: squadMember[];
         mid: squadMember[];
@@ -122,6 +115,7 @@ export default function Home({
       setFormation(val.formation);
       setSquad(players);
       setValidFormations(val.validFormations);
+      setPosition_total(val.position_total);
     });
   }
   // Checks if the player can change to the formation
@@ -277,6 +271,17 @@ export default function Home({
           </MenuItem>
         ))}
       </Select>
+      <Typography>
+        {t(
+          "You have {att} attacker(s), {mid} midfielder(s), {def} defender(s), and {gk} goalkeeper(s) in your squad. ",
+          {
+            att: position_total.att,
+            mid: position_total.mid,
+            def: position_total.def,
+            gk: position_total.gk,
+          },
+        )}
+      </Typography>
       <Box sx={{ display: { xs: "block", lg: "none" } }}>
         {FieldPlayers}
         {BenchPlayers}
@@ -299,8 +304,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const connection = await connect();
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
   // Gets the league info
-  const leagueInfo: leageueInfo | void = await getLeagueInfo(
-    ctx.query.league,
+  const leagueInfo: LeagueInfo | void = await getLeagueInfo(
+    parseInt(String(ctx.query.league)),
     session?.user?.id ? session?.user?.id : -1,
   ).catch((e) => {
     console.error(e);

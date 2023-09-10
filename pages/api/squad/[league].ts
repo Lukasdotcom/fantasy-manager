@@ -1,7 +1,8 @@
-import connect from "../../../Modules/database";
+import connect, { position } from "#database";
 import { calcPoints } from "../../../scripts/calcPoints";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
+import { NextApiHandler } from "next";
 // An array of valid formations
 const validFormations = [
   [1, 3, 5, 2],
@@ -12,9 +13,31 @@ const validFormations = [
   [1, 5, 3, 2],
   [1, 5, 4, 1],
 ];
-
-// Used to get the league info
-export const getLeagueInfo = async (league, user) => {
+export interface LeagueInfo {
+  formation: number[];
+  players: {
+    playeruid: string;
+    position: position;
+    starred: boolean;
+    status: string;
+  }[];
+  validFormations: number[][];
+  position_total: {
+    [key: string]: number;
+  };
+}
+/**
+ * Retrieves information about a league.
+ *
+ * @param {number} league - the ID of the league
+ * @param {number} user - the ID of the user
+ * @return {Promise<LeagueInfo>} a Promise that resolves to the LeagueInfo object
+ * @throws {string} throws an error if the league is not found
+ */
+export const getLeagueInfo = async (
+  league: number,
+  user: number,
+): Promise<LeagueInfo> => {
   const connection = await connect();
   // Checks if the league exists
   const result = await connection.query(
@@ -46,23 +69,76 @@ export const getLeagueInfo = async (league, user) => {
       [league, user],
     );
     // Reformats the player data
-    players2.map((player) => {
+    players2 = players2.map((player) => {
       player.status = "buy";
       return player;
     });
     // Merges the 2 lists
     const players = [...players1, ...players2];
+    const position_total: { [key: string]: number } = {
+      att: 0,
+      mid: 0,
+      def: 0,
+      gk: 0,
+    };
+    await Promise.all(
+      players.map(async (player) => {
+        if (player.position !== "bench") {
+          position_total[player.position] += 1;
+        } else {
+          position_total[
+            await connection
+              .query("SELECT position FROM players WHERE uid=?", [
+                player.playeruid,
+              ])
+              .then((e) => e[0].position)
+          ] += 1;
+        }
+      }),
+    );
     connection.end();
-    return { formation, players, validFormations };
+    return { formation, players, validFormations, position_total };
   } else {
     connection.end();
     throw "League not found";
   }
 };
 
-export default async function handler(req, res) {
+/**
+ * Checks if there are enough open spots for a given position.
+ *
+ * @param {number} limit - The maximum number of spots allowed.
+ * @param {position} position - The position to check for open spots.
+ * @return {Promise<string>} A promise that resolves with a message indicating if there are enough spots for the given position.
+ */
+function positionOpen(
+  limit: number,
+  position: position,
+  league: number,
+  user: number,
+): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    const connection = await connect();
+    const result = await connection.query(
+      `SELECT * FROM squad WHERE position=? AND leagueID=? AND user=?`,
+      [position, league, user],
+    );
+    const result2 = await connection.query(
+      "SELECT * FROM transfers WHERE position=? AND leagueID=? AND buyer=?",
+      [position, league, user],
+    );
+    if (result.length + result2.length > limit) {
+      reject(`Not enough spots for ${position}`);
+    } else {
+      resolve(`Enough spots for ${position}`);
+    }
+    connection.end();
+  });
+}
+
+const handler: NextApiHandler = async (req, res) => {
   const session = await getServerSession(req, res, authOptions);
-  const league = req.query.league;
+  const league = parseInt(String(req.query.league));
   const connection = await connect();
   if (!session) {
     res.status(401).end("Not logged in");
@@ -94,24 +170,6 @@ export default async function handler(req, res) {
           });
         break;
       case "POST":
-        // Checks if there are enough spots for a position
-        function positionOpen(limit, position) {
-          return new Promise(async (resolve, reject) => {
-            const result = await connection.query(
-              `SELECT * FROM squad WHERE position=? AND leagueID=? AND user=?`,
-              [position, league, user],
-            );
-            const result2 = await connection.query(
-              "SELECT * FROM transfers WHERE position=? AND leagueID=? AND buyer=?",
-              [position, league, user],
-            );
-            if (result.length + result2.length > limit) {
-              reject(`Not enough spots for ${position}`);
-            } else {
-              resolve(`Enough spots for ${position}`);
-            }
-          });
-        }
         // Checks if the user wants to change the formation
         const formation = req.body.formation;
         if (formation !== undefined) {
@@ -125,9 +183,9 @@ export default async function handler(req, res) {
           if (included) {
             // Makes sure to check if the formation can be changed to
             await Promise.all([
-              positionOpen(formation[1], "def"),
-              positionOpen(formation[2], "mid"),
-              positionOpen(formation[3], "att"),
+              positionOpen(formation[1], "def", league, user),
+              positionOpen(formation[2], "mid", league, user),
+              positionOpen(formation[3], "att", league, user),
             ])
               .then(() => {
                 console.log(
@@ -199,7 +257,7 @@ export default async function handler(req, res) {
                         "UPDATE transfers SET starred=1 WHERE buyer=? AND playeruid=? AND leagueID=?",
                         [user, player, league],
                       );
-                      resolve();
+                      resolve("");
                     } else {
                       rej("Player has already played");
                     }
@@ -219,7 +277,7 @@ export default async function handler(req, res) {
             playerMove.map(
               (e) =>
                 new Promise(async (resolve, reject) => {
-                  let position = await connection
+                  const positionTemp = await connection
                     .query(
                       "SELECT * FROM squad WHERE leagueID=? and user=? and playeruid=?",
                       [league, user, e],
@@ -234,9 +292,9 @@ export default async function handler(req, res) {
                           ),
                     );
                   // Checks if the player is owned by the user
-                  if (position.length > 0) {
+                  if (positionTemp.length > 0) {
                     // Checks what position the player is
-                    position = position[0].position;
+                    const position = positionTemp[0].position;
                     if (position === "bench") {
                       // Finds the players position and checks if they are locked
                       const locked = await connection.query(
@@ -298,7 +356,7 @@ export default async function handler(req, res) {
                           console.log(
                             `User ${user} moved player ${e} to field`,
                           );
-                          resolve();
+                          resolve("");
                         } else {
                           reject("No more room in formation");
                         }
@@ -314,7 +372,7 @@ export default async function handler(req, res) {
                         [league, user, e],
                       );
                       console.log(`User ${user} moved player ${e} to bench`);
-                      resolve();
+                      resolve("");
                     }
                   } else {
                     reject(`Player is not your player`);
@@ -337,4 +395,5 @@ export default async function handler(req, res) {
     }
   }
   connection.end();
-}
+};
+export default handler;
