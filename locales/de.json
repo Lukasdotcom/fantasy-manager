@@ -285,6 +285,7 @@
   "You do not have enough money": "Sie haben nicht genügend Geld",
   "You have no favorite league. ": "Du hast keine favoriten Liga",
   "You have no more transfers": "Sie sind außer Transfers",
+  "You have {att} attacker(s), {mid} midfielder(s), {def} defender(s), and {gk} goalkeeper(s) in your squad. ": "Sie besitzen {att} Angreifer, {mid} Mittelfelder, {def} Verteidiger und {gk} Torhüter in Ihrer Mannschaft. ",
   "You need to give a username and a password when signing up. ": "Bei der Anmeldung müssen Sie einen Benutzernamen und ein Passwort angeben. ",
   "Your account has had too many failed login attempts recently and is being temporarily locked. ": "Ihr Konto hatte in letzter Zeit zu viele fehlgeschlagene Anmeldeversuche und wird vorübergehend gesperrt. ",
   "Your favorite league is: {league}": "Deine favoriten Liga ist: {league}",
