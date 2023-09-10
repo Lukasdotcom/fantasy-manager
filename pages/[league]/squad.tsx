@@ -126,7 +126,7 @@ export default function Home({
     return !(defenders >= 0) || !(midfielders >= 0) || !(forwards >= 0);
   }
   const FieldPlayers = (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box width={{ xs: "100%", lg: "50%" }}>
       <h2>{t("Attackers")}</h2>
       {squad["att"].map(
         (
@@ -198,7 +198,7 @@ export default function Home({
     </Box>
   );
   const BenchPlayers = (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box width={{ xs: "100%", lg: "50%" }}>
       <h2>{t("Bench")}</h2>
       <FormControlLabel
         control={

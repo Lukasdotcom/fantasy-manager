@@ -4,7 +4,7 @@ import connect from "../../../Modules/database";
 import redirect from "../../../Modules/league";
 import { Player, HistoricalPlayer } from "../../../components/Player";
 import { useRouter } from "next/router";
-import { FormLabel, Pagination, PaginationItem } from "@mui/material";
+import { Box, FormLabel, Pagination, PaginationItem } from "@mui/material";
 import { useContext } from "react";
 import { TranslateContext } from "../../../Modules/context";
 export default function HistoricalView({
@@ -68,172 +68,191 @@ export default function HistoricalView({
           return <PaginationItem {...item} />;
         }}
       ></Pagination>
-      <h2>{t("Attackers")}</h2>
-      {squad
-        .filter((e) => e.position === "att")
-        .map((e) => {
-          if (currentMatchday === 0)
-            return (
-              <Player
-                key={e.playeruid + "att"}
-                starred={e.starred}
-                uid={e.playeruid}
-                leagueType={leagueType}
-              />
-            );
-          return (
-            <HistoricalPlayer
-              key={e.playeruid}
-              uid={e.playeruid}
-              starred={e.starred}
-              time={time}
-              leagueType={leagueType}
-            />
-          );
-        })}
-      <h2>{t("Midfielders")}</h2>
-      {squad
-        .filter((e) => e.position === "mid")
-        .map((e) => {
-          if (currentMatchday === 0)
-            return (
-              <Player
-                key={e.playeruid + "mid"}
-                starred={e.starred}
-                uid={e.playeruid}
-                leagueType={leagueType}
-              />
-            );
-          return (
-            <HistoricalPlayer
-              key={e.playeruid}
-              uid={e.playeruid}
-              starred={e.starred}
-              time={time}
-              leagueType={leagueType}
-            />
-          );
-        })}
-      <h2>{t("Defenders")}</h2>
-      {squad
-        .filter((e) => e.position === "def")
-        .map((e) => {
-          if (currentMatchday === 0)
-            return (
-              <Player
-                key={e.playeruid + "def"}
-                starred={e.starred}
-                uid={e.playeruid}
-                leagueType={leagueType}
-              />
-            );
-          return (
-            <HistoricalPlayer
-              key={e.playeruid}
-              uid={e.playeruid}
-              starred={e.starred}
-              time={time}
-              leagueType={leagueType}
-            />
-          );
-        })}
-      <h2>{t("Goalkeeper")}</h2>
-      {squad
-        .filter((e) => e.position === "gk")
-        .map((e) => {
-          if (currentMatchday === 0)
-            return (
-              <Player
-                key={e.playeruid + "gk"}
-                uid={e.playeruid}
-                leagueType={leagueType}
-              />
-            );
-          return (
-            <HistoricalPlayer
-              key={e.playeruid}
-              uid={e.playeruid}
-              time={time}
-              leagueType={leagueType}
-            />
-          );
-        })}
-      <h2>{t("Bench")}</h2>
-      {squad
-        .filter((e) => e.position === "bench")
-        .map((e) => {
-          if (currentMatchday === 0)
-            return (
-              <Player
-                key={e.playeruid + "bench"}
-                uid={e.playeruid}
-                leagueType={leagueType}
-              />
-            );
-          return (
-            <HistoricalPlayer
-              key={e.playeruid}
-              uid={e.playeruid}
-              time={time}
-              leagueType={leagueType}
-            />
-          );
-        })}
-      <h1>{t("Transfers")}</h1>
-      <h2>{t("Buying")}</h2>
-      {transfers
-        .filter((e) => e.buyer == user)
-        .map((e) => {
-          if (currentMatchday === 0)
-            return (
-              <Player
-                key={e.playeruid + "buy"}
-                uid={e.playeruid}
-                leagueType={leagueType}
-              >
-                <p>
-                  {t("Buying for {amount} M", { amount: e.value / 1000000 })}
-                </p>
-              </Player>
-            );
-          return (
-            <HistoricalPlayer
-              key={e.playeruid + "buy"}
-              uid={e.playeruid}
-              time={time}
-              leagueType={leagueType}
-            >
-              <p>{t("Bought for {amount} M", { amount: e.value / 1000000 })}</p>
-            </HistoricalPlayer>
-          );
-        })}
-      <h2>{t("Selling")}</h2>
-      {transfers
-        .filter((e) => e.seller == user)
-        .map((e) => {
-          if (currentMatchday === 0)
-            return (
-              <Player
-                key={e.playeruid + "sell"}
-                uid={e.playeruid}
-                leagueType={leagueType}
-              >
-                <p>
-                  {t("Selling for {amount} M", { amount: e.value / 1000000 })}
-                </p>
-              </Player>
-            );
-          return (
-            <HistoricalPlayer
-              leagueType={leagueType}
-              key={e.playeruid + "sell"}
-              uid={e.playeruid}
-              time={time}
-            >
-              <p>{t("Sold for {amount} M", { amount: e.value / 1000000 })}</p>
-            </HistoricalPlayer>
-          );
-        })}
+      <Box
+        sx={{
+          gap: 0.5,
+          display: { xs: "block", lg: "flex" },
+        }}
+      >
+        <Box width={{ xs: "100%", lg: "50%" }}>
+          <h2>{t("Attackers")}</h2>
+          {squad
+            .filter((e) => e.position === "att")
+            .map((e) => {
+              if (currentMatchday === 0)
+                return (
+                  <Player
+                    key={e.playeruid + "att"}
+                    starred={e.starred}
+                    uid={e.playeruid}
+                    leagueType={leagueType}
+                  />
+                );
+              return (
+                <HistoricalPlayer
+                  key={e.playeruid}
+                  uid={e.playeruid}
+                  starred={e.starred}
+                  time={time}
+                  leagueType={leagueType}
+                />
+              );
+            })}
+          <h2>{t("Midfielders")}</h2>
+          {squad
+            .filter((e) => e.position === "mid")
+            .map((e) => {
+              if (currentMatchday === 0)
+                return (
+                  <Player
+                    key={e.playeruid + "mid"}
+                    starred={e.starred}
+                    uid={e.playeruid}
+                    leagueType={leagueType}
+                  />
+                );
+              return (
+                <HistoricalPlayer
+                  key={e.playeruid}
+                  uid={e.playeruid}
+                  starred={e.starred}
+                  time={time}
+                  leagueType={leagueType}
+                />
+              );
+            })}
+          <h2>{t("Defenders")}</h2>
+          {squad
+            .filter((e) => e.position === "def")
+            .map((e) => {
+              if (currentMatchday === 0)
+                return (
+                  <Player
+                    key={e.playeruid + "def"}
+                    starred={e.starred}
+                    uid={e.playeruid}
+                    leagueType={leagueType}
+                  />
+                );
+              return (
+                <HistoricalPlayer
+                  key={e.playeruid}
+                  uid={e.playeruid}
+                  starred={e.starred}
+                  time={time}
+                  leagueType={leagueType}
+                />
+              );
+            })}
+          <h2>{t("Goalkeeper")}</h2>
+          {squad
+            .filter((e) => e.position === "gk")
+            .map((e) => {
+              if (currentMatchday === 0)
+                return (
+                  <Player
+                    key={e.playeruid + "gk"}
+                    uid={e.playeruid}
+                    leagueType={leagueType}
+                  />
+                );
+              return (
+                <HistoricalPlayer
+                  key={e.playeruid}
+                  uid={e.playeruid}
+                  time={time}
+                  leagueType={leagueType}
+                />
+              );
+            })}
+          <h2>{t("Bench")}</h2>
+          {squad
+            .filter((e) => e.position === "bench")
+            .map((e) => {
+              if (currentMatchday === 0)
+                return (
+                  <Player
+                    key={e.playeruid + "bench"}
+                    uid={e.playeruid}
+                    leagueType={leagueType}
+                  />
+                );
+              return (
+                <HistoricalPlayer
+                  key={e.playeruid}
+                  uid={e.playeruid}
+                  time={time}
+                  leagueType={leagueType}
+                />
+              );
+            })}
+        </Box>
+        <Box width={{ xs: "100%", lg: "50%" }}>
+          <h1>{t("Transfers")}</h1>
+          <h2>{t("Buying")}</h2>
+          {transfers
+            .filter((e) => e.buyer == user)
+            .map((e) => {
+              if (currentMatchday === 0)
+                return (
+                  <Player
+                    key={e.playeruid + "buy"}
+                    uid={e.playeruid}
+                    leagueType={leagueType}
+                  >
+                    <p>
+                      {t("Buying for {amount} M", {
+                        amount: e.value / 1000000,
+                      })}
+                    </p>
+                  </Player>
+                );
+              return (
+                <HistoricalPlayer
+                  key={e.playeruid + "buy"}
+                  uid={e.playeruid}
+                  time={time}
+                  leagueType={leagueType}
+                >
+                  <p>
+                    {t("Bought for {amount} M", { amount: e.value / 1000000 })}
+                  </p>
+                </HistoricalPlayer>
+              );
+            })}
+          <h2>{t("Selling")}</h2>
+          {transfers
+            .filter((e) => e.seller == user)
+            .map((e) => {
+              if (currentMatchday === 0)
+                return (
+                  <Player
+                    key={e.playeruid + "sell"}
+                    uid={e.playeruid}
+                    leagueType={leagueType}
+                  >
+                    <p>
+                      {t("Selling for {amount} M", {
+                        amount: e.value / 1000000,
+                      })}
+                    </p>
+                  </Player>
+                );
+              return (
+                <HistoricalPlayer
+                  leagueType={leagueType}
+                  key={e.playeruid + "sell"}
+                  uid={e.playeruid}
+                  time={time}
+                >
+                  <p>
+                    {t("Sold for {amount} M", { amount: e.value / 1000000 })}
+                  </p>
+                </HistoricalPlayer>
+              );
+            })}
+        </Box>
+      </Box>
     </>
   );
 }
