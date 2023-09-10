@@ -47,8 +47,8 @@ async function downloadPictureURL(url: string, id: number) {
       mkdirSync("./players/download");
     }
     const stream = createWriteStream("./players/download/" + fileName);
-    const { body } = await fetch(url);
-    if (!body) {
+    const { body, status } = await fetch(url);
+    if (!body || status !== 200) {
       rej();
       return;
     }
