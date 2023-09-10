@@ -152,6 +152,7 @@ export interface users {
   password: string;
   throttle: number;
   active: boolean;
+  inActiveDays: number;
   google: string;
   github: string;
   admin: boolean;
@@ -190,6 +191,8 @@ export interface leagueSettings {
   league: string;
   archived: number;
   matchdayTransfers: boolean;
+  active: boolean;
+  inActiveDays: number;
 }
 export interface leagueUsers {
   leagueID: number;

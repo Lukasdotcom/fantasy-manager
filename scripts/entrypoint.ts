@@ -1,10 +1,16 @@
-import connect, { data, plugins } from "../Modules/database";
+import connect, {
+  data,
+  leagueSettings,
+  plugins,
+  users,
+} from "../Modules/database";
 import { updateData } from "./update";
 import version from "./../package.json";
 import dotenv from "dotenv";
 import compileAnalytics from "./compileAnalytics";
 import { checkPictures } from "./pictures";
 import { timeUntilUpdate } from "./checkUpdate";
+import { leaveLeague } from "#Modules/delete";
 const analyticsDomain = "https://fantasy.lschaefer.xyz";
 const date = new Date();
 let day = date.getDay();
@@ -16,6 +22,9 @@ if (process.env.APP_ENV !== "test") {
 checkPictures();
 // Makes sure to check if an action is neccessary every 10 seconds
 setInterval(update, 10000);
+/**
+ * Updates all leagues.
+ */
 async function updateAllLeagues() {
   const connection4 = await connect();
   (await connection4.query("SELECT * FROM plugins WHERE enabled=1")).forEach(
@@ -26,6 +35,77 @@ async function updateAllLeagues() {
   connection4.end();
 }
 updateAllLeagues();
+/**
+ * Archives all leagues that are inactive for too long and deletes all users that have been inactive for too long.
+ */
+async function archiveInactive() {
+  const connection = await connect();
+  await connection.query(
+    "UPDATE leagueSettings SET inActiveDays=inActiveDays+1 WHERE active=0 AND archived=0",
+  );
+  await connection.query(
+    "UPDATE users SET inActiveDays=inActiveDays+1 WHERE active=0",
+  );
+  await connection.query(
+    "UPDATE leagueSettings SET inActiveDays=0 WHERE active=1 AND archived=0",
+  );
+  await connection.query("UPDATE users SET inActiveDays=0 WHERE active=1");
+  const daysUntilLeagueArchived = parseInt(
+    (
+      await connection.query(
+        "SELECT * FROM data WHERE value1='configArchiveInactiveLeague'",
+      )
+    )[0].value2,
+  );
+  // Archives all leagues that are inactive for too long
+  if (daysUntilLeagueArchived > 0) {
+    await Promise.all(
+      (
+        await connection.query(
+          "SELECT * FROM leagueSettings WHERE archived=0 AND inActiveDays>=? AND active=0",
+          [daysUntilLeagueArchived],
+        )
+      ).map(async (e: leagueSettings) => {
+        console.log("Archiving league " + e.leagueID + " due to inacativity");
+        connection.query(
+          "UPDATE leagueSettings SET archived=? WHERE leagueID=?",
+          [Math.floor(Date.now() / 1000), e.leagueID],
+        );
+      }),
+    );
+  }
+  const daysUntilUserDeleted = parseInt(
+    (
+      await connection.query(
+        "SELECT * FROM data WHERE value1='configDeleteInactiveUser'",
+      )
+    )[0].value2,
+  );
+  // Deletes all user that have been inactive for too long
+  if (daysUntilUserDeleted > 0) {
+    await Promise.all(
+      (
+        await connection.query(
+          "SELECT * FROM users WHERE inActiveDays>=? AND active=0",
+          [daysUntilUserDeleted],
+        )
+      ).map(async (e: users) => {
+        const leagues = await connection.query(
+          "SELECT * FROM leagueUsers WHERE user=?",
+          [e.id],
+        );
+        await Promise.all(
+          leagues.map((league) => leaveLeague(league.leagueID, e.id)),
+        );
+        console.log(`User ${e.id} was deleted due to inactivity`);
+        await connection.query("DELETE FROM users WHERE id=?", [e.id]);
+      }),
+    );
+  }
+  await connection.query("UPDATE leagueSettings SET active=0");
+  await connection.query("UPDATE users SET active=0");
+  connection.end();
+}
 async function update() {
   const connection3 = await connect();
   const leagues: plugins[] = await connection3.query(
@@ -79,10 +159,10 @@ async function update() {
     const leagueActive: { [Key: string]: number } = {};
     const leagueTotal: { [Key: string]: number } = {};
     for (const league of leagues) {
-      // Calculates all the leagues for the users
+      // Calculates the number of active leagues and total leagues
       leagueActive[league.name] = (
         await connection3.query(
-          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=? AND leagueSettings.archived=0) AND EXISTS (SELECT * FROM users WHERE users.id=leagueUsers.user AND active='1')",
+          "SELECT * FROM leagueUsers WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=leagueUsers.leagueID AND league=? AND leagueSettings.archived=0 AND leagueSettings.active=1) AND EXISTS (SELECT * FROM users WHERE users.id=leagueUsers.user AND active='1')",
           [league.name],
         )
       ).length;
@@ -132,7 +212,7 @@ async function update() {
       },
       body: JSONbody,
     });
-    connection3.query("UPDATE users SET active=0");
+    archiveInactive();
     // Has the analytics get compiled for all days that have happened since this day
     setTimeout(async () => {
       const connection3 = await connect();

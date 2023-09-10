@@ -85,7 +85,9 @@ export async function downloadAllPictures() {
   });
   connection.end();
 }
-// Checks every picture to make sure that it actually was downloaded
+/**
+ * Checks the pictures in the downloaded folder, deletes all invalid files in the folder, and updates the database accordingly.
+ */
 export async function checkPictures() {
   // Deletes all files in the downloaded folder
   if (existsSync("./players/download/")) {
