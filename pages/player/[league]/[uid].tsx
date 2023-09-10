@@ -12,6 +12,7 @@ import connect, {
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import {
+  Box,
   Button,
   LinearProgress,
   Paper,
@@ -237,21 +238,22 @@ export default function Home({
   const pictureHeight = mainPicture.height || 200;
   const pictureWidth = mainPicture.width || 200;
   const pictureExists = mainPicture.downloaded;
-  return (
-    <>
-      <Head>
-        <title>{player.name}</title>
-      </Head>
-      <Menu />
-      <h1>
-        {player.name} ({t(player.position)}) - {player.club}
-      </h1>
+  const Row1 = (
+    <div>
       <Image
         src={pictureExists ? "/api/picture/" + player.pictureID : fallbackImg}
         alt=""
         width={pictureWidth * 2}
         height={pictureHeight * 2}
       />
+      <br />
+      <Button
+        sx={{ width: pictureWidth * 2 }}
+        variant={"outlined"}
+        onClick={handleDialogToggle}
+      >
+        {t("Historical Pictures")}
+      </Button>
       <Dialog
         onClose={handleDialogToggle}
         open={dialogVisible}
@@ -271,10 +273,10 @@ export default function Home({
           ))}
         </>
       </Dialog>
-      <br></br>
-      <Button variant={"outlined"} onClick={handleDialogToggle}>
-        {t("Historical Pictures")}
-      </Button>
+    </div>
+  );
+  const Row2 = (
+    <div>
       <h2>{t("Current Player Info")}</h2>
       <p>
         {t("League")} : {league}
@@ -307,19 +309,67 @@ export default function Home({
             })
           : player.game.opponent}
       </p>
-      {otherLeagues.length > 0 && (
-        <>
-          <h2>{t("Other Leagues")}</h2>
-          <p>{t("This player was found in the leagues listed below. ")}</p>
-          <ul>
-            {otherLeagues.map((e) => (
-              <li key={e.league}>
-                <Link href={`/player/${e.league}/${e.uid}`}>{t(e.league)}</Link>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+    </div>
+  );
+  const Row3 = otherLeagues.length > 0 && (
+    <div>
+      <h2>{t("Other Leagues")}</h2>
+      <p>{t("This player was found in the leagues listed below. ")}</p>
+      <Box sx={{ display: { xs: "block", md: "none" } }}>
+        {otherLeagues.map((e) => (
+          <Link key={e.league} href={`/player/${e.league}/${e.uid}`}>
+            {t(e.league)}
+          </Link>
+        ))}
+      </Box>
+      <Box sx={{ display: { xs: "none", md: "block" } }}>
+        <ul>
+          {otherLeagues.map((e) => (
+            <li key={e.league}>
+              <Link href={`/player/${e.league}/${e.uid}`}>{t(e.league)}</Link>
+            </li>
+          ))}
+        </ul>
+      </Box>
+    </div>
+  );
+  return (
+    <>
+      <Head>
+        <title>{player.name}</title>
+      </Head>
+      <Menu />
+      <Box
+        sx={{
+          display: { xs: "block", md: "none" },
+          margin: 2,
+          textAlign: "center",
+        }}
+      >
+        <h1 style={{ textAlign: "center" }}>
+          {player.name} ({t(player.position)}) - {player.club}
+        </h1>
+        {Row1}
+        {Row2}
+        {Row3}
+      </Box>
+      <Box
+        sx={{
+          justifyContent: "space-evenly",
+          display: { xs: "none", md: "flex" },
+        }}
+      >
+        <Box sx={{ width: "50%" }}>
+          <h1 style={{ textAlign: "center" }}>
+            {player.name} ({t(player.position)}) - {player.club}
+          </h1>
+          <Box sx={{ display: { md: "block", lg: "flex" } }}>
+            <Box sx={{ flexGrow: 1 }}>{Row2}</Box>
+            <Box sx={{ flexGrow: 1 }}>{Row3}</Box>
+          </Box>
+        </Box>
+        {Row1}
+      </Box>
       <h2>{t("Historical Data Table")}</h2>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer>
