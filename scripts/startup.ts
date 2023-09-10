@@ -15,12 +15,12 @@ if (process.env.APP_ENV !== "test") {
   dotenv.config({ path: ".env.test.local" });
 }
 // Used to tell the program what version the database should get to
-const currentVersion = "1.13.0";
+const currentVersion = "1.14.0";
 // Creates the default config
 async function createConfig() {
   const connection = await connect();
   await connection.query(
-    "INSERT IGNORE INTO data (value1, value2) VALUES ('configMinTimeGame', '120'), ('configMaxTimeGame', '1200'), ('configMinTimeTransfer', '3600'), ('configMaxTimeTransfer', '86400'), ('configDownloadPicture', 'needed')",
+    "INSERT IGNORE INTO data (value1, value2) VALUES ('configMinTimeGame', '120'), ('configMaxTimeGame', '1200'), ('configMinTimeTransfer', '3600'), ('configMaxTimeTransfer', '86400'), ('configDownloadPicture', 'needed'), ('configDeleteInactiveUser', '0'), ('configArchiveInactiveLeague', '180')",
   );
   if (process.env.APP_ENV === "test") {
     await connection.query(
@@ -187,7 +187,7 @@ async function startUp() {
   await Promise.all([
     // Used to store the users
     connection.query(
-      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, active bool DEFAULT 0, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '', admin bool DEFAULT false, favoriteLeague int, theme varchar(10), locale varchar(5))",
+      "CREATE TABLE IF NOT EXISTS users (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, username varchar(255), password varchar(60), throttle int DEFAULT 30, active bool DEFAULT 0, inactiveDays int DEFAULT 0, google varchar(255) DEFAULT '', github varchar(255) DEFAULT '', admin bool DEFAULT false, favoriteLeague int, theme varchar(10), locale varchar(5))",
     ),
     // Used to store the players data
     connection.query(
@@ -199,7 +199,7 @@ async function startUp() {
     ),
     // Used to store the leagues settings
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0, matchdayTransfers boolean)",
+      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0, matchdayTransfers boolean, active bool DEFAULT 0, inactiveDays int DEFAULT 0)",
     ),
     // Used to store the leagues users
     connection.query(
@@ -740,6 +740,22 @@ async function startUp() {
         );
       }
       oldVersion = "1.13.0";
+    }
+    if (oldVersion === "1.13.0") {
+      console.log("Updating database to version 1.14.0");
+      await Promise.all([
+        connection.query("ALTER TABLE users ADD inactiveDays int DEFAULT 0"),
+        connection.query(
+          "ALTER TABLE leagueSettings ADD active bool DEFAULT 1",
+        ),
+        connection.query(
+          "ALTER TABLE leagueSettings ADD inactiveDays int DEFAULT 0",
+        ),
+        connection.query(
+          "INSERT IGNORE INTO data (value1, value2) VALUES ('configArchiveInactiveLeague', '0')",
+        ),
+      ]);
+      oldVersion = "1.14.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date

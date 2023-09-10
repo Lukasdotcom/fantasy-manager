@@ -40,7 +40,7 @@ export default async function handler(
             // Makes sure that the config was valid
             if (setting[0].variant === "number") {
               value = parseInt(value);
-              if (!(value > 0)) {
+              if (!(value >= 0)) {
                 fail = true;
               }
             }

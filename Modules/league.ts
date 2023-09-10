@@ -16,6 +16,9 @@ const redirect = async (
       "SELECT * FROM leagueSettings WHERE leagueID=? and EXISTS (SELECT * FROM leagueUsers WHERE user=? and leagueUsers.leagueID = leagueSettings.leagueID)",
       [league, session.user.id],
     );
+    connection.query("UPDATE leagueSettings SET active=1 WHERE leagueID=?", [
+      league,
+    ]);
     connection.end();
     if (leagueInfo.length > 0) {
       return {

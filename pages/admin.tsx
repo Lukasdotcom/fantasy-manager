@@ -68,6 +68,16 @@ export const settings: settingsType[] = [
     shortName: "MaxTimeTransfer",
     variant: "number",
   },
+  {
+    name: "Days of inactivity until a league is archived",
+    shortName: "ArchiveInactiveLeague",
+    variant: "number",
+  },
+  {
+    name: "Days of inactivity until a user is deleted",
+    shortName: "DeleteInactiveUser",
+    variant: "number",
+  },
 ];
 interface LeaguePluginsProps {
   plugins: plugins[];

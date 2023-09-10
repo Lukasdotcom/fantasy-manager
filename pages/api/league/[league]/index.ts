@@ -1,8 +1,13 @@
 import connect from "../../../../Modules/database";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
+import { NextApiRequest, NextApiResponse } from "next";
+import { leaveLeague } from "#/Modules/delete";
 
-export default async function handler(req, res) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   const session = await getServerSession(req, res, authOptions);
   if (session) {
     const connection = await connect();
@@ -31,7 +36,7 @@ export default async function handler(req, res) {
         ) {
           if (Array.isArray(req.body.users)) {
             // Updates all the users from admin to not admin
-            req.body.users.forEach((e) => {
+            req.body.users.forEach((e: { user: number; admin: boolean }) => {
               connection.query(
                 "UPDATE leagueUsers SET admin=? WHERE leagueID=? and user=?",
                 [e.admin, league, e.user],
@@ -111,48 +116,7 @@ export default async function handler(req, res) {
         break;
       case "DELETE":
         // Used to leave a league
-        await connection.query(
-          "DELETE FROM leagueUsers WHERE leagueID=? and user=?",
-          [league, session.user.id],
-        );
-        connection.query("DELETE FROM points WHERE leagueID=? and user=?", [
-          league,
-          session.user.id,
-        ]);
-        connection.query("DELETE FROM squad WHERE leagueID=? and user=?", [
-          league,
-          session.user.id,
-        ]);
-        connection.query(
-          "UPDATE transfers SET seller='' WHERE leagueID=? and seller=?",
-          [league, session.user.id],
-        );
-        connection.query(
-          "UPDATE transfers SET buyer='' WHERE leagueID=? and buyer=?",
-          [league, session.user.id],
-        );
-        console.log(`User ${session.user.id} left league ${league}`);
-        // Checks if the league still has users
-        const isEmpty = await connection
-          .query("SELECT * FROM leagueUsers WHERE leagueID=?", [league])
-          .then((res) => res.length == 0);
-        if (isEmpty) {
-          connection.query("DELETE FROM invite WHERE leagueID=?", [league]);
-          connection.query("DELETE FROM transfers WHERE leagueID=?", [league]);
-          connection.query("DELETE FROM leagueSettings WHERE leagueId=?", [
-            league,
-          ]);
-          connection.query("DELETE FROM historicalTransfers WHERE leagueID=?", [
-            league,
-          ]);
-          connection.query("DELETE FROM historicalSquad WHERE leagueID=?", [
-            league,
-          ]);
-          connection.query("DELETE FROM announcements WHERE leagueID=?", [
-            league,
-          ]);
-          console.log(`League ${league} is now empty and is being deleted`);
-        }
+        await leaveLeague(parseInt(String(league)), session.user.id);
         res.status(200).end("Left league");
         break;
       default:
