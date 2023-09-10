@@ -137,8 +137,8 @@ async function compilePlugins() {
                     const stream = fs.createWriteStream(
                       __dirname + "/data/" + hash + "/" + file.split("/").pop(),
                     );
-                    const { body } = await fetch(file);
-                    if (!body) {
+                    const { body, status } = await fetch(file);
+                    if (!body || status !== 200) {
                       rej();
                       return;
                     }
