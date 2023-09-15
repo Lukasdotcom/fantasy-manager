@@ -28,7 +28,6 @@ async function top11(userID: number, leagueID: number) {
   // Goes through every character and moves them to the correct position
   for (const player of players) {
     const position = parts.indexOf(player.position);
-    console.log(formation[position]);
     if (formation[position] > 0) {
       await connection.query(
         "UPDATE squad SET position=? WHERE playeruid=? AND leagueID=? AND user=?",
@@ -36,7 +35,6 @@ async function top11(userID: number, leagueID: number) {
       );
       formation[position]--;
     } else {
-      console.log("BENCH FOR " + player.playeruid);
       await connection.query(
         "UPDATE squad SET position='bench' WHERE playeruid=? AND leagueID=? AND user=?",
         [player.playeruid, leagueID, userID],
