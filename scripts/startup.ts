@@ -199,7 +199,7 @@ async function startUp() {
     ),
     // Used to store the leagues settings
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0, matchdayTransfers boolean, active bool DEFAULT 0, inactiveDays int DEFAULT 0)",
+      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0, matchdayTransfers boolean, top11 boolean DEFAULT 0, active bool DEFAULT 0, inactiveDays int DEFAULT 0)",
     ),
     // Used to store the leagues users
     connection.query(
@@ -745,6 +745,9 @@ async function startUp() {
       console.log("Updating database to version 1.14.0");
       await Promise.all([
         connection.query("ALTER TABLE users ADD inactiveDays int DEFAULT 0"),
+        connection.query(
+          "ALTER TABLE leagueSettings ADD top11 boolean DEFAULT 0",
+        ),
         connection.query(
           "ALTER TABLE leagueSettings ADD active bool DEFAULT 1",
         ),

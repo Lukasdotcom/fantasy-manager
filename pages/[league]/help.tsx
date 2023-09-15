@@ -43,27 +43,31 @@ export default function Home(props: leagueSettings) {
     {
       title: t("Buying your Team"),
       text: t(
-        t(
-          "You can now close the player transfer details window. Now you should buy your team. It is reccomended to buy 2 Goalkeepers, 5 Defenders, 5 Midfielders, and 3 Attackers, but you can buy as many or as few as you want. Note that you can always cancel your purchases and get refunded the players value. Once you have bought your team go to the next step. ",
-        ),
+        "You can now close the player transfer details window. Now you should buy your team. It is reccomended to buy 2 Goalkeepers, 5 Defenders, 5 Midfielders, and 3 Attackers, but you can buy as many or as few as you want. Note that you can always cancel your purchases and get refunded the players value. Once you have bought your team go to the next step. ",
       ),
     },
     {
       title: t("Setting Up Your Squad"),
-      text: t(
-        t(
-          "Now you should go to the squad page. Here you can setup your squad. You can change your formation at the top. You can move players from the bench to the field and back again. You can also star one forward, one midfielder, and one defender. Starred players get {star_bonus}% of the points they would normally get. Once a player has played on that matchday you can not move them back onto the field or star them. Players on the bench earn you no points. ",
+      text: t("{a}{b}{c}", {
+        a: t(
+          "Now you should go to the squad page. Here you can setup your squad. You can change your formation at the top. You can move players from the bench to the field and back again. You can also star one forward, one midfielder, and one defender. Starred players get {star_bonus}% of the points they would normally get. ",
           { star_bonus: props.starredPercentage },
         ),
-      ),
+        b: props.top11
+          ? t(
+              "Due to Top 11 being enabled you can not change formation, change starred players, or substitute players during the matchday. Instead your players will automatically be optimally substituted during the matchday. Note that your starred players and formations will not change during the matchday. ",
+            )
+          : t(
+              "Once a player has played on that matchday you can not move them back onto the field or star them. ",
+            ),
+        c: t("Players on the bench earn you no points. "),
+      }),
     },
     {
       title: t("Final Tips"),
       text: t(
-        t(
-          "This is all you have to do for now. Between every matchday you can buy or sell {amount} players to improve your squad. You can click on the settings gear to change your user's settings. You can also click on the leagues page to show all the leagues you are in. Click on the league standings page to see the rules for this league. ",
-          { amount: props.transfers },
-        ),
+        "This is all you have to do for now. Between every matchday you can buy or sell {amount} players to improve your squad. You can click on the settings gear to change your user's settings. You can also click on the leagues page to show all the leagues you are in. Click on the league standings page to see the rules for this league. ",
+        { amount: props.transfers },
       ),
     },
   ];

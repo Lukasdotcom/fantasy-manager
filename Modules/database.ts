@@ -191,6 +191,7 @@ export interface leagueSettings {
   league: string;
   archived: number;
   matchdayTransfers: boolean;
+  top11: boolean;
   active: boolean;
   inActiveDays: number;
 }

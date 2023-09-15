@@ -21,6 +21,11 @@ const redirect = async (
     ]);
     connection.end();
     if (leagueInfo.length > 0) {
+      const transferOpen = await connection
+        .query("SELECT * FROM data WHERE value1=? AND value2='true'", [
+          "transferOpen" + leagueInfo[0].league,
+        ])
+        .then((e) => e.length > 0);
       return {
         props: {
           ...data,
@@ -29,6 +34,8 @@ const redirect = async (
           leagueType: leagueInfo[0].league,
           matchdayTransfers: leagueInfo[0].matchdayTransfers,
           archived: leagueInfo[0].archived,
+          top11: leagueInfo[0].top11,
+          transferOpen,
         },
       };
     } else {

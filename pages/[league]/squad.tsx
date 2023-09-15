@@ -27,12 +27,16 @@ export default function Home({
   leagueInfo,
   leagueType,
   archived,
+  top11,
+  transferOpen,
 }: {
   league: number;
   leagueName: string;
   leagueInfo: LeagueInfo;
   leagueType: string;
   archived: boolean;
+  top11: boolean;
+  transferOpen: boolean;
 }) {
   const notify = useContext(NotifyContext);
   const t = useContext(TranslateContext);
@@ -118,8 +122,13 @@ export default function Home({
       setPosition_total(val.position_total);
     });
   }
-  // Checks if the player can change to the formation
-  function changeToFormation(newFormation: number[]) {
+  /**
+   * This function checks if the formation can be changed to the new formation.
+   *
+   * @param {number[]} newFormation - An array representing the new formation with the number of players in each position.
+   * @return {boolean} Returns true if the new formation is valid, false otherwise.
+   */
+  function changeToFormation(newFormation: number[]): boolean {
     const defenders = newFormation[1] - squad["def"].length;
     const midfielders = newFormation[2] - squad["mid"].length;
     const forwards = newFormation[3] - squad["att"].length;
@@ -141,6 +150,7 @@ export default function Home({
             status={e.status}
             leagueType={leagueType}
             field={undefined}
+            hideButton={!transferOpen && top11}
           />
         ),
       )}
@@ -158,6 +168,7 @@ export default function Home({
             status={e.status}
             leagueType={leagueType}
             field={undefined}
+            hideButton={!transferOpen && top11}
           />
         ),
       )}
@@ -175,6 +186,7 @@ export default function Home({
             status={e.status}
             leagueType={leagueType}
             field={undefined}
+            hideButton={!transferOpen && top11}
           />
         ),
       )}
@@ -192,6 +204,7 @@ export default function Home({
             leagueType={leagueType}
             field={undefined}
             starred={undefined}
+            hideButton={!transferOpen && top11}
           />
         ),
       )}
@@ -226,7 +239,8 @@ export default function Home({
               update={getSquad}
               status={e.status}
               leagueType={leagueType}
-              starred={undefined}
+              starred={!transferOpen && top11 ? e.starred : undefined}
+              hideButton={!transferOpen && top11}
             />
           ),
         )}

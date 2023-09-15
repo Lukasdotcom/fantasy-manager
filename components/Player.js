@@ -508,7 +508,19 @@ export function TransferPlayer({
     </InternalPlayer>
   );
 }
-// Used for the squad. Field should be undefined unless they are on the bench and then it shoud give what positions are still open
+/**
+ * Renders a player component with the buttons for squad.
+ *
+ * @param {Object} props - The properties object for the component.
+ * @param {string} props.uid - The unique ID of the player.
+ * @param {function} props.update - The function to run whenever the squad is updated.
+ * @param {undefined | {att: boolean, mid: boolean, def: boolean, gk: boolean}} props.field - The field property of the player.
+ * @param {number} props.league - The league id of the user who has that player.
+ * @param {undefined | boolean} props.starred - If the player is starred.
+ * @param {string} props.status - Special status of the player like buy/sell.
+ * @param {string} props.leagueType - The league type property of the player.
+ * @param {boolean} [props.hideButton] - If the buttons should be shown
+ */
 export function SquadPlayer({
   uid,
   update,
@@ -517,6 +529,7 @@ export function SquadPlayer({
   starred,
   status,
   leagueType,
+  hideButton,
 }) {
   const t = useContext(TranslateContext);
   const notify = useContext(NotifyContext);
@@ -531,68 +544,38 @@ export function SquadPlayer({
   // Checks if the player is on the bench or not
   let MoveButton = "";
   let disabled = false;
-  if (field === undefined) {
-    MoveButton = t("Move to bench");
-  } else {
-    disabled = !field[data.position];
-    MoveButton = !disabled ? t("Move to field") : t("Position is full");
-    if (data.locked) {
-      disabled = true;
-      MoveButton = t("Player has already played");
-    }
-  }
   let extraText;
-  if (status == "buy") {
-    extraText = t("Buying");
-  } else if (status == "sell") {
-    extraText = t("Selling");
-  }
-  return (
-    <InternalPlayer
-      data={data}
-      starred={starred}
-      extraText={extraText}
-      condensed={"squad"}
-    >
-      <Button
-        variant="outlined"
-        onClick={() => {
-          notify(t("Moving"));
-          // Used to move the player
-          fetch(`/api/squad/${league}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              playerMove: [uid],
-            }),
-          })
-            .then(async (response) => {
-              notify(
-                t(await response.text()),
-                response.ok ? "success" : "error",
-              );
-            })
-            .then(update);
-        }}
-        disabled={disabled}
-      >
-        {MoveButton}
-      </Button>
-      {(starred === false || starred === 0) && !data.locked && (
+  let Buttons = <></>;
+  if (!hideButton) {
+    if (field === undefined) {
+      MoveButton = t("Move to bench");
+    } else {
+      disabled = !field[data.position];
+      MoveButton = !disabled ? t("Move to field") : t("Position is full");
+      if (data.locked) {
+        disabled = true;
+        MoveButton = t("Player has already played");
+      }
+    }
+    if (status == "buy") {
+      extraText = t("Buying");
+    } else if (status == "sell") {
+      extraText = t("Selling");
+    }
+    Buttons = (
+      <>
         <Button
           variant="outlined"
-          color="secondary"
           onClick={() => {
-            notify(t("Starring"));
+            notify(t("Moving"));
+            // Used to move the player
             fetch(`/api/squad/${league}`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                star: [uid],
+                playerMove: [uid],
               }),
             })
               .then(async (response) => {
@@ -603,10 +586,48 @@ export function SquadPlayer({
               })
               .then(update);
           }}
+          disabled={disabled}
         >
-          {t("Star")}
+          {MoveButton}
         </Button>
-      )}
+        {(starred === false || starred === 0) && !data.locked && (
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={() => {
+              notify(t("Starring"));
+              fetch(`/api/squad/${league}`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  star: [uid],
+                }),
+              })
+                .then(async (response) => {
+                  notify(
+                    t(await response.text()),
+                    response.ok ? "success" : "error",
+                  );
+                })
+                .then(update);
+            }}
+          >
+            {t("Star")}
+          </Button>
+        )}
+      </>
+    );
+  }
+  return (
+    <InternalPlayer
+      data={data}
+      starred={starred}
+      extraText={extraText}
+      condensed={"squad"}
+    >
+      {Buttons}
     </InternalPlayer>
   );
 }

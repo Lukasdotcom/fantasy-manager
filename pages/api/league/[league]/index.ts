@@ -75,6 +75,10 @@ export default async function handler(
               "UPDATE leagueSettings SET matchdayTransfers=? WHERE leagueID=?",
               [Boolean(settings.matchdayTransfers), league],
             );
+            connection.query(
+              "UPDATE leagueSettings SET top11=? WHERE leagueID=?",
+              [Boolean(settings.top11), league],
+            );
             // Archives the league when told to do so
             if (settings.archive === true) {
               console.log(`League ${league} was archived`);
