@@ -64,6 +64,7 @@ interface AdminPanelProps {
   admin: boolean;
   leagueType: string;
   archived: boolean;
+  top11: boolean;
 }
 // Creates the admin panel
 function AdminPanel({
@@ -73,6 +74,7 @@ function AdminPanel({
   admin,
   leagueType,
   archived,
+  top11,
 }: AdminPanelProps) {
   const notify = useContext(NotifyContext);
   const [startingMoney, setStartingMoney] = useState(150);
@@ -88,6 +90,7 @@ function AdminPanel({
   const [archive, setArchive] = useState(false);
   const [confirmation, setConfirmation] = useState("");
   const [matchdayTransfers, setMatchdayTransfers] = useState(false);
+  const [top, setTop] = useState(Boolean(top11));
   function updateData(league: number) {
     fetch(`/api/league/${league}`).then(async (res) => {
       if (res.ok) {
@@ -98,6 +101,7 @@ function AdminPanel({
         setDuplicatePlayers(result.settings.duplicatePlayers);
         setStarredPercentage(result.settings.starredPercentage);
         setMatchdayTransfers(Boolean(result.settings.matchdayTransfers));
+        setTop(Boolean(result.settings.top11));
       } else {
         alert(await res.text());
       }
@@ -244,6 +248,20 @@ function AdminPanel({
         />
         <br />
         <FormControlLabel
+          label={t(
+            "Use top 11, this will automatically do substitutions in squads. ",
+          )}
+          control={
+            <Checkbox
+              checked={top}
+              onChange={() => {
+                setTop((e) => !e);
+              }}
+            />
+          }
+        />
+        <br />
+        <FormControlLabel
           label={t("Check this to archive the league when you press save. ")}
           control={
             <Checkbox
@@ -294,6 +312,7 @@ function AdminPanel({
                   leagueName,
                   archive,
                   matchdayTransfers,
+                  top11,
                 },
               }),
             }).then(async (res) => {
@@ -521,6 +540,7 @@ interface Props {
   leagueType: string;
   archived: boolean;
   tutorial: boolean;
+  top11: boolean;
 }
 export default function Home({
   OGannouncement,
@@ -534,6 +554,7 @@ export default function Home({
   leagueType,
   archived,
   tutorial,
+  top11,
 }: Props) {
   const t = useContext(TranslateContext);
   const notify = useContext(NotifyContext);
@@ -846,6 +867,7 @@ export default function Home({
         admin={admin}
         leagueType={leagueType}
         archived={archived}
+        top11={top11}
       />
     </>
   );
@@ -931,6 +953,7 @@ export const getServerSideProps: GetServerSideProps = async (
         ? [result[0].admin, result[0].tutorial]
         : [false, false],
     );
+    connection.end();
   });
   const announcements = new Promise<announcements[]>(async (res) => {
     const connection = await connect();
@@ -939,6 +962,7 @@ export const getServerSideProps: GetServerSideProps = async (
         ctx.params?.league,
       ]),
     );
+    connection.end();
   });
   return redirect(ctx, {
     OGannouncement: await announcements,

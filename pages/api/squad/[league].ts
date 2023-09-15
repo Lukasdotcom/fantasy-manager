@@ -242,11 +242,11 @@ const handler: NextApiHandler = async (req, res) => {
                     ) {
                       console.log(`User ${user} starred player ${e}`);
                       await connection.query(
-                        "UPDATE squad SET starred=0 WHERE user=? AND position=? AND leagueID=?",
+                        "UPDATE squad SET starred=0 WHERE user=? AND (position=? OR position='bench') AND leagueID=?",
                         [user, position, league],
                       );
                       await connection.query(
-                        "UPDATE transfers SET starred=0 WHERE buyer=? AND position=? AND leagueID=?",
+                        "UPDATE transfers SET starred=0 WHERE buyer=? AND (position=? OR position='bench') AND leagueID=?",
                         [user, position, league],
                       );
                       await connection.query(
@@ -346,11 +346,11 @@ const handler: NextApiHandler = async (req, res) => {
                         }
                         if (transferValid) {
                           connection.query(
-                            "UPDATE squad SET position=? WHERE leagueID=? and user=? and playeruid=?",
+                            "UPDATE squad SET position=?, starred=0 WHERE leagueID=? and user=? and playeruid=?",
                             [playerposition, league, user, e],
                           );
                           connection.query(
-                            "UPDATE transfers SET position=? WHERE leagueID=? AND buyer=? AND playeruid=?",
+                            "UPDATE transfers SET position=?, starred=0 WHERE leagueID=? AND buyer=? AND playeruid=?",
                             [playerposition, league, user, e],
                           );
                           console.log(

@@ -2,9 +2,52 @@ import connect, {
   leagueSettings,
   leagueUsers,
   points,
+  position,
 } from "../Modules/database";
 
-// Used to calculate the points for every user
+async function top11(userID: number, leagueID: number) {
+  const connection = await connect();
+  const formation = JSON.parse(
+    await connection
+      .query("SELECT formation FROM leagueUsers WHERE leagueID=? AND user=?", [
+        leagueID,
+        userID,
+      ])
+      .then((e) => e[0].formation),
+  );
+  // Moves all players off the field
+  await connection.query(
+    `UPDATE squad SET position=(SELECT position FROM players WHERE players.uid=squad.playeruid) WHERE leagueID=? AND user=?`,
+    [leagueID, userID],
+  );
+  const players: { uid: string; position: position; points: number }[] =
+    await connection.query(
+      "SELECT squad.playeruid, players.position, players.last_match+players.last_match*starred AS points FROM squad LEFT OUTER JOIN players ON players.uid=squad.playeruid WHERE user=1 AND leagueID=21 ORDER BY players.position, points DESC;",
+    );
+  const parts = ["gk", "def", "mid", "att"];
+  // Goes through every character and moves them to the correct position
+  for (const player of players) {
+    const position = parts.indexOf(player.position);
+    if (formation[position] > 0) {
+      await connection.query(
+        "UPDATE squad SET position=? WHERE playeruid=? AND leagueID=?",
+        [player.position, player.uid, leagueID],
+      );
+      formation[position] -= 1;
+    } else {
+      await connection.query(
+        "UPDATE squad SET position=? WHERE playeruid=? AND leagueID=?",
+        [player.position, player.uid, leagueID],
+      );
+    }
+  }
+  connection.end();
+}
+/**
+ * Calculates and updates the points for the specified league.
+ *
+ * @param {string | number} league - The league type or leagueID.
+ */
 export async function calcPoints(league: string | number) {
   const connection = await connect();
   let leagueID: false | number = false;
@@ -60,6 +103,17 @@ export async function calcPoints(league: string | number) {
         .then((result: points[]) => (result.length > 0 ? result[0].points : 0)),
       // Calculates the amont of points the user should have for the matchday
       new Promise<number>(async (res) => {
+        // Moves top 11 players when needed
+        if (
+          await connection
+            .query(
+              "SELECT * FROM leagueSettings WHERE leagueID=? AND top11=1",
+              [e.leagueID],
+            )
+            .then((e) => e.length > 0)
+        ) {
+          await top11(e.user, e.leagueID);
+        }
         res(
           // Calculates points for non starred players
           (await connection

@@ -89,6 +89,7 @@ function MainPage({
   maxPrice,
   leagueType,
   matchdayTransfers,
+  transferOpen,
 }: {
   league: number;
   allowedTransfers: number;
@@ -97,6 +98,7 @@ function MainPage({
   leagueType: string;
   maxPrice: number;
   matchdayTransfers: boolean;
+  transferOpen: boolean;
 }) {
   const positionList = ["gk", "def", "mid", "att"];
   const [players, setPlayers] = useState<string[]>([]);
@@ -111,7 +113,7 @@ function MainPage({
   const [showHidden, setShowHidden] = useState(false);
   const [onlySales, setOnlySales] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(transferOpen);
   const [clubSearch, setClubSearch] = useState("");
   const [price, setPrice] = useState([0, Math.ceil(maxPrice / 500000) / 2]);
   const [salePrice, setSalePrice] = useState(true);
@@ -387,6 +389,7 @@ export default function Home(props: {
   league: number;
   leagueName: string;
   leagueType: string;
+  transferOpen: boolean;
 }) {
   const t = useContext(TranslateContext);
   // Checks if the league is archived

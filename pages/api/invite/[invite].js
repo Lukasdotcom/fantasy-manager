@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       // Adds the user in the database if they have not joined yet
       if (leagueUsers.length == 0) {
         connection.query(
-          "INSERT INTO leagueUsers (leagueID, user, points, money, formation) VALUES(?, ?, 0, (SELECT startMoney FROM leagueSettings WHERE leagueId=?), '[1, 4, 4, 2]')",
+          "INSERT INTO leagueUsers (leagueID, user, points, money, formation) VALUES(?, ?, 0, (SELECT startMoney FROM leagueSettings WHERE leagueId=?), '[1,4,4,2]')",
           [invite.leagueID, session.user.id, invite.leagueID],
         );
         // Makes sure to add 0 point matchdays for every matchday that has already happened.

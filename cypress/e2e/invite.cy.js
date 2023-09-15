@@ -312,7 +312,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get(
       ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root",
     ).click();
-    cy.get(':nth-child(9) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(2) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski",
     );
     // Checks Nkunku button
@@ -425,22 +425,22 @@ describe("Invite User into league and change some league Settings and run throug
     // Makes sure the team they are playing is correct
     cy.contains("Next").parent().contains("BVB");
     // Looks at the historical data for one of the users
-    cy.get(':nth-child(13) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(7) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski",
     );
     cy.get('[alt="starred"]');
-    cy.get(":nth-child(19) > .playerButton > p").contains("Selling for 25.8 M");
+    cy.get(":nth-child(4) > .playerButton > p").contains("Selling for 25.8 M");
     cy.get(".MuiPagination-ul > :nth-child(2) > .MuiButtonBase-root").click();
     cy.contains("Invite 2's squad on matchday 1 from New Sample League");
     cy.contains(`Money left: ${matchdays[0].invite2} M`);
     cy.contains("Next").should("not.exist");
     cy.get('[alt="starred"]');
-    cy.get(':nth-child(9) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(2) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski",
     );
-    cy.get(':nth-child(19) > [style="width: 70%;"] > :nth-child(1)').contains(
-      "Robert Lewandowski",
-    );
+    cy.get(
+      ":nth-child(2) > :nth-child(3) > [style='width: 70%;'] > :nth-child(1) > .MuiTypography-root",
+    ).contains("Robert Lewandowski");
     cy.contains("19.7 M");
     matchdays.push({ invite1: user1Money, invite2: user2Money });
     // Simulates an empty matchday
