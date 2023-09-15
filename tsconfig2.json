@@ -5,7 +5,7 @@
       "#components/*": ["./components/*"],
       "#Modules/*": ["./Modules/*"],
       "#type/*": ["./types/*"],
-      "#scripts/*": ["./scripts/*.js"],
+      "#scripts/*": ["./scripts/*"],
       "#database": ["./Modules/database"]
     },
     "noImplicitAny": true,
@@ -22,6 +22,9 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true
+  },
+  "ts-node": {
+    "transpileOnly": true
   },
   "include": ["./scripts/startup.ts"]
 }

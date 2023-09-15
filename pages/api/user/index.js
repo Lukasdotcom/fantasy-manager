@@ -1,6 +1,7 @@
 import connect from "../../../Modules/database";
 import { getServerSession } from "next-auth";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
+import { hash } from "bcrypt";
 
 // Used to change a users username
 export default async function handler(req, res) {
@@ -14,12 +15,10 @@ export default async function handler(req, res) {
         // Updates the password if one is given.
         const password = req.body.password;
         const connection = await connect();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const bcrypt = require("bcryptjs");
         connection.query("UPDATE users SET password=? WHERE id=?", [
           password === ""
             ? ""
-            : bcrypt.hashSync(password, parseInt(process.env.BCRYPT_ROUNDS)),
+            : await hash(password, parseInt(process.env.BCRYPT_ROUNDS)),
           id,
         ]);
         res
