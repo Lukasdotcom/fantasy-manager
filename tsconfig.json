@@ -5,7 +5,7 @@
       "#components/*": ["./components/*"],
       "#Modules/*": ["./Modules/*"],
       "#type/*": ["./types/*"],
-      "#scripts/*": ["./scripts/*.js"],
+      "#scripts/*": ["./scripts/*"],
       "#database": ["./Modules/database"]
     },
     "noImplicitAny": true,

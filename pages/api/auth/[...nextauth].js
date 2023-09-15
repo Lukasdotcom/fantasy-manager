@@ -3,6 +3,7 @@ import connect from "../../../Modules/database";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
+import { hash, compareSync } from "bcrypt";
 
 let ran = false;
 const options = {
@@ -22,8 +23,6 @@ const options = {
       },
       // Used to make sure that the credentails are correct
       authorize: async (credentials) => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const bcrypt = require("bcryptjs");
         // Goes through every user that has the email or username that was given and has password authentication enabled
         const connection = await connect();
         const users = await connection.query(
@@ -37,7 +36,7 @@ const options = {
           // Loops through every available user until the password is correct
           if (!finished) {
             // Checks if the password is correct
-            if (bcrypt.compareSync(credentials.password, e.password)) {
+            if (compareSync(credentials.password, e.password)) {
               finished = true;
               result = { name: e.id };
             } else {
@@ -70,8 +69,6 @@ const options = {
       },
       // Used to make sure that the credentails are correct
       authorize: async (credentials) => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const bcrypt = require("bcryptjs");
         // Goes through every user that has the email or username that was given
         const connection = await connect();
         if (credentials.username == "" || credentials.password == "") {
@@ -81,7 +78,7 @@ const options = {
           parseInt(process.env.BCRYPT_ROUNDS) > 0
             ? parseInt(process.env.BCRYPT_ROUNDS)
             : 9;
-        const password = bcrypt.hashSync(credentials.password, bcrypt_rounds);
+        const password = await hash(credentials.password, bcrypt_rounds);
         await connection.query(
           "INSERT INTO users (username, password) VALUES(?, ?)",
           [credentials.username, password],

@@ -4,22 +4,20 @@
   "private": true,
   "scripts": {
     "dev": "export NODE_ENV=development APP_ENV=development && npm run start2:part1 && npm run dev:part2",
-    "dev:part2": "node scripts/entrypoint.js & next dev",
-    "build": "npm ci && npm run build2:ts && node scripts/startup.js && npm run build3:ts && next build",
+    "dev:part2": "ts-node --project=tsconfig2.json scripts/entrypoint.ts & next dev",
+    "build": "npm ci && ts-node --project=tsconfig2.json scripts/startup.ts && next build",
     "start": "export NODE_ENV=production APP_ENV=production && npm run start2",
     "test": "npm run cypress & npm run start:test",
     "start:test": "export NODE_ENV=test APP_ENV=test && npm run clean && npm run start2",
     "start2": "npm run start2:part1 && npm run start2:part2",
-    "start2:part1": "npm run build2:ts && node scripts/startup.js && npm run build3:ts",
-    "start2:part2": "node scripts/entrypoint.js & next build && next start",
+    "start2:part1": "ts-node --project=tsconfig2.json scripts/startup.ts",
+    "start2:part2": "ts-node --project=tsconfig2.json scripts/entrypoint.ts & next build && next start",
     "lint": "eslint . --max-warnings 0",
     "pretty": "prettier --check .",
     "format": "prettier --write .",
     "cypress:open": "cypress open",
     "cypress": "wait-on http://127.0.0.1:3000 && cypress run",
-    "build2:ts": "tsc -p tsconfig2.json",
-    "build3:ts": "tsc -p tsconfig3.json",
-    "start:no-build": "node scripts/entrypoint.js & next start",
+    "start:no-build": "ts-node --project=tsconfig2.json scripts/entrypoint.ts & next start",
     "clean": "rm -f tsconfig2.tsbuildinfo; rm -f tsconfig3.tsbuildinfo; rm -f test.db; rm -rf ./scripts/data; rm -rf ./players; rm -rf ./.next/cache/images"
   },
   "dependencies": {
@@ -27,9 +25,7 @@
     "@emotion/styled": "11.11.0",
     "@mui/material": "5.14.8",
     "@types/mysql": "2.15.21",
-    "@types/node": "18.17.14",
-    "@types/react": "18.2.21",
-    "bcryptjs": "2.4.3",
+    "bcrypt": "5.1.1",
     "chart.js": "4.4.0",
     "csv-stringify": "6.4.2",
     "dotenv": "16.3.1",
@@ -43,12 +39,15 @@
     "sharp": "0.32.5",
     "sqlite": "5.0.1",
     "sqlite3": "5.1.6",
-    "typescript": "5.2.2"
+    "ts-node": "10.9.1"
   },
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
+    "@types/bcrypt": "5.0.0",
+    "@types/node": "18.17.14",
+    "@types/react": "18.2.21",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "cypress": "13.1.0",
@@ -56,14 +55,15 @@
     "eslint-config-next": "13.4.12",
     "eslint-plugin-cypress": "2.14.0",
     "prettier": "3.0.3",
+    "typescript": "5.2.2",
     "wait-on": "7.0.1"
   },
   "imports": {
-    "#/*": "./*.js",
-    "#components/*": "./components/*.js",
-    "#Modules/*": "./Modules/*.js",
-    "#type/*": "./types/*.js",
-    "#scripts/*": "./scripts/*.js",
-    "#database": "./Modules/database.js"
+    "#/*": "./*.ts",
+    "#components/*": "./components/*.ts",
+    "#Modules/*": "./Modules/*.ts",
+    "#type/*": "./types/*.ts",
+    "#scripts/*": "./scripts/*.ts",
+    "#database": "./Modules/database.ts"
   }
 }
