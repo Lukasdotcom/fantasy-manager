@@ -1,6 +1,8 @@
 describe("User", () => {
   before(() => {
-    cy.exec("export APP_ENV=test; node cypress/e2e/user.js");
+    cy.exec(
+      "export APP_ENV=test; ts-node --project=./tsconfig2.json cypress/e2e/user.ts",
+    );
   });
   // Used to signup change username and password and login again
   it("signup", () => {

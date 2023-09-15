@@ -1,9 +1,10 @@
+import connect from "#database";
+import { updateData } from "#scripts/update";
+
 run();
 // Used to reset the users and invites for the user test
 async function run() {
-  const database = require("../../Modules/database");
-  const updateData = require("../../scripts/update.js").updateData;
-  const connection = await database.default();
+  const connection = await connect();
   await connection.query("DELETE FROM users WHERE username like 'Invite%'");
   await connection.query("DELETE FROM invite WHERE inviteID='invite1'");
   await connection.query("DELETE FROM data WHERE value1='locked'");
