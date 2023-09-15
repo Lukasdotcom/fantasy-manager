@@ -312,7 +312,7 @@ function AdminPanel({
                   leagueName,
                   archive,
                   matchdayTransfers,
-                  top11,
+                  top11: top,
                 },
               }),
             }).then(async (res) => {
