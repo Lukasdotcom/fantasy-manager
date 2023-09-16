@@ -81,12 +81,12 @@ export async function timeUntilUpdate(
     const timeUntilGame = await connection
       .query(
         "SELECT * FROM clubs WHERE gameStart < ? AND gameEnd > ? AND league=? ORDER BY gameStart ASC LIMIT 1",
-        [Date.now() / 1000 + transferTime - 120, Date.now() / 1000, league],
+        [Date.now() / 1000 + transferTime + 120, Date.now() / 1000, league],
       )
       .then((res) =>
-        res.length > 0 ? Date.now() / 1000 - res[0].gameStart - 120 : 0,
+        res.length > 0 ? res[0].gameStart - Date.now() / 1000 - 120 : -1000,
       );
-    if (timeUntilGame > 0) {
+    if (timeUntilGame > -1000) {
       connection.end();
       return timeUntilGame;
     }
