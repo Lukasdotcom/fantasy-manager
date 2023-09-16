@@ -170,6 +170,18 @@ const handler: NextApiHandler = async (req, res) => {
           });
         break;
       case "POST":
+        // Checks if top 11 prevents the change of formation and players
+        if (
+          await connection
+            .query(
+              "SELECT * FROM leagueSettings WHERE top11=true AND leagueID=? AND EXISTS (SELECT * FROM data WHERE value1='transferOpen' || leagueSettings.league AND value2='false')",
+              [league],
+            )
+            .then((e) => e.length > 0)
+        ) {
+          res.status(400).end("Top 11 is enabled");
+          break;
+        }
         // Checks if the user wants to change the formation
         const formation = req.body.formation;
         if (formation !== undefined) {
