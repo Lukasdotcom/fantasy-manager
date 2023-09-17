@@ -469,7 +469,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const connection = await connect();
   const uid = ctx.params?.uid as string;
   const league = ctx.params?.league as string;
-  const player: extendedPlayers[] = await connection.query(
+  let player: extendedPlayers[] = await connection.query(
     "SELECT * FROM players WHERE uid=? AND league=?",
     [uid, league],
   );
@@ -477,6 +477,19 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     return {
       notFound: true,
     };
+  }
+  // Makes sure that this is not invalid data that is being shown to the user
+  while (
+    player[0].exists === false &&
+    (await connection
+      .query("SELECT * FROM data WHERE value1=?", ["locked" + league])
+      .then((res) => res.length > 0))
+  ) {
+    await new Promise((res) => setTimeout(res, 1000));
+    player = await connection.query(
+      "SELECT * FROM players WHERE uid=? AND league=?",
+      [uid, league],
+    );
   }
   const otherLeagues = await connection
     .query("SELECT * FROM players WHERE nameAscii=? AND league!=?", [
