@@ -351,6 +351,11 @@ function AdminPanel({
             allowed: matchdayTransfers ? t("Allowed") : t("Forbidden"),
           })}
         </p>
+        <p>
+          {t("Top 11 is {enabled}", {
+            enabled: top ? t("enabled") : t("disabled"),
+          })}
+        </p>
         <p>{t("This league is " + (archived ? "archived" : "not archived"))}</p>
       </>
     );
