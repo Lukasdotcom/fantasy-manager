@@ -70,7 +70,7 @@ export async function timeUntilUpdate(
       await connection.query(
         "SELECT * FROM clubs WHERE gameStart < ? AND gameEnd > ? AND league=?",
         [
-          Date.now() / 1000 - gameTime + 120,
+          Date.now() / 1000 - gameTime - 120,
           Date.now() / 1000 + gameTime,
           league,
         ],
