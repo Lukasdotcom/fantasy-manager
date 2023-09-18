@@ -49,7 +49,7 @@ async function downloadPictureURL(url: string, id: number) {
     const stream = createWriteStream("./players/download/" + fileName);
     const { body, status } = await fetch(url);
     if (!body || status !== 200) {
-      rej();
+      rej("Status code was not 200, but: " + status);
       return;
     }
     await finished(
