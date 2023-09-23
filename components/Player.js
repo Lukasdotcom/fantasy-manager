@@ -279,7 +279,7 @@ export function TransferPlayer({
       }),
     }).then(async (response) => {
       notify(
-        t(await response.text(), { amount }),
+        t(await response.text(), { amount: amount / 1000000 }),
         response.ok ? "success" : "error",
       );
       transferData();
