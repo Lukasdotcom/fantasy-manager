@@ -82,19 +82,21 @@ export const getLeagueInfo = async (
       gk: 0,
     };
     await Promise.all(
-      players.map(async (player) => {
-        if (player.position !== "bench") {
-          position_total[player.position] += 1;
-        } else {
-          position_total[
-            await connection
-              .query("SELECT position FROM players WHERE uid=?", [
-                player.playeruid,
-              ])
-              .then((e) => e[0].position)
-          ] += 1;
-        }
-      }),
+      players
+        .filter((player) => player.status !== "sell")
+        .map(async (player) => {
+          if (player.position !== "bench") {
+            position_total[player.position] += 1;
+          } else {
+            position_total[
+              await connection
+                .query("SELECT position FROM players WHERE uid=?", [
+                  player.playeruid,
+                ])
+                .then((e) => e[0].position)
+            ] += 1;
+          }
+        }),
     );
     connection.end();
     return { formation, players, validFormations, position_total };
