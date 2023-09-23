@@ -22,7 +22,8 @@ async function top11(userID: number, leagueID: number) {
   );
   const players: { playeruid: string; position: position; points: number }[] =
     await connection.query(
-      "SELECT squad.playeruid, players.position, players.last_match+players.last_match*starred AS points FROM squad LEFT OUTER JOIN players ON players.uid=squad.playeruid WHERE user=1 AND leagueID=21 ORDER BY players.position, points DESC;",
+      "SELECT squad.playeruid, players.position, players.last_match+players.last_match*starred AS points FROM squad LEFT OUTER JOIN players ON players.uid=squad.playeruid WHERE user=? AND leagueID=? ORDER BY players.position, points DESC;",
+      [userID, leagueID],
     );
   const parts = ["gk", "def", "mid", "att"];
   // Goes through every character and moves them to the correct position
