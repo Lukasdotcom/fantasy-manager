@@ -328,6 +328,11 @@ export async function updateData(url: string, file = "./sample/data1.json") {
   }
   // Unlocks the database
   connection.query("DELETE FROM data WHERE value1=?", ["locked" + league]);
+  // Makes sure that no new updates are requested right after an update
+  connection.query(
+    "INSERT INTO data (value1, value2) VALUES(?, '0') ON DUPLICATE KEY UPDATE value2=0",
+    ["update" + league],
+  );
   connection.end();
 }
 
