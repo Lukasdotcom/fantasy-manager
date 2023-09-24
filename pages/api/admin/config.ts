@@ -43,6 +43,8 @@ export default async function handler(
               if (!(value >= 0)) {
                 fail = true;
               }
+            } else if (setting[0].variant === "boolean") {
+              value = value ? 1 : 0;
             }
           } else {
             res.status(400).end("Config value not found");
@@ -52,6 +54,19 @@ export default async function handler(
       if (fail) {
         if (!res.writableEnded) res.status(400).end("Config value was invalid");
         return;
+      }
+      // If the signup with password value was changed regenerate the signin page
+      if (name === "EnablePasswordSignup") {
+        fetch(process.env.NEXTAUTH_URL_INTERNAL + "/api/revalidate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            secret: process.env.NEXTAUTH_SECRET,
+            path: "/signin",
+          }),
+        });
       }
       const connection = await connect();
       await connection.query(
