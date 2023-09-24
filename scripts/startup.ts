@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import fs from "fs";
 import connect, { data, plugins } from "../Modules/database";
-import noAccents from "../Modules/normalize";
+import noAccents, { normalize_db } from "../Modules/normalize";
 import { compareSemanticVersions } from "../Modules/semantic";
 import store from "../types/store";
 import compileAnalytics from "./compileAnalytics";
@@ -15,7 +15,7 @@ if (process.env.APP_ENV !== "test") {
   dotenv.config({ path: ".env.test.local" });
 }
 // Used to tell the program what version the database should get to
-const currentVersion = "1.14.0";
+const currentVersion = "1.15.0";
 // Creates the default config
 async function createConfig() {
   const connection = await connect();
@@ -759,6 +759,11 @@ async function startUp() {
         ),
       ]);
       oldVersion = "1.14.0";
+    }
+    // Normalization definitions got updated
+    if (oldVersion === "1.14.0") {
+      normalize_db();
+      oldVersion = "1.15.0";
     }
     // HERE IS WHERE THE CODE GOES TO UPDATE THE DATABASE FROM ONE VERSION TO THE NEXT
     // Makes sure that the database is up to date
