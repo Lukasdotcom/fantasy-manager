@@ -32,13 +32,14 @@ RUN mkdir app
 WORKDIR /app
 COPY --from=builder /app/.next /app/.next
 COPY --from=builder /app/Modules /app/Modules
-COPY --from=builder /app/scripts /app/scripts
-COPY --from=builder /app/package-lock.json /app/package-lock.json
-COPY --from=builder /app/package.json /app/package.json
-COPY --from=builder /app/tsconfig2.json /app/tsconfig2.json
-COPY --from=builder /app/types /app/types
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/public /app/public
+COPY --from=builder /app/scripts /app/scripts
+COPY --from=builder /app/types /app/types
+COPY --from=builder /app/package.json /app/package.json
+COPY --from=builder /app/next.config.js /app/next.config.js
+COPY --from=builder /app/package.json /app/package.json
+COPY --from=builder /app/tsconfig2.json /app/tsconfig2.json
 ENV NEXTAUTH_URL_INTERNAL=http://127.0.0.1:3000
 
 EXPOSE 3000
