@@ -20,7 +20,8 @@ const currentVersion = "1.15.0";
 async function createConfig() {
   const connection = await connect();
   await connection.query(
-    "INSERT IGNORE INTO data (value1, value2) VALUES ('configMinTimeGame', '120'), ('configMaxTimeGame', '1200'), ('configMinTimeTransfer', '3600'), ('configMaxTimeTransfer', '86400'), ('configDownloadPicture', 'needed'), ('configDeleteInactiveUser', '0'), ('configArchiveInactiveLeague', '180')",
+    "INSERT IGNORE INTO data (value1, value2) VALUES ('configMinTimeGame', '120'), ('configMaxTimeGame', '1200'), ('configMinTimeTransfer', '3600'), ('configMaxTimeTransfer', '86400'), ('configDownloadPicture', 'needed'), ('configDeleteInactiveUser', '0'), ('configArchiveInactiveLeague', '180'), ('configEnablePasswordSignup', ?)",
+    [process.env.APP_ENV !== "production"],
   );
   if (process.env.APP_ENV === "test") {
     await connection.query(

@@ -78,6 +78,11 @@ export const settings: settingsType[] = [
     shortName: "DeleteInactiveUser",
     variant: "number",
   },
+  {
+    name: "Enable Signups with passwords",
+    shortName: "EnablePasswordSignup",
+    variant: "boolean",
+  },
 ];
 interface LeaguePluginsProps {
   plugins: plugins[];
@@ -633,7 +638,14 @@ function Config({
   variant,
   options,
 }: configProps) {
-  const [value, setValue] = useState(default_value);
+  console.log(default_value);
+  const [value, setValue] = useState(
+    variant === "boolean"
+      ? default_value === "1"
+        ? true
+        : false
+      : default_value,
+  );
   const notify = useContext(NotifyContext);
   const save = async () => {
     notify("Saving");
@@ -680,6 +692,24 @@ function Config({
               </MenuItem>
             ))}
           </Select>
+          <Button variant="outlined" color="success" onClick={save}>
+            Save
+          </Button>
+          <br />
+        </>
+      );
+    case "boolean":
+      return (
+        <>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={Boolean(value)}
+                onChange={(e) => setValue(e.target.checked)}
+              />
+            }
+            label={name}
+          />
           <Button variant="outlined" color="success" onClick={save}>
             Save
           </Button>

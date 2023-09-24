@@ -11,11 +11,16 @@ import { Providers, getProviders } from "../types/providers";
 import Link from "../components/Link";
 import { TranslateContext } from "../Modules/context";
 import getLocales from "../locales/getLocales";
+import connect from "#/Modules/database";
 interface Props {
   enabledProviders: Providers[];
+  enablePasswordSignup: boolean;
 }
 
-export default function SignIn({ enabledProviders }: Props) {
+export default function SignIn({
+  enabledProviders,
+  enablePasswordSignup,
+}: Props) {
   const t = useContext(TranslateContext);
   const router = useRouter();
   const callbackUrl = router.query.callbackUrl as string;
@@ -139,12 +144,16 @@ export default function SignIn({ enabledProviders }: Props) {
         >
           {t("Sign In")}
         </Button>
-        <Button
-          variant="contained"
-          onClick={() => signIn("Sign-Up", { callbackUrl, username, password })}
-        >
-          {t("Sign Up")}
-        </Button>
+        {enablePasswordSignup && (
+          <Button
+            variant="contained"
+            onClick={() =>
+              signIn("Sign-Up", { callbackUrl, username, password })
+            }
+          >
+            {t("Sign Up")}
+          </Button>
+        )}
         <p>
           {" "}
           <Link href="privacy">
@@ -159,8 +168,14 @@ export default function SignIn({ enabledProviders }: Props) {
 }
 // Gets the list of providers
 export const getStaticProps: GetStaticProps = async (ctx) => {
+  const connection = await connect();
   const props: Props = {
     enabledProviders: getProviders(),
+    enablePasswordSignup: await connection
+      .query(
+        "SELECT * FROM data WHERE value1='configEnablePasswordSignup' AND value2='1'",
+      )
+      .then((res) => res.length > 0),
   };
   return { props: { ...props, t: await getLocales(ctx.locale) } };
 };
