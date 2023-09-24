@@ -21,6 +21,8 @@ COPY locales locales
 ENV SQLITE=/app/temp.db
 RUN npm run build
 RUN rm /app/temp.db
+RUN rm -rf /app/scripts/data
+RUN rm /app/scripts/data.ts
 
 FROM node:18-alpine
 ENV NODE_ENV production
