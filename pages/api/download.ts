@@ -1,4 +1,5 @@
 import connect, { players } from "#/Modules/database";
+import getLocales from "#/locales/getLocales";
 import { stringify } from "csv-stringify/sync";
 import { NextApiRequest, NextApiResponse } from "next";
 interface returnType extends players {
@@ -59,29 +60,35 @@ export default async function handler(
         ).map(filter_function);
   // Checks if this is a download by csv or json
   if (req.query.type === "csv") {
+    const names: { [Key: string]: string } = {
+      uid: "Playeruid",
+      name: "Name",
+      nameAscii: "Ascii Name",
+      club: "Club",
+      pictureUrl: "Picture Url",
+      value: "Value",
+      sale_price: "Sale Price",
+      position: "Position",
+      forecast: "Forecast",
+      total_points: "Total Points",
+      average_points: "Average Points",
+      last_match: "Last Match Points",
+      exists: "Exists",
+      league: "League",
+    };
+    // Translates all the category names if needed
+    const locale_data = await getLocales(String(req.query.locale));
+    if (locale_data) {
+      Object.keys(names).forEach((e) => {
+        names[e] = locale_data[names[e]] || names[e];
+      });
+    }
     res.setHeader("Content-Type", "application/csv");
-    res.setHeader("Content-Disposition", "attachment; filename=players.csv");
-    res.status(200).end(
-      stringify([
-        {
-          uid: "Uid",
-          name: "Name",
-          nameAscii: "Ascii Name",
-          club: "Club",
-          pictureUrl: "Picture Url",
-          value: "Value",
-          sale_price: "Sale Price",
-          position: "Position",
-          forecast: "Forecast",
-          total_points: "Total Points",
-          average_points: "Average Points",
-          last_match: "Last Match Points",
-          exists: "Exists",
-          league: "League",
-        },
-        ...data,
-      ]),
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${(locale_data || {}).Players || "Players"}.csv`,
     );
+    res.status(200).end(stringify([names, ...data]));
   } else {
     res.setHeader("Content-Type", "application/json");
     res.setHeader("Content-Disposition", "attachment; filename=players.json");
