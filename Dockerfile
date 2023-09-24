@@ -1,6 +1,7 @@
 FROM node:18-alpine AS builder
-# Used to build the project
 ENV NODE_ENV production
+ENV APP_ENV production
+# Used to build the project
 RUN mkdir app
 WORKDIR /app
 COPY components components
@@ -22,6 +23,8 @@ RUN npm run build
 RUN rm /app/temp.db
 
 FROM node:18-alpine
+ENV NODE_ENV production
+ENV APP_ENV production
 # Used to run the project
 RUN mkdir app
 WORKDIR /app
