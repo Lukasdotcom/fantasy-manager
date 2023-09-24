@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18-alpine AS builder
 # Used to build the project
 ENV NODE_ENV production
 RUN mkdir app
@@ -17,13 +17,26 @@ COPY tsconfig.json tsconfig.json
 COPY tsconfig2.json tsconfig2.json
 COPY types types
 COPY locales locales
-RUN npm ci
-# Sets the default configuration
-ENV NEXTAUTH_SECRET=hkf9eUXAZKjw99/hZ4Rrw7aNe47qxB+QuojMwmxbFqA=
+ENV SQLITE=/app/temp.db
+RUN npm run build
+RUN rm /app/temp.db
+
+FROM node:18-alpine
+# Used to run the project
+RUN mkdir app
+WORKDIR /app
+COPY --from=builder /app/.next /app/.next
+COPY --from=builder /app/Modules /app/Modules
+COPY --from=builder /app/scripts /app/scripts
+COPY --from=builder /app/package-lock.json /app/package-lock.json
+COPY --from=builder /app/package.json /app/package.json
+COPY --from=builder /app/tsconfig2.json /app/tsconfig2.json
+COPY --from=builder /app/types /app/types
+COPY --from=builder /app/node_modules /app/node_modules
 ENV NEXTAUTH_URL_INTERNAL=http://127.0.0.1:3000
 
 EXPOSE 3000
 
 ENV PORT 3000
 
-CMD npm run start
+CMD npm run start:no-build

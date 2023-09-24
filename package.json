@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "export NODE_ENV=development APP_ENV=development && npm run start2:part1 && npm run dev:part2",
     "dev:part2": "ts-node --project=tsconfig2.json scripts/entrypoint.ts & next dev",
-    "build": "npm ci && ts-node --project=tsconfig2.json scripts/startup.ts && next build",
+    "build": "npm ci && npm run start2:part1 && next build",
     "start": "export NODE_ENV=production APP_ENV=production && npm run start2",
     "test": "npm run cypress & npm run start:test",
     "start:test": "export NODE_ENV=test APP_ENV=test && npm run clean && npm run start2",
@@ -17,7 +17,7 @@
     "format": "prettier --write .",
     "cypress:open": "cypress open",
     "cypress": "wait-on http://127.0.0.1:3000 && cypress run",
-    "start:no-build": "ts-node --project=tsconfig2.json scripts/entrypoint.ts & next start",
+    "start:no-build": "npm run start2:part1 && ts-node --project=tsconfig2.json scripts/entrypoint.ts & next start",
     "clean": "rm -f tsconfig2.tsbuildinfo; rm -f tsconfig3.tsbuildinfo; rm -f test.db; rm -rf ./scripts/data; rm -rf ./players; rm -rf ./.next/cache/images"
   },
   "dependencies": {
