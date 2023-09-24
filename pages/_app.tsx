@@ -1,7 +1,7 @@
 import "../styles/globals.css";
 import { useEffect, useState } from "react";
 import { SessionProvider, useSession } from "next-auth/react";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeOptions, ThemeProvider, createTheme } from "@mui/material/styles";
 import {
   Alert,
   Snackbar,
@@ -30,7 +30,11 @@ function MyApp({ Component, pageProps }: AppProps) {
   const { data: session } = useSession();
   const [translationData, setTranslationData] = useState<
     Record<string, string>
-  >(pageProps.t ? pageProps.t : {});
+  >(pageProps?.t?.translate ? pageProps.t.translate : {});
+  const [themeData, setThemeData] = useState<{
+    dark: ThemeOptions;
+    light: ThemeOptions;
+  }>(pageProps?.t?.theme ? pageProps.t.theme : undefined);
   const [notifications, setNotifications] = useState<Notification>({});
   // Used to send notification
   function notify(message: string, severity: AlertColor = "info") {
@@ -55,6 +59,16 @@ function MyApp({ Component, pageProps }: AppProps) {
     return "";
   }
   const router = useRouter();
+  // Grabs the theme data if required
+  useEffect(() => {
+    if (themeData === undefined) {
+      fetch("/api/theme")
+        .then((e) => e.json())
+        .then((data) => {
+          setThemeData(data);
+        });
+    }
+  }, [themeData, setThemeData]);
   // Grabs the translations if required
   useEffect(() => {
     // If the user is logged in the locale is saved to local storage
@@ -214,11 +228,15 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prefersDark, session]);
-  const theme = createTheme({
-    palette: {
-      mode: colorMode,
-    },
-  });
+  const theme = createTheme(
+    themeData
+      ? themeData[colorMode]
+      : {
+          palette: {
+            mode: colorMode,
+          },
+        },
+  );
   // Used to get the host
   const host =
     typeof window !== "undefined"

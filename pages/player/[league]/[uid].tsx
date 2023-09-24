@@ -27,9 +27,9 @@ import {
 } from "@mui/material";
 import { result as apiPlayerResult } from "../../api/player/[leagueType]/[uid]";
 import { TranslateContext } from "../../../Modules/context";
-import getLocales from "../../../locales/getLocales";
 import { downloadPicture } from "#/scripts/pictures";
 import fallbackImg from "../../../public/playerFallback.png";
+import { getData } from "#/pages/api/theme";
 interface extendedPlayers extends players {
   game: {
     opponent: string;
@@ -562,7 +562,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       league,
       otherLeagues,
       pictures: pictureData,
-      t: await getLocales(ctx.locale),
+      t: await getData(ctx.locale),
     },
   };
 };

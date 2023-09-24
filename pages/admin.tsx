@@ -41,6 +41,7 @@ import { NotifyContext } from "#Modules/context";
 import { getServerSession } from "next-auth";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { useRouter } from "next/router";
+import Link from "#components/Link";
 interface settingsType {
   name: string;
   shortName: string;
@@ -638,7 +639,6 @@ function Config({
   variant,
   options,
 }: configProps) {
-  console.log(default_value);
   const [value, setValue] = useState(
     variant === "boolean"
       ? default_value === "1"
@@ -710,6 +710,22 @@ function Config({
             }
             label={name}
           />
+          <Button variant="outlined" color="success" onClick={save}>
+            Save
+          </Button>
+          <br />
+        </>
+      );
+    case "textarea":
+      return (
+        <>
+          <TextField
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            helperText={name}
+            multiline
+            fullWidth
+          ></TextField>
           <Button variant="outlined" color="success" onClick={save}>
             Save
           </Button>
@@ -830,6 +846,36 @@ export default function Home({
         variant="select"
         options={["no", "needed", "new&needed", "yes"]}
       />
+      <h3>Custom Theme</h3>
+      <p>
+        In the textbox below you can paste a custom theme. To create one go to{" "}
+        <Link
+          href="https://zenoo.github.io/mui-theme-creator/"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          MUI Theme Creator.
+        </Link>{" "}
+        Then copy the code and convert it to json a json object and then click
+        save. You may also just edit the text below. The first textarea is the
+        dark theme while the second one is the light theme.
+      </p>
+      {["Dark", "Light"].map((theme) => (
+        <Config
+          default_value={
+            (
+              config.filter((e) => e.value1 === "configTheme" + theme)[0] ?? {
+                value2: "{}",
+              }
+            ).value2
+          }
+          key={theme}
+          name={`${theme} Theme`}
+          shortName={`Theme${theme}`}
+          variant="textarea"
+        />
+      ))}
+
       <h2>Analytics</h2>
       {firstDay !== null && (
         <Analytics analytics={analytics} firstDay={firstDay} />

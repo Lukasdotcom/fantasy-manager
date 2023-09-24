@@ -10,8 +10,8 @@ import Menu from "../components/Menu";
 import { Providers, getProviders } from "../types/providers";
 import Link from "../components/Link";
 import { TranslateContext } from "../Modules/context";
-import getLocales from "../locales/getLocales";
 import connect from "#/Modules/database";
+import { getData } from "./api/theme";
 interface Props {
   enabledProviders: Providers[];
   enablePasswordSignup: boolean;
@@ -179,5 +179,10 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
         )
         .then((res) => res.length > 0)),
   };
-  return { props: { ...props, t: await getLocales(ctx.locale) } };
+  return {
+    props: {
+      ...props,
+      t: await getData(ctx.locale),
+    },
+  };
 };
