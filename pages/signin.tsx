@@ -171,11 +171,13 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
   const connection = await connect();
   const props: Props = {
     enabledProviders: getProviders(),
-    enablePasswordSignup: await connection
-      .query(
-        "SELECT * FROM data WHERE value1='configEnablePasswordSignup' AND value2='1'",
-      )
-      .then((res) => res.length > 0),
+    enablePasswordSignup:
+      getProviders().length === 0 ||
+      (await connection
+        .query(
+          "SELECT * FROM data WHERE value1='configEnablePasswordSignup' AND value2='1'",
+        )
+        .then((res) => res.length > 0)),
   };
   return { props: { ...props, t: await getLocales(ctx.locale) } };
 };
