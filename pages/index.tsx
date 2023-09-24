@@ -13,8 +13,8 @@ import { useContext, useEffect, useState } from "react";
 import version from "./../package.json";
 import Link from "../components/Link";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
-import getLocales from "../locales/getLocales";
 import { TranslateContext } from "../Modules/context";
+import { getData } from "./api/theme";
 interface InnerUpdateType {
   type: AlertColor;
   title: string;
@@ -228,7 +228,10 @@ export const getStaticProps: GetStaticProps = async (context) => {
     }
   }
   return {
-    props: { update, t: await getLocales(context.locale) },
+    props: {
+      update,
+      t: await getData(context.locale),
+    },
     // Checks at max every day
     revalidate: 3600 * 24,
   };

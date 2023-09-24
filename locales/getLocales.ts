@@ -2,7 +2,7 @@ const validLocales = ["de"];
 /**
  * Used to grab the correct locales data.
  * @param {string | undefined} locale - The locale
- * @return {Promise<Record<string, string> | undefined>} The locale data.
+ * @return {Promise<Record<string, string> | null>} The locale data.
  */
 export default async function getLocales(
   locale: string | undefined,

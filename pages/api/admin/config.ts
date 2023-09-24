@@ -34,6 +34,10 @@ export default async function handler(
             fail = true;
           }
           break;
+        case "ThemeLight":
+          break;
+        case "ThemeDark":
+          break;
         default:
           const setting = settings.filter((e) => e.shortName === name);
           if (setting.length > 0) {

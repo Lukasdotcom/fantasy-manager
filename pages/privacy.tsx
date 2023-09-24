@@ -3,8 +3,8 @@ import Head from "next/head";
 import { useContext } from "react";
 import Link from "../components/Link";
 import Menu from "../components/Menu";
-import getLocales from "../locales/getLocales";
 import { TranslateContext } from "../Modules/context";
+import { getData } from "./api/theme";
 
 export default function Home() {
   const t = useContext(TranslateContext);
@@ -96,5 +96,7 @@ export default function Home() {
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  return { props: { t: await getLocales(context.locale) } };
+  return {
+    props: { t: await getData(context.locale) },
+  };
 };

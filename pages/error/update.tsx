@@ -4,8 +4,8 @@ import BugReport from "../../components/BugReport";
 import Link from "../../components/Link";
 import { useContext } from "react";
 import { TranslateContext } from "../../Modules/context";
-import getLocales from "#/locales/getLocales";
 import { GetStaticProps } from "next";
+import { getData } from "../api/theme";
 export default function Home() {
   const t = useContext(TranslateContext);
   return (
@@ -43,6 +43,6 @@ export default function Home() {
 
 export const getStaticProps: GetStaticProps = async (context) => {
   return {
-    props: { t: await getLocales(context.locale) },
+    props: { t: await getData(context.locale) },
   };
 };

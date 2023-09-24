@@ -14,9 +14,9 @@ import { useContext, useState } from "react";
 import Menu from "../components/Menu";
 import { GetStaticProps } from "next";
 import { TranslateContext } from "../Modules/context";
-import getLocales from "../locales/getLocales";
 import connect from "#/Modules/database";
 import { useRouter } from "next/router";
+import { getData } from "./api/theme";
 type historicalTimes = { [Key: string]: number[] };
 interface props {
   historicalTimes: historicalTimes;
@@ -153,7 +153,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
       historicalTimes,
       leagues: leagueTypes,
       league_enabled,
-      t: await getLocales(context.locale),
+      t: await getData(context.locale),
     },
   };
 };

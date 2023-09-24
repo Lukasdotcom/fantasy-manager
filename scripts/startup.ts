@@ -19,9 +19,59 @@ const currentVersion = "1.15.0";
 // Creates the default config
 async function createConfig() {
   const connection = await connect();
+  const default_theme_dark = JSON.stringify({
+    palette: {
+      primary: {
+        main: "#90caf9",
+      },
+      secondary: {
+        main: "#ce93d8",
+      },
+      error: {
+        main: "#f44336",
+      },
+      warning: {
+        main: "#ffa726",
+      },
+      info: {
+        main: "#29b6f6",
+      },
+      success: {
+        main: "#66bb6a",
+      },
+      mode: "dark",
+    },
+  });
+  const default_theme_light = JSON.stringify({
+    palette: {
+      primary: {
+        main: "#1976d2",
+      },
+      secondary: {
+        main: "#9c27b0",
+      },
+      error: {
+        main: "#d32f2f",
+      },
+      warning: {
+        main: "#ed6c02",
+      },
+      info: {
+        main: "#0288d1",
+      },
+      success: {
+        main: "#2e7d32",
+      },
+      mode: "light",
+    },
+  });
   await connection.query(
-    "INSERT IGNORE INTO data (value1, value2) VALUES ('configMinTimeGame', '120'), ('configMaxTimeGame', '1200'), ('configMinTimeTransfer', '3600'), ('configMaxTimeTransfer', '86400'), ('configDownloadPicture', 'needed'), ('configDeleteInactiveUser', '0'), ('configArchiveInactiveLeague', '180'), ('configEnablePasswordSignup', ?)",
-    [process.env.APP_ENV !== "production"],
+    "INSERT IGNORE INTO data (value1, value2) VALUES ('configMinTimeGame', '120'), ('configMaxTimeGame', '1200'), ('configMinTimeTransfer', '3600'), ('configMaxTimeTransfer', '86400'), ('configDownloadPicture', 'needed'), ('configDeleteInactiveUser', '0'), ('configArchiveInactiveLeague', '180'), ('configEnablePasswordSignup', ?), ('configThemeDark', ?), ('configThemeLight', ?)",
+    [
+      process.env.APP_ENV !== "production",
+      default_theme_dark,
+      default_theme_light,
+    ],
   );
   if (process.env.APP_ENV === "test") {
     await connection.query(
