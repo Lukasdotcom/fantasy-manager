@@ -16,6 +16,7 @@ import { GetStaticProps } from "next";
 import { TranslateContext } from "../Modules/context";
 import getLocales from "../locales/getLocales";
 import connect from "#/Modules/database";
+import { useRouter } from "next/router";
 type historicalTimes = { [Key: string]: number[] };
 interface props {
   historicalTimes: historicalTimes;
@@ -36,13 +37,14 @@ export default function Home({
     setLeague(e.target.value);
     setMatchday(0);
   };
+  const router = useRouter();
+  const t = useContext(TranslateContext);
   // Generates the download link
   function downloadLink(type: fileTypes) {
     return `/api/download?type=${type}&league=${league}${
       matchday !== 0 ? `&time=${matchday}` : ""
-    }${showHidden ? "&showHidden=true" : ""}`;
+    }${showHidden ? "&showHidden=true" : ""}&locale=${router.locale}`;
   }
-  const t = useContext(TranslateContext);
   return (
     <>
       <Head>
@@ -95,15 +97,17 @@ export default function Home({
             }
           />
           <br />
+          {t("CSV is the recommended format. ")}
+          <br />
           <ButtonGroup>
-            <Button>
-              <Link disableNext={true} href={downloadLink("json")}>
-                {t("Download as {file}", { file: "json" })}
-              </Link>
-            </Button>
             <Button>
               <Link disableNext={true} href={downloadLink("csv")}>
                 {t("Download as {file}", { file: "csv" })}
+              </Link>
+            </Button>
+            <Button>
+              <Link disableNext={true} href={downloadLink("json")}>
+                {t("Download as {file}", { file: "json" })}
               </Link>
             </Button>
           </ButtonGroup>
