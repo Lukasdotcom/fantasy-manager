@@ -42,6 +42,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { useRouter } from "next/router";
 import Link from "#components/Link";
+import { MUIThemeCodetoJSONString } from "#components/theme";
 interface settingsType {
   name: string;
   shortName: string;
@@ -649,6 +650,11 @@ function Config({
   const notify = useContext(NotifyContext);
   const save = async () => {
     notify("Saving");
+    let value2 = value;
+    if (variant === "textarea") {
+      setValue(String(value).replace(/\n/g, "").replaceAll(" ", ""));
+      value2 = String(value).replace(/\n/g, "").replaceAll(" ", "");
+    }
     const res = await fetch("/api/admin/config", {
       method: "POST",
       headers: {
@@ -656,7 +662,7 @@ function Config({
       },
       body: JSON.stringify({
         name: shortName,
-        value,
+        value: value2,
       }),
     });
     notify(await res.text(), res.ok ? "success" : "error");
@@ -717,6 +723,10 @@ function Config({
         </>
       );
     case "textarea":
+      // Automatically parses when pasted in
+      if (String(value).includes("import")) {
+        setValue(MUIThemeCodetoJSONString(String(value)));
+      }
       return (
         <>
           <TextField
@@ -856,10 +866,9 @@ export default function Home({
         >
           MUI Theme Creator.
         </Link>{" "}
-        Then copy the code and convert it to json a json object and then click
-        save. You may also just edit the text below. The first textarea is the
-        dark theme while the second one is the light theme. Note that some pages
-        may take a while to update or require a server restart to update.
+        When you are done editing your theme copy it and paste it below, it will
+        be automatically formatted to the correct format. The first textarea is
+        the dark theme while the second one is the light theme.
       </p>
       {["Dark", "Light"].map((theme) => (
         <Config
