@@ -513,8 +513,8 @@ function Analytics({
         data: condensedAnalytics.map(
           (e) => JSON.parse(e.themeActive).custom ?? 0,
         ),
-        borderColor: `hsla(20, 100%, 50%, 1)`,
-        backgroundColor: `hsla(20, 100%, 50%, 1)`,
+        borderColor: theme.palette.secondary.main,
+        backgroundColor: theme.palette.secondary.main,
       },
       {
         fill: true,
@@ -546,7 +546,7 @@ function Analytics({
             (JSON.parse(e.themeTotal).custom ?? 0) -
             (JSON.parse(e.themeActive).custom ?? 0),
         ),
-        borderColor: `hsla(20, 100%, 50%, 1)`,
+        borderColor: theme.palette.secondary.main,
         backgroundColor: `hsla(20, 100%, 50%, 0)`,
       },
     ],
@@ -889,7 +889,8 @@ export default function Home({
         </Link>{" "}
         When you are done editing your theme copy it and paste it below, it will
         be automatically formatted to the correct format. The first textarea is
-        the dark theme while the second one is the light theme.
+        the dark theme while the second one is the light theme. If you want to
+        use the default just enter `{"{}"}` as the value.
       </p>
       {["Dark", "Light"].map((theme) => (
         <Config

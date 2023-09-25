@@ -18,6 +18,7 @@ import {
   TableHead,
   TableRow,
   TextField,
+  alpha,
 } from "@mui/material";
 import Dialog from "./Dialog";
 import { UserChip } from "./Username";
@@ -45,17 +46,17 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
   }, [data]);
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
-  let background;
+  let background = "main";
   if (Object.keys(data).length > 0) {
     // Changes the background to the correct color if the player is missing or not known if they are coming
     if (data.forecast == "u") {
-      background = dark ? "rgb(50, 50, 0)" : "rgb(255, 255, 220)";
+      background = "warning";
     } else if (data.forecast == "m") {
-      background = dark ? "rgb(50, 0, 0)" : "rgb(255, 200, 200)";
+      background = "error";
     }
     // Checks if the player exists
     if (data.exists === 0) {
-      background = dark ? "rgb(50, 0, 50)" : "rgb(255, 235, 255)";
+      background = "secondary";
     }
     const price_component =
       data.value === data.sale_price ? (
@@ -84,9 +85,9 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
         elevation={1}
         className={playerStyles.container}
         sx={{
-          background,
           height: "120",
           ...border,
+          bgcolor: alpha(theme.palette[background][theme.palette.mode], 0.3),
         }}
       >
         <div style={{ width: "min(10%, 80px)", textAlign: "center" }}>
@@ -493,7 +494,7 @@ export function TransferPlayer({
         {Actions}
       </Dialog>
       <Button
-        variant="outlined"
+        variant="contained"
         disabled={
           ButtonText === t("Transfer Market is closed") ||
           ButtonText === t("Error Getting Player info")
@@ -565,7 +566,7 @@ export function SquadPlayer({
     Buttons = (
       <>
         <Button
-          variant="outlined"
+          variant="contained"
           onClick={() => {
             notify(t("Moving"));
             // Used to move the player

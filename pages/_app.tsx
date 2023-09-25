@@ -191,7 +191,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   }
   // Used to create the theme for the website and starts of in dark to not blind dark theme users
   const [colorMode, setColorMode] = useState<"light" | "dark" | string>("dark");
-  function updateColorMode(theme: "light" | "dark", force = false) {
+  function updateColorMode(theme: "light" | "dark" | string, force = false) {
     if (force || (session && session?.user.theme !== theme)) {
       fetch("/api/user", {
         method: "POST",

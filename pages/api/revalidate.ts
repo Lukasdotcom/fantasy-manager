@@ -36,10 +36,11 @@ export default async function handler(
       await Promise.all(
         pages.map(
           (page) =>
-            new Promise(() => {
+            new Promise<void>(async (finish) => {
               console.log("Revalidating page " + page);
-              res.revalidate(page);
+              await res.revalidate(page);
               console.log("Revalidated the page " + page);
+              finish();
             }),
         ),
       );
