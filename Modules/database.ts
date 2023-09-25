@@ -142,6 +142,16 @@ class connection {
       connection.close();
     }
   }
+  // Used to optimize the db (VACUUM and optimize for sqlite)
+  async optimize() {
+    console.log("Optimizing database");
+    const mysql = "query" in connection;
+    if (!mysql) {
+      await this.query("pragma vacuum");
+      await this.query("pragma optimize");
+    }
+    console.log("Optimized database");
+  }
 }
 export type position = "bench" | "gk" | "def" | "mid" | "att";
 export type forecast = "a" | "u" | "m";
