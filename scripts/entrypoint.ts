@@ -11,6 +11,7 @@ import compileAnalytics from "./compileAnalytics";
 import { checkPictures } from "./pictures";
 import { timeUntilUpdate } from "./checkUpdate";
 import { leaveLeague } from "#Modules/delete";
+import { startWatcher } from "./watch";
 const analyticsDomain = "https://fantasy.lschaefer.xyz";
 const date = new Date();
 let day = date.getDay();
@@ -19,6 +20,7 @@ if (process.env.APP_ENV !== "test") {
 } else {
   dotenv.config({ path: ".env.test.local" });
 }
+startWatcher();
 checkPictures();
 // Makes sure to check if an action is neccessary every 10 seconds
 setInterval(update, 10000);
