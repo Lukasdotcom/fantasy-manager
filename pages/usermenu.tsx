@@ -28,6 +28,8 @@ import { getProviders, Providers } from "../types/providers";
 import connect from "../Modules/database";
 import { useRouter } from "next/router";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
+import { MUIThemeCodetoJSONString } from "#/components/theme";
+import Link from "#components/Link";
 interface ProviderProps {
   provider: Providers;
   notify: NotifyType;
@@ -126,6 +128,7 @@ export default function Home({
   const [username, setUsername] = useState(user.username);
   const [password, setPassword] = useState("");
   const [passwordExists, setPasswordExists] = useState(user.password);
+  const [customTheme, setCustomTheme] = useState("");
   const theme = useTheme();
   const notify = useContext(NotifyContext);
   const oppositeColor = theme.palette.mode === "dark" ? "light" : "dark";
@@ -133,6 +136,11 @@ export default function Home({
   function alternateColorMode() {
     setColorMode(oppositeColor, true);
     localStorage.theme = oppositeColor;
+  }
+  // Resets the color mode
+  function resetColorMode() {
+    setColorMode(theme.palette.mode, true);
+    localStorage.theme = theme.palette.mode;
   }
   // Used to change the users username
   function changeUsername() {
@@ -202,6 +210,14 @@ export default function Home({
       notify(t(await response.text()), response.ok ? "success" : "error");
       signOut();
     });
+  }
+  function saveCustomTheme() {
+    setColorMode(customTheme, true);
+    localStorage.theme = customTheme;
+  }
+  // Parses custom theme when pasted
+  if (customTheme.includes("import")) {
+    setCustomTheme(MUIThemeCodetoJSONString(customTheme));
   }
   return (
     <>
@@ -288,6 +304,40 @@ export default function Home({
           user={user}
         />
       ))}
+      <h2>{t("Advanced Customization")}</h2>
+      <p>
+        {t(
+          "You can customize the theme here, but note that this is only for advanced users. ",
+        )}
+        <Link
+          href="https://zenoo.github.io/mui-theme-creator/"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          {t("First you will want to go to the MUI Theme Creator. ")}
+        </Link>
+        {t(
+          "There you can customize the theme using their UI, and copy the code to paste it below. Note that clicking the switch to light/dark mode button will reset your theme and that this textbox is cleared on page refresh. ",
+        )}
+      </p>
+      <TextField
+        value={customTheme}
+        onChange={(e) => setCustomTheme(e.target.value)}
+        multiline
+        fullWidth
+      ></TextField>
+      <Button
+        variant="outlined"
+        disabled={customTheme === ""}
+        color="success"
+        onClick={saveCustomTheme}
+      >
+        Save
+      </Button>
+      <Button variant="outlined" onClick={resetColorMode} color="error">
+        {t("Reset Theme")}
+      </Button>
+      <br />
     </>
   );
 }

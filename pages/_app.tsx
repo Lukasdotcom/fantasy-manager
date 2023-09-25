@@ -190,7 +190,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     setNotifications({});
   }
   // Used to create the theme for the website and starts of in dark to not blind dark theme users
-  const [colorMode, setColorMode] = useState<"light" | "dark">("dark");
+  const [colorMode, setColorMode] = useState<"light" | "dark" | string>("dark");
   function updateColorMode(theme: "light" | "dark", force = false) {
     if (force || (session && session?.user.theme !== theme)) {
       fetch("/api/user", {
@@ -215,10 +215,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       (session.user.theme === "dark" || session.user.theme === "light")
     ) {
       updateColorMode(session.user.theme);
-    } else if (
-      localStorage.theme === "dark" ||
-      localStorage.theme === "light"
-    ) {
+    } else if (localStorage.theme !== "") {
       // Uses localstorage if available
       updateColorMode(localStorage.theme);
     } else {
@@ -228,15 +225,27 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prefersDark, session]);
-  const theme = createTheme(
-    themeData
+  let completeThemeData: ThemeOptions = {};
+  if (colorMode === "dark" || colorMode === "light") {
+    completeThemeData = themeData
       ? themeData[colorMode]
       : {
           palette: {
             mode: colorMode,
           },
+        };
+  } else {
+    try {
+      completeThemeData = JSON.parse(colorMode);
+    } catch (e) {
+      completeThemeData = {
+        palette: {
+          mode: "dark",
         },
-  );
+      };
+    }
+  }
+  const theme = createTheme(completeThemeData);
   // Used to get the host
   const host =
     typeof window !== "undefined"
