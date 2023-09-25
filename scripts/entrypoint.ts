@@ -140,17 +140,20 @@ async function update() {
         }
       }
       if (user.theme !== "" && user.theme) {
+        const theme = ["light", "dark"].includes(user.theme)
+          ? user.theme
+          : "custom";
         // Calculates all the themes for the users
-        if (user.theme in themeTotal) {
-          themeTotal[user.theme]++;
+        if (theme in themeTotal) {
+          themeTotal[theme]++;
         } else {
-          themeTotal[user.theme] = 1;
+          themeTotal[theme] = 1;
         }
         if (user.active) {
-          if (user.theme in themeActive) {
-            themeActive[user.theme]++;
+          if (theme in themeActive) {
+            themeActive[theme]++;
           } else {
-            themeActive[user.theme] = 1;
+            themeActive[theme] = 1;
           }
         }
       }
