@@ -14,21 +14,27 @@ if (process.env.APP_ENV !== "test") {
 } else {
   dotenv.config({ path: ".env.test.local" });
 }
+export const default_theme_dark = JSON.stringify({
+  palette: {
+    mode: "dark",
+    warning: {
+      main: "#fdd835",
+    },
+  },
+});
+export const default_theme_light = JSON.stringify({
+  palette: {
+    mode: "light",
+    warning: {
+      main: "#fbc02d",
+    },
+  },
+});
 // Used to tell the program what version the database should get to
 const currentVersion = "1.15.0";
 // Creates the default config
 async function createConfig() {
   const connection = await connect();
-  const default_theme_dark = JSON.stringify({
-    palette: {
-      mode: "dark",
-    },
-  });
-  const default_theme_light = JSON.stringify({
-    palette: {
-      mode: "light",
-    },
-  });
   await connection.query(
     "INSERT IGNORE INTO data (value1, value2) VALUES ('configMinTimeGame', '120'), ('configMaxTimeGame', '1200'), ('configMinTimeTransfer', '3600'), ('configMaxTimeTransfer', '86400'), ('configDownloadPicture', 'needed'), ('configDeleteInactiveUser', '0'), ('configArchiveInactiveLeague', '180'), ('configEnablePasswordSignup', ?), ('configThemeDark', ?), ('configThemeLight', ?)",
     [
