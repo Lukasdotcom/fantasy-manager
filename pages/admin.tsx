@@ -485,6 +485,7 @@ function Analytics({
   // Gets the theme data
   const darkColor = dark ? 30 : 0;
   const lightColor = dark ? 100 : 80;
+  // const custom
   const themeData = {
     labels,
     datasets: [
@@ -508,6 +509,15 @@ function Analytics({
       },
       {
         fill: true,
+        label: "Custom Active",
+        data: condensedAnalytics.map(
+          (e) => JSON.parse(e.themeActive).custom ?? 0,
+        ),
+        borderColor: `hsla(20, 100%, 50%, 1)`,
+        backgroundColor: `hsla(20, 100%, 50%, 1)`,
+      },
+      {
+        fill: true,
         label: "Dark Inactive",
         data: condensedAnalytics.map(
           (e) =>
@@ -527,6 +537,17 @@ function Analytics({
         ),
         borderColor: `hsla(120, 0%, ${lightColor}%, 1)`,
         backgroundColor: `hsla(120, 0%, ${lightColor}%, 0)`,
+      },
+      {
+        fill: true,
+        label: "Custom Inactive",
+        data: condensedAnalytics.map(
+          (e) =>
+            (JSON.parse(e.themeTotal).custom ?? 0) -
+            (JSON.parse(e.themeActive).custom ?? 0),
+        ),
+        borderColor: `hsla(20, 100%, 50%, 1)`,
+        backgroundColor: `hsla(20, 100%, 50%, 0)`,
       },
     ],
   };
