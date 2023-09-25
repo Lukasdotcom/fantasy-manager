@@ -858,7 +858,8 @@ export default function Home({
         </Link>{" "}
         Then copy the code and convert it to json a json object and then click
         save. You may also just edit the text below. The first textarea is the
-        dark theme while the second one is the light theme.
+        dark theme while the second one is the light theme. Note that some pages
+        may take a while to update or require a server restart to update.
       </p>
       {["Dark", "Light"].map((theme) => (
         <Config
