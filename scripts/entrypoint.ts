@@ -278,7 +278,7 @@ async function update() {
           const time = countdown[0].value2;
           // Updates the countdown
           if (transferOpen) {
-            if (time - 11 > 0) {
+            if (time - 10 > 0) {
               connection3.query("UPDATE data SET value2=? WHERE value1=?", [
                 time - 10,
                 "countdown" + e.name,
@@ -286,24 +286,16 @@ async function update() {
             } else {
               // Makes sure that the amount of time left in the transfer is not unknown
               if (time > 0) {
-                console.log(
-                  `Predicting start of matchday in ${time} seconds for ${e.name}`,
-                );
                 // Makes sure to wait until the time is done
-                setTimeout(
-                  () => {
-                    updateData(e.url);
-                  },
-                  time * 1000 + 1,
-                );
+                updateData(e.url);
                 connection3.query("UPDATE data SET value2=? WHERE value1=?", [
-                  time - 10,
+                  0,
                   "countdown" + e.name,
                 ]);
               }
             }
           } else {
-            if (time - 11 > 0) {
+            if (time - 10 > 0) {
               connection3.query("UPDATE data SET value2=? WHERE value1=?", [
                 time - 10,
                 "countdown" + e.name,
@@ -311,17 +303,9 @@ async function update() {
             } else {
               // Makes sure that the amount of time left in the matchday is not unknown
               if (time > 0) {
-                console.log(
-                  `Predicting end of matchday in ${time} seconds for ${e.name}`,
-                );
-                setTimeout(
-                  () => {
-                    updateData(e.url);
-                  },
-                  time * 1000 + 1,
-                );
+                updateData(e.url);
                 connection3.query("UPDATE data SET value2=? WHERE value1=?", [
-                  time - 10,
+                  0,
                   "countdown" + e.name,
                 ]);
               }
