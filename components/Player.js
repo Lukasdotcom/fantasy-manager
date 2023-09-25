@@ -87,7 +87,10 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
         sx={{
           height: "120",
           ...border,
-          bgcolor: alpha(theme.palette[background][theme.palette.mode], 0.3),
+          bgcolor:
+            background !== "main"
+              ? alpha(theme.palette[background][theme.palette.mode], 0.3)
+              : "rgba(0, 0, 0, 0)",
         }}
       >
         <div style={{ width: "min(10%, 80px)", textAlign: "center" }}>
@@ -593,7 +596,7 @@ export function SquadPlayer({
         </Button>
         {(starred === false || starred === 0) && !data.locked && (
           <Button
-            variant="outlined"
+            variant="contained"
             color="secondary"
             onClick={() => {
               notify(t("Starring"));

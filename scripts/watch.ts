@@ -3,6 +3,7 @@
  */
 export function startWatcher() {
   setInterval(watcher, 10000);
+  watcher();
 }
 const startup = Date.now();
 let server_booted = false;
@@ -17,7 +18,7 @@ async function watcher() {
     });
   } else {
     try {
-      fetch(String(process.env.NEXTAUTH_URL_INTERNAL));
+      await fetch(String(process.env.NEXTAUTH_URL_INTERNAL));
       server_booted = true;
       // Revalidates all pages when the server boots
       fetch(process.env.NEXTAUTH_URL_INTERNAL + "/api/revalidate", {
