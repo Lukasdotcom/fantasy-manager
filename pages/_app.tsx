@@ -296,7 +296,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                 </Snackbar>
               )}
               {/* Adds loading screen whenever a new page is being opened */}
-              <Backdrop open={loading}>
+              <Backdrop sx={{ zIndex: 100 }} open={loading}>
                 <CircularProgress />
               </Backdrop>
               <Component {...pageProps} setColorMode={updateColorMode} />
