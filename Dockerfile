@@ -41,6 +41,7 @@ COPY --from=builder /app/next.config.js /app/next.config.js
 COPY --from=builder /app/package.json /app/package.json
 COPY --from=builder /app/tsconfig2.json /app/tsconfig2.json
 ENV NEXTAUTH_URL_INTERNAL=http://127.0.0.1:3000
+RUN touch /app/revalidate
 
 EXPOSE 3000
 
