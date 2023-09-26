@@ -84,10 +84,10 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
       <Paper
         elevation={1}
         className={playerStyles.container}
-        sx={{
+        style={{
           height: "120",
           ...border,
-          bgcolor:
+          background:
             background !== "main"
               ? alpha(theme.palette[background][theme.palette.mode], 0.3)
               : "rgba(0, 0, 0, 0)",
@@ -497,7 +497,10 @@ export function TransferPlayer({
         {Actions}
       </Dialog>
       <Button
-        variant="contained"
+        sx={{
+          bgcolor: "background.paper",
+        }}
+        variant="outlined"
         disabled={
           ButtonText === t("Transfer Market is closed") ||
           ButtonText === t("Error Getting Player info")
@@ -569,7 +572,8 @@ export function SquadPlayer({
     Buttons = (
       <>
         <Button
-          variant="contained"
+          variant="outlined"
+          sx={{ bgcolor: "background.paper" }}
           onClick={() => {
             notify(t("Moving"));
             // Used to move the player
@@ -596,7 +600,10 @@ export function SquadPlayer({
         </Button>
         {(starred === false || starred === 0) && !data.locked && (
           <Button
-            variant="contained"
+            variant="outlined"
+            sx={{
+              bgcolor: "background.paper",
+            }}
             color="secondary"
             onClick={() => {
               notify(t("Starring"));
