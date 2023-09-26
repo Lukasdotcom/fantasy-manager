@@ -23,6 +23,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  alpha,
   useTheme,
 } from "@mui/material";
 import { result as apiPlayerResult } from "../../api/player/[leagueType]/[uid]";
@@ -232,7 +233,6 @@ export default function Home({
   }
   const unloadedRows = tempUnloaded > 0 ? tempUnloaded : 0;
   const theme = useTheme();
-  const dark = theme.palette.mode === "dark";
   // Calculates the height and width for the official picture
   const mainPicture = pictures.filter((e) => e.id === player.pictureID)[0];
   const pictureHeight = mainPicture.height || 200;
@@ -402,19 +402,28 @@ export default function Home({
                     );
                   }
                   // Gets the background color based on the status of the player
-                  let background;
+                  let background: "main" | "secondary" | "warning" | "error" =
+                    "main";
                   if (row.forecast == "u") {
-                    background = dark ? "rgb(50, 50, 0)" : "rgb(255, 255, 220)";
+                    background = "warning";
                   } else if (row.forecast == "m") {
-                    background = dark ? "rgb(50, 0, 0)" : "rgb(255, 200, 200)";
+                    background = "error";
                   }
                   // Checks if the player exists
                   if (!row.exists) {
-                    background = dark ? "rgb(50, 0, 50)" : "rgb(255, 235, 255)";
+                    background = "secondary";
                   }
                   return (
                     <TableRow
-                      style={{ background }}
+                      style={{
+                        background:
+                          background !== "main"
+                            ? alpha(
+                                theme.palette[background][theme.palette.mode],
+                                0.3,
+                              )
+                            : "rgba(0, 0, 0, 0)",
+                      }}
                       hover
                       role="checkbox"
                       tabIndex={-1}
