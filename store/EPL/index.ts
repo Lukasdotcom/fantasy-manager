@@ -78,11 +78,29 @@ const Main: dataGetter = async function () {
     .filter((e) => /*Checks if the player is transfered out*/ e.status !== "u")
     .map((e): players => {
       const teamData = data.teams[e.team - 1];
-      let forecast: forecast = "u";
-      if (e.chance_of_playing_this_round === 0) {
-        forecast = "m";
-      } else if (e.chance_of_playing_this_round === 100) {
-        forecast = "a";
+      let forecast: forecast = "m";
+      switch (e.status) {
+        case "a":
+          forecast = "a";
+          break;
+        case "d":
+          forecast = "u";
+          break;
+        case "i":
+          forecast = "m";
+          break;
+        case "n":
+          forecast = "m";
+          break;
+        case "s":
+          forecast = "m";
+          break;
+        case "u":
+          forecast = "u";
+          break;
+        default:
+          forecast = "m";
+          break;
       }
       return {
         uid: String(e.code),

@@ -83,6 +83,11 @@ export interface Element {
   creativity: string;
   threat: string;
   ict_index: string;
+  starts: number;
+  expected_goals: string;
+  expected_assists: string;
+  expected_goal_involvements: string;
+  expected_goals_conceded: string;
   influence_rank: number;
   influence_rank_type: number;
   creativity_rank: number;
@@ -97,6 +102,12 @@ export interface Element {
   direct_freekicks_text: string;
   penalties_order: number | null;
   penalties_text: string;
+  expected_goals_per_90: number;
+  saves_per_90: number;
+  expected_assists_per_90: number;
+  expected_goal_involvements_per_90: number;
+  expected_goals_conceded_per_90: number;
+  goals_conceded_per_90: number;
   now_cost_rank: number;
   now_cost_rank_type: number;
   form_rank: number;
@@ -105,14 +116,17 @@ export interface Element {
   points_per_game_rank_type: number;
   selected_rank: number;
   selected_rank_type: number;
+  starts_per_90: number;
+  clean_sheets_per_90: number;
 }
 
 export enum Status {
   A = "a",
   D = "d",
-  I = "i", // Injured
-  S = "s", // Suspended
-  U = "u", // Loaned out
+  I = "i",
+  N = "n",
+  S = "s",
+  U = "u",
 }
 
 export interface Event {
