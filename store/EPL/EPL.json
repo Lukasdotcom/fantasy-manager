@@ -1,6 +1,6 @@
 {
   "id": "EPL",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This is for the English Premier League.",
   "files": [
     "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/EPL/index.ts",
