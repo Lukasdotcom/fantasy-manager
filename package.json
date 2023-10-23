@@ -27,7 +27,7 @@
     "@types/mysql": "2.15.21",
     "bcrypt": "5.1.1",
     "chart.js": "4.4.0",
-    "csv-stringify": "6.4.2",
+    "csv-stringify": "6.4.4",
     "dotenv": "16.3.1",
     "mysql": "2.18.1",
     "next": "13.5.6",
