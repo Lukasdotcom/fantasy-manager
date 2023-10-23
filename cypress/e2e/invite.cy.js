@@ -520,6 +520,9 @@ describe("Invite User into league and change some league Settings and run throug
     cy.clearCookies().then(() => cy.get("#logout").click());
     cy.contains("Click here for creating an account").click();
     // Checks if the league is actually deleted
+    cy.visit(
+      "http://localhost:3000/signup?callbackUrl=http%3A%2F%2Flocalhost%3A3000%2Fleagues",
+    ); // This line is because cypress is weird and removes the callbackUrl from the url
     cy.get("#username").type("Invite 3");
     cy.get("#password").type("password");
     cy.contains("Sign Up").click();
