@@ -9,6 +9,7 @@ describe("User", () => {
     // Signs in
     cy.visit("http://localhost:3000");
     cy.get("#login").click();
+    cy.contains("Click here for creating an account").click();
     cy.get("#username").type("Sample User");
     cy.get("#password").type("Sample Password");
     cy.contains("Sign Up").click();
