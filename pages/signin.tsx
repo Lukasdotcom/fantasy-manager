@@ -1,6 +1,5 @@
 import { Alert, AlertTitle, Button, TextField, useTheme } from "@mui/material";
 import { GetStaticProps } from "next";
-import { OAuthProviderButtonStyles } from "next-auth/providers";
 import { signIn } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
@@ -10,26 +9,25 @@ import Menu from "../components/Menu";
 import { Providers, getProviders } from "../types/providers";
 import Link from "../components/Link";
 import { TranslateContext } from "../Modules/context";
-import connect from "#/Modules/database";
 import { getData } from "./api/theme";
-interface Props {
-  enabledProviders: Providers[];
-  enablePasswordSignup: boolean;
+interface providerData {
+  name: string;
+  logo: string;
+  logoDark: string;
+  bg: string;
+  bgDark: string;
+  text: string;
+  textDark: string;
 }
-
-export default function SignIn({
-  enabledProviders,
-  enablePasswordSignup,
-}: Props) {
-  const t = useContext(TranslateContext);
-  const router = useRouter();
-  const callbackUrl = router.query.callbackUrl as string;
-  const error = router.query.error as string;
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  interface providerData extends OAuthProviderButtonStyles {
-    name: string;
-  }
+/**
+ * Retrieves the details of the enabled providers.
+ *
+ * @param {Providers[]} enabledProviders - An array of enabled providers.
+ * @return {providerData[]} An array of styling data representing the enabled providers.
+ */
+export function getProviderDetails(
+  enabledProviders: Providers[],
+): providerData[] {
   const providers: providerData[] = [];
   // Gets the provider data so the button looks nice
   if (enabledProviders.includes("google")) {
@@ -38,30 +36,44 @@ export default function SignIn({
       logo: "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/google.svg",
       logoDark:
         "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/google.svg",
-      bgDark: "#fff",
-      bg: "#fff",
-      text: "#000",
-      textDark: "#000",
-    });
-  }
-  if (enabledProviders.includes("github")) {
-    providers.push({
-      name: "github",
-      logo: "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/github.svg",
-      logoDark:
-        "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/github-dark.svg",
       bg: "#fff",
       bgDark: "#000",
       text: "#000",
       textDark: "#fff",
     });
   }
+  if (enabledProviders.includes("github")) {
+    providers.push({
+      name: "github",
+      logo: "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/github-dark.svg",
+      logoDark:
+        "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/github.svg",
+      bg: "#fff",
+      bgDark: "#24292f",
+      text: "#000",
+      textDark: "#fff",
+    });
+  }
+  return providers;
+}
+
+interface Props {
+  enabledProviders: Providers[];
+}
+export default function SignIn({ enabledProviders }: Props) {
+  const t = useContext(TranslateContext);
+  const router = useRouter();
+  const callbackUrl = router.query.callbackUrl as string;
+  const error = router.query.error as string;
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const providers = getProviderDetails(enabledProviders);
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
   return (
     <>
       <Head>
-        <title>{t("Login and Signup Page")}</title>
+        <title>{t("Login Page")}</title>
       </Head>
       <Menu />
       {error && (
@@ -85,7 +97,19 @@ export default function SignIn({
       )}
       <div className="center">
         <>
-          <h2>{t("Login and Signup Page")}</h2>
+          <h2>{t("Login Page")}</h2>
+          <p>
+            <Link
+              href={`signup${
+                typeof router.query.callbackUrl === "string"
+                  ? "?callbackUrl=" +
+                    encodeURIComponent(router.query.callbackUrl)
+                  : ""
+              }`}
+            >
+              {t("Click here for creating an account. ")}
+            </Link>
+          </p>
           {providers.map((e, idx) => (
             <Button
               startIcon={
@@ -110,12 +134,6 @@ export default function SignIn({
             </Button>
           ))}
         </>
-
-        <p>
-          {t(
-            "It is recommended against using password authorization unless strictly necessary. ",
-          )}
-        </p>
         <div style={{ height: "20px" }} />
         <TextField
           label={t("Username")}
@@ -139,27 +157,14 @@ export default function SignIn({
         />
         <Button
           variant="contained"
-          sx={{ margin: 0.5 }}
+          sx={{ margin: 2 }}
           onClick={() => signIn("Sign-In", { callbackUrl, username, password })}
         >
           {t("Sign In")}
         </Button>
-        {enablePasswordSignup && (
-          <Button
-            variant="contained"
-            onClick={() =>
-              signIn("Sign-Up", { callbackUrl, username, password })
-            }
-          >
-            {t("Sign Up")}
-          </Button>
-        )}
         <p>
-          {" "}
           <Link href="privacy">
-            {t(
-              "Note that by logging in or signing up you agree to the privacy policy. ",
-            )}
+            {t("Note that by logging in you agree to the privacy policy. ")}
           </Link>
         </p>
       </div>
@@ -168,20 +173,9 @@ export default function SignIn({
 }
 // Gets the list of providers
 export const getStaticProps: GetStaticProps = async (ctx) => {
-  const connection = await connect();
-  const props: Props = {
-    enabledProviders: getProviders(),
-    enablePasswordSignup:
-      getProviders().length === 0 ||
-      (await connection
-        .query(
-          "SELECT * FROM data WHERE value1='configEnablePasswordSignup' AND value2='1'",
-        )
-        .then((res) => res.length > 0)),
-  };
   return {
     props: {
-      ...props,
+      enabledProviders: getProviders(),
       t: await getData(ctx.locale),
     },
   };

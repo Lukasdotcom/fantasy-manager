@@ -11,6 +11,7 @@ const pages = [
   "/",
   "/privacy",
   "/signin",
+  "/signup",
 ];
 // Used to revalidate any page using the NEXTAUTH_SECRET like at https://nextjs.org/docs/pages/building-your-application/data-fetching/incremental-static-regeneration#using-on-demand-revalidation
 export default async function handler(
