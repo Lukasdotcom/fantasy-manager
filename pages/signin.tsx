@@ -125,6 +125,9 @@ export default function SignIn({ enabledProviders }: Props) {
               color="primary"
               sx={{
                 background: dark ? e.bgDark : e.bg,
+                "&:hover": {
+                  background: dark ? e.bgDark : e.bg,
+                },
                 color: dark ? e.textDark : e.text,
                 margin: 1,
               }}
