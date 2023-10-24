@@ -23,7 +23,7 @@
   "dependencies": {
     "@emotion/react": "11.11.1",
     "@emotion/styled": "11.11.0",
-    "@mui/material": "5.14.14",
+    "@mui/material": "5.14.15",
     "@types/mysql": "2.15.23",
     "bcrypt": "5.1.1",
     "chart.js": "4.4.0",
