@@ -356,7 +356,16 @@ function AdminPanel({
             enabled: top ? t("enabled") : t("disabled"),
           })}
         </p>
-        <p>{t("This league is " + (archived ? "archived" : "not archived"))}</p>
+        {archived && (
+          <p>
+            {t(
+              "This league is {archived}",
+              archived
+                ? { archived: t("archived") }
+                : { archived: t("not archived") },
+            )}
+          </p>
+        )}
       </>
     );
   }
@@ -612,7 +621,7 @@ export default function Home({
   };
   // Used to add an anouncement
   const addAnouncement = () => {
-    notify(t("Adding anouncement"));
+    notify(t("Adding announcement"));
     fetch(`/api/league/${league}/announcement`, {
       method: "POST",
       headers: {

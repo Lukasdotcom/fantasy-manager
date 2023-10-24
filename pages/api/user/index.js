@@ -21,12 +21,13 @@ export default async function handler(req, res) {
             : await hash(password, parseInt(process.env.BCRYPT_ROUNDS)),
           id,
         ]);
-        res
-          .status(200)
-          .end(password === "" ? "Disabled password auth" : "Changed password");
-        console.log(
-          `User ${id} ${password === "" ? "disabled" : "changed"} password`,
-        );
+        if (password === "") {
+          res.status(200).end("Disabled password auth");
+          console.log(`User ${id} disabled password auth`);
+        } else {
+          res.status(200).end("Changed password");
+          console.log(`User ${id} changed password`);
+        }
         connection.end();
       } else if (
         req.body.provider === "google" ||
@@ -121,7 +122,7 @@ export default async function handler(req, res) {
         }
         connection.end();
       } else {
-        res.status(400).end("Please pass the user id under user.");
+        res.status(400).end("Please pass the user id under user");
       }
       break;
     default:

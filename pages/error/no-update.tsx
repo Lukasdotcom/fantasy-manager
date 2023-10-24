@@ -23,7 +23,7 @@ export default function Home() {
       <h2>{t("How to Fix")}</h2>
       <p>
         {t(
-          "This is very easily fixed by just restarting the server or if you can not do that yourself, tell the website admin to do it.",
+          "This is very easily fixed by just restarting the server or if you can not do that yourself, tell the website admin to do it. ",
         )}
       </p>
       <BugReport />

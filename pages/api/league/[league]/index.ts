@@ -22,7 +22,7 @@ export default async function handler(
       // Used to edit a league
       case "POST":
         if (await isArchived) {
-          res.status(400).end("This League is archived");
+          res.status(400).end("This league is archived");
           break;
         }
         // Checks if the user is qualified to do this

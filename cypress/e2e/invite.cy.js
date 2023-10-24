@@ -17,7 +17,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Click here for creating an account").click();
     cy.get("#username").type("Invite 1");
     cy.get("#password").type("password");
-    cy.contains("Sign Up").click();
+    cy.get(".center > .MuiButtonBase-root").click();
     cy.reload().then(() =>
       cy
         .getCookie("next-auth.session-token")
@@ -68,7 +68,7 @@ describe("Invite User into league and change some league Settings and run throug
     ); // This line is because cypress is weird and removes the callbackUrl from the url
     cy.get("#username").type("Invite 2");
     cy.get("#password").type("password");
-    cy.contains("Sign Up").click();
+    cy.get(".center > .MuiButtonBase-root").click();
     cy.contains("404");
     cy.get(".center").contains("404");
     cy.getCookie("next-auth.session-token").then(
@@ -466,7 +466,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains("Click here for creating an account").click();
     cy.get("#username").type("Invite 3");
     cy.get("#password").type("password");
-    cy.contains("Sign Up").click();
+    cy.get(".center > .MuiButtonBase-root").click();
     cy.contains("Leagues").click();
     cy.visit("http://localhost:3000/api/invite/invite1");
     // Makes sure this user actually has points for matchday 2
@@ -525,7 +525,7 @@ describe("Invite User into league and change some league Settings and run throug
     ); // This line is because cypress is weird and removes the callbackUrl from the url
     cy.get("#username").type("Invite 3");
     cy.get("#password").type("password");
-    cy.contains("Sign Up").click();
+    cy.get(".center > .MuiButtonBase-root").click();
     cy.contains(
       "Your favorited league will be available in the menu when you are not in a league. Note that the menu only updates on a page navigation or reload.",
     );

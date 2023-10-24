@@ -134,7 +134,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     replacers?: Record<string, string | Date | number>,
   ): string => {
     let data = text;
-    if (translationData[text]) {
+    if (translationData[text] && translationData[text] !== "") {
       data = translationData[text];
     }
     if (replacers) {

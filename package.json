@@ -13,6 +13,7 @@
     "start2:part1": "ts-node --project=tsconfig2.json scripts/startup.ts",
     "start2:part2": "ts-node --project=tsconfig2.json scripts/entrypoint.ts & next build && next start",
     "lint": "eslint . --max-warnings 0",
+    "missing-translations": "ts-node --project=tsconfig2.json ./locales/missing_translations.ts",
     "pretty": "prettier --check .",
     "format": "prettier --write .",
     "cypress:open": "cypress open",
@@ -53,6 +54,7 @@
     "cypress": "13.3.2",
     "eslint": "8.52.0",
     "eslint-config-next": "13.5.6",
+    "eslint-plugin-local-rules": "^2.0.0",
     "prettier": "3.0.3",
     "typescript": "5.2.2",
     "wait-on": "7.0.1"

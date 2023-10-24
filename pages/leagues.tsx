@@ -266,7 +266,7 @@ function Leagues({ leagues }: LeaguesProps) {
     if (val) {
       leagueID = val.leagueID;
     }
-    notify(t("Updaing Favorite"));
+    notify(t("Updaing favorite"));
     const response = await fetch("/api/user", {
       method: "POST",
       headers: {

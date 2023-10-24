@@ -67,7 +67,7 @@ function ProviderShow({ provider, notify, user }: ProviderProps) {
   }
   // Used to disconnect from the provider
   function disconnect() {
-    notify(t(`Disconnecting from {provider}`, { provider }));
+    notify(t("Disconnecting from {provider}", { provider }));
     fetch(`/api/user`, {
       method: "POST",
       headers: {
@@ -98,7 +98,7 @@ function ProviderShow({ provider, notify, user }: ProviderProps) {
           label={t("Email")}
           value={input}
           onChange={handleInputChange}
-          helperText={t(`Email used with {provider}`, { provider })}
+          helperText={t("Email used with {provider}", { provider })}
         />
         <Button onClick={connect} variant="outlined">
           {t("Connect to {provider}", { provider })}

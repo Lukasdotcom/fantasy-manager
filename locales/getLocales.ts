@@ -1,4 +1,4 @@
-const validLocales = ["de"];
+export const validLocales = ["de"];
 /**
  * Used to grab the correct locales data.
  * @param {string | undefined} locale - The locale

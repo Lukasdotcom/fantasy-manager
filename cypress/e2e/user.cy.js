@@ -12,7 +12,7 @@ describe("User", () => {
     cy.contains("Click here for creating an account").click();
     cy.get("#username").type("Sample User");
     cy.get("#password").type("Sample Password");
-    cy.contains("Sign Up").click();
+    cy.get(".center > .MuiButtonBase-root").click();
     // Edits the user
     cy.contains("SU").click();
     cy.get("#username").should("value", "Sample User");

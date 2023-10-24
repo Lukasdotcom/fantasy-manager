@@ -46,7 +46,7 @@ export default async function handler(
         ),
       );
       console.log("Revalidated all pages");
-      res.status(200).end("OK");
+      res.status(200).end("success");
     } catch (err) {
       console.error("Failed to revalidate all pages");
       res.status(500).end("Failed to revalidate all pages");
@@ -57,7 +57,7 @@ export default async function handler(
     console.log("Revalidating the page " + req.body.path);
     await res.revalidate(req.body.path);
     console.log("Revalidated the page " + req.body.path);
-    res.status(200).end("OK");
+    res.status(200).end("success");
   } catch (err) {
     console.error("Failed to revalidate page " + req.body.path);
     res.status(500).end("Failed to revalidate");

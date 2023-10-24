@@ -56,7 +56,7 @@ export default function SignIn({
       )}
       <div className="center">
         <>
-          <h2>{t("Signup Page")}</h2>
+          <h2>{t("Sign Up Page")}</h2>
           {providers.map((e, idx) => (
             <Button
               startIcon={
