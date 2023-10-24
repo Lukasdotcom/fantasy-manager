@@ -154,7 +154,7 @@ const handler: NextApiHandler = async (req, res) => {
         ])
         .then((e) => e.length === 0)
     ) {
-      res.status(400).end("League is archived");
+      res.status(400).end("This league is archived");
       return;
     }
     switch (req.method) {

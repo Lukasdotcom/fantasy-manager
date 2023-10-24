@@ -52,7 +52,7 @@ export default async function handler(
         ])
         .then((e) => e.length === 0)
     ) {
-      res.status(400).end("League is archived");
+      res.status(400).end("This league is archived");
       return;
     }
     // Gets users money
@@ -284,7 +284,7 @@ export default async function handler(
                 break;
               }
               if (cheapest[0].value + 100000 > money + (isAI ? 100000 : 0)) {
-                res.status(400).end("You do not have enough money.");
+                res.status(400).end("You do not have enough money");
                 break;
               }
               // Checks if that player wnats to increment the offer and if they can afford it
@@ -443,12 +443,12 @@ export default async function handler(
               )
             ).length == 0
           ) {
-            res.status(400).end("You don't own this player");
+            res.status(400).end("You do not own this player");
             break;
           }
           // Checks if the user still has a transfer left
           if (!transferLeft) {
-            res.status(400).end("You are out of transfers");
+            res.status(400).end("You have no more transfers");
             break;
           }
           // Sells the player
@@ -497,7 +497,7 @@ export default async function handler(
             [league, user, user, playeruid],
           );
           if (transfer.length == 0) {
-            res.status(404).end("Nonexistant transfer can not be cancelled");
+            res.status(404).end("Transfer must exist to be cancelled");
             break;
           }
           // Checks if it was a sale
@@ -529,7 +529,7 @@ export default async function handler(
               "DELETE FROM transfers WHERE leagueID=? AND seller=? AND playeruid=?",
               [league, user, playeruid],
             );
-            res.status(200).end("Cancelled transaction");
+            res.status(200).end("Transfer cancelled");
             console.log(
               `User ${user} cancelled sale of ${playeruid} to ${sale.buyer} for ${sale.value} in league ${league}`,
             );
@@ -550,7 +550,7 @@ export default async function handler(
               "DELETE FROM transfers WHERE leagueID=? AND buyer=0 AND seller=0 AND playeruid=?",
               [league, playeruid],
             );
-            res.status(200).end("Cancelled transaction");
+            res.status(200).end("Transfer cancelled");
             console.log(
               `User ${user} cancelled purchase of ${playeruid} from ${purchase.buyer} for ${player.sale_price} in league ${league}`,
             );
