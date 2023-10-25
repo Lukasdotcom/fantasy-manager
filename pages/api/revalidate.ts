@@ -9,7 +9,6 @@ const pages = [
   "/error/update",
   "/404",
   "/download",
-  "/",
   "/privacy",
   "/signin",
   "/signup",
@@ -74,10 +73,11 @@ async function revalidate(page: string, res: NextApiResponse): Promise<void> {
       await res.revalidate("/" + locale + page);
       console.log("Revalidated the page " + "/" + locale + page);
     }),
-    async () => {
+    new Promise<void>(async (resolve) => {
       console.log("Revalidating the page " + page);
       await res.revalidate(page);
       console.log("Revalidated the page " + page);
-    },
+      resolve();
+    }),
   ]);
 }
