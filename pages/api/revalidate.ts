@@ -1,3 +1,4 @@
+import { validLocales } from "#/locales/getLocales";
 import { NextApiRequest, NextApiResponse } from "next";
 // List of all static pages
 const pages = [
@@ -38,9 +39,7 @@ export default async function handler(
         pages.map(
           (page) =>
             new Promise<void>(async (finish) => {
-              console.log("Revalidating page " + page);
-              await res.revalidate(page);
-              console.log("Revalidated the page " + page);
+              await revalidate(page, res);
               finish();
             }),
         ),
@@ -54,12 +53,31 @@ export default async function handler(
     return;
   }
   try {
-    console.log("Revalidating the page " + req.body.path);
-    await res.revalidate(req.body.path);
-    console.log("Revalidated the page " + req.body.path);
+    await revalidate(req.body.path, res);
     res.status(200).end("success");
   } catch (err) {
     console.error("Failed to revalidate page " + req.body.path);
     res.status(500).end("Failed to revalidate");
   }
+}
+/**
+ * Revalidates the specified page for all valid locales and the default locale.
+ *
+ * @param {string} page - The page to revalidate.
+ * @param {NextApiResponse} res - The response object used to revalidate the page.
+ * @return {Promise<void>} A Promise that resolves when all revalidations are complete.
+ */
+async function revalidate(page: string, res: NextApiResponse): Promise<void> {
+  await Promise.all([
+    ...validLocales.map(async (locale) => {
+      console.log("Revalidating the page " + "/" + locale + page);
+      await res.revalidate("/" + locale + page);
+      console.log("Revalidated the page " + "/" + locale + page);
+    }),
+    async () => {
+      console.log("Revalidating the page " + page);
+      await res.revalidate(page);
+      console.log("Revalidated the page " + page);
+    },
+  ]);
 }
