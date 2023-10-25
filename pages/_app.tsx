@@ -192,7 +192,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   // Used to create the theme for the website and starts of in dark to not blind dark theme users
   const [colorMode, setColorMode] = useState<"light" | "dark" | string>("dark");
   function updateColorMode(theme: "light" | "dark" | string, force = false) {
-    if (force || (session && session?.user.theme !== theme)) {
+    if (force) {
       fetch("/api/user", {
         method: "POST",
         headers: {
@@ -200,6 +200,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         },
         body: JSON.stringify({ theme }),
       });
+      localStorage.theme = theme;
     }
     if (colorMode !== theme) {
       setColorMode(theme);
@@ -210,12 +211,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   // Sets the color scheme based on preferences)
   useEffect(() => {
     // Grabs the online preferences if they exist
-    if (
-      session &&
-      (session.user.theme === "dark" || session.user.theme === "light")
-    ) {
+    if (session && session.user.theme !== "" && session.user.theme) {
       updateColorMode(session.user.theme);
-    } else if (localStorage.theme !== "") {
+    } else if (localStorage.theme !== "" && localStorage.theme) {
       // Uses localstorage if available
       updateColorMode(localStorage.theme);
     } else {
