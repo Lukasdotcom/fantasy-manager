@@ -1,6 +1,6 @@
 # League Support Level
 
-Not every league has perfect support. This is the levels of support for all the leagues officialy in the store.
+Not every league has perfect support. This is the levels of support for all the leagues by default in the store.
 
 - :1st_place_medal: is the top level of support so it is tested/used actively by me.
 - :2nd_place_medal: is the second level of support which means it is not activly maintained/tested but will recieve bug fixes
