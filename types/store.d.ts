@@ -1,3 +1,4 @@
+// This is the type definition for the store
 interface store {
   id: string; // Unique ID of the plugin
   version: string; // The version of the plugin(Will only update the code when this changes)

@@ -235,9 +235,9 @@ export default function Home({
   const theme = useTheme();
   // Calculates the height and width for the official picture
   const mainPicture = pictures.filter((e) => e.id === player.pictureID)[0];
-  const pictureHeight = mainPicture.height || 200;
-  const pictureWidth = mainPicture.width || 200;
   const pictureExists = mainPicture.downloaded;
+  const pictureHeight = pictureExists ? mainPicture.height : 200;
+  const pictureWidth = pictureExists ? mainPicture.width : 200;
   const Row1 = (
     <div>
       <Image
@@ -266,8 +266,8 @@ export default function Home({
               <Image
                 src={e.downloaded ? "/api/picture/" + e.id : fallbackImg}
                 alt=""
-                width={(e.width || 200) * 1.5}
-                height={(e.height || 200) * 1.5}
+                width={(e.downloaded ? e.width : 200) * 1.5}
+                height={(e.downloaded ? e.height : 200) * 1.5}
               />
             </div>
           ))}
