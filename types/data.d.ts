@@ -1,4 +1,4 @@
-import { forecast, position, clubs } from "#Modules/database";
+import { forecast, position } from "#Modules/database";
 
 export interface players {
   uid: string; // This is the unique id of the player
@@ -16,6 +16,17 @@ export interface players {
   last_match?: number; // This is the points in the last match of the player
   exists?: boolean; // This can be set to false to update a player that does not exist anymore
   [key: string]: unknown; // This is so the type definition will work for new versions
+}
+
+export interface clubs {
+  club: string; // This is the name of the club
+  gameStart: number; // This is the start time of the game
+  gameEnd: number; // This is the end time of the game
+  opponent: string; // This is the name of the opponent
+  teamScore?: number; // This is the score of the team
+  opponentScore?: number; // This is the score of the opponent
+  league: string; // This is the name of the league
+  home?: boolean; // This is if it is home or away
 }
 
 // These are the types for the data getter functions

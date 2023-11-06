@@ -100,7 +100,7 @@ class connection {
         "ON CONFLICT DO UPDATE SET",
       );
       statement = statement.replace(/insert ignore/gi, "INSERT OR IGNORE");
-      if (true) sqlite3.verbose();
+      sqlite3.verbose();
       if (statement.slice(0, 6) === "SELECT") {
         if (logError) {
           console.log(statement);
@@ -201,6 +201,11 @@ export interface leagueSettings {
   league: string;
   archived: number;
   matchdayTransfers: boolean;
+  fantasyEnabled: boolean;
+  predictionsEnabled: boolean;
+  predictWinner: number;
+  predictDifference: number;
+  predictExact: number;
   top11: boolean;
   active: boolean;
   inActiveDays: number;
@@ -208,6 +213,8 @@ export interface leagueSettings {
 export interface leagueUsers {
   leagueID: number;
   user: number;
+  fantasyPoints: number;
+  predictionPoints: number;
   points: number;
   money: number;
   formation: string;
@@ -217,6 +224,8 @@ export interface leagueUsers {
 export interface points {
   leagueID: number;
   user: number;
+  fantasyPoints: number;
+  predictionPoints: number;
   points: number;
   matchday: number;
   money: number;
@@ -276,7 +285,19 @@ export interface clubs {
   gameStart: number;
   gameEnd: number;
   opponent: string;
+  teamScore?: number;
+  opponentScore?: number;
   league: string;
+  home: boolean;
+}
+export interface historicalClubs {
+  club: string;
+  opponent: string;
+  teamScore?: number;
+  opponentScore?: number;
+  league: string;
+  home: boolean;
+  time: number;
 }
 // Stores every servers analytics data
 export interface detailedAnalytics {
@@ -326,4 +347,23 @@ export interface announcements {
   priority: anouncementColor;
   title: string;
   description: string;
+}
+
+export interface predictions {
+  leagueID: number;
+  user: number;
+  club: string;
+  league: string;
+  home: number;
+  away: number;
+}
+
+export interface historicalPredictions {
+  matchday: number;
+  leagueID: number;
+  user: number;
+  club: string;
+  league: string;
+  home: number;
+  away: number;
 }

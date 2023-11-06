@@ -1,5 +1,5 @@
-import { clubs, forecast, position } from "#Modules/database";
-import dataGetter, { players } from "#type/data";
+import { forecast, position } from "#Modules/database";
+import dataGetter, { players, clubs } from "#type/data";
 import { EPLPlayers, EPLTeams } from "./types";
 
 const Main: dataGetter = async function () {

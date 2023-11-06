@@ -1,9 +1,6 @@
+import { clubs } from "#/types/data";
 import noAccents from "#Modules/normalize";
-import connect, {
-  clubs,
-  data,
-  plugins as pluginsType,
-} from "../Modules/database";
+import connect, { data, plugins as pluginsType } from "../Modules/database";
 import { calcPoints } from "./calcPoints";
 import plugins from "./data";
 import { downloadPicture } from "./pictures";
@@ -161,24 +158,48 @@ export async function updateData(url: string, file = "./sample/data1.json") {
       // Checks if the game has started
       clubDone = !(clubData.gameStart >= currentTime || newTransfer);
       gameDone = parseInt(lastUpdate[0].value2) > clubData.gameEnd;
-      connection.query(
-        "INSERT INTO clubs (club, gameStart, gameEnd, opponent, league) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?, league=?",
-        [
-          clubData.club,
-          clubData.gameStart,
-          clubData.gameEnd,
-          clubData.opponent,
-          clubData.league,
-          clubData.opponent,
-          clubData.league,
-        ],
-      );
+      connection
+        .query(
+          "INSERT INTO clubs (club, gameStart, gameEnd, opponent, league) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?, league=?",
+          [
+            clubData.club,
+            clubData.gameStart,
+            clubData.gameEnd,
+            clubData.opponent,
+            clubData.league,
+            clubData.opponent,
+            clubData.league,
+          ],
+        )
+        .then(() => {
+          if (clubData.home !== undefined) {
+            connection.query("UPDATE clubs SET home=? WHERE club=?", [
+              clubData.home,
+              clubData.club,
+            ]);
+          } else {
+            // This is a way of picking some team as the home team to make sure that there is only one home team for a game
+            connection.query(
+              "UPDATE clubs SET home=NOT EXISTS (SELECT * FROM clubs WHERE league=? AND opponent=? AND home=1) WHERE club=?",
+              [clubData.league, clubData.opponent, clubData.club],
+            );
+          }
+        });
       // If the game has not started yet the game start time is updated
       if (!clubDone) {
         connection.query(
           "UPDATE clubs SET gameStart=?, gameEnd=? WHERE club=?",
           [clubData.gameStart, clubData.gameEnd, clubData.club],
         );
+        if (
+          clubData.opponentScore !== undefined &&
+          clubData.teamScore !== undefined
+        ) {
+          connection.query(
+            "UPDATE clubs SET teamScore=?, opponentScore=? WHERE club=?",
+            [clubData.teamScore, clubData.opponentScore, clubData.club],
+          );
+        }
       }
       // If the game has not been finished the game end time is updated
       if (!gameDone) {
@@ -186,6 +207,18 @@ export async function updateData(url: string, file = "./sample/data1.json") {
           clubData.gameEnd,
           clubData.club,
         ]);
+      }
+      // Only updates the score while the game is running
+      if (clubDone && !gameDone) {
+        if (
+          clubData.opponentScore !== undefined &&
+          clubData.teamScore !== undefined
+        ) {
+          connection.query(
+            "UPDATE clubs SET teamScore=?, opponentScore=? WHERE club=?",
+            [clubData.teamScore, clubData.opponentScore, clubData.club],
+          );
+        }
       }
     }
     // Makes sure that the id is unique and if not letters are added to the end

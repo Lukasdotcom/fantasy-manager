@@ -30,7 +30,7 @@ export const default_theme_light = JSON.stringify({
   },
 });
 // Used to tell the program what version the database should get to
-const currentVersion = "1.15.0";
+const currentVersion = "1.16.0";
 // Creates the default config
 async function createConfig() {
   const connection = await connect();
@@ -219,15 +219,15 @@ async function startUp() {
     ),
     // Used to store the leagues settings
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0, matchdayTransfers boolean, top11 boolean DEFAULT 0, active bool DEFAULT 0, inactiveDays int DEFAULT 0)",
+      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0, matchdayTransfers boolean DEFAULT 0, fantasyEnabled boolean, predictionsEnabled boolean, predictWinner int DEFAULT 2, predictDifference int DEFAULT 5, predictExact int DEFAULT 15, top11 boolean DEFAULT 0, active bool DEFAULT 0, inactiveDays int DEFAULT 0)",
     ),
     // Used to store the leagues users
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, points int, money int, formation varchar(255), admin bool DEFAULT 0, tutorial bool DEFAULT 1)",
+      "CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, fantasyPoints int, predictionPoints int, points int, money int, formation varchar(255), admin bool DEFAULT 0, tutorial bool DEFAULT 1)",
     ),
     // Used to store the Historical Points
     connection.query(
-      "CREATE TABLE IF NOT EXISTS points (leagueID int, user int, points int, matchday int, money int, time int)",
+      "CREATE TABLE IF NOT EXISTS points (leagueID int, user int, fantasyPoints int, predictionPoints int, points int, matchday int, money int, time int)",
     ),
     // Used to store transfers
     connection.query(
@@ -255,11 +255,11 @@ async function startUp() {
     ),
     // Used to store club data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, gameEnd int, opponent varchar(3), league varchar(25))",
+      "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, gameEnd int, opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool)",
     ),
     // Used to store club data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalClubs (club varchar(3), opponent varchar(3), league varchar(25), time int)",
+      "CREATE TABLE IF NOT EXISTS historicalClubs (club varchar(3), opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, time int)",
     ),
     // Used to store analytics data
     connection.query(
@@ -281,6 +281,16 @@ async function startUp() {
     connection.query(
       "CREATE TABLE IF NOT EXISTS pictures (id int PRIMARY KEY AUTO_INCREMENT NOT NULL, url varchar(255), downloading boolean DEFAULT 0, downloaded boolean DEFAULT 0, height int, width int)",
     ),
+    // Used to store predictions
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS predictions (leagueID int, user int, club varchar(255), league varchar(255), home int, away int)",
+    ),
+    // Used to store historical predictions
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS historicalPredictions (matchday int, leagueID int, user int, club varchar(255), league varchar(255), home int, away int)",
+    ),
+    // Enables the WAL
+    connection.query("PRAGMA journal_mode=WAL"),
   ]);
   // Checks if the server hash has been created and if not makes one
   await connection.query(
