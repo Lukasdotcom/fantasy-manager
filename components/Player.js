@@ -74,10 +74,9 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
     const border =
       gameRunning && condensed === "squad"
         ? {
-            border: 5,
-            borderColor: dark
-              ? "rgba(255, 255, 255, 0.12)"
-              : "rgba(0, 0, 0, 0.5)",
+            border: `5px solid ${
+              dark ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.5)"
+            }`,
           }
         : {};
     return (
