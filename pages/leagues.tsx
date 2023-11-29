@@ -97,7 +97,7 @@ function MakeLeague({ getLeagueData, leagues }: MakeLeagueProps) {
       <Button
         variant="contained"
         onClick={async () => {
-          notify("Saving");
+          notify(t("Saving"));
           // Used to create a league
           const response = await fetch("/api/league", {
             method: "POST",
@@ -145,7 +145,7 @@ function LeaveLeague({
   // Handles the closing of the dialog if it was confirmed
   async function deleteLeague() {
     setOpen(false);
-    notify("Leaving");
+    notify(t("Leaving"));
     const response = await fetch(`/api/league/${leagueID}`, {
       method: "DELETE",
       headers: {

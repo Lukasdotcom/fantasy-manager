@@ -1,11 +1,11 @@
-import connect from "#database";
+import connect, { clubs } from "#database";
 import noAccents, { normalize_db } from "../Modules/normalize";
 import compileAnalytics from "./compileAnalytics";
 /*
  * This function is used to store the upgrades for the db so that startup.ts is smaller.
  *
  * @param {string} oldVersion
- * @returns Promise<string>
+ * @returns Promise<string> The updated version
  */
 export default async function main(oldVersion: string): Promise<string> {
   const connection = await connect();
@@ -491,17 +491,35 @@ export default async function main(oldVersion: string): Promise<string> {
     await connection.query("ALTER TABLE clubs ADD teamScore int");
     await connection.query("ALTER TABLE clubs ADD opponentScore int");
     await connection.query("ALTER TABLE clubs ADD home bool");
-    await connection.query(
-      "UPDATE clubs AS test SET home=EXISTS (SELECT * FROM clubs WHERE home=1 AND opponent=test.club AND league=test.league)",
-    );
+    await connection.query("ALTER TABLE clubs ADD `exists` bool");
+    const clubList: clubs[] = await connection.query("SELECT club FROM clubs");
+    for (const club of clubList) {
+      await connection.query(
+        "UPDATE clubs AS test SET home=EXISTS (SELECT * FROM clubs WHERE home=1 AND opponent=test.club AND league=test.league) WHERE club=?",
+        [club.club],
+      );
+    }
+    await connection.query("UPDATE clubs SET `exists`=1");
     await connection.query("ALTER TABLE historicalClubs ADD teamScore int");
     await connection.query("ALTER TABLE historicalClubs ADD opponentScore ibt");
     await connection.query("ALTER TABLE historicalClubs ADD home bool");
-    await connection.query(
-      "UPDATE historicalClubs AS test SET home=EXISTS (SELECT * FROM historicalClubs WHERE home=1 AND opponent=test.club AND league=test.league)",
+    await connection.query("ALTER TABLE historicalClubs ADD `exists` bool");
+    const historicalClubsList: clubs[] = await connection.query(
+      "SELECT club FROM historicalClubs",
     );
-    await connection.query("ALTER TABLE leagueUsers ADD fantasyPoints int");
-    await connection.query("ALTER TABLE leagueUsers ADD predictionPoints int");
+    for (const club of historicalClubsList) {
+      await connection.query(
+        "UPDATE historicalClubs AS test SET home=EXISTS (SELECT * FROM historicalClubs WHERE home=1 AND opponent=test.club AND league=test.league) WHERE club=?",
+        [club.club],
+      );
+    }
+    await connection.query("UPDATE historicalClubs SET `exists`=1");
+    await connection.query(
+      "ALTER TABLE leagueUsers ADD fantasyPoints int DEFAULT 0",
+    );
+    await connection.query(
+      "ALTER TABLE leagueUsers ADD predictionPoints int DEFAULT 0",
+    );
     await connection.query(
       "UPDATE leagueUsers SET fantasyPoints=points, predictionPoints=0",
     );
@@ -513,6 +531,9 @@ export default async function main(oldVersion: string): Promise<string> {
     );
     await connection.query(
       "INSERT INTO leagueSettings (leagueName, leagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived, matchdayTransfers, top11, active, inactiveDays) SELECT leagueName, leagueID, startMoney, transfers, duplicatePlayers, starredPercentage, league, archived, matchdayTransfers, top11, active, inactiveDays FROM leagueSettingsTemp",
+    );
+    await connection.query(
+      "UPDATE leagueSettings SET fantasyEnabled=1, predictionsEnabled=0",
     );
     await connection.query("ALTER TABLE points ADD fantasyPoints int");
     await connection.query("ALTER TABLE points ADD predictionPoints int");

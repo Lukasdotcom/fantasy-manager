@@ -219,11 +219,11 @@ async function startUp() {
     ),
     // Used to store the leagues settings
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0, matchdayTransfers boolean DEFAULT 0, fantasyEnabled boolean, predictionsEnabled boolean, predictWinner int DEFAULT 2, predictDifference int DEFAULT 5, predictExact int DEFAULT 15, top11 boolean DEFAULT 0, active bool DEFAULT 0, inactiveDays int DEFAULT 0)",
+      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0, matchdayTransfers boolean DEFAULT 0, fantasyEnabled boolean DEFAULT 1, predictionsEnabled boolean DEFAULT 1, predictWinner int DEFAULT 2, predictDifference int DEFAULT 5, predictExact int DEFAULT 15, top11 boolean DEFAULT 0, active bool DEFAULT 0, inactiveDays int DEFAULT 0)",
     ),
     // Used to store the leagues users
     connection.query(
-      "CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, fantasyPoints int, predictionPoints int, points int, money int, formation varchar(255), admin bool DEFAULT 0, tutorial bool DEFAULT 1)",
+      "CREATE TABLE IF NOT EXISTS leagueUsers (leagueID int, user int, fantasyPoints int DEFAULT 0, predictionPoints int DEFAULT 0, points int, money int, formation varchar(255), admin bool DEFAULT 0, tutorial bool DEFAULT 1)",
     ),
     // Used to store the Historical Points
     connection.query(
@@ -255,11 +255,11 @@ async function startUp() {
     ),
     // Used to store club data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, gameEnd int, opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool)",
+      "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, gameEnd int, opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, `exists` bool)",
     ),
     // Used to store club data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalClubs (club varchar(3), opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, time int)",
+      "CREATE TABLE IF NOT EXISTS historicalClubs (club varchar(3), opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, time int, `exists` bool)",
     ),
     // Used to store analytics data
     connection.query(

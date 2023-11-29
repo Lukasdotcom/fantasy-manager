@@ -50,7 +50,7 @@ export default async function handler(req, res) {
             while (matchday > 0) {
               const time = point.filter((a) => a.matchday === matchday);
               connection.query(
-                "INSERT INTO points (leagueID, user, points, matchday, time, money) VALUES(?, ?, 0, ?, ?, 0)",
+                "INSERT INTO points (leagueID, user, points, fantasyPoints, predictionPoints, matchday, time, money) VALUES(?, ?, 0, 0, 0, ?, ?, 0)",
                 [
                   invite.leagueID,
                   session.user.id,

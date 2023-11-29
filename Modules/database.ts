@@ -289,6 +289,7 @@ export interface clubs {
   opponentScore?: number;
   league: string;
   home: boolean;
+  exists: boolean;
 }
 export interface historicalClubs {
   club: string;
@@ -298,6 +299,7 @@ export interface historicalClubs {
   league: string;
   home: boolean;
   time: number;
+  exists: boolean;
 }
 // Stores every servers analytics data
 export interface detailedAnalytics {

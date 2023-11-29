@@ -1,4 +1,4 @@
-import { clubs } from "#/types/data";
+import { clubs, players } from "#/types/data";
 import noAccents from "#Modules/normalize";
 import connect, { data, plugins as pluginsType } from "../Modules/database";
 import { calcPoints } from "./calcPoints";
@@ -99,6 +99,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
   if (newTransfer == "FAILURE") {
     return;
   }
+  players.sort((a: players, b: players) => (a.club > b.club ? 1 : -1)); // Makes sure that the players are sorted by their club
   // Updates countdown and the transfer market status
   await connection.query(
     "INSERT INTO data (value1, value2) VALUES(?, ?) ON DUPLICATE KEY UPDATE value2=?",
@@ -125,6 +126,13 @@ export async function updateData(url: string, file = "./sample/data1.json") {
     }
     return result[0];
   };
+  const allClubs: Set<string> = await connection // Stores all the clubs that are not in the league
+    .query("SELECT club FROM clubs")
+    .then((e: clubs[]) => {
+      const result = new Set<string>();
+      e.forEach((e) => result.add(e.club));
+      return result;
+    });
   while (index < players.length) {
     const val = players[index];
     let picture = await connection.query("SELECT * FROM pictures WHERE url=?", [
@@ -154,37 +162,35 @@ export async function updateData(url: string, file = "./sample/data1.json") {
     // Gets the club data
     if (val.club != club) {
       club = val.club;
+      allClubs.delete(club);
       const clubData = getClub(club);
       // Checks if the game has started
       clubDone = !(clubData.gameStart >= currentTime || newTransfer);
       gameDone = parseInt(lastUpdate[0].value2) > clubData.gameEnd;
-      connection
-        .query(
-          "INSERT INTO clubs (club, gameStart, gameEnd, opponent, league) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?, league=?",
-          [
-            clubData.club,
-            clubData.gameStart,
-            clubData.gameEnd,
-            clubData.opponent,
-            clubData.league,
-            clubData.opponent,
-            clubData.league,
-          ],
-        )
-        .then(() => {
-          if (clubData.home !== undefined) {
-            connection.query("UPDATE clubs SET home=? WHERE club=?", [
-              clubData.home,
-              clubData.club,
-            ]);
-          } else {
-            // This is a way of picking some team as the home team to make sure that there is only one home team for a game
-            connection.query(
-              "UPDATE clubs SET home=NOT EXISTS (SELECT * FROM clubs WHERE league=? AND opponent=? AND home=1) WHERE club=?",
-              [clubData.league, clubData.opponent, clubData.club],
-            );
-          }
-        });
+      await connection.query(
+        "INSERT INTO clubs (club, gameStart, gameEnd, opponent, league, `exists`) VALUES (?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE opponent=?, league=?, `exists`=1",
+        [
+          clubData.club,
+          clubData.gameStart,
+          clubData.gameEnd,
+          clubData.opponent,
+          clubData.league,
+          clubData.opponent,
+          clubData.league,
+        ],
+      );
+      if (clubData.home !== undefined) {
+        connection.query("UPDATE clubs SET home=? WHERE club=?", [
+          clubData.home,
+          clubData.club,
+        ]);
+      } else {
+        // This is a way of picking some team as the home team to make sure that there is only one home team for a game
+        await connection.query(
+          "UPDATE clubs SET home=EXISTS (SELECT * FROM clubs WHERE league=? AND opponent=? AND home=0 AND `exists`=1) WHERE club=?",
+          [clubData.league, clubData.club, clubData.club],
+        );
+      }
       // If the game has not started yet the game start time is updated
       if (!clubDone) {
         connection.query(
@@ -263,7 +269,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
           val.average_points || val.total_points || val.last_match || 0,
           val.last_match || val.total_points || 0,
           clubDone,
-          val.exists || true,
+          val.exists,
           league,
         ],
       );
@@ -353,6 +359,13 @@ export async function updateData(url: string, file = "./sample/data1.json") {
       }
     }
   }
+  // Sets all the missing clubs to not exist
+  allClubs.forEach((e) => {
+    connection.query(
+      "UPDATE clubs SET `exists`=0, home=0 WHERE club=? AND league=?",
+      [e, league],
+    );
+  });
   console.log(`Downloaded new data for ${league}`);
   // Checks if the matchday is running
   if (!newTransfer) {
@@ -447,7 +460,7 @@ export async function startMatchday(league: string) {
         .then((result) => (result.length > 0 ? result[0].matchday + 1 : 1));
     }
     await connection.query(
-      "INSERT INTO points (leagueID, user, points, matchday, money) VALUES(?, ?, 0, ?, ?)",
+      "INSERT INTO points (leagueID, user, points, fantasyPoints, predictionPoints, matchday, money) VALUES(?, ?, 0, 0, 0, ?, ?)",
       [
         e.leagueID,
         e.user,

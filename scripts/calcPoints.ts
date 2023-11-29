@@ -242,14 +242,14 @@ export async function calcPoints(league: string | number) {
     }
     // Checks if the fanasy point amount has changed and if they are different they are updated
     if (oldFantasyPoints !== newFantasyPoints) {
-      console.log("newFantasyPoints", newFantasyPoints);
       connection.query(
-        "UPDATE points SET fantasyPoints=? WHERE leagueID=? AND user=? AND matchday=?",
-        [newFantasyPoints, e.leagueID, e.user, matchday],
+        "UPDATE points SET fantasyPoints=?, points=?+predictionPoints WHERE leagueID=? AND user=? AND matchday=?",
+        [newFantasyPoints, newFantasyPoints, e.leagueID, e.user, matchday],
       );
       connection.query(
-        "UPDATE leagueUsers SET fantasyPoints=? WHERE leagueID=? AND user=?",
+        "UPDATE leagueUsers SET fantasyPoints=?, points=?+predictionPoints WHERE leagueID=? AND user=?",
         [
+          e.fantasyPoints - oldFantasyPoints + newFantasyPoints,
           e.fantasyPoints - oldFantasyPoints + newFantasyPoints,
           e.leagueID,
           e.user,
@@ -259,12 +259,19 @@ export async function calcPoints(league: string | number) {
     // Checks if the prediction point amount has changed
     if (oldPredictionPoints !== newPredictionPoints) {
       connection.query(
-        "UPDATE points SET predictionPoints=? WHERE leagueID=? AND user=? AND matchday=?",
-        [newPredictionPoints, e.leagueID, e.user, matchday],
+        "UPDATE points SET predictionPoints=?, points=?+fantasyPoints WHERE leagueID=? AND user=? AND matchday=?",
+        [
+          newPredictionPoints,
+          newPredictionPoints,
+          e.leagueID,
+          e.user,
+          matchday,
+        ],
       );
       connection.query(
-        "UPDATE leagueUsers SET predictionPoints=? WHERE leagueID=? AND user=?",
+        "UPDATE leagueUsers SET predictionPoints=?, points=?+fantasyPoints WHERE leagueID=? AND user=?",
         [
+          e.predictionPoints - oldPredictionPoints + newPredictionPoints,
           e.predictionPoints - oldPredictionPoints + newPredictionPoints,
           e.leagueID,
           e.user,
