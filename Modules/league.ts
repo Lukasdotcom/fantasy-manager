@@ -30,11 +30,7 @@ const redirect = async (
         props: {
           ...data,
           league: league,
-          leagueName: leagueInfo[0].leagueName,
-          leagueType: leagueInfo[0].league,
-          matchdayTransfers: leagueInfo[0].matchdayTransfers,
-          archived: leagueInfo[0].archived,
-          top11: leagueInfo[0].top11,
+          leagueSettings: leagueInfo[0],
           transferOpen,
         },
       };

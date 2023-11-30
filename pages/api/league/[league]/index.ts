@@ -45,75 +45,52 @@ export default async function handler(
           }
           if (req.body.settings !== undefined) {
             const settings = req.body.settings;
-            if (parseInt(settings.startingMoney) > 10000)
+            if (parseInt(settings.startingMoney) < 10000) {
+              res.status(400).end("Starting money too low");
+            } else if (parseInt(settings.transfers) <= 0) {
+              res.status(400).end("At least one transfer must be allowed");
+            } else if (parseInt(settings.duplicatePlayers) <= 0) {
+              res.status(400).end("Duplicate Players must be greater than 0");
+            } else if (parseInt(settings.starredPercentage) < 100) {
+              res
+                .status(400)
+                .end("Starred percentage can not be less than 100%");
+            } else if (isNaN(parseInt(settings.predictWinner))) {
+              res.status(400).end("Predict winner must be a number");
+            } else if (isNaN(parseInt(settings.predictDifference))) {
+              res.status(400).end("Predict difference must be a number");
+            } else if (isNaN(parseInt(settings.predictExact))) {
+              res.status(400).end("Predict exact must be a number");
+            } else {
               connection.query(
-                "UPDATE leagueSettings SET startMoney=? WHERE leagueID=?",
-                [parseInt(settings.startingMoney), league],
+                "UPDATE leagueSettings SET leagueName=?, startMoney=?, transfers=?, duplicatePlayers=?, starredPercentage=?, matchdayTransfers=?, fantasyEnabled=?, predictionsEnabled=?, predictWinner=?, predictDifference=?, predictExact=?, top11=? WHERE leagueID=?",
+                [
+                  String(settings.leagueName),
+                  parseInt(settings.startingMoney),
+                  parseInt(settings.transfers),
+                  parseInt(settings.duplicatePlayers),
+                  parseInt(settings.starredPercentage),
+                  parseInt(settings.matchdayTransfers),
+                  Boolean(settings.fantasyEnabled),
+                  Boolean(settings.predictionsEnabled),
+                  parseInt(settings.predictWinner),
+                  parseInt(settings.predictDifference),
+                  parseInt(settings.predictExact),
+                  Boolean(settings.top11),
+                  league,
+                ],
               );
-            if (parseInt(settings.transfers) > 0)
-              connection.query(
-                "UPDATE leagueSettings SET transfers=? WHERE leagueID=?",
-                [parseInt(settings.transfers), league],
-              );
-            if (parseInt(settings.duplicatePlayers) > 0)
-              connection.query(
-                "UPDATE leagueSettings SET duplicatePlayers=? WHERE leagueID=?",
-                [parseInt(settings.duplicatePlayers), league],
-              );
-            if (parseInt(settings.starredPercentage) > 100)
-              connection.query(
-                "UPDATE leagueSettings SET starredPercentage=? WHERE leagueID=?",
-                [parseInt(settings.starredPercentage), league],
-              );
-            if (settings.leagueName !== undefined) {
-              connection.query(
-                "UPDATE leagueSettings SET leagueName=? WHERE leagueID=?",
-                [settings.leagueName, league],
-              );
-            }
-            connection.query(
-              "UPDATE leagueSettings SET matchdayTransfers=? WHERE leagueID=?",
-              [Boolean(settings.matchdayTransfers), league],
-            );
-            connection.query(
-              "UPDATE leagueSettings SET top11=? WHERE leagueID=?",
-              [Boolean(settings.top11), league],
-            );
-            // Archives the league when told to do so
-            if (settings.archive === true) {
-              console.log(`League ${league} was archived`);
-              connection.query(
-                "UPDATE leagueSettings SET archived=? WHERE leagueID=?",
-                [Math.floor(Date.now() / 1000), league],
-              );
+              // Archives the league when told to do so
+              if (settings.archive === true) {
+                console.log(`League ${league} was archived`);
+                connection.query(
+                  "UPDATE leagueSettings SET archived=? WHERE leagueID=?",
+                  [Math.floor(Date.now() / 1000), league],
+                );
+              }
+              res.status(200).end("Saved settings");
             }
           }
-          res.status(200).end("Saved settings");
-        } else {
-          res.status(401).end("You are not admin of this league");
-        }
-        break;
-      case "GET": // Returns the league Settings and which users are admins
-        // Checks if the user is qualified to do this
-        if (
-          (
-            await connection.query(
-              "SELECT * FROM leagueUsers WHERE leagueID=? and user=?",
-              [league, session.user.id],
-            )
-          ).length > 0
-        ) {
-          // Gets the settings and admin status for users
-          const [settings, users] = await Promise.all([
-            connection
-              .query("SELECT * FROM leagueSettings WHERE leagueID=?", [league])
-              .then((res) => res[0]),
-            connection.query(
-              "SELECT user, admin FROM leagueUsers WHERE leagueID=?",
-              [league],
-            ),
-          ]);
-          res.status(200).json({ settings, users });
         } else {
           res.status(401).end("You are not admin of this league");
         }

@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import Head from "next/head";
 import Menu from "#components/Menu";
 import { NotifyContext, TranslateContext } from "#/Modules/context";
-import connect, { leagueUsers } from "#/Modules/database";
+import connect, { leagueSettings } from "#/Modules/database";
 import { useContext, useState } from "react";
 import redirect from "#/Modules/league";
 import { GetServerSidePropsContext } from "next";
 import { getSession } from "next-auth/react";
-import { Button, Grid, TextField } from "@mui/material";
+import { Alert, AlertTitle, Button, Grid, TextField } from "@mui/material";
 interface predictions {
   home_team: string;
   away_team: string;
@@ -111,20 +110,58 @@ function Game({
 export default function Home({
   games,
   league,
-  leagueName,
+  leagueSettings,
 }: {
   games: predictions[];
   league: number;
-  leagueName: string;
+  leagueSettings: leagueSettings;
 }) {
+  const { archived, leagueName, predictionsEnabled } = leagueSettings;
   const t = useContext(TranslateContext);
+  if (archived !== 0) {
+    return (
+      <>
+        <Head>
+          <title>{t("Predictions for {leagueName}", { leagueName })}</title>
+        </Head>
+        <Menu league={league} />
+        <h1>{t("Predictions for {leagueName}", { leagueName })}</h1>
+        <Alert severity={"warning"} className="notification">
+          <AlertTitle>{t("This league is archived")}</AlertTitle>
+          <p>{t("This league is archived and this screen is disabled. ")}</p>
+        </Alert>
+      </>
+    );
+  } else if (!predictionsEnabled) {
+    return (
+      <>
+        <Head>
+          <title>
+            {t("Predictions for {leagueName}", {
+              leagueName,
+            })}
+          </title>
+        </Head>
+        <Menu league={league} />
+        <h1>
+          {t("Predictions for {leagueName}", {
+            leagueName,
+          })}
+        </h1>
+        <Alert severity={"warning"} className="notification">
+          <AlertTitle>{t("Predictions are Disabled")}</AlertTitle>
+          <p>{t("Predictions must be enabled in the league to use this. ")}</p>
+        </Alert>
+      </>
+    );
+  }
   return (
     <>
       <Head>
         <title>{t("Predictions for {leagueName}", { leagueName })}</title>
       </Head>
       <Menu league={league} />
-      <h1>{t("Predictions")}</h1>
+      <h1>{t("Predictions for {leagueName}", { leagueName })}</h1>
       <br />
       <Grid container spacing={2}>
         {games.map((e) => (
