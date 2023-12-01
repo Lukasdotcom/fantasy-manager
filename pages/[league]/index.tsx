@@ -9,6 +9,7 @@ import connect, {
   invite,
   leagueSettings,
   leagueUsers,
+  points,
 } from "../../Modules/database";
 import Link from "../../components/Link";
 import {
@@ -91,7 +92,13 @@ function Invite({ link, league, host, remove }: InviteProps) {
   );
 }
 // Used to generate the graph of the historical points
-function Graph({ historicalPoints }: { historicalPoints: historialData }) {
+function Graph({
+  historicalPoints,
+  filter,
+}: {
+  historicalPoints: historialData;
+  filter: HistoricalDataTypes;
+}) {
   const [getUser, getUserNow] = useContext(UserContext);
   const t = useContext(TranslateContext);
   const [usernames, setUsernames] = useState(
@@ -192,7 +199,7 @@ function Graph({ historicalPoints }: { historicalPoints: historialData }) {
         // Filters out the data that is outside of the range specified
         .slice(dataRange[0] - 1, dataRange[1] + 1)
         .map((e) => {
-          counter += e;
+          counter += e[filter];
           return counter;
         }),
       borderColor: stringToColor(parseInt(e)),
@@ -267,6 +274,7 @@ export default function Home({
       Math.random().toString(36).substring(2)
     );
   };
+  const [filter, setFilter] = useState<HistoricalDataTypes>("totalPoints");
   const [showTutorial, setShowTutorial] = useState(tutorial);
   const [announcementPriority, setAnouncementPriority] =
     useState<anouncementColor>("info");
@@ -333,7 +341,7 @@ export default function Home({
     Object.keys(historicalPoints).forEach((e: string) => {
       newStandings.push({
         user: parseInt(e),
-        points: historicalPoints[e][matchday - 1],
+        points: historicalPoints[e][matchday - 1][filter],
       });
     });
     newStandings.sort((a, b) => b.points - a.points);
@@ -371,6 +379,21 @@ export default function Home({
       <h1>
         {t("Standings for {leagueName}", { leagueName: inputLeagueName })}
       </h1>
+      <Select
+        value={filter}
+        onChange={(e) => setFilter(e.target.value as HistoricalDataTypes)}
+        id={"filter"}
+      >
+        <MenuItem value={"totalPoints"}>{t("Total Points")}</MenuItem>
+        {!!leagueSettings.fantasyEnabled && (
+          <MenuItem value={"fantasyPoints"}>{t("Fantasy Points")}</MenuItem>
+        )}
+        {!!leagueSettings.predictionsEnabled && (
+          <MenuItem value={"predictionPoints"}>
+            {t("Prediction Points")}
+          </MenuItem>
+        )}
+      </Select>
       <TableContainer sx={{ width: "95%" }}>
         <Table>
           <TableHead>
@@ -393,7 +416,7 @@ export default function Home({
                 <TableCell>
                   {matchday > currentMatchday
                     ? val.points
-                    : historicalPoints[val.user][matchday - 1]}
+                    : historicalPoints[val.user][matchday - 1][filter]}
                 </TableCell>
                 <TableCell>
                   <Link
@@ -424,7 +447,7 @@ export default function Home({
         }}
       ></Pagination>
       {Object.values(historicalPoints).length > 0 && (
-        <Graph historicalPoints={historicalPoints} />
+        <Graph historicalPoints={historicalPoints} filter={filter} />
       )}
       <h1>{t("Announcements")}</h1>
       {announcements.map((e: announcements, idx) => (
@@ -565,8 +588,13 @@ export default function Home({
     </>
   );
 }
+type HistoricalDataTypes = "totalPoints" | "fantasyPoints" | "predictionPoints";
 interface historialData {
-  [Key: string]: number[];
+  [Key: string]: {
+    totalPoints: number;
+    fantasyPoints: number;
+    predictionPoints: number;
+  }[];
 }
 interface standingsData {
   user: number;
@@ -593,24 +621,29 @@ export const getServerSideProps: GetServerSideProps = async (
   // Gets the historical amount of points for every matchday in the league
   const historicalPoints = new Promise<historialData>(async (resolve) => {
     const connection = await connect();
-    interface historialPlayerData {
-      user: number;
-      points: number;
-      matchday: number;
-    }
-    const results: historialPlayerData[] = await connection.query(
-      "SELECT user, points, matchday FROM points WHERE leagueId=? ORDER BY matchday ASC",
+    const results: points[] = await connection.query(
+      "SELECT user, points, fantasyPoints, predictionPoints, matchday FROM points WHERE leagueId=? ORDER BY matchday ASC",
       [ctx.params?.league],
     );
     connection.end();
     // Reformats the result into a dictionary that has an entry for each user and each entry for that user is an array of all the points the user has earned in chronological order.
     if (results.length > 0) {
       const points: historialData = {};
-      results.forEach((element: historialPlayerData) => {
+      results.forEach((element: points) => {
         if (points[element.user]) {
-          points[String(element.user)].push(element.points);
+          points[String(element.user)].push({
+            totalPoints: element.points,
+            fantasyPoints: element.fantasyPoints,
+            predictionPoints: element.predictionPoints,
+          });
         } else {
-          points[String(element.user)] = [element.points];
+          points[String(element.user)] = [
+            {
+              totalPoints: element.points,
+              fantasyPoints: element.fantasyPoints,
+              predictionPoints: element.predictionPoints,
+            },
+          ];
         }
       });
       resolve(points);
