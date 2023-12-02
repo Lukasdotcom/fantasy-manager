@@ -33,7 +33,7 @@ const Main: dataGetter = async (settings, past_data) => {
         clubList[club] = "wait";
         const club_data: Clubs = settings.file
           ? JSON.parse(
-              (await readFile(settings.file + ".games")).toString("utf-8"),
+              (await readFile(settings.file + ".games.json")).toString("utf-8"),
             )[club]
           : await fetch(
               `https://fantasy.bundesliga.com/api/player_statistic/init/${e.player.uid}`,

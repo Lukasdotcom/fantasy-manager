@@ -37,7 +37,7 @@ export default async function handler(
     return;
   }
   const data: leagueSettings[] = await connection.query(
-    "SELECT * FROM leagueSettings WHERE leagueID=? AND predictionsEnabled=0",
+    "SELECT * FROM leagueSettings WHERE leagueID=? AND predictionsEnabled=1",
     [body.league],
   );
   if (data.length === 0) {

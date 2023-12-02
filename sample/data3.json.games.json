@@ -16,8 +16,8 @@
               "team_code": "WOB"
             },
             "result": {
-              "home": 0,
-              "away": 0
+              "home": 5,
+              "away": 1
             }
           }
         }
@@ -66,8 +66,8 @@
               "team_code": "BSC"
             },
             "result": {
-              "home": 0,
-              "away": 0
+              "home": 2,
+              "away": 2
             }
           }
         }
@@ -91,8 +91,8 @@
               "team_code": "M05"
             },
             "result": {
-              "home": 0,
-              "away": 0
+              "home": 5,
+              "away": 1
             }
           }
         }

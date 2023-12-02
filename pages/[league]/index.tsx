@@ -344,9 +344,15 @@ export default function Home({
         points: historicalPoints[e][matchday - 1][filter],
       });
     });
+    console.log(newStandings);
     newStandings.sort((a, b) => b.points - a.points);
   } else {
-    newStandings = standings;
+    newStandings = standings.map((e) => {
+      return {
+        user: e.user,
+        points: filter != "totalPoints" ? e[filter] : e.points,
+      };
+    });
   }
   return (
     <>
@@ -599,6 +605,8 @@ interface historialData {
 interface standingsData {
   user: number;
   points: number;
+  fantasyPoints: number;
+  predictionPoints: number;
 }
 // Gets the users session
 export const getServerSideProps: GetServerSideProps = async (
@@ -612,7 +620,7 @@ export const getServerSideProps: GetServerSideProps = async (
     const connection = await connect();
     resolve(
       await connection.query(
-        "SELECT user, points FROM leagueUsers WHERE leagueId=?",
+        "SELECT user, points, fantasyPoints, predictionPoints FROM leagueUsers WHERE leagueId=?",
         [ctx.params?.league],
       ),
     );
