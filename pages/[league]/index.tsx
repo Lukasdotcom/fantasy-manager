@@ -1,13 +1,15 @@
 import Menu from "../../components/Menu";
 import redirect from "../../Modules/league";
 import Head from "next/head";
-import { SyntheticEvent, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { stringToColor, UserChip } from "../../components/Username";
 import connect, {
   announcements,
   anouncementColor,
   invite,
+  leagueSettings,
   leagueUsers,
+  points,
 } from "../../Modules/database";
 import Link from "../../components/Link";
 import {
@@ -21,11 +23,7 @@ import {
   Pagination,
   PaginationItem,
   TextField,
-  InputAdornment,
-  Autocomplete,
   Slider,
-  Checkbox,
-  FormControlLabel,
   Alert,
   AlertTitle,
   InputLabel,
@@ -52,324 +50,9 @@ import {
   UserContext,
 } from "../../Modules/context";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { Box } from "@mui/system";
-import Router from "next/router";
 import { getServerSession } from "next-auth";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
-import { BoxTypeMap } from "@mui/system";
-interface AdminPanelProps {
-  league: number;
-  leagueName: string;
-  setLeagueName: (name: string) => void;
-  admin: boolean;
-  leagueType: string;
-  archived: boolean;
-  top11: boolean;
-}
-// Creates the admin panel
-function AdminPanel({
-  league,
-  leagueName,
-  setLeagueName,
-  admin,
-  leagueType,
-  archived,
-  top11,
-}: AdminPanelProps) {
-  const notify = useContext(NotifyContext);
-  const [startingMoney, setStartingMoney] = useState(150);
-  interface userData {
-    user: number;
-    admin: boolean;
-  }
-  const t = useContext(TranslateContext);
-  const [users, setUsers] = useState<userData[]>([]);
-  const [transfers, setTransfers] = useState(6);
-  const [duplicatePlayers, setDuplicatePlayers] = useState(1);
-  const [starredPercentage, setStarredPercentage] = useState(150.0);
-  const [archive, setArchive] = useState(false);
-  const [confirmation, setConfirmation] = useState("");
-  const [matchdayTransfers, setMatchdayTransfers] = useState(false);
-  const [top, setTop] = useState(Boolean(top11));
-  function updateData(league: number) {
-    fetch(`/api/league/${league}`).then(async (res) => {
-      if (res.ok) {
-        const result = await res.json();
-        setStartingMoney(result.settings.startMoney / 1000000);
-        setUsers(result.users);
-        setTransfers(result.settings.transfers);
-        setDuplicatePlayers(result.settings.duplicatePlayers);
-        setStarredPercentage(result.settings.starredPercentage);
-        setMatchdayTransfers(Boolean(result.settings.matchdayTransfers));
-        setTop(Boolean(result.settings.top11));
-      } else {
-        alert(await res.text());
-      }
-    });
-  }
-  useEffect(() => {
-    updateData(league);
-  }, [league]);
-  if (admin && !archived) {
-    return (
-      <>
-        <h1>{t("Admin Panel")}</h1>
-        <p>
-          {t("League Type Used: {leagueType}", { leagueType: t(leagueType) })}
-        </p>
-        <TextField
-          id="leagueName"
-          variant="outlined"
-          size="small"
-          label={t("League name")}
-          onChange={(val) => {
-            // Used to change the invite link
-            setLeagueName(val.target.value);
-          }}
-          value={leagueName}
-        />
-        <br></br>
-        <TextField
-          id="startingMoney"
-          variant="outlined"
-          size="small"
-          label={t("Starting Money")}
-          type="number"
-          onChange={(val) => {
-            // Used to change the invite link
-            setStartingMoney(parseInt(val.target.value));
-          }}
-          value={startingMoney}
-        />
-        <br />
-        <TextField
-          id="transfers"
-          variant="outlined"
-          size="small"
-          label={t("Transfer Limit")}
-          type="number"
-          onChange={(val) => {
-            // Used to change the transfer limit
-            setTransfers(parseInt(val.target.value));
-          }}
-          value={transfers}
-        />
-        <br />
-        <TextField
-          id="duplicatePlayers"
-          variant="outlined"
-          size="small"
-          helperText={t("Amount of squads a player can be in")}
-          type="number"
-          onChange={(val) => {
-            // Used to change the amount of duplicate players
-            setDuplicatePlayers(parseInt(val.target.value));
-          }}
-          value={duplicatePlayers}
-        />
-        <br></br>
-        <TextField
-          id="starredPercentage"
-          variant="outlined"
-          size="small"
-          helperText={t("Point boost for starred players")}
-          InputProps={{
-            endAdornment: <InputAdornment position="end">%</InputAdornment>,
-          }}
-          type="number"
-          onChange={(val) => {
-            // Used to change the invite link
-            setStarredPercentage(parseFloat(val.target.value));
-          }}
-          value={starredPercentage}
-        />
-        <br></br>
-        <Autocomplete<userData, true, false, true, "div">
-          sx={{ width: "99%" }}
-          multiple
-          id="admins"
-          options={users}
-          freeSolo
-          value={users.filter((e) => e.admin)}
-          renderTags={(value, getTagProps) =>
-            value.map((option: userData, index) => (
-              <UserChip
-                userid={option.user}
-                {...getTagProps({ index })}
-                key={option.user}
-              />
-            ))
-          }
-          onChange={(
-            e: SyntheticEvent<Element, Event>,
-            value: readonly (string | userData)[],
-          ): void => {
-            const admins = value.map((e) =>
-              typeof e === "string" ? e : e.user,
-            );
-            setUsers((e2) => {
-              // Updates the value for all of the users
-              e2.forEach((e3) => {
-                e3.admin = admins.includes(e3.user);
-              });
-              return [...e2];
-            });
-          }}
-          renderOption={(props, option: userData) => {
-            const newprops = props as BoxTypeMap;
-            return (
-              <Box {...newprops} key={option.user}>
-                <UserChip userid={option.user} />
-              </Box>
-            );
-          }}
-          getOptionLabel={(option) =>
-            typeof option === "string" ? option : String(option.user)
-          }
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              variant="standard"
-              label={t("Admins")}
-              placeholder={t("New admin")}
-            />
-          )}
-        />
-        <FormControlLabel
-          label={t("Allow picking transfers during matchday. ")}
-          control={
-            <Checkbox
-              checked={matchdayTransfers}
-              onChange={() => {
-                setMatchdayTransfers((e) => !e);
-              }}
-            />
-          }
-        />
-        <br />
-        <FormControlLabel
-          label={t(
-            "Use top 11, this will automatically do substitutions in squads. ",
-          )}
-          control={
-            <Checkbox
-              checked={top}
-              onChange={() => {
-                setTop((e) => !e);
-              }}
-            />
-          }
-        />
-        <br />
-        <FormControlLabel
-          label={t("Check this to archive the league when you press save. ")}
-          control={
-            <Checkbox
-              checked={archive}
-              onChange={() => {
-                setArchive((e) => !e);
-              }}
-            />
-          }
-        />
-        <br />
-        {archive && (
-          <TextField
-            id="confirmation"
-            error={leagueName !== confirmation}
-            helperText={t("Enter league name here to confirm archive. ")}
-            variant="outlined"
-            margin="dense"
-            size="small"
-            placeholder={leagueName}
-            onChange={(e) => {
-              setConfirmation(e.target.value);
-            }}
-            value={confirmation}
-          />
-        )}
-        <br></br>
-        <Button
-          onClick={() => {
-            if (archive && confirmation !== leagueName) {
-              notify(t("Confirmation text is wrong"), "error");
-              return;
-            }
-            // Used to save the data
-            notify("Saving");
-            fetch(`/api/league/${league}`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                users,
-                settings: {
-                  startingMoney: startingMoney * 1000000,
-                  transfers,
-                  duplicatePlayers,
-                  starredPercentage,
-                  leagueName,
-                  archive,
-                  matchdayTransfers,
-                  top11: top,
-                },
-              }),
-            }).then(async (res) => {
-              notify(t(await res.text()), res.ok ? "success" : "error");
-              if (archive) Router.push("/leagues");
-            });
-          }}
-          variant="contained"
-          color="success"
-        >
-          {t("Save admin settings")}
-        </Button>
-      </>
-    );
-  } else {
-    return (
-      <>
-        <h1>{t("Settings")}</h1>
-        <p>
-          {t("League Type Used: {leagueType}", { leagueType: t(leagueType) })}
-        </p>
-        <p>{t("Starting money : {amount} M", { amount: startingMoney })}</p>
-        <p>{t("Transfer limit : {amount}", { amount: transfers })}</p>
-        <p>
-          {t("Amount of squads a player can be in : {duplicatePlayers}", {
-            duplicatePlayers,
-          })}
-        </p>
-        <p>
-          {t("Point boost for starred players : {starBoost}%", {
-            starBoost: starredPercentage,
-          })}
-        </p>
-        <p>
-          {t("Transfers on matchdays are {allowed}", {
-            allowed: matchdayTransfers ? t("Allowed") : t("Forbidden"),
-          })}
-        </p>
-        <p>
-          {t("Top 11 is {enabled}", {
-            enabled: top ? t("enabled") : t("disabled"),
-          })}
-        </p>
-        {archived && (
-          <p>
-            {t(
-              "This league is {archived}",
-              archived
-                ? { archived: t("archived") }
-                : { archived: t("not archived") },
-            )}
-          </p>
-        )}
-      </>
-    );
-  }
-}
+import AdminPanel, { AdminUserData } from "#/components/LeagueAdminPanel";
 interface InviteProps {
   link: string;
   league: number;
@@ -409,7 +92,13 @@ function Invite({ link, league, host, remove }: InviteProps) {
   );
 }
 // Used to generate the graph of the historical points
-function Graph({ historicalPoints }: { historicalPoints: historialData }) {
+function Graph({
+  historicalPoints,
+  filter,
+}: {
+  historicalPoints: historialData;
+  filter: HistoricalDataTypes;
+}) {
   const [getUser, getUserNow] = useContext(UserContext);
   const t = useContext(TranslateContext);
   const [usernames, setUsernames] = useState(
@@ -510,7 +199,7 @@ function Graph({ historicalPoints }: { historicalPoints: historialData }) {
         // Filters out the data that is outside of the range specified
         .slice(dataRange[0] - 1, dataRange[1] + 1)
         .map((e) => {
-          counter += e;
+          counter += e[filter];
           return counter;
         }),
       borderColor: stringToColor(parseInt(e)),
@@ -545,34 +234,32 @@ function Graph({ historicalPoints }: { historicalPoints: historialData }) {
 interface Props {
   OGannouncement: announcements[];
   admin: boolean;
+  tutorial: boolean;
   standings: standingsData[];
   historicalPoints: historialData;
   inviteLinks: string[];
+  adminUsers: AdminUserData[];
   host: string | undefined;
-  leagueName: string;
   league: number;
-  leagueType: string;
-  archived: boolean;
-  tutorial: boolean;
-  top11: boolean;
+  leagueSettings: leagueSettings;
 }
 export default function Home({
   OGannouncement,
   admin,
-  league,
+  tutorial,
   standings,
   historicalPoints,
   inviteLinks,
+  adminUsers,
   host,
-  leagueName,
-  leagueType,
-  archived,
-  tutorial,
-  top11,
+  league,
+  leagueSettings,
 }: Props) {
   const t = useContext(TranslateContext);
   const notify = useContext(NotifyContext);
-  const [inputLeagueName, setInputLeagueName] = useState(leagueName);
+  const [inputLeagueName, setInputLeagueName] = useState(
+    leagueSettings.leagueName,
+  );
   // Calculates the current matchday
   let currentMatchday = 0;
   if (Object.values(historicalPoints).length !== 0) {
@@ -587,6 +274,7 @@ export default function Home({
       Math.random().toString(36).substring(2)
     );
   };
+  const [filter, setFilter] = useState<HistoricalDataTypes>("totalPoints");
   const [showTutorial, setShowTutorial] = useState(tutorial);
   const [announcementPriority, setAnouncementPriority] =
     useState<anouncementColor>("info");
@@ -653,12 +341,18 @@ export default function Home({
     Object.keys(historicalPoints).forEach((e: string) => {
       newStandings.push({
         user: parseInt(e),
-        points: historicalPoints[e][matchday - 1],
+        points: historicalPoints[e][matchday - 1][filter],
       });
     });
+    console.log(newStandings);
     newStandings.sort((a, b) => b.points - a.points);
   } else {
-    newStandings = standings;
+    newStandings = standings.map((e) => {
+      return {
+        user: e.user,
+        points: filter != "totalPoints" ? e[filter] : e.points,
+      };
+    });
   }
   return (
     <>
@@ -691,6 +385,21 @@ export default function Home({
       <h1>
         {t("Standings for {leagueName}", { leagueName: inputLeagueName })}
       </h1>
+      <Select
+        value={filter}
+        onChange={(e) => setFilter(e.target.value as HistoricalDataTypes)}
+        id={"filter"}
+      >
+        <MenuItem value={"totalPoints"}>{t("Total Points")}</MenuItem>
+        {!!leagueSettings.fantasyEnabled && (
+          <MenuItem value={"fantasyPoints"}>{t("Fantasy Points")}</MenuItem>
+        )}
+        {!!leagueSettings.predictionsEnabled && (
+          <MenuItem value={"predictionPoints"}>
+            {t("Prediction Points")}
+          </MenuItem>
+        )}
+      </Select>
       <TableContainer sx={{ width: "95%" }}>
         <Table>
           <TableHead>
@@ -713,7 +422,7 @@ export default function Home({
                 <TableCell>
                   {matchday > currentMatchday
                     ? val.points
-                    : historicalPoints[val.user][matchday - 1]}
+                    : historicalPoints[val.user][matchday - 1][filter]}
                 </TableCell>
                 <TableCell>
                   <Link
@@ -744,7 +453,7 @@ export default function Home({
         }}
       ></Pagination>
       {Object.values(historicalPoints).length > 0 && (
-        <Graph historicalPoints={historicalPoints} />
+        <Graph historicalPoints={historicalPoints} filter={filter} />
       )}
       <h1>{t("Announcements")}</h1>
       {announcements.map((e: announcements, idx) => (
@@ -879,19 +588,25 @@ export default function Home({
         setLeagueName={setInputLeagueName}
         league={league}
         admin={admin}
-        leagueType={leagueType}
-        archived={archived}
-        top11={top11}
+        leagueSettings={leagueSettings}
+        adminUsers={adminUsers}
       />
     </>
   );
 }
+type HistoricalDataTypes = "totalPoints" | "fantasyPoints" | "predictionPoints";
 interface historialData {
-  [Key: string]: number[];
+  [Key: string]: {
+    totalPoints: number;
+    fantasyPoints: number;
+    predictionPoints: number;
+  }[];
 }
 interface standingsData {
   user: number;
   points: number;
+  fantasyPoints: number;
+  predictionPoints: number;
 }
 // Gets the users session
 export const getServerSideProps: GetServerSideProps = async (
@@ -905,7 +620,7 @@ export const getServerSideProps: GetServerSideProps = async (
     const connection = await connect();
     resolve(
       await connection.query(
-        "SELECT user, points FROM leagueUsers WHERE leagueId=?",
+        "SELECT user, points, fantasyPoints, predictionPoints FROM leagueUsers WHERE leagueId=?",
         [ctx.params?.league],
       ),
     );
@@ -914,24 +629,29 @@ export const getServerSideProps: GetServerSideProps = async (
   // Gets the historical amount of points for every matchday in the league
   const historicalPoints = new Promise<historialData>(async (resolve) => {
     const connection = await connect();
-    interface historialPlayerData {
-      user: number;
-      points: number;
-      matchday: number;
-    }
-    const results: historialPlayerData[] = await connection.query(
-      "SELECT user, points, matchday FROM points WHERE leagueId=? ORDER BY matchday ASC",
+    const results: points[] = await connection.query(
+      "SELECT user, points, fantasyPoints, predictionPoints, matchday FROM points WHERE leagueId=? ORDER BY matchday ASC",
       [ctx.params?.league],
     );
     connection.end();
     // Reformats the result into a dictionary that has an entry for each user and each entry for that user is an array of all the points the user has earned in chronological order.
     if (results.length > 0) {
       const points: historialData = {};
-      results.forEach((element: historialPlayerData) => {
+      results.forEach((element: points) => {
         if (points[element.user]) {
-          points[String(element.user)].push(element.points);
+          points[String(element.user)].push({
+            totalPoints: element.points,
+            fantasyPoints: element.fantasyPoints,
+            predictionPoints: element.predictionPoints,
+          });
         } else {
-          points[String(element.user)] = [element.points];
+          points[String(element.user)] = [
+            {
+              totalPoints: element.points,
+              fantasyPoints: element.fantasyPoints,
+              predictionPoints: element.predictionPoints,
+            },
+          ];
         }
       });
       resolve(points);
@@ -978,6 +698,16 @@ export const getServerSideProps: GetServerSideProps = async (
     );
     connection.end();
   });
+  const adminUsers = new Promise<AdminUserData[]>(async (res) => {
+    const connection = await connect();
+    res(
+      await connection.query(
+        "SELECT user, admin FROM leagueUsers WHERE leagueID=?",
+        [ctx.params?.league],
+      ),
+    );
+    connection.end();
+  });
   return redirect(ctx, {
     OGannouncement: await announcements,
     admin: (await data)[0],
@@ -985,6 +715,7 @@ export const getServerSideProps: GetServerSideProps = async (
     standings: await standings,
     historicalPoints: await historicalPoints,
     inviteLinks: await inviteLinks,
+    adminUsers: await adminUsers,
     host: ctx.req.headers.host,
   });
 };

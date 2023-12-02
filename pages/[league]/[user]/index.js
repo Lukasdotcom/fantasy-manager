@@ -16,11 +16,12 @@ export default function HistoricalView({
   latestMatchday,
   currentMatchday, // This is the matchday requested to be seen by the user
   time, // Stores the time this is if historical player data needs to be gotten
-  leagueName,
   money,
   value,
-  leagueType,
+  leagueSettings,
 }) {
+  const leagueType = leagueSettings.league;
+  const leagueName = leagueSettings.leagueName;
   const router = useRouter();
   const t = useContext(TranslateContext);
   return (

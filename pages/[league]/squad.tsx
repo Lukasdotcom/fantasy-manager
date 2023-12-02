@@ -3,7 +3,7 @@ import redirect from "../../Modules/league";
 import Head from "next/head";
 import { SquadPlayer as Player } from "../../components/Player";
 import { useContext, useState } from "react";
-import connect from "../../Modules/database";
+import connect, { leagueSettings } from "../../Modules/database";
 import {
   Alert,
   AlertTitle,
@@ -23,20 +23,14 @@ import { GetServerSideProps } from "next";
 
 export default function Home({
   league,
-  leagueName,
   leagueInfo,
-  leagueType,
-  archived,
-  top11,
   transferOpen,
+  leagueSettings,
 }: {
   league: number;
-  leagueName: string;
   leagueInfo: LeagueInfo;
-  leagueType: string;
-  archived: boolean;
-  top11: boolean;
   transferOpen: boolean;
+  leagueSettings: leagueSettings;
 }) {
   const notify = useContext(NotifyContext);
   const t = useContext(TranslateContext);
@@ -78,17 +72,50 @@ export default function Home({
     leagueInfo.validFormations,
   );
   // Checks if the league is archived
-  if (archived) {
+  if (leagueSettings.archived) {
     return (
       <>
         <Head>
-          <title>{t("Squad for {leagueName}", { leagueName })}</title>
+          <title>
+            {t("Squad for {leagueName}", {
+              leagueName: leagueSettings.leagueName,
+            })}
+          </title>
         </Head>
         <Menu league={league} />
-        <h1>{t("Squad for {leagueName}", { leagueName })}</h1>
+        <h1>
+          {t("Squad for {leagueName}", {
+            leagueName: leagueSettings.leagueName,
+          })}
+        </h1>
         <Alert severity={"warning"} className="notification">
           <AlertTitle>{t("This league is archived")}</AlertTitle>
           <p>{t("This league is archived and this screen is disabled. ")}</p>
+        </Alert>
+      </>
+    );
+  }
+  if (!leagueSettings.fantasyEnabled) {
+    return (
+      <>
+        <Head>
+          <title>
+            {t("Squad for {leagueName}", {
+              leagueName: leagueSettings.leagueName,
+            })}
+          </title>
+        </Head>
+        <Menu league={league} />
+        <h1>
+          {t("Squad for {leagueName}", {
+            leagueName: leagueSettings.leagueName,
+          })}
+        </h1>
+        <Alert severity={"warning"} className="notification">
+          <AlertTitle>{t("Fantasy is Disabled")}</AlertTitle>
+          <p>
+            {t("Fantasy manager must be enabled in the league to use this. ")}
+          </p>
         </Alert>
       </>
     );
@@ -148,9 +175,9 @@ export default function Home({
             starred={e.starred}
             update={getSquad}
             status={e.status}
-            leagueType={leagueType}
+            leagueType={leagueSettings.league}
             field={undefined}
-            hideButton={!transferOpen && top11}
+            hideButton={!transferOpen && leagueSettings.top11}
           />
         ),
       )}
@@ -166,9 +193,9 @@ export default function Home({
             starred={e.starred}
             update={getSquad}
             status={e.status}
-            leagueType={leagueType}
+            leagueType={leagueSettings.league}
             field={undefined}
-            hideButton={!transferOpen && top11}
+            hideButton={!transferOpen && leagueSettings.top11}
           />
         ),
       )}
@@ -184,9 +211,9 @@ export default function Home({
             starred={e.starred}
             update={getSquad}
             status={e.status}
-            leagueType={leagueType}
+            leagueType={leagueSettings.league}
             field={undefined}
-            hideButton={!transferOpen && top11}
+            hideButton={!transferOpen && leagueSettings.top11}
           />
         ),
       )}
@@ -201,10 +228,10 @@ export default function Home({
             league={league}
             update={getSquad}
             status={e.status}
-            leagueType={leagueType}
+            leagueType={leagueSettings.league}
             field={undefined}
             starred={undefined}
-            hideButton={!transferOpen && top11}
+            hideButton={!transferOpen && leagueSettings.top11}
           />
         ),
       )}
@@ -238,9 +265,11 @@ export default function Home({
               league={league}
               update={getSquad}
               status={e.status}
-              leagueType={leagueType}
-              starred={!transferOpen && top11 ? e.starred : undefined}
-              hideButton={!transferOpen && top11}
+              leagueType={leagueSettings.league}
+              starred={
+                !transferOpen && leagueSettings.top11 ? e.starred : undefined
+              }
+              hideButton={!transferOpen && leagueSettings.top11}
             />
           ),
         )}
@@ -249,10 +278,16 @@ export default function Home({
   return (
     <>
       <Head>
-        <title>{t("Squad for {leagueName}", { leagueName })}</title>
+        <title>
+          {t("Squad for {leagueName}", {
+            leagueName: leagueSettings.leagueName,
+          })}
+        </title>
       </Head>
       <Menu league={league} />
-      <h1>{t("Squad for {leagueName}", { leagueName })}</h1>
+      <h1>
+        {t("Squad for {leagueName}", { leagueName: leagueSettings.leagueName })}
+      </h1>
       <InputLabel htmlFor="formation">{t("Formation")}</InputLabel>
       <Select
         onChange={(e) => {

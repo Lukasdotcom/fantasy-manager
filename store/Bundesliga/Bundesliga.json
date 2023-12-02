@@ -1,10 +1,11 @@
 {
   "id": "Bundesliga",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "This is for the German Bundesliga.",
   "files": [
     "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/index.ts",
-    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/types.d.ts"
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/clubs.d.ts",
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/players.d.ts"
   ],
   "input": [
     {

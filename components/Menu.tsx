@@ -39,6 +39,7 @@ function MenuItems({ league, handleCloseNavMenu }: MenuItemsInterface) {
   // Checks if the player should see the league links
   if (league) {
     pages.push({ name: t("Standings"), link: `/${league}` });
+    pages.push({ name: t("Predictions"), link: `/${league}/predictions` });
     pages.push({ name: t("Squad"), link: `/${league}/squad` });
     pages.push({ name: t("Transfers"), link: `/${league}/transfer` });
   }
@@ -96,7 +97,7 @@ const Layout = ({ league }: MainInterface) => {
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{
-                display: { sm: "block", md: "none" },
+                display: { sm: "block", lg: "none" },
               }}
             >
               <MenuItems

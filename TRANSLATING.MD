@@ -39,7 +39,7 @@ t(await response.text());
 
 # Helping Translate
 
-@lukasdotcom does all the german translations but if you want to help translate to another language you can do so by following the steps below.
+@lukasdotcom does all the german translations but if you want to help translate to another language or want to improve the german translations you can do so by following the steps below.
 
 1. Go to the file in the locales folder with the language you want to translate to.
 2. Find any text that currently has an empty translation in the foreign language(Note that the order is alphabetized based on the english part).

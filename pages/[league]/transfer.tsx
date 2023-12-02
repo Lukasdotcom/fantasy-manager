@@ -4,7 +4,7 @@ import Head from "next/head";
 import { useState, useEffect, useContext } from "react";
 import { TransferPlayer as Player } from "../../components/Player";
 import { useSession } from "next-auth/react";
-import connect from "../../Modules/database";
+import connect, { leagueSettings } from "../../Modules/database";
 import Link from "../../components/Link";
 import {
   Alert,
@@ -83,22 +83,14 @@ function Postion({
 }
 function MainPage({
   league,
-  allowedTransfers,
-  duplicatePlayers,
-  leagueName,
   maxPrice,
-  leagueType,
-  matchdayTransfers,
   transferOpen,
+  leagueSettings,
 }: {
-  league: number;
-  allowedTransfers: number;
-  duplicatePlayers: number;
-  leagueName: string;
-  leagueType: string;
   maxPrice: number;
-  matchdayTransfers: boolean;
+  league: number;
   transferOpen: boolean;
+  leagueSettings: leagueSettings;
 }) {
   const positionList = ["gk", "def", "mid", "att"];
   const [players, setPlayers] = useState<string[]>([]);
@@ -181,7 +173,7 @@ function MainPage({
     // Gets the data and returns the amount of players found
     setLoading(true);
     const newLength = await fetch(
-      `/api/player/${leagueType}/search?${
+      `/api/player/${leagueSettings.league}/search?${
         isNew ? "" : `limit=${players.length + 50}&`
       }searchTerm=${encodeURIComponent(
         searchTerm,
@@ -210,7 +202,7 @@ function MainPage({
     <Box sx={{ flexGrow: 1 }}>
       <TransfersLeft
         ownership={ownership}
-        allowedTransfers={allowedTransfers}
+        allowedTransfers={leagueSettings.transfers}
         transferCount={transferCount}
       />
       <p>{t("Money left: {amount} M", { amount: money / 1000000 })}</p>
@@ -342,10 +334,18 @@ function MainPage({
       }}
     >
       <Head>
-        <title>{t("Transfers for {leagueName}", { leagueName })}</title>
+        <title>
+          {t("Transfers for {leagueName}", {
+            leagueName: leagueSettings.leagueName,
+          })}
+        </title>
       </Head>
       <Menu league={league} />
-      <h1>{t("Transfers for {leagueName}", { leagueName })}</h1>
+      <h1>
+        {t("Transfers for {leagueName}", {
+          leagueName: leagueSettings.leagueName,
+        })}
+      </h1>
       <Box sx={{ marginLeft: 2, display: { xs: "block", md: "none" } }}>
         {Part1}
         {Part2}
@@ -367,12 +367,12 @@ function MainPage({
           money={money}
           ownership={ownership[val]}
           league={league}
-          transferLeft={transferCount < allowedTransfers}
+          transferLeft={transferCount < leagueSettings.transfers}
           allOwnership={ownership}
           transferData={transferData}
-          open={matchdayTransfers || open}
-          duplicatePlayers={duplicatePlayers}
-          leagueType={leagueType}
+          open={leagueSettings.matchdayTransfers || open}
+          duplicatePlayers={leagueSettings.duplicatePlayers}
+          leagueType={leagueSettings.league}
           showHidden={showHidden}
         />
       ))}
@@ -381,33 +381,49 @@ function MainPage({
   );
 }
 export default function Home(props: {
-  allowedTransfers: number;
-  archived: number;
-  duplicatePlayers: number;
-  matchdayTransfers: boolean;
   maxPrice: number;
   league: number;
-  leagueName: string;
-  leagueType: string;
   transferOpen: boolean;
+  leagueSettings: leagueSettings;
 }) {
   const t = useContext(TranslateContext);
+  const { archived, leagueName, fantasyEnabled } = props.leagueSettings;
   // Checks if the league is archived
-  if (props.archived !== 0) {
+  if (archived !== 0) {
+    return (
+      <>
+        <Head>
+          <title>{t("Transfers for {leagueName}", { leagueName })}</title>
+        </Head>
+        <Menu league={props.league} />
+        <h1>{t("Transfers for {leagueName}", { leagueName })}</h1>
+        <Alert severity={"warning"} className="notification">
+          <AlertTitle>{t("This league is archived")}</AlertTitle>
+          <p>{t("This league is archived and this screen is disabled. ")}</p>
+        </Alert>
+      </>
+    );
+  } else if (!fantasyEnabled) {
     return (
       <>
         <Head>
           <title>
-            {t("Transfers for {leagueName}", { leagueName: props.leagueName })}
+            {t("Squad for {leagueName}", {
+              leagueName,
+            })}
           </title>
         </Head>
         <Menu league={props.league} />
         <h1>
-          {t("Transfers for {leagueName}", { leagueName: props.leagueName })}
+          {t("Squad for {leagueName}", {
+            leagueName,
+          })}
         </h1>
         <Alert severity={"warning"} className="notification">
-          <AlertTitle>{t("This league is archived")}</AlertTitle>
-          <p>{t("This league is archived and this screen is disabled. ")}</p>
+          <AlertTitle>{t("Fantasy is Disabled")}</AlertTitle>
+          <p>
+            {t("Fantasy manager must be enabled in the league to use this. ")}
+          </p>
         </Alert>
       </>
     );
@@ -415,20 +431,15 @@ export default function Home(props: {
     return <MainPage {...props} />;
   }
 }
+
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const connection = await connect();
   // Gets the amount of allowed transfers
-  const [allowedTransfers, duplicatePlayers, league]: [number, number, string] =
-    await connection
-      .query(
-        "SELECT transfers, duplicatePlayers, league FROM leagueSettings WHERE leagueID=?",
-        [ctx?.params?.league],
-      )
-      .then((result) =>
-        result.length > 0
-          ? [result[0].transfers, result[0].duplicatePlayers, result[0].league]
-          : [0, 0, "Bundesliga"],
-      );
+  const league: string = await connection
+    .query("SELECT league FROM leagueSettings WHERE leagueID=?", [
+      ctx?.params?.league,
+    ])
+    .then((result) => (result.length > 0 ? result[0].league : "Bundesliga"));
   const maxPrice = await connection
     .query(
       "SELECT value FROM players WHERE league=? ORDER BY value DESC limit 1",
@@ -436,5 +447,5 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     )
     .then((res) => (res.length > 0 ? res[0].value : 0));
   connection.end();
-  return await redirect(ctx, { allowedTransfers, duplicatePlayers, maxPrice });
+  return await redirect(ctx, { maxPrice });
 };

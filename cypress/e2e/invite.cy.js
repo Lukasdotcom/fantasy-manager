@@ -336,7 +336,7 @@ describe("Invite User into league and change some league Settings and run throug
       .children("button")
       .contains("Player has already played");
     matchdays.push({ invite1: user1Money, invite2: user2Money });
-    // Starts the transfer period and sells Muller
+    // Starts the transfer period and sells Lewandowski
     cy.exec(
       "export APP_ENV=test; ts-node --project=./tsconfig2.json cypress/e2e/invite4.ts",
     );

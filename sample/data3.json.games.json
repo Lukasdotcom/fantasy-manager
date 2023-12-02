@@ -1,0 +1,102 @@
+{
+  "FCB": {
+    "player_statistic": {
+      "stats": [
+        {
+          "match_day": {
+            "current": true
+          },
+          "best_value_rank": 4,
+          "pick_count": 58,
+          "match": {
+            "home_team": {
+              "team_code": "FCB"
+            },
+            "away_team": {
+              "team_code": "WOB"
+            },
+            "result": {
+              "home": 5,
+              "away": 1
+            }
+          }
+        }
+      ]
+    }
+  },
+  "RBL": {
+    "player_statistic": {
+      "stats": [
+        {
+          "match_day": {
+            "current": true
+          },
+          "best_value_rank": 4,
+          "pick_count": 58,
+          "match": {
+            "home_team": {
+              "team_code": "DSC"
+            },
+            "away_team": {
+              "team_code": "RBL"
+            },
+            "result": {
+              "home": 0,
+              "away": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  "BVB": {
+    "player_statistic": {
+      "stats": [
+        {
+          "match_day": {
+            "current": true
+          },
+          "best_value_rank": 4,
+          "pick_count": 58,
+          "match": {
+            "home_team": {
+              "team_code": "BVB"
+            },
+            "away_team": {
+              "team_code": "BSC"
+            },
+            "result": {
+              "home": 2,
+              "away": 2
+            }
+          }
+        }
+      ]
+    }
+  },
+  "SGE": {
+    "player_statistic": {
+      "stats": [
+        {
+          "match_day": {
+            "current": true
+          },
+          "best_value_rank": 4,
+          "pick_count": 58,
+          "match": {
+            "home_team": {
+              "team_code": "SGE"
+            },
+            "away_team": {
+              "team_code": "M05"
+            },
+            "result": {
+              "home": 5,
+              "away": 1
+            }
+          }
+        }
+      ]
+    }
+  }
+}
