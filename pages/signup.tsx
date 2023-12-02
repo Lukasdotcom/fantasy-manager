@@ -44,14 +44,16 @@ export default function SignIn({
             {error === "CredentialsSignin"
               ? t("Wrong Credentials")
               : error === "no_username"
-              ? t("No Username or Password")
-              : t("Failed to Sign in")}
+                ? t("No Username or Password")
+                : t("Failed to Sign in")}
           </AlertTitle>
           {error === "CredentialsSignin"
             ? t("Check that you entered the correct username and password. ")
             : error === "no_username"
-            ? t("You need to give a username and a password when signing up. ")
-            : t("Try logging in again. ")}
+              ? t(
+                  "You need to give a username and a password when signing up. ",
+                )
+              : t("Try logging in again. ")}
         </Alert>
       )}
       <div className="center">
