@@ -25,7 +25,7 @@
     "@emotion/react": "11.11.1",
     "@emotion/styled": "11.11.0",
     "@mui/material": "5.14.19",
-    "@types/mysql": "2.15.23",
+    "@types/mysql": "2.15.24",
     "bcrypt": "5.1.1",
     "chart.js": "4.4.0",
     "csv-stringify": "6.4.4",
