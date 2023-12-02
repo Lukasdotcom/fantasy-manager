@@ -95,7 +95,7 @@ export default function Home({
       </>
     );
   }
-  if (leagueSettings.fantasyEnabled) {
+  if (!leagueSettings.fantasyEnabled) {
     return (
       <>
         <Head>

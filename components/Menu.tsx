@@ -74,7 +74,7 @@ const Layout = ({ league }: MainInterface) => {
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Icon>sports_soccer</Icon>
-          <Box sx={{ flexGrow: 1, display: { sm: "flex", lg: "none" } }}>
+          <Box sx={{ flexGrow: 1, display: { sm: "flex", md: "none" } }}>
             <IconButton
               size="large"
               onClick={handleOpenNavMenu}
@@ -106,7 +106,7 @@ const Layout = ({ league }: MainInterface) => {
               />
             </Menu>
           </Box>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", lg: "flex" } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             <MenuItems
               league={league}
               handleCloseNavMenu={handleCloseNavMenu}

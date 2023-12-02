@@ -403,7 +403,7 @@ export default function Home(props: {
         </Alert>
       </>
     );
-  } else if (fantasyEnabled) {
+  } else if (!fantasyEnabled) {
     return (
       <>
         <Head>

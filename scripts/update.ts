@@ -197,15 +197,6 @@ export async function updateData(url: string, file = "./sample/data1.json") {
           "UPDATE clubs SET gameStart=?, gameEnd=? WHERE club=?",
           [clubData.gameStart, clubData.gameEnd, clubData.club],
         );
-        if (
-          clubData.opponentScore !== undefined &&
-          clubData.teamScore !== undefined
-        ) {
-          connection.query(
-            "UPDATE clubs SET teamScore=?, opponentScore=? WHERE club=?",
-            [clubData.teamScore, clubData.opponentScore, clubData.club],
-          );
-        }
       }
       // If the game has not been finished the game end time is updated
       if (!gameDone) {

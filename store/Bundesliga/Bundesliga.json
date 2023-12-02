@@ -4,7 +4,8 @@
   "description": "This is for the German Bundesliga.",
   "files": [
     "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/index.ts",
-    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/types.d.ts"
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/clubs.d.ts",
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/players.d.ts"
   ],
   "input": [
     {
