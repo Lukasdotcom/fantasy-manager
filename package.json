@@ -38,7 +38,7 @@
     "react-chartjs-2": "5.2.0",
     "react-dom": "18.2.0",
     "sharp": "0.33.0",
-    "sqlite": "5.0.1",
+    "sqlite": "5.1.1",
     "sqlite3": "5.1.6",
     "ts-node": "10.9.1"
   },
