@@ -42,7 +42,6 @@ docker-compose.yaml
 *.db-wal
 public/*.js
 !.env.test.local
-!docker/mariadb/docker-compose.yaml
 
 # Ignores compiled js files
 scripts/data/*.js

@@ -27,42 +27,26 @@ There are 2 ways to run the development enviroment [Native](#native) and [Docker
 
 ## Other Notes
 
-- All sql syntax is written for mysql and is translated by the database module to sqlite syntax when needed.
+- All sql syntax should be written for sqlite. Note that some mysql syntax is automatically translated to sqlite.
 
 ## Native
 
 **This is the reccommended way.**
 
-1. If you want to use the recommended and easier way and use sqlite skip to step 8.
-2. First [install mysql](https://dev.mysql.com/downloads/mysql).
-3. When you are installing it will ask for the root user password. Enter whatever you want just remember the password.
-4. When you are done installing open a terminal and type the following `mysql -u "root" -p` then press enter.
-5. Now it will ask for a password enter the password you had entered in step 2.
-6. Now Paste in the following lines(These will create the database and manage it)
-
-```sql
-CREATE DATABASE bundesliga;
-CREATE USER 'bundesliga'@localhost IDENTIFIED BY 'password';
-GRANT ALL PRIVILEGES ON bundesliga.* TO 'bundesliga'@localhost;
-FLUSH PRIVILEGES;
-```
-
-7. Now you can press control+D to exit.
-8. Download this entire repository to your computer with
+1. Download this entire repository to your computer with
 
 ```bash
 git clone https://github.com/lukasdotcom/fantasy-manager
 ```
 
-9. [Install node v18 or greater](https://nodejs.org/en/) if you have not yet. To check you version run the command below which should give you some version number just make sure the major version is greater than or equal to 18
+2. [Install node v18 or greater](https://nodejs.org/en/) if you have not yet. To check you version run the command below which should give you some version number just make sure the major version is greater than or equal to 18. The recommended version is 20.
 
 ```bash
 node -v
 ```
 
-10. Now copy the contents of .env.sample which is in the development folder. Make a new file in the top folder in the repository called .env.local and paste the contents of .env.sample in there.
-11. If you are using mysql remember to comment out the SQLITE enviroment variable otherwise skip this step.
-12. Now you should be able to run the command below to start up the development instance.
+3. Now copy the contents of .env.sample which is in the development folder. Make a new file in the top folder in the repository called .env.local and paste the contents of .env.sample in there.
+4. Now you should be able to run the command below to start up the development instance.
 
 ```bash
 npm run dev

@@ -14,13 +14,9 @@ This is used to encrypt the session token change this to the result of the follo
 openssl rand -base64 32
 ```
 
-### SQLITE OR MYSQL
+### SQLITE
 
-Depending on what kind of database you are using you need to either specify the SQLITE or MYSQL enviromental variable.
-
-For sqlite you just specify the path of the database. SQLITE=/path/to/database.db
-
-For mysql you need to specify the username, password, database name and host. MYSQL_USER=bundesliga MYSQL_PASSWORD=password MYSQL_DATABASE=bundesliga MYSQL_HOST=db.
+To use the sqlite database you just specify the path of the database. SQLITE=/path/to/database.db
 
 ## Other Variables
 

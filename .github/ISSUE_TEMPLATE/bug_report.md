@@ -42,7 +42,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Server Details (please complete if you know the details)**
 
-- Database: [e.g. sqlite, mariadb]
+- Database: [e.g. sqlite]
 - Architecture: [e.g. arm64, amd64]
 - Program Version: [e.g. 1.1.4, 1.1.0]
 
