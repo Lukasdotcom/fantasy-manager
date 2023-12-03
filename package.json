@@ -64,6 +64,7 @@
     "#components/*": "./components/*.ts",
     "#Modules/*": "./Modules/*.ts",
     "#type/*": "./types/*.ts",
+    "#types/*": "./types/*.ts",
     "#scripts/*": "./scripts/*.ts",
     "#database": "./Modules/database.ts"
   }

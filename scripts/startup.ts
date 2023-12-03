@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import fs from "fs";
-import connect, { data, plugins } from "../Modules/database";
+import connect from "../Modules/database";
+import { data, plugins } from "../types/database";
 import { compareSemanticVersions } from "../Modules/semantic";
 import store from "../types/store";
 import upgradeDB from "./upgradeDB";

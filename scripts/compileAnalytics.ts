@@ -1,4 +1,5 @@
-import connect, { analytics, detailedAnalytics } from "#database";
+import connect from "#database";
+import { analytics, detailedAnalytics } from "#types/database";
 
 /**
  * Turns the days of the analytics in the db into one entry in the final analytics table

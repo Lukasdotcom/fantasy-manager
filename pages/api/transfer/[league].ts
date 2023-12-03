@@ -1,11 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import connect, {
+import connect from "../../../Modules/database";
+import {
   leagueSettings,
   leagueUsers,
   players,
   squad,
   transfers,
-} from "../../../Modules/database";
+} from "#types/database";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 // This is the structure of the get response

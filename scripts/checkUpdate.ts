@@ -1,4 +1,5 @@
-import connect, { data } from "../Modules/database";
+import connect from "../Modules/database";
+import { data } from "#types/database";
 
 export async function checkUpdate(league: string) {
   const connection = await connect();

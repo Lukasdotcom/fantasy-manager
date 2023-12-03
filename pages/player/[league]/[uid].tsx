@@ -3,12 +3,13 @@ import Link from "../../../components/Link";
 import Dialog from "../../../components/Dialog";
 import { GetServerSideProps } from "next";
 import Head from "next/head.js";
-import connect, {
+import connect from "../../../Modules/database";
+import {
   forecast,
   historicalPlayers,
   players,
   pictures,
-} from "../../../Modules/database";
+} from "#types/database";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import {

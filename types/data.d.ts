@@ -1,4 +1,4 @@
-import { forecast, position } from "#Modules/database";
+import { forecast, position } from "#types/database";
 
 export interface players {
   uid: string; // This is the unique id of the player

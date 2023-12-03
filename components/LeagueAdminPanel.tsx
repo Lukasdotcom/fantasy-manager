@@ -12,7 +12,7 @@ import { ReactNode, SyntheticEvent, useContext, useState } from "react";
 import { UserChip } from "./Username";
 import { BoxTypeMap } from "@mui/system";
 import { useRouter } from "next/router";
-import { leagueSettings as leagueSettingsDB } from "#/Modules/database";
+import { leagueSettings as leagueSettingsDB } from "#/types/database";
 export interface AdminUserData {
   user: number;
   admin: boolean;

@@ -1,11 +1,12 @@
-import connect, {
+import connect from "../Modules/database";
+import {
   clubs,
   leagueSettings,
   leagueUsers,
   points,
   position,
   predictions,
-} from "../Modules/database";
+} from "#types/database";
 
 async function top11(userID: number, leagueID: number) {
   const connection = await connect();

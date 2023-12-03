@@ -1,5 +1,6 @@
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
-import connect, { leagueSettings } from "./database";
+import connect from "./database";
+import { leagueSettings } from "#type/database";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 // Used to get information about the redirect for the league runs on every league page

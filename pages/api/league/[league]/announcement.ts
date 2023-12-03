@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import connect, { announcements } from "../../../../Modules/database";
+import connect from "../../../../Modules/database";
+import { announcements } from "#types/database";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 

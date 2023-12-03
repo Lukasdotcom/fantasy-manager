@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import connect, { detailedAnalytics } from "../../Modules/database";
+import connect from "../../Modules/database";
+import { detailedAnalytics } from "#types/database";
 import { compareSemanticVersions } from "../../Modules/semantic";
 
 export default async function handler(

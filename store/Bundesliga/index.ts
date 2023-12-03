@@ -1,8 +1,9 @@
-import { forecast, position } from "#Modules/database";
 import dataGetter, { players, clubs } from "#type/data";
 import Bundesliga from "./players";
 import { readFile } from "fs/promises";
 import Clubs from "./clubs";
+type position = "bench" | "gk" | "def" | "mid" | "att";
+type forecast = "a" | "u" | "m";
 const Main: dataGetter = async (settings, past_data) => {
   const nowTime = Math.floor(Date.now() / 1000);
   // Gets the data for the league, note that if a file is specified it will be used instead this is for testing purposes
