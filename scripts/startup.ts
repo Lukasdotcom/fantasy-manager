@@ -268,7 +268,7 @@ async function startUp() {
     ),
     // Used to store every server's analytics data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS detailedAnalytics (serverID int, day int, version varchar(255), active int, total int, leagueActive varchar(255), leagueTotal varchar(255), themeActive varchar(255), themeTotal varchar(255), localeActive varchar(255), localeTotal varchar(255))",
+      "CREATE TABLE IF NOT EXISTS detailedAnalytics (serverID varchar(255), day int, version varchar(255), active int, total int, leagueActive varchar(255), leagueTotal varchar(255), themeActive varchar(255), themeTotal varchar(255), localeActive varchar(255), localeTotal varchar(255))",
     ),
     // Used to store league announcements
     connection.query(

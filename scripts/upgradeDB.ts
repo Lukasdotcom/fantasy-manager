@@ -542,6 +542,16 @@ export default async function main(oldVersion: string): Promise<string> {
       "UPDATE points SET fantasyPoints=points, predictionPoints=0",
     );
     await connection.query("DROP TABLE leagueSettingsTemp");
+    await connection.query(
+      "ALTER TABLE detailedAnalytics RENAME TO detailedAnalyticsTemp",
+    );
+    await connection.query(
+      "CREATE TABLE IF NOT EXISTS detailedAnalytics (serverID varchar(255), day int, version varchar(255), active int, total int, leagueActive varchar(255), leagueTotal varchar(255), themeActive varchar(255), themeTotal varchar(255), localeActive varchar(255), localeTotal varchar(255))",
+    );
+    await connection.query(
+      "INSERT INTO detailedAnalytics (serverID, day, version, active, total, leagueActive, leagueTotal, themeActive, themeTotal, localeActive, localeTotal) SELECT serverID, day, version, active, total, leagueActive, leagueTotal, themeActive, themeTotal, localeActive, localeTotal FROM detailedAnalyticsTemp",
+    );
+    await connection.query("DROP TABLE detailedAnalyticsTemp");
     oldVersion = "1.16.0";
     console.log("Upgraded database to version 1.16.0");
   }
