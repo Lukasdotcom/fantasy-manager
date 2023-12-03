@@ -41,7 +41,7 @@ Here is a sample screenshot for more go to the [screenshots folder](public/scree
 
 ## Production or Installation
 
-There are 2 options to run this Sqlite and Mariadb. If you are unsure I would recommend sqlite it is faster. If you would like to install this without docker-compose you can use the [Dockerless](#dockerless) version. After these steps follow the [post-installation guide](#post-installation)
+There are 2 options to run this with and without docker. If you are unsure I would recommend docker it is easier. If you would like to install this without docker you can use the [Dockerless](#dockerless) version. After installing with either process follow the [post-installation guide](#post-installation)
 
 ### Sqlite
 
@@ -49,20 +49,6 @@ There are 2 options to run this Sqlite and Mariadb. If you are unsure I would re
 
 ```
 wget 'https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/docker/docker-compose.yaml'
-```
-
-2. Then run this.
-
-```
-docker-compose up
-```
-
-### Mariadb
-
-1. First download this file and edit the file to your preferences.
-
-```
-wget 'https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/docker/mariadb/docker-compose.yaml'
 ```
 
 2. Then run this.
