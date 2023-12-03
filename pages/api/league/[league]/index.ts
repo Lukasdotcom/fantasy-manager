@@ -52,9 +52,7 @@ export default async function handler(
             } else if (parseInt(settings.duplicatePlayers) <= 0) {
               res.status(400).end("Duplicate Players must be greater than 0");
             } else if (parseInt(settings.starredPercentage) < 100) {
-              res
-                .status(400)
-                .end("Starred percentage can not be less than 100%");
+              res.status(400).end("Star bonus can not be less than 100%");
             } else if (isNaN(parseInt(settings.predictWinner))) {
               res.status(400).end("Predict winner must be a number");
             } else if (isNaN(parseInt(settings.predictDifference))) {

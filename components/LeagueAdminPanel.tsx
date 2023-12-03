@@ -222,7 +222,7 @@ function AdminPanelAdmin({
             id="predictDifference"
             variant="outlined"
             size="small"
-            label={t("Points for Predicting Difference")}
+            label={t("Points for Predicting Goal Difference")}
             type="number"
             onChange={(val) => {
               setPredictDifference(parseInt(val.target.value));
