@@ -1,7 +1,8 @@
 import Menu from "../components/Menu";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head.js";
-import connect, { analytics, data, plugins } from "../Modules/database";
+import connect from "../Modules/database";
+import { analytics, data, plugins } from "#type/database";
 import pluginList from "#scripts/data";
 import React, { useContext, useEffect, useState } from "react";
 import {

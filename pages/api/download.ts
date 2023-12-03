@@ -1,5 +1,6 @@
-import connect, { players } from "#/Modules/database";
+import connect from "#/Modules/database";
 import getLocales from "#/locales/getLocales";
+import { players } from "#/types/database";
 import { stringify } from "csv-stringify/sync";
 import { NextApiRequest, NextApiResponse } from "next";
 interface returnType extends players {

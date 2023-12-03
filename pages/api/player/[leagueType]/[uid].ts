@@ -1,10 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { cache } from "../../../../Modules/cache";
-import connect, {
-  forecast,
-  historicalPlayers,
-  players,
-} from "../../../../Modules/database";
+import connect from "../../../../Modules/database";
+import { forecast, historicalPlayers, players } from "#types/database";
 import { checkUpdate } from "../../../../scripts/checkUpdate";
 import { downloadPicture } from "#/scripts/pictures";
 // Used to return a dictionary on the data for a player

@@ -3,7 +3,8 @@ import redirect from "../../Modules/league";
 import Head from "next/head";
 import { SquadPlayer as Player } from "../../components/Player";
 import { useContext, useState } from "react";
-import connect, { leagueSettings } from "../../Modules/database";
+import connect from "../../Modules/database";
+import { leagueSettings } from "#types/database";
 import {
   Alert,
   AlertTitle,

@@ -1,7 +1,8 @@
 import Head from "next/head";
 import Menu from "#components/Menu";
 import { NotifyContext, TranslateContext } from "#/Modules/context";
-import connect, { leagueSettings } from "#/Modules/database";
+import connect from "#/Modules/database";
+import { leagueSettings } from "#/types/database";
 import { useContext, useState } from "react";
 import redirect from "#/Modules/league";
 import { GetServerSidePropsContext } from "next";

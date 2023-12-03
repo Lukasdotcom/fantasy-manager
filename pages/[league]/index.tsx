@@ -3,14 +3,15 @@ import redirect from "../../Modules/league";
 import Head from "next/head";
 import { useContext, useEffect, useState } from "react";
 import { stringToColor, UserChip } from "../../components/Username";
-import connect, {
+import connect from "../../Modules/database";
+import {
   announcements,
   anouncementColor,
   invite,
   leagueSettings,
   leagueUsers,
   points,
-} from "../../Modules/database";
+} from "#types/database";
 import Link from "../../components/Link";
 import {
   Table,
@@ -344,7 +345,6 @@ export default function Home({
         points: historicalPoints[e][matchday - 1][filter],
       });
     });
-    console.log(newStandings);
     newStandings.sort((a, b) => b.points - a.points);
   } else {
     newStandings = standings.map((e) => {

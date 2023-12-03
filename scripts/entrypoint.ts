@@ -1,9 +1,5 @@
-import connect, {
-  data,
-  leagueSettings,
-  plugins,
-  users,
-} from "../Modules/database";
+import connect from "../Modules/database";
+import { data, leagueSettings, plugins, users } from "#types/database";
 import { updateData } from "./update";
 import version from "./../package.json";
 import dotenv from "dotenv";

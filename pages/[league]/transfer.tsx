@@ -4,7 +4,8 @@ import Head from "next/head";
 import { useState, useEffect, useContext } from "react";
 import { TransferPlayer as Player } from "../../components/Player";
 import { useSession } from "next-auth/react";
-import connect, { leagueSettings } from "../../Modules/database";
+import connect from "../../Modules/database";
+import { leagueSettings } from "#types/database";
 import Link from "../../components/Link";
 import {
   Alert,

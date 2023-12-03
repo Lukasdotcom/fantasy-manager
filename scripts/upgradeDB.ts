@@ -1,4 +1,5 @@
-import connect, { clubs } from "#database";
+import connect from "#database";
+import { clubs } from "#types/database";
 import noAccents, { normalize_db } from "../Modules/normalize";
 import compileAnalytics from "./compileAnalytics";
 /*

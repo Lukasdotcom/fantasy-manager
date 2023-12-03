@@ -5,6 +5,7 @@
       "#components/*": ["./components/*"],
       "#Modules/*": ["./Modules/*"],
       "#type/*": ["./types/*"],
+      "#types/*": ["./types/*"],
       "#scripts/*": ["./scripts/*"],
       "#database": ["./Modules/database"]
     },

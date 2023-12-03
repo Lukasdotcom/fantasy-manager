@@ -1,4 +1,4 @@
-import { forecast, position } from "#Modules/database";
+import { forecast, position } from "#types/database";
 import dataGetter, { players, clubs } from "#type/data";
 import { EPLPlayers, EPLTeams } from "./types";
 

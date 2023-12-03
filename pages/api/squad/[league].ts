@@ -1,4 +1,5 @@
-import connect, { leagueSettings, position } from "#database";
+import connect from "#database";
+import { leagueSettings, position } from "#types/database";
 import { calcPoints } from "../../../scripts/calcPoints";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";

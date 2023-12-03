@@ -1,4 +1,5 @@
-import connect, { pictures } from "../Modules/database";
+import connect from "../Modules/database";
+import { pictures } from "#types/database";
 import { existsSync, mkdirSync, rmSync, createWriteStream } from "fs";
 import { rename } from "fs/promises";
 import { Readable } from "stream";

@@ -1,6 +1,7 @@
 import { clubs, players } from "#/types/data";
 import noAccents from "#Modules/normalize";
-import connect, { data, plugins as pluginsType } from "../Modules/database";
+import connect from "../Modules/database";
+import { data, plugins as pluginsType } from "../types/database";
 import { calcPoints } from "./calcPoints";
 import plugins from "./data";
 import { downloadPicture } from "./pictures";
