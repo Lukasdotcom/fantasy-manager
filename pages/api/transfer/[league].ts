@@ -44,14 +44,12 @@ export default async function handler(
   } else {
     const user = session.user.id;
     const connection = await connect();
+    const archive_check = await connection.query(
+      "SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0",
+      [league],
+    );
     // Checks if the league ia rchived
-    if (
-      await connection
-        .query("SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0", [
-          league,
-        ])
-        .then((e) => e.length === 0)
-    ) {
+    if (archive_check.length === 0) {
       res.status(400).end("This league is archived");
       return;
     }
@@ -63,11 +61,11 @@ export default async function handler(
       ])
       .then((e) => (e.length > 0 ? e[0].money : false));
     // Gets the leagues settings
-    const leagueSettings: leagueSettings = (
-      await connection.query("SELECT * FROM leagueSettings WHERE leagueID=?", [
-        league,
-      ])
-    )[0];
+    const leagueSettings: leagueSettings = archive_check[0];
+    if (!leagueSettings.fantasyEnabled) {
+      res.status(400).end("This league does not have fantasy enabled. ");
+      return;
+    }
     // Checks if the transfer market is open
     const transferOpen: boolean = await connection
       .query("SELECT value2 FROM data WHERE value1=?", [
