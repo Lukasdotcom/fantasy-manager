@@ -1,4 +1,4 @@
-import connect, { position } from "#database";
+import connect, { leagueSettings, position } from "#database";
 import { calcPoints } from "../../../scripts/calcPoints";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
@@ -146,15 +146,21 @@ const handler: NextApiHandler = async (req, res) => {
     res.status(401).end("Not logged in");
   } else {
     const user = session.user.id;
+    const archive_check: leagueSettings[] = await connection.query(
+      "SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0",
+      [league],
+    );
     // Checks if the league is archived
-    if (
-      await connection
-        .query("SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0", [
-          league,
-        ])
-        .then((e) => e.length === 0)
-    ) {
+    if (archive_check.length === 0) {
       res.status(400).end("This league is archived");
+      return;
+    }
+    const fantasy_check = archive_check.filter((e) =>
+      Boolean(e.fantasyEnabled),
+    );
+    // Checks if the league has fantasy enabled
+    if (fantasy_check.length === 0) {
+      res.status(400).end("This league does not have fantasy enabled. ");
       return;
     }
     switch (req.method) {

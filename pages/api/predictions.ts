@@ -41,7 +41,7 @@ export default async function handler(
     [body.league],
   );
   if (data.length === 0) {
-    res.status(403).end("Predictions are not enabled");
+    res.status(403).end("This league does not have predictions enabled. ");
     return;
   }
   const leagueType = data[0].league;
