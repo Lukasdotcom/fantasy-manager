@@ -34,7 +34,7 @@ export default async function handler(
       )
     ).length === 0
   ) {
-    res.status(403).end("You are not in this league");
+    res.status(403).end("You are not in this league. ");
     return;
   }
   const data: leagueSettings[] = await connection.query(
