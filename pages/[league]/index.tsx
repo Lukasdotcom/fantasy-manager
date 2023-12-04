@@ -366,9 +366,7 @@ export default function Home({
         <Alert severity="info">
           <AlertTitle>{t("Help")}</AlertTitle>
           <p>
-            {t(
-              "A tutorial can always be found at the bottom of this page just under the invite links. ",
-            )}
+            {t("A tutorial can always be found just under the invite links. ")}
           </p>
           <Button
             onClick={() => {
