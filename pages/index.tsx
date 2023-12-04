@@ -152,6 +152,8 @@ InferGetStaticPropsType<typeof getStaticProps>) {
             "Many ways to search through players including price, points, position, club, name, etc. ",
           )}
         </li>
+        <li>{t("Predict match results to earn more points. ")}</li>
+        <li>{t("Customize point earnings for match predictions. ")}</li>
         <li>{t("Download historical player data as json or csv. ")}</li>
         <li>
           {t(
