@@ -48,11 +48,10 @@ export default async function handler(
   const leagueType = data[0].league;
   if (
     await connection
-      .query("SELECT * FROM clubs WHERE club=? AND league=? AND opponent=?", [
-        body.home_team,
-        leagueType,
-        body.away_team,
-      ])
+      .query(
+        "SELECT * FROM clubs WHERE club=? AND league=? AND gameStart>? AND opponent=?",
+        [body.home_team, leagueType, Date.now() / 1000, body.away_team],
+      )
       .then((res) => res.length === 0)
   ) {
     res.status(400).end("Invalid match");

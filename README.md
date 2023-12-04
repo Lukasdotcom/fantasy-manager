@@ -42,8 +42,8 @@ The official roadmap is [on this kanban](https://drive.lschaefer.xyz/kanban/#/2/
 ## Screenshots
 
 Here is a sample screenshot for more go to the [screenshots folder](public/screenshots/) which is in the public folder or to the [main page of my hosted version](https://fantasy.lschaefer.xyz)![](https://uptime.lschaefer.xyz/api/badge/15/uptime/720?label=30&labelSuffix=d).
-![Screenshot of League page Dark Theme](public/screenshots/MainDark.webp?raw=true)
-![Screenshot of League Page Light Theme](public/screenshots/MainLight.webp?raw=true)
+![Screenshot of League page Dark Theme](public/screenshots/MainDark.png?raw=true)
+![Screenshot of League Page Light Theme](public/screenshots/MainLight.png?raw=true)
 
 ## Production or Installation
 

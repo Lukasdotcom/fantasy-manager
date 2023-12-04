@@ -41,7 +41,11 @@ function CurrentPicture({ picture }: CurrentPictureProps) {
       case 5:
         return "DetailedPlayer";
       case 6:
+        return "Predictions";
+      case 7:
         return "LeagueAdmin";
+      case 8:
+        return "HistoricalSquad";
       default:
         return "Usermenu";
     }
@@ -52,7 +56,7 @@ function CurrentPicture({ picture }: CurrentPictureProps) {
     "/screenshots/" +
     name +
     (theme.palette.mode === "dark" ? "Dark" : "Light") +
-    ".webp";
+    ".png";
   return (
     <>
       <Box
@@ -82,7 +86,7 @@ function CurrentPicture({ picture }: CurrentPictureProps) {
 }
 // Shows all the screenshots and allows the user to pick screenshots they would like to see
 function Carrousel() {
-  const pictures = 7;
+  const pictures = 9;
   const [picture, setPicture] = useState(1);
   useEffect(() => {
     const interval = setInterval(() => {
