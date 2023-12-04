@@ -8,6 +8,7 @@ This is meant to be an open source self hosted way to play a fantasy manager for
 
 1. Completely free and open source.
 2. Many different leagues to use(Bundesliga, EPL, etc).
+   1. You can even make your own custom plugin to support any league.
 3. Unlimited users and unlimited leagues.
 4. Customize starting money.
 5. Customize starred player bonus.
@@ -16,6 +17,7 @@ This is meant to be an open source self hosted way to play a fantasy manager for
 8. Ranking tables for(Only in leagues):
    1. Top points for every matchday
    2. Top points in total
+   3. Filter by origin (Fantasy, Prediction, or all)
 9. Many ways to search through players:
    1. By price
    2. By total points
@@ -24,10 +26,14 @@ This is meant to be an open source self hosted way to play a fantasy manager for
    5. By Club
    6. By Name
    7. By Position
-10. Download player data as json or csv
-11. See all historical player data(As long as the server was up).
-12. See historical squads for every league.
-13. And all of these features in a Modern Responsive UI available in a light and dark theme.
+10. Predict matches to earn more points for the league.
+11. Customize points for predictions.
+12. Download player data as json or csv
+13. See all historical player data(As long as the server was up).
+14. See historical squads for every league.
+15. And all of these features in a Modern Responsive UI available in a light and dark theme.
+16. Customize UI to look however you want.
+17. Web admin panel for website administrator to change settings.
 
 ## Roadmap
 
