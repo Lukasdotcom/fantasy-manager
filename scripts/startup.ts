@@ -31,7 +31,7 @@ export const default_theme_light = JSON.stringify({
   },
 });
 // Used to tell the program what version the database should get to
-const currentVersion = "1.16.0";
+const currentVersion = "1.17.0";
 // Creates the default config
 async function createConfig() {
   const connection = await connect();
@@ -212,7 +212,7 @@ async function startUp() {
     ),
     // Used to store the players data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS players (uid varchar(25) PRIMARY KEY, name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, sale_price int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))",
+      "CREATE TABLE IF NOT EXISTS players (uid varchar(25), name varchar(255), nameAscii varchar(255), club varchar(3), pictureID int, value int, sale_price int, position varchar(3), forecast varchar(1), total_points int, average_points int, last_match int, locked bool, `exists` bool, league varchar(25))",
     ),
     // Creates a table that contains some key value pairs for data that is needed for some things
     connection.query(
@@ -293,10 +293,58 @@ async function startUp() {
     // Enables the WAL
     connection.query("PRAGMA journal_mode=WAL"),
   ]);
+  // Creates all the indexes for the database
+  await Promise.all([
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS players_uid_league ON players(uid, league)",
+    ),
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS leagueUsers_leagueID_user ON leagueUsers(leagueID, user)",
+    ),
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS points_leagueID_user_matchday ON points(leagueID, user)",
+    ),
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS transfers_leagueID ON transfers(leagueID)",
+    ),
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS squad_leagueID_user ON squad(leagueID, user)",
+    ),
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS historicalSquad_leagueID_user_matchday ON historicalSquad(leagueID, user, matchday)",
+    ),
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS historicalPlayers_uid_time ON historicalPlayers(uid, time)",
+    ),
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS historicalTransfers_leagueID_matchday ON historicalTransfers(leagueID, matchday)",
+    ),
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS clubs_club_league ON historicalClubs(club, league)",
+    ),
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS historicalClubs_club_league_time ON historicalClubs(club, league, time)",
+    ),
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS detailedAnalytics_day ON detailedAnalytics(day)",
+    ),
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS announcements_leagueID ON announcements(leagueID)",
+    ),
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS predictions_leagueID_user ON predictions(leagueID, user)",
+    ),
+    await connection.query(
+      "CREATE INDEX IF NOT EXISTS historicalPredictions_leagueID_user_matchday ON historicalPredictions(leagueID, user, matchday)",
+    ),
+  ]);
   // Checks if the server hash has been created and if not makes one
   await connection.query(
     "INSERT IGNORE INTO data (value1, value2) VALUES ('serverID', ?)",
-    [String(Math.random() * 8980989890)],
+    [
+      Math.random().toString(36).substring(2) +
+        Math.random().toString(36).substring(2),
+    ],
   );
   // Unlocks the database
   (await connection.query("SELECT * FROM plugins")).forEach((e: plugins) => {
