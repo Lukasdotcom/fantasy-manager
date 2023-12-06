@@ -332,6 +332,9 @@ async function startUp() {
       "CREATE INDEX IF NOT EXISTS announcements_leagueID ON announcements(leagueID)",
     ),
     await connection.query(
+      "CREATE INDEX IF NOT EXISTS pictures_url ON pictures(url)",
+    ),
+    await connection.query(
       "CREATE INDEX IF NOT EXISTS predictions_leagueID_user ON predictions(leagueID, user)",
     ),
     await connection.query(
