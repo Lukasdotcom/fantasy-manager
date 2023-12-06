@@ -565,6 +565,24 @@ export default async function main(oldVersion: string): Promise<string> {
       "INSERT INTO players (uid, name, nameAscii, club, pictureID, value, sale_price, position, forecast, total_points, average_points, last_match, locked, `exists`, league) SELECT uid, name, nameAscii, club, pictureID, value, sale_price, position, forecast, total_points, average_points, last_match, locked, `exists`, league FROM playersTemp",
     );
     await connection.query("DROP TABLE playersTemp");
+    await connection.query("ALTER TABLE clubs RENAME TO clubsTemp");
+    await connection.query(
+      "CREATE TABLE IF NOT EXISTS clubs (club varchar(25), gameStart int, gameEnd int, opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, `exists` bool)",
+    );
+    await connection.query(
+      "INSERT INTO clubs (club, gameStart, gameEnd, opponent, teamScore, opponentScore, league, home, `exists`) SELECT club, gameStart, gameEnd, opponent, teamScore, opponentScore, league, home, `exists` FROM clubsTemp",
+    );
+    await connection.query("DROP TABLE clubsTemp");
+    await connection.query(
+      "ALTER TABLE historicalClubs RENAME TO historicalClubsTemp",
+    );
+    await connection.query(
+      "CREATE TABLE IF NOT EXISTS historicalClubs (club varchar(25), opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, time int, `exists` bool)",
+    );
+    await connection.query(
+      "INSERT INTO historicalClubs (club, opponent, teamScore, opponentScore, league, home, time, `exists`) SELECT club, opponent, teamScore, opponentScore, league, home, time, `exists` FROM historicalClubsTemp",
+    );
+    await connection.query("DROP TABLE historicalClubsTemp");
     oldVersion = "1.17.0";
     console.log("Upgraded database to version 1.17.0");
   }

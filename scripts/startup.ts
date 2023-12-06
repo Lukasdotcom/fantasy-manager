@@ -256,11 +256,11 @@ async function startUp() {
     ),
     // Used to store club data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS clubs (club varchar(3) PRIMARY KEY, gameStart int, gameEnd int, opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, `exists` bool)",
+      "CREATE TABLE IF NOT EXISTS clubs (club varchar(25), gameStart int, gameEnd int, opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, `exists` bool)",
     ),
     // Used to store club data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalClubs (club varchar(3), opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, time int, `exists` bool)",
+      "CREATE TABLE IF NOT EXISTS historicalClubs (club varchar(25), opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, time int, `exists` bool)",
     ),
     // Used to store analytics data
     connection.query(
