@@ -369,22 +369,40 @@ function Analytics({
     const date = new Date(e.day * 3600 * 24 * 1000);
     return date.toDateString();
   });
-  // Data for the version graph
+  const condensed_versions: Set<string> = new Set();
+  const condensedAnalyticsParsed = condensedAnalytics.map((e) => {
+    const versionTotal = JSON.parse(e.versionTotal);
+    Object.keys(versionTotal).forEach((key) => {
+      if (versionTotal[key] > 0) condensed_versions.add(key);
+    });
+    return {
+      day: e.day,
+      versionActive: JSON.parse(e.versionActive),
+      versionTotal,
+      leagueActive: JSON.parse(e.leagueActive),
+      leagueTotal: JSON.parse(e.leagueTotal),
+      localeActive: JSON.parse(e.localeActive),
+      localeTotal: JSON.parse(e.localeTotal),
+      themeActive: JSON.parse(e.themeActive),
+      themeTotal: JSON.parse(e.themeTotal),
+    };
+  });
+  const condensedVersions = Array.from(condensed_versions);
   const versionData = {
     labels,
     datasets: [
-      ...versions.map((version, idx) => {
+      ...condensedVersions.map((version, idx) => {
         return {
           fill: true,
           label: version + " Active",
-          data: condensedAnalytics.map(
-            (e) => JSON.parse(e.versionActive)[version] ?? 0,
+          data: condensedAnalyticsParsed.map(
+            (e) => e.versionActive[version] ?? 0,
           ),
           borderColor: `hsla(${calculateVersionColor(idx)}, 100%, 50%, 1)`,
           backgroundColor: `hsla(${calculateVersionColor(idx)}, 100%, 50%, 1)`,
         };
       }),
-      ...versions.map((version, idx) => {
+      ...condensedVersions.map((version, idx) => {
         return {
           fill: false,
           label: version + " Inactive",
@@ -407,8 +425,8 @@ function Analytics({
         return {
           fill: true,
           label: league + " Active",
-          data: condensedAnalytics.map(
-            (e) => JSON.parse(e.leagueActive)[league] ?? 0,
+          data: condensedAnalyticsParsed.map(
+            (e) => e.leagueActive[league] ?? 0,
           ),
           borderColor: `hsla(${calculateColor(
             idx,
@@ -424,10 +442,8 @@ function Analytics({
         return {
           fill: true,
           label: league + " Inactive",
-          data: condensedAnalytics.map(
-            (e) =>
-              (JSON.parse(e.leagueTotal)[league] ?? 0) -
-              (JSON.parse(e.leagueActive)[league] ?? 0),
+          data: condensedAnalyticsParsed.map(
+            (e) => (e.leagueTotal[league] ?? 0) - (e.leagueActive[league] ?? 0),
           ),
           borderColor: `hsla(${calculateColor(
             idx,
@@ -449,8 +465,8 @@ function Analytics({
         return {
           fill: true,
           label: locale + " Active",
-          data: condensedAnalytics.map(
-            (e) => JSON.parse(e.localeActive)[locale] ?? 0,
+          data: condensedAnalyticsParsed.map(
+            (e) => e.localeActive[locale] ?? 0,
           ),
           borderColor: `hsla(${calculateColor(
             idx,
@@ -466,10 +482,8 @@ function Analytics({
         return {
           fill: true,
           label: locale + " Inactive",
-          data: condensedAnalytics.map(
-            (e) =>
-              (JSON.parse(e.localeTotal)[locale] ?? 0) -
-              (JSON.parse(e.localeActive)[locale] ?? 0),
+          data: condensedAnalyticsParsed.map(
+            (e) => (e.localeTotal[locale] ?? 0) - (e.localeActive[locale] ?? 0),
           ),
           borderColor: `hsla(${calculateColor(
             idx,
@@ -493,37 +507,29 @@ function Analytics({
       {
         fill: true,
         label: "Dark Active",
-        data: condensedAnalytics.map(
-          (e) => JSON.parse(e.themeActive).dark ?? 0,
-        ),
+        data: condensedAnalyticsParsed.map((e) => e.themeActive.dark ?? 0),
         borderColor: `hsla(0, 0%, ${darkColor}%, 1)`,
         backgroundColor: `hsla(0, 0%, ${darkColor}%, 1)`,
       },
       {
         fill: true,
         label: "Light Active",
-        data: condensedAnalytics.map(
-          (e) => JSON.parse(e.themeActive).light ?? 0,
-        ),
+        data: condensedAnalyticsParsed.map((e) => e.themeActive.light ?? 0),
         borderColor: `hsla(120, 0%, ${lightColor}%, 1)`,
         backgroundColor: `hsla(120, 0%, ${lightColor}%, 1)`,
       },
       {
         fill: true,
         label: "Custom Active",
-        data: condensedAnalytics.map(
-          (e) => JSON.parse(e.themeActive).custom ?? 0,
-        ),
+        data: condensedAnalyticsParsed.map((e) => e.themeActive.custom ?? 0),
         borderColor: theme.palette.secondary.main,
         backgroundColor: theme.palette.secondary.main,
       },
       {
         fill: true,
         label: "Dark Inactive",
-        data: condensedAnalytics.map(
-          (e) =>
-            (JSON.parse(e.themeTotal).dark ?? 0) -
-            (JSON.parse(e.themeActive).dark ?? 0),
+        data: condensedAnalyticsParsed.map(
+          (e) => (e.themeTotal.dark ?? 0) - (e.themeActive.dark ?? 0),
         ),
         borderColor: `hsla(0, 0%, ${darkColor}%, 1)`,
         backgroundColor: `hsla(0, 0%, ${darkColor}%, 0)`,
@@ -531,10 +537,8 @@ function Analytics({
       {
         fill: true,
         label: "Light Inactive",
-        data: condensedAnalytics.map(
-          (e) =>
-            (JSON.parse(e.themeTotal).light ?? 0) -
-            (JSON.parse(e.themeActive).light ?? 0),
+        data: condensedAnalyticsParsed.map(
+          (e) => (e.themeTotal.light ?? 0) - (e.themeActive.light ?? 0),
         ),
         borderColor: `hsla(120, 0%, ${lightColor}%, 1)`,
         backgroundColor: `hsla(120, 0%, ${lightColor}%, 0)`,
@@ -542,10 +546,8 @@ function Analytics({
       {
         fill: true,
         label: "Custom Inactive",
-        data: condensedAnalytics.map(
-          (e) =>
-            (JSON.parse(e.themeTotal).custom ?? 0) -
-            (JSON.parse(e.themeActive).custom ?? 0),
+        data: condensedAnalyticsParsed.map(
+          (e) => (e.themeTotal.custom ?? 0) - (e.themeActive.custom ?? 0),
         ),
         borderColor: theme.palette.secondary.main,
         backgroundColor: `hsla(20, 100%, 50%, 0)`,
