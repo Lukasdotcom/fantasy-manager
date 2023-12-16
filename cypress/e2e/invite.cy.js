@@ -434,8 +434,8 @@ describe("Invite User into league and change some league Settings and run throug
     ).click();
     cy.contains("Invite 2's squad from New Sample League");
     cy.contains(`Money left: ${user2Money} M`);
-    // Makes sure the team they are playing is correct
-    cy.contains("Next").parent().contains("BVB");
+    // Makes sure the team BVB they are playing is correct
+    cy.contains("Next").parent().contains("BSC");
     // Looks at the historical data for one of the users
     cy.get(':nth-child(7) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski",
@@ -447,7 +447,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains(`Money left: ${matchdays[0].invite2} M`);
     cy.contains("Next").should("not.exist");
     cy.get('[alt="starred"]');
-    cy.get(':nth-child(2) > [style="width: 70%;"] > :nth-child(1)').contains(
+    cy.get(':nth-child(3) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski",
     );
     cy.get(
