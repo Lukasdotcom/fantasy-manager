@@ -219,22 +219,6 @@ export async function updateData(url: string, file = "./sample/data1.json") {
         }
       }
     }
-    // Makes sure that the id is unique and if not letters are added to the end
-    // This happens incredibly rarely, but it has to be made the same way every time
-    let chars: string[] = [];
-    while (
-      (
-        await connection.query(
-          "SELECT * FROM players WHERE uid=? AND league!=?",
-          [val.uid, league],
-        )
-      ).length > 0
-    ) {
-      if (chars.length == 0) {
-        chars = league.split("").reverse();
-      }
-      val.uid = val.uid + chars.pop();
-    }
     // Checks if the player has already been created
     if (
       await connection
@@ -336,8 +320,8 @@ export async function updateData(url: string, file = "./sample/data1.json") {
                 .then((e) => e[0].total_points))) /
             ((await connection
               .query(
-                "SELECT COUNT(*) as num FROM historicalPlayers WHERE uid=?",
-                [uid],
+                "SELECT COUNT(*) as num FROM historicalPlayers WHERE uid=? AND league=?",
+                [uid, league],
               )
               .then((e) => e[0].num)) +
               1);

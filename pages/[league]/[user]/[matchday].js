@@ -63,7 +63,10 @@ export async function getServerSideProps(ctx) {
   const values = await Promise.all(
     squad.map((e) =>
       connection
-        .query("SELECT value FROM players WHERE uid=?", [e.playeruid])
+        .query(
+          "SELECT value FROM players WHERE uid=? AND league=(SELECT league FROM leagueSettings WHERE leagueID=?)",
+          [e.playeruid, league],
+        )
         .then((e) => (e.length > 0 ? e[0].value : 0)),
     ),
   );

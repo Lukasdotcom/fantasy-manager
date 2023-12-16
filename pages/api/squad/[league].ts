@@ -164,6 +164,7 @@ const handler: NextApiHandler = async (req, res) => {
       res.status(400).end("This league does not have fantasy enabled. ");
       return;
     }
+    const leagueSettings: leagueSettings = archive_check[0];
     switch (req.method) {
       // Used to return a dictionary of all formations and your current squad and formation
       case "GET":
@@ -256,8 +257,8 @@ const handler: NextApiHandler = async (req, res) => {
                     if (
                       await connection
                         .query(
-                          "SELECT locked FROM players WHERE uid=? AND locked=0",
-                          [player],
+                          "SELECT locked FROM players WHERE uid=? AND locked=0 AND league=?",
+                          [player, leagueSettings.league],
                         )
                         .then((result) => result.length > 0)
                     ) {

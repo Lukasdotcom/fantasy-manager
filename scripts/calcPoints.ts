@@ -20,12 +20,24 @@ async function top11(userID: number, leagueID: number) {
   );
   // Moves all players off the field
   await connection.query(
-    `UPDATE squad SET position=(SELECT position FROM players WHERE players.uid=squad.playeruid) WHERE leagueID=? AND user=?`,
-    [leagueID, userID],
+    `UPDATE squad SET position=(SELECT position FROM players WHERE players.uid=squad.playeruid AND league=(SELECT league FROM leagueSettings WHERE leagueID=?)) WHERE leagueID=? AND user=?`,
+    [leagueID, leagueID, userID],
   );
   const players: { playeruid: string; position: position; points: number }[] =
     await connection.query(
-      "SELECT squad.playeruid, players.position, players.last_match+players.last_match*starred AS points FROM squad LEFT OUTER JOIN players ON players.uid=squad.playeruid WHERE user=? AND leagueID=? ORDER BY players.position, points DESC;",
+      `SELECT 
+        squad.playeruid, 
+        players.position, 
+        players.last_match + players.last_match * starred AS points 
+      FROM 
+        squad 
+        LEFT OUTER JOIN players ON players.uid = squad.playeruid 
+      WHERE 
+        user = ? 
+        AND leagueID = ? 
+      ORDER BY 
+        players.position, 
+        points DESC`,
       [userID, leagueID],
     );
   const parts = ["gk", "def", "mid", "att"];
