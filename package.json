@@ -26,7 +26,7 @@
     "@emotion/styled": "11.11.0",
     "@mui/material": "5.14.19",
     "bcrypt": "5.1.1",
-    "chart.js": "4.4.1",
+    "chart.js": "4.4.2",
     "csv-stringify": "6.4.6",
     "dotenv": "16.3.1",
     "next": "14.0.3",
