@@ -712,7 +712,7 @@ function Config({
         <>
           <InputLabel htmlFor={shortName}>{name}</InputLabel>
           <Select
-            value={value}
+            value={String(value)}
             onChange={(e) => setValue(e.target.value)}
             id={shortName}
           >
