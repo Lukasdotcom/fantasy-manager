@@ -201,6 +201,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     WHERE 
       clubs.home = 1 
       AND clubs.league = ?
+    ORDER BY
+      gameStart
   `,
     [user_id, leagueType],
   );
