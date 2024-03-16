@@ -586,6 +586,18 @@ export default async function main(oldVersion: string): Promise<string> {
     oldVersion = "1.17.0";
     console.log("Upgraded database to version 1.17.0");
   }
+  if (oldVersion === "1.17.0") {
+    console.log("Upgrading database to version 1.17.1");
+    await connection.query("ALTER TABLE clubs RENAME TO clubsTemp");
+    await connection.query(
+      "CREATE TABLE IF NOT EXISTS clubs (club varchar(25), gameStart int, gameEnd int, opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, `exists` bool, PRIMARY KEY(club, league))",
+    );
+    await connection.query(
+      "INSERT IGNORE INTO clubs (club, gameStart, gameEnd, opponent, teamScore, opponentScore, league, home, `exists`) SELECT club, gameStart, gameEnd, opponent, teamScore, opponentScore, league, home, `exists` FROM clubsTemp",
+    );
+    oldVersion = "1.17.1";
+    console.log("Upgraded database to version 1.17.1");
+  }
   connection.end();
   return oldVersion;
 }

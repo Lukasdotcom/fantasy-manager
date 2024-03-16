@@ -31,7 +31,7 @@ export const default_theme_light = JSON.stringify({
   },
 });
 // Used to tell the program what version the database should get to
-const currentVersion = "1.17.0";
+const currentVersion = "1.17.1";
 // Creates the default config
 async function createConfig() {
   const connection = await connect();
@@ -256,7 +256,7 @@ async function startUp() {
     ),
     // Used to store club data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS clubs (club varchar(25), gameStart int, gameEnd int, opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, `exists` bool)",
+      "CREATE TABLE IF NOT EXISTS clubs (club varchar(25), gameStart int, gameEnd int, opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, `exists` bool, PRIMARY KEY(club, league))",
     ),
     // Used to store club data
     connection.query(
