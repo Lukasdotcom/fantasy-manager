@@ -18,13 +18,11 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#username").type("Invite 1");
     cy.get("#password").type("password");
     cy.get(".center > .MuiButtonBase-root").click();
-    cy.reload().then(() =>
-      cy
-        .getCookie("next-auth.session-token")
-        .then((cookie) => (user1 = cookie.value)),
-    );
     // Creates league with alternate starting amount
     cy.contains("Leagues").click();
+    cy.getCookie("next-auth.session-token").then(
+      (cookie) => (user1 = cookie.value),
+    );
     cy.get("#startingMoney").clear();
     cy.get("#startingMoney").type(200);
     cy.get("#name").type("Sample League");

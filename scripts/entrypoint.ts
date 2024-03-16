@@ -19,9 +19,7 @@ if (process.env.APP_ENV !== "test") {
 startWatcher();
 checkPictures();
 // Makes sure to check if an action is neccessary every 10 seconds
-if (process.env.APP_ENV !== "test") {
-  setInterval(update, 10000);
-}
+setInterval(update, 10000);
 /**
  * Updates all leagues.
  */
