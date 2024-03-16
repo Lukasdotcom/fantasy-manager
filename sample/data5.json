@@ -109,7 +109,7 @@
               "3x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png?fit=150"
             }
           },
-          "next_opponent": { "team_code": "BVB", "match_venue": "away" }
+          "next_opponent": { "team_code": "WOB", "match_venue": "away" }
         },
         "attendance": {
           "forecast": "attending",
@@ -161,7 +161,7 @@
               "3x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Leipzig-RBL.png?fit=150"
             }
           },
-          "next_opponent": { "team_code": "BVB", "match_venue": "away" }
+          "next_opponent": { "team_code": "DSC", "match_venue": "away" }
         },
         "attendance": {
           "forecast": "attending",
@@ -213,7 +213,7 @@
               "3x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Dortmund-BVB.png?fit=150"
             }
           },
-          "next_opponent": { "team_code": "BVB", "match_venue": "home" }
+          "next_opponent": { "team_code": "BSC", "match_venue": "home" }
         },
         "attendance": {
           "forecast": "attending",
@@ -265,7 +265,7 @@
               "3x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Bayern-FCB.png?fit=150"
             }
           },
-          "next_opponent": { "team_code": "BVB", "match_venue": "away" }
+          "next_opponent": { "team_code": "WOB", "match_venue": "away" }
         },
         "attendance": {
           "forecast": "attending",
@@ -317,7 +317,7 @@
               "3x": "https://img.bundesliga.com/tachyon/sites/2/2020/08/Frankfurt-SGE.png?fit=150"
             }
           },
-          "next_opponent": { "team_code": "BVB", "match_venue": "away" }
+          "next_opponent": { "team_code": "M05", "match_venue": "away" }
         },
         "attendance": {
           "forecast": "attending",
