@@ -525,6 +525,8 @@ async function endMatchday(league: string) {
       path: "/download",
     }),
   }).catch(() => {});
+  await connection.query("DELETE FROM predictions WHERE league=?", [league]);
+  console.log("Ended Matchday for " + league);
   connection.end();
   return;
 }
