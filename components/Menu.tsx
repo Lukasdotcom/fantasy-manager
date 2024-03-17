@@ -15,34 +15,11 @@ import Link from "./Link";
 import { useSession } from "next-auth/react";
 import { TranslateContext } from "../Modules/context";
 interface MenuItemsInterface {
-  league: undefined | number;
+  pages: { name: string; link: string }[];
   handleCloseNavMenu: MouseEventHandler;
 }
 // Returns all the menu items
-function MenuItems({ league, handleCloseNavMenu }: MenuItemsInterface) {
-  const { data: session } = useSession();
-  if (!league && session) {
-    league = session.user.favoriteLeague
-      ? session.user.favoriteLeague
-      : undefined;
-  }
-  const t = useContext(TranslateContext);
-  const pages = [{ name: t("Home"), link: "/" }];
-  pages.push({ name: t("Download"), link: `/download` });
-  // Checks if the player is logged in
-  if (session || league) {
-    if (session?.user.admin) {
-      pages.push({ name: "Admin", link: "/admin" });
-    }
-    pages.push({ name: t("Leagues"), link: "/leagues" });
-  }
-  // Checks if the player should see the league links
-  if (league) {
-    pages.push({ name: t("Standings"), link: `/${league}` });
-    pages.push({ name: t("Predictions"), link: `/${league}/predictions` });
-    pages.push({ name: t("Squad"), link: `/${league}/squad` });
-    pages.push({ name: t("Transfers"), link: `/${league}/transfer` });
-  }
+function MenuItems({ pages, handleCloseNavMenu }: MenuItemsInterface) {
   return (
     <>
       {pages.map((page) => (
@@ -68,49 +45,93 @@ const Layout = ({ league }: MainInterface) => {
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
-
+  const { data: session } = useSession();
+  if (!league && session) {
+    league = session.user.favoriteLeague
+      ? session.user.favoriteLeague
+      : undefined;
+  }
+  const t = useContext(TranslateContext);
+  const pages = [{ name: t("Home"), link: "/" }];
+  pages.push({ name: t("Download"), link: `/download` });
+  // Checks if the player is logged in
+  if (session || league) {
+    if (session?.user.admin) {
+      pages.push({ name: "Admin", link: "/admin" });
+    }
+    pages.push({ name: t("Leagues"), link: "/leagues" });
+  }
+  // Checks if the player should see the league links
+  if (league) {
+    pages.push({ name: t("Standings"), link: `/${league}` });
+    pages.push({ name: t("Predictions"), link: `/${league}/predictions` });
+    pages.push({ name: t("Squad"), link: `/${league}/squad` });
+    pages.push({ name: t("Transfers"), link: `/${league}/transfer` });
+  }
+  const MenuItemsLarge = (
+    <MenuItems pages={pages} handleCloseNavMenu={handleCloseNavMenu} />
+  );
+  const MenuItemsSmall = (
+    <>
+      <IconButton size="large" onClick={handleOpenNavMenu} color="inherit">
+        {" "}
+        <Icon>menu</Icon>
+      </IconButton>
+      <Menu
+        id="menu-appbar"
+        anchorEl={anchorElNav}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+        keepMounted
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+        open={Boolean(anchorElNav)}
+        onClose={handleCloseNavMenu}
+        sx={{
+          display: { sm: "block", lg: "none" },
+        }}
+      >
+        {MenuItemsLarge}
+      </Menu>
+    </>
+  );
+  const MenuCount = pages.length;
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Icon>sports_soccer</Icon>
-          <Box sx={{ flexGrow: 1, display: { sm: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <Icon>menu</Icon>
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { sm: "block", lg: "none" },
-              }}
-            >
-              <MenuItems
-                league={league}
-                handleCloseNavMenu={handleCloseNavMenu}
-              />
-            </Menu>
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: {
+                xs: "flex",
+                sm: MenuCount > 5 ? "flex" : "none",
+                md: MenuCount > 7 ? "flex" : "none",
+                lg: MenuCount > 10 ? "flex" : "none",
+                xl: "none",
+              },
+            }}
+          >
+            {MenuItemsSmall}
           </Box>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            <MenuItems
-              league={league}
-              handleCloseNavMenu={handleCloseNavMenu}
-            />
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: {
+                xs: "none",
+                sm: MenuCount > 5 ? "none" : "flex",
+                md: MenuCount > 7 ? "none" : "flex",
+                lg: MenuCount > 10 ? "none" : "flex",
+                xl: "flex",
+              },
+            }}
+          >
+            {MenuItemsLarge}
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
