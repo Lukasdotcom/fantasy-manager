@@ -3,7 +3,7 @@ import Menu from "#components/Menu";
 import { NotifyContext, TranslateContext } from "#/Modules/context";
 import connect from "#/Modules/database";
 import { leagueSettings } from "#/types/database";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import redirect from "#/Modules/league";
 import { GetServerSidePropsContext } from "next";
 import { getSession } from "next-auth/react";
@@ -60,13 +60,33 @@ function Game({
       notify(t(await response.text()), response.ok ? "success" : "error");
     });
   }
+  const [countdown, setCountown] = useState<number>(
+    Math.ceil((gameStart - Date.now() / 1000) / 60),
+  );
+  useEffect(() => {
+    const id = setInterval(
+      () => setCountown((countdown) => countdown - 1),
+      60000,
+    );
+    return () => {
+      clearInterval(id);
+    };
+  }, []);
   const t = useContext(TranslateContext);
   return (
     <div>
       <h2>
-        {home_team} - {away_team}
+        {countdown > 0
+          ? t("{home_team} - {away_team} in {day} D {hour} H {minute} M ", {
+              home_team,
+              away_team,
+              day: Math.floor(countdown / 60 / 24),
+              hour: Math.floor(countdown / 60) % 24,
+              minute: Math.floor(countdown) % 60,
+            })
+          : `${home_team} - ${away_team}`}
       </h2>
-      {Date.now() / 1000 <= gameStart && (
+      {countdown > 0 && (
         <>
           <TextField
             label={t("Home Prediction")}
@@ -85,7 +105,7 @@ function Game({
           </Button>
         </>
       )}
-      {Date.now() / 1000 > gameStart && (
+      {countdown <= 0 && (
         <>
           {home_prediction !== null && away_prediction !== null && (
             <>
