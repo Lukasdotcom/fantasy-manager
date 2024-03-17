@@ -401,6 +401,7 @@
   "success": "erfolg",
   "{amount} M": "{amount} M",
   "{amount} transfers left": "{amount} transfers übrig",
+  "{home_team} - {away_team} in {day} D {hour} H {minute} M ": "{home_team} - {away_team} in {day} T {hour} H {minute} M ",
   "{points} X Star": "{points} X Star",
   "{team} in {day} D {hour} H {minute} M ": "{team} in {day} T {hour} H {minute} M ",
   "{username}'s squad {matchday} from {leagueName}": "{username}'s Kader {matchday} von {leagueName}"

@@ -41,7 +41,7 @@ function InternalPlayer({ data, children, starred, extraText, condensed }) {
   // Makes sure that the countdown is up to date
   useEffect(() => {
     setCountown(
-      data.game ? parseInt((data.game.gameStart - Date.now() / 1000) / 60) : 0,
+      data.game ? Math.ceil((data.game.gameStart - Date.now() / 1000) / 60) : 0,
     );
   }, [data]);
   const theme = useTheme();
