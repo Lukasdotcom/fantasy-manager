@@ -46,7 +46,7 @@
   "devDependencies": {
     "@types/bcrypt": "5.0.2",
     "@types/node": "20.11.28",
-    "@types/react": "18.2.66",
+    "@types/react": "18.2.73",
     "@typescript-eslint/eslint-plugin": "7.2.0",
     "@typescript-eslint/parser": "7.2.0",
     "cypress": "13.7.0",
