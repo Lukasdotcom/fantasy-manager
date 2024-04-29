@@ -33,9 +33,8 @@ export function getProviderDetails(
   if (enabledProviders.includes("google")) {
     providers.push({
       name: "google",
-      logo: "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/google.svg",
-      logoDark:
-        "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/google.svg",
+      logo: "/providers/google.svg",
+      logoDark: "/providers/google.svg",
       bg: "#fff",
       bgDark: "#000",
       text: "#000",
@@ -45,9 +44,8 @@ export function getProviderDetails(
   if (enabledProviders.includes("github")) {
     providers.push({
       name: "github",
-      logo: "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/github-dark.svg",
-      logoDark:
-        "https://raw.githubusercontent.com/nextauthjs/next-auth/main/docs/static/img/providers/github.svg",
+      logo: "/providers/github-dark.svg",
+      logoDark: "/providers/github-light.svg",
       bg: "#fff",
       bgDark: "#24292f",
       text: "#000",
