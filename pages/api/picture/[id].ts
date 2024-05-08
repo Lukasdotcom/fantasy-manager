@@ -34,7 +34,7 @@ export default async function handler(
         Readable.fromWeb(r.body).pipe(res);
       })
       .catch(() => {
-        res.status(404).end();
+        res.redirect("/playerFallback.png");
       });
     connection.end();
   } else {
