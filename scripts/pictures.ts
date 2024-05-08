@@ -48,7 +48,9 @@ async function downloadPictureURL(url: string, id: number) {
       mkdirSync("./players/download");
     }
     const stream = createWriteStream("./players/download/" + fileName);
-    const { body, status } = await fetch(url);
+    const { body, status } = await fetch(url).catch((e) => {
+      return { body: undefined, status: e };
+    });
     if (!body || status !== 200) {
       rej("Status code was not 200, but: " + status);
       return;
