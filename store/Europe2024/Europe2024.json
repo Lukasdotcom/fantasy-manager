@@ -1,0 +1,9 @@
+{
+  "id": "Europe2024",
+  "version": "0.1.0",
+  "description": "This is for the 2024 European Championship. This is right now in beta. Player forecast does not work.",
+  "files": [
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Europe2024/index.ts",
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Europe2024/types.ts"
+  ]
+}
