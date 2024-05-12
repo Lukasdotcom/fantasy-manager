@@ -48,7 +48,13 @@ async function downloadPictureURL(url: string, id: number) {
       mkdirSync("./players/download");
     }
     const stream = createWriteStream("./players/download/" + fileName);
-    const { body, status } = await fetch(url).catch((e) => {
+    const { body, status } = await fetch(url, {
+      // Why an image requires a user agent IDK, but some places do so all of them now get chrome's user agent
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      },
+    }).catch((e) => {
       return { body: undefined, status: e };
     });
     if (!body || status !== 200) {
