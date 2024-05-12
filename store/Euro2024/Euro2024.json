@@ -1,9 +1,12 @@
 {
   "id": "Euro2024",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "This is for the 2024 European Championship. This is right now in beta. Player forecast does not work.",
   "files": [
-    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Europe2024/index.ts",
-    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Europe2024/types.ts"
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Euro2024/index.ts",
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Euro2024/types.ts",
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Euro2024/typeClubs.ts",
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Euro2024/typeMatchday.ts",
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Euro2024/typePlayers.ts"
   ]
 }
