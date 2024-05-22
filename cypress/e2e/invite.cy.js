@@ -317,9 +317,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("34");
     cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("22");
     // Checks if the historical viewer can see the playerdata
-    cy.get(
-      ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root",
-    ).click();
+    cy.get("#fantasy0").click();
     cy.get(':nth-child(2) > [style="width: 70%;"] > :nth-child(1)').contains(
       "Robert Lewandowski",
     );
@@ -427,9 +425,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get(".MuiTableBody-root > :nth-child(1) > :nth-child(2)").contains("34");
     cy.get(".MuiTableBody-root > :nth-child(2) > :nth-child(2)").contains("22");
     // Goes to historical view and checks if the title is correct
-    cy.get(
-      ".MuiTableBody-root > :nth-child(1) > :nth-child(3) > .MuiTypography-root > .MuiButtonBase-root",
-    ).click();
+    cy.get("#fantasy0").click();
     cy.contains("Invite 2's squad from New Sample League");
     cy.contains(`Money left: ${user2Money} M`);
     // Makes sure the team BVB they are playing is correct

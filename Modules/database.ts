@@ -21,7 +21,7 @@ export default async function connect() {
   });
   return new connection(connect);
 }
-class connection {
+export class connection {
   private connection: Database<sqlite3.Database, sqlite3.Statement>;
   constructor(connection: Database<sqlite3.Database, sqlite3.Statement>) {
     connection.configure("busyTimeout", 100000);
