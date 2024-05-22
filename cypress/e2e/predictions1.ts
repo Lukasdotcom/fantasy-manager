@@ -8,7 +8,9 @@ async function run() {
   await connection.query(
     "DELETE FROM users WHERE username like 'Predictions%'",
   );
-  await connection.query("DELETE FROM data WHERE value1='locked'");
+  await connection.query("DELETE FROM clubs");
+  await connection.query("DELETE FROM historicalClubs");
+  await connection.query("DELETE FROM data WHERE value1 like 'locked%'");
   await updateData("", "./sample/data1.json");
   await connection.end();
 }

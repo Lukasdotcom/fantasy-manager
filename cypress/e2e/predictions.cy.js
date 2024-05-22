@@ -68,5 +68,36 @@ describe("Create Predictions league and do some simple predictions.", () => {
       .parent()
       .children(":nth-child(5)")
       .contains("5 - 1");
+    cy.exec(
+      "export APP_ENV=test; ts-node --project=./tsconfig2.json cypress/e2e/predictions3.ts",
+    );
+    cy.contains("Standings").click();
+    cy.get(".MuiPagination-ul > :nth-child(2) > .MuiButtonBase-root").click();
+    cy.get("#predictions0").click();
+    // Confirms that the historical predictions and game scores are stored directly
+    cy.contains("FCB - WOB")
+      .parent()
+      .children(":nth-child(3)")
+      .contains("3 - 0");
+    cy.contains("FCB - WOB")
+      .parent()
+      .children(":nth-child(5)")
+      .contains("5 - 1");
+    cy.contains("BVB - BSC")
+      .parent()
+      .children(":nth-child(3)")
+      .contains("2 - 2");
+    cy.contains("BVB - BSC")
+      .parent()
+      .children(":nth-child(5)")
+      .contains("2 - 2");
+    cy.contains("SGE - M05")
+      .parent()
+      .children(":nth-child(3)")
+      .contains("4 - 0");
+    cy.contains("SGE - M05")
+      .parent()
+      .children(":nth-child(5)")
+      .contains("5 - 1");
   });
 });
