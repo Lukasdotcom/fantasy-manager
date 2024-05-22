@@ -412,7 +412,7 @@ export default function Home({
             </TableRow>
           </TableHead>
           <TableBody>
-            {newStandings.map((val) => (
+            {newStandings.map((val, idx) => (
               <TableRow key={val.user + "m" + matchday}>
                 <TableCell>
                   <UserChip userid={val.user} />
@@ -423,13 +423,30 @@ export default function Home({
                     : historicalPoints[val.user][matchday - 1][filter]}
                 </TableCell>
                 <TableCell>
-                  <Link
-                    href={`/${league}/${val.user}/${
-                      matchday > currentMatchday ? "" : matchday
-                    }`}
-                  >
-                    <Button>{t("Click to view squad")}</Button>
-                  </Link>
+                  {!!leagueSettings.fantasyEnabled &&
+                    filter != "predictionPoints" && (
+                      <Link
+                        href={`/${league}/${val.user}/fantasy/${
+                          matchday > currentMatchday ? "" : matchday
+                        }`}
+                      >
+                        <Button id={"fantasy" + idx}>
+                          {t("Click to view squad")}
+                        </Button>
+                      </Link>
+                    )}
+                  {!!leagueSettings.predictionsEnabled &&
+                    filter != "fantasyPoints" && (
+                      <Link
+                        href={`/${league}/${val.user}/predictions/${
+                          matchday > currentMatchday ? "" : matchday
+                        }`}
+                      >
+                        <Button id={"predictions" + idx}>
+                          {t("Click to view predictions")}
+                        </Button>
+                      </Link>
+                    )}
                 </TableCell>
               </TableRow>
             ))}

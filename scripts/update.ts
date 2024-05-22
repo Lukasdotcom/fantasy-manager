@@ -479,7 +479,7 @@ async function endMatchday(league: string) {
     "INSERT INTO historicalClubs (club, opponent, league, time) SELECT club, opponent, league, ? as time FROM clubs WHERE league=?",
     [time, league],
   );
-  // Copies all squads into the historical squads
+  // Copies all squads into the historical squads and copies predictions
   let currentleagueID = 0;
   console.log(`Archiving user squads for ${league}`);
   const squads = await connection.query(
@@ -501,6 +501,11 @@ async function endMatchday(league: string) {
           [currentleagueID],
         )
         .then((result) => (result.length > 0 ? result[0].matchday : 1));
+      // Copies all predictions for that league into historical predictions
+      await connection.query(
+        "INSERT INTO historicalPredictions (matchday, leagueID, user, club, league, home, away) SELECT ? as matchday, leagueID, user, club, league, home, away FROM predictions WHERE leagueID=?",
+        [matchday, currentleagueID],
+      );
     }
     connection.query(
       "INSERT INTO historicalSquad (matchday, leagueID, user, playeruid, position, starred) VALUES (?, ?, ?, ?, ?, ?)",
@@ -514,6 +519,8 @@ async function endMatchday(league: string) {
       ],
     );
   }
+  // Deletes predictions after they were archived
+  await connection.query("DELETE FROM predictions WHERE league=?", [league]);
   // Will revalidate the downloads page so it is up to date
   fetch(process.env.NEXTAUTH_URL_INTERNAL + "/api/revalidate", {
     method: "POST",
@@ -525,7 +532,6 @@ async function endMatchday(league: string) {
       path: "/download",
     }),
   }).catch(() => {});
-  await connection.query("DELETE FROM predictions WHERE league=?", [league]);
   console.log("Ended Matchday for " + league);
   connection.end();
   return;

@@ -1,12 +1,12 @@
 import Head from "next/head";
-import Menu from "../../../components/Menu";
-import connect from "../../../Modules/database";
-import redirect from "../../../Modules/league";
-import { Player, HistoricalPlayer } from "../../../components/Player";
+import Menu from "../../../../components/Menu";
+import connect from "../../../../Modules/database";
+import redirect from "../../../../Modules/league";
+import { Player, HistoricalPlayer } from "../../../../components/Player";
 import { useRouter } from "next/router";
 import { Box, FormLabel, Pagination, PaginationItem } from "@mui/material";
 import { useContext } from "react";
-import { TranslateContext } from "../../../Modules/context";
+import { TranslateContext } from "../../../../Modules/context";
 export default function HistoricalView({
   user,
   username,
@@ -61,7 +61,7 @@ export default function HistoricalView({
         count={latestMatchday + 1}
         onChange={(e, v) => {
           router.push(
-            `/${league}/${user}/${v === latestMatchday + 1 ? "" : v}`,
+            `/${league}/${user}/fantasy/${v === latestMatchday + 1 ? "" : v}`,
           );
         }}
         renderItem={(item) => {

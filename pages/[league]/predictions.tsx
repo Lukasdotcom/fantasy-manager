@@ -1,14 +1,14 @@
 import Head from "next/head";
 import Menu from "#components/Menu";
 import { NotifyContext, TranslateContext } from "#/Modules/context";
-import connect from "#/Modules/database";
+import connect, { connection } from "#/Modules/database";
 import { leagueSettings } from "#/types/database";
 import { useContext, useEffect, useState } from "react";
 import redirect from "#/Modules/league";
 import { GetServerSidePropsContext } from "next";
 import { getSession } from "next-auth/react";
 import { Alert, AlertTitle, Button, Grid, TextField } from "@mui/material";
-interface predictions {
+export interface predictions {
   home_team: string;
   away_team: string;
   home_score?: number;
@@ -21,7 +21,7 @@ interface predictions {
 interface GameProps extends predictions {
   league: number;
 }
-function Game({
+export function Game({
   home_team,
   away_team,
   home_score,
@@ -194,16 +194,49 @@ export default function Home({
     </>
   );
 }
-
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const connection = await connect();
+export const get_predictions = async (
+  connection: connection,
+  user: number,
+  league: number,
+  matchday?: number,
+): Promise<predictions[]> => {
   const leagueType: string = await connection
-    .query("SELECT league FROM leagueSettings WHERE leagueID=?", [
-      ctx.query.league,
-    ])
+    .query("SELECT league FROM leagueSettings WHERE leagueID=?", [league])
     .then((e) => (e.length > 0 ? e[0].league : ""));
-  const user_id = (await getSession(ctx))?.user?.id;
-  const games: predictions[] = await connection.query(
+  if (matchday) {
+    const time = await connection
+      .query("SELECT time FROM points WHERE matchday=? AND leagueID=?", [
+        matchday,
+        league,
+      ])
+      .then((e) => (e.length > 0 ? e[0].time : 0));
+    return await connection.query(
+      `SELECT 
+        historicalClubs.club as home_team, 
+        historicalClubs.opponent as away_team, 
+        historicalClubs.teamScore AS home_score, 
+        historicalClubs.opponentScore AS away_score, 
+        0 as gameStart,
+        0 as gameEnd,
+        historicalPredictions.home AS home_prediction, 
+        historicalPredictions.away AS away_prediction 
+      FROM 
+        historicalClubs 
+        LEFT OUTER JOIN historicalPredictions ON historicalPredictions.club = historicalClubs.club 
+        AND historicalPredictions.matchday = ?
+        AND historicalPredictions.league = ?
+        AND historicalPredictions.user = ?
+        AND historicalPredictions.leagueID = ?
+      WHERE 
+        historicalClubs.home = 1 
+        AND historicalClubs.league = ?
+        AND historicalClubs.time = ?
+      ORDER BY
+        gameStart`,
+      [matchday, leagueType, user, league, leagueType, time],
+    );
+  }
+  return await connection.query(
     `SELECT 
       clubs.club as home_team, 
       clubs.opponent as away_team, 
@@ -216,15 +249,24 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     FROM 
       clubs 
       LEFT OUTER JOIN predictions ON predictions.club = clubs.club 
-      AND predictions.league = clubs.league 
+      AND predictions.league = ? 
       AND predictions.user = ?
+      AND predictions.leagueID = ?
     WHERE 
       clubs.home = 1 
       AND clubs.league = ?
     ORDER BY
-      gameStart
-  `,
-    [user_id, leagueType],
+      gameStart`,
+    [leagueType, user, league, leagueType],
+  );
+};
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const connection = await connect();
+  const user_id = (await getSession(ctx))?.user?.id;
+  const games: predictions[] = await get_predictions(
+    connection,
+    user_id as number,
+    parseInt(String(ctx.query.league)),
   );
   connection.end();
   return await redirect(ctx, { games });
