@@ -12,6 +12,5 @@ async function run() {
   ]);
   connection.end();
   // Simulates all the games
-  console.log("PART 2");
   await updateData("", "./sample/data3.json");
 }

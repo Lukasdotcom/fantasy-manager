@@ -476,51 +476,71 @@ async function endMatchday(league: string) {
   );
   console.log(`Archiving matchday data for ${league}`);
   await connection.query(
-    "INSERT INTO historicalClubs (club, opponent, league, time) SELECT club, opponent, league, ? as time FROM clubs WHERE league=?",
+    "INSERT INTO historicalClubs (club, opponent, teamScore, opponentScore, league, home, time, `exists`) SELECT club, opponent, teamScore, opponentScore, league, home, ? as time, `exists` FROM clubs WHERE league=?",
     [time, league],
   );
-  // Copies all squads into the historical squads and copies predictions
-  let currentleagueID = 0;
-  console.log(`Archiving user squads for ${league}`);
-  const squads = await connection.query(
-    "SELECT * FROM squad WHERE EXISTS (SELECT * FROM leagueSettings WHERE leagueSettings.leagueID=squad.leagueID AND league=? AND archived=0) ORDER BY leagueID DESC",
-    [league],
-  );
-  let counter = 0;
-  let matchday = 1;
-  while (squads.length > counter) {
-    const squad = squads[counter];
-    counter++;
-    // Checks if the leagues matchday has already been calculated
-    if (squad.leagueID !== currentleagueID) {
-      currentleagueID = squad.leagueID;
-      // Calculates the latest matchday for that league
-      matchday = await connection
-        .query(
-          "SELECT matchday FROM points WHERE leagueID=? ORDER BY matchday DESC LIMIT 1",
-          [currentleagueID],
-        )
-        .then((result) => (result.length > 0 ? result[0].matchday : 1));
-      // Copies all predictions for that league into historical predictions
-      await connection.query(
-        "INSERT INTO historicalPredictions (matchday, leagueID, user, club, league, home, away) SELECT ? as matchday, leagueID, user, club, league, home, away FROM predictions WHERE leagueID=?",
-        [matchday, currentleagueID],
-      );
-    }
+  // Copies all the predictions that are still
+  await Promise.all([
+    // Archives all the predictions
+    connection
+      .query(
+        `INSERT INTO historicalPredictions (
+        matchday, leagueID, user, club, league, 
+        home, away
+      ) 
+      SELECT 
+        (
+          SELECT 
+            matchday 
+          FROM 
+            points 
+          WHERE 
+            leagueID = predictions.leagueID 
+          ORDER BY 
+            matchday DESC 
+          LIMIT 
+            1
+        ) as matchday, 
+        leagueID, 
+        user, 
+        club, 
+        league, 
+        home, 
+        away 
+      FROM 
+        predictions`,
+      )
+      // Clears the predictions
+      .then(() => connection.query("DELETE FROM predictions")),
+    // Archives all the squads
     connection.query(
-      "INSERT INTO historicalSquad (matchday, leagueID, user, playeruid, position, starred) VALUES (?, ?, ?, ?, ?, ?)",
-      [
-        matchday,
-        squad.leagueID,
-        squad.user,
-        squad.playeruid,
-        squad.position,
-        squad.starred,
-      ],
-    );
-  }
-  // Deletes predictions after they were archived
-  await connection.query("DELETE FROM predictions WHERE league=?", [league]);
+      `INSERT INTO historicalSquad (
+        matchday, leagueID, user, playeruid, 
+        position, starred
+      ) 
+      SELECT 
+        (
+          SELECT 
+            matchday 
+          FROM 
+            points 
+          WHERE 
+            leagueID = squad.leagueID 
+          ORDER BY 
+            matchday DESC 
+          LIMIT 
+            1
+        ) as matchday, 
+        leagueID, 
+        user, 
+        playeruid, 
+        position, 
+        starred 
+      FROM 
+        squad;
+      `,
+    ),
+  ]);
   // Will revalidate the downloads page so it is up to date
   fetch(process.env.NEXTAUTH_URL_INTERNAL + "/api/revalidate", {
     method: "POST",

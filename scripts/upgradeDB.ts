@@ -586,6 +586,18 @@ export default async function main(oldVersion: string): Promise<string> {
     oldVersion = "1.17.0";
     console.log("Upgraded database to version 1.17.0");
   }
+  if (oldVersion === "1.17.0") {
+    console.log("Upgrading database to version 1.18.0");
+    // Fixes because historicalClub data was archived incorrectly
+    await connection.query(
+      "UPDATE historicalClubs AS test SET home=EXISTS (SELECT * FROM historicalClubs WHERE home=0 AND opponent=test.club AND league=test.league AND time=test.time)",
+    );
+    await connection.query(
+      "UPDATE historicalClubs SET `exists`=EXISTS (SELECT * FROM historicalPlayers WHERE `exists`=1 AND club=historicalClubs.club AND league=historicalClubs.league AND time=historicalClubs.time)",
+    );
+    oldVersion = "1.18.0";
+    console.log("Upgraded database to version 1.18.0");
+  }
   connection.end();
   return oldVersion;
 }

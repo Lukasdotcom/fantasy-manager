@@ -48,7 +48,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
     };
   }
-  console.log(predictions);
   connection.end();
   // Checks if the user exists
   if (username === "") {
