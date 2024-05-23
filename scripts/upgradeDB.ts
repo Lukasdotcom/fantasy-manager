@@ -617,6 +617,8 @@ export default async function main(oldVersion: string): Promise<string> {
       "UPDATE leagueSettings SET predictionsEnabled=0 WHERE predictionsEnabled IS NULL",
     );
     await connection.query("DROP TABLE leagueSettingsTemp");
+    // Fixes some invalid time=0s for the points table
+    await connection.query("UPDATE points SET time=NULL WHERE time=0");
     oldVersion = "1.18.1";
     console.log("Upgraded database to version 1.18.1");
   }

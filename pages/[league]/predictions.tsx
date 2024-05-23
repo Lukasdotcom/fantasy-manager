@@ -20,6 +20,7 @@ export interface predictions {
 }
 interface GameProps extends predictions {
   league: number;
+  readOnly?: boolean;
 }
 export function Game({
   home_team,
@@ -31,6 +32,8 @@ export function Game({
   home_prediction,
   away_prediction,
   league,
+  // This is used to mean an outside viewer that should only see the prediction when the game starts
+  readOnly = false,
 }: GameProps) {
   // const t = useContext(TranslateContext);
   const [home, setHome] = useState(home_prediction);
@@ -86,7 +89,7 @@ export function Game({
             })
           : `${home_team} - ${away_team}`}
       </h2>
-      {countdown > 0 && (
+      {countdown > 0 && !readOnly && (
         <>
           <TextField
             label={t("Home Prediction")}
