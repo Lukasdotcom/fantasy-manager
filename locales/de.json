@@ -51,6 +51,7 @@
   "Clear favorite league": "Klare favoriten Liga",
   "Click Here For a Tutorial": "Klicken Sie hier für ein Tutorial",
   "Click here for creating an account. ": "Klicken Sie hier um ihr Konto zu erstellen. ",
+  "Click to view predictions": "Klicken Sie um die Vorhersagen anzuzeigen",
   "Click to view squad": "Klicken Sie um den Kader anzuzeigen",
   "Club": "Club",
   "Community": "Community",
@@ -404,5 +405,6 @@
   "{home_team} - {away_team} in {day} D {hour} H {minute} M ": "{home_team} - {away_team} in {day} T {hour} H {minute} M ",
   "{points} X Star": "{points} X Star",
   "{team} in {day} D {hour} H {minute} M ": "{team} in {day} T {hour} H {minute} M ",
+  "{username}'s predictions {matchday} from {leagueName}": "{username}'s Vorhersagen {matchday} von {leagueName}",
   "{username}'s squad {matchday} from {leagueName}": "{username}'s Kader {matchday} von {leagueName}"
 }
