@@ -31,7 +31,7 @@ export const default_theme_light = JSON.stringify({
   },
 });
 // Used to tell the program what version the database should get to
-const currentVersion = "1.18.0";
+const currentVersion = "1.18.1";
 // Creates the default config
 async function createConfig() {
   const connection = await connect();

@@ -56,7 +56,7 @@ export default function HistoricalView({
       <Grid container spacing={2}>
         {predictions.map((e) => (
           <Grid key={e.home_team} item lg={4} xs={6}>
-            <Game league={leagueID} {...e} />
+            <Game league={leagueID} readOnly={true} {...e} />
           </Grid>
         ))}
       </Grid>

@@ -73,7 +73,7 @@ export default async function handler(
           .then((res) => res[0].value2 !== "true");
         if (transferClosed) {
           connection.query(
-            "INSERT INTO points (leagueID, user, points, fantasyPoints, predictionPoints, matchday, time, money) VALUES(?, ?, 0, 0, 0, 1, 0, 0)",
+            "INSERT INTO points (leagueID, user, points, fantasyPoints, predictionPoints, matchday, money) VALUES(?, ?, 0, 0, 0, 1, 0)",
             [id, session.user.id],
           );
         }
