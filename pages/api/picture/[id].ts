@@ -38,7 +38,11 @@ export default async function handler(
         Readable.fromWeb(r.body).pipe(res);
       })
       .catch(() => {
-        res.redirect("/playerFallback.png");
+        const data = statSync("./public/playerFallback.png");
+        const stream = createReadStream("./public/playerFallback.png");
+        res.setHeader("Content-Length", data.size);
+        res.writeHead(200);
+        stream.pipe(res);
       });
     connection.end();
   } else {
