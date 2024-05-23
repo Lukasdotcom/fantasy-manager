@@ -3,7 +3,11 @@ import connect from "#database";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Readable } from "stream";
 import { picturePath } from "#/scripts/pictures";
-
+export const config = {
+  api: {
+    responseLimit: false,
+  },
+};
 // This exists for the purpose of making it easier for the next image component to get the data it needs
 export default async function handler(
   req: NextApiRequest,
