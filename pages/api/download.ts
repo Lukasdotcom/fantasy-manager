@@ -49,8 +49,8 @@ export default async function handler(
     time > 0
       ? (
           await connection.query(
-            `SELECT * FROM historicalPlayers WHERE league=?${extraText}`,
-            [league],
+            `SELECT * FROM historicalPlayers WHERE league=?${extraText} AND time=?`,
+            [league, time],
           )
         ).map(filter_function)
       : (
