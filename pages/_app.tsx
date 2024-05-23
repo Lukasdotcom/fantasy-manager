@@ -192,7 +192,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   // Used to create the theme for the website and starts of in dark to not blind dark theme users
   const [colorMode, setColorMode] = useState<"light" | "dark" | string>("dark");
   function updateColorMode(theme: "light" | "dark" | string, force = false) {
-    if (force) {
+    if (force || colorMode !== theme) {
       fetch("/api/user", {
         method: "POST",
         headers: {
@@ -201,8 +201,6 @@ function MyApp({ Component, pageProps }: AppProps) {
         body: JSON.stringify({ theme }),
       });
       localStorage.theme = theme;
-    }
-    if (colorMode !== theme) {
       setColorMode(theme);
     }
   }
@@ -210,16 +208,17 @@ function MyApp({ Component, pageProps }: AppProps) {
   const prefersDark = !useMediaQuery("(prefers-color-scheme: light)");
   // Sets the color scheme based on preferences)
   useEffect(() => {
+    const session_exists = !!session; // Checks if a session to read data from exists
     // Grabs the online preferences if they exist
     if (session && session.user.theme !== "" && session.user.theme) {
       updateColorMode(session.user.theme);
     } else if (localStorage.theme !== "" && localStorage.theme) {
       // Uses localstorage if available
-      updateColorMode(localStorage.theme);
+      updateColorMode(localStorage.theme, session_exists);
     } else {
       // Uses the browser preferences
       const theme = prefersDark ? "dark" : "light";
-      updateColorMode(theme);
+      updateColorMode(theme, session_exists);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prefersDark, session]);
