@@ -68,7 +68,7 @@ export default async function handler(
                   parseInt(settings.transfers),
                   parseInt(settings.duplicatePlayers),
                   parseInt(settings.starredPercentage),
-                  parseInt(settings.matchdayTransfers),
+                  Boolean(settings.matchdayTransfers),
                   Boolean(settings.fantasyEnabled),
                   Boolean(settings.predictionsEnabled),
                   parseInt(settings.predictWinner),
