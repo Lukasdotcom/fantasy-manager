@@ -598,6 +598,28 @@ export default async function main(oldVersion: string): Promise<string> {
     oldVersion = "1.18.0";
     console.log("Upgraded database to version 1.18.0");
   }
+  if (oldVersion === "1.18.0") {
+    console.log("Upgrading database to version 1.18.1");
+    // Fix for leagueSettings table not having default values set for fantasyEnabled and predictionsEnabled
+    await connection.query(
+      "ALTER TABLE leagueSettings RENAME TO leagueSettingsTemp",
+    );
+    await connection.query(
+      "CREATE TABLE IF NOT EXISTS leagueSettings (leagueName varchar(255), leagueID int PRIMARY KEY AUTO_INCREMENT NOT NULL, startMoney int DEFAULT 150000000, transfers int DEFAULT 6, duplicatePlayers int DEFAULT 1, starredPercentage int DEFAULT 150, league varchar(25), archived int DEFAULT 0, matchdayTransfers boolean DEFAULT 0, fantasyEnabled boolean DEFAULT 1, predictionsEnabled boolean DEFAULT 1, predictWinner int DEFAULT 2, predictDifference int DEFAULT 5, predictExact int DEFAULT 15, top11 boolean DEFAULT 0, active bool DEFAULT 0, inactiveDays int DEFAULT 0)",
+    );
+    await connection.query(
+      "INSERT INTO leagueSettings SELECT * FROM leagueSettingsTemp",
+    );
+    await connection.query(
+      "UPDATE leagueSettings SET fantasyEnabled=0 WHERE fantasyEnabled IS NULL",
+    );
+    await connection.query(
+      "UPDATE leagueSettings SET predictionsEnabled=0 WHERE predictionsEnabled IS NULL",
+    );
+    await connection.query("DROP TABLE leagueSettingsTemp");
+    oldVersion = "1.18.1";
+    console.log("Upgraded database to version 1.18.1");
+  }
   connection.end();
   return oldVersion;
 }
