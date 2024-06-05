@@ -65,8 +65,16 @@ function Invite({ link, league, host, remove }: InviteProps) {
   const notify = useContext(NotifyContext);
   const t = useContext(TranslateContext);
   return (
-    <p>
-      {t("Link: {link}", { link: `${host}/api/invite/${link}` })}
+    <p style={{ wordWrap: "break-word" }}>
+      <a
+        onClick={() => {
+          // Sets the clipboard to the invite link
+          navigator.clipboard.writeText(`${host}/api/invite/${link}`);
+          notify(t("Copied to clipboard"));
+        }}
+      >
+        {t("Link: {link}", { link: `${host}/api/invite/${link}` })}
+      </a>
       <Button
         onClick={async () => {
           notify(t("Deleting"));
@@ -544,6 +552,7 @@ export default function Home({
         </>
       )}
       <h1>{t("Invite Links")}</h1>
+      <p>{t("Tap to copy a link")}</p>
       {invites.map((val) => (
         <Invite
           host={host}
