@@ -40,7 +40,10 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#invite").clear();
     cy.get("#invite").type("invite1");
     cy.contains("Add invite").click();
-    cy.contains("Link: localhost:3000/api/invite/").contains("Delete").click();
+    cy.contains("Link: localhost:3000/api/invite/")
+      .parent()
+      .contains("Delete")
+      .click();
     cy.contains("Link: localhost:3000/api/invite/invite1");
     // Changes the default money amount and starred player multiplier
     cy.get("#startingMoney").clear();
