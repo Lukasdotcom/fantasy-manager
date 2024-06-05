@@ -6,10 +6,10 @@ import { hash } from "bcrypt";
 // Used to change a users username
 export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
-  const id = session.user.id;
+  const id = session?.user?.id;
   switch (req.method) {
     case "POST":
-      if (!session) {
+      if (!id) {
         res.status(401).end("Not logged in");
       } else if (req.body.password !== undefined) {
         // Updates the password if one is given.
@@ -104,7 +104,7 @@ export default async function handler(req, res) {
       break;
     // Used to delete the user
     case "DELETE":
-      if (!session) {
+      if (!id) {
         res.status(401).end("Not logged in");
         // Makes sure the user passed the correct id
       } else if (req.body.user === id) {
