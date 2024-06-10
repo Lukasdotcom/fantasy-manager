@@ -31,13 +31,10 @@ describe("Create Predictions league and do some simple predictions.", () => {
     cy.contains("RBL").should("not.exist");
     cy.contains("FCB - WOB").parent().children(":nth-child(2)").type("3");
     cy.contains("FCB - WOB").parent().children(":nth-child(3)").type("0");
-    cy.contains("FCB - WOB").parent().children(":nth-child(4)").click();
     cy.contains("BVB - BSC").parent().children(":nth-child(2)").type("2");
     cy.contains("BVB - BSC").parent().children(":nth-child(3)").type("2");
-    cy.contains("BVB - BSC").parent().children(":nth-child(4)").click();
     cy.contains("SGE - M05").parent().children(":nth-child(2)").type("4");
     cy.contains("SGE - M05").parent().children(":nth-child(3)").type("0");
-    cy.contains("SGE - M05").parent().children(":nth-child(4)").click();
     cy.exec(
       "export APP_ENV=test; ts-node --project=./tsconfig2.json cypress/e2e/predictions2.ts",
     );
