@@ -524,7 +524,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.get("#password").type("password");
     cy.get(".center > .MuiButtonBase-root").click();
     cy.contains(
-      "Your favorited league will be available in the menu when you are not in a league. Note that the menu only updates on a page navigation or reload.",
+      "Your favorited league will be available in the menu when you are not in a league. ",
     );
     cy.visit("http://localhost:3000/api/invite/invite1", {
       failOnStatusCode: false,
