@@ -84,7 +84,7 @@ const Main: dataGetter = async function () {
     throw new Error("Failed to find the matchday for unknown reason");
   });
 
-  const clubs: clubs[] = [];
+  const clubs = [];
   for (const game of game_data.data.items) {
     const gameStart = Date.parse(game.start_at) / 1000;
     let gameEnd = nowTime;
@@ -97,6 +97,8 @@ const Main: dataGetter = async function () {
     }
     clubs.push({
       club: game.home_team.name_short,
+      fullName: game.home_team.name,
+      test: 12,
       gameStart,
       gameEnd,
       opponent: game.away_team.name_short,
@@ -107,6 +109,7 @@ const Main: dataGetter = async function () {
     });
     clubs.push({
       club: game.away_team.name_short,
+      fullName: game.away_team.name,
       gameStart,
       gameEnd,
       opponent: game.home_team.name_short,
@@ -116,6 +119,6 @@ const Main: dataGetter = async function () {
       home: false,
     });
   }
-  return [transferOpen, countdown, players, clubs];
+  return [transferOpen, countdown, players, clubs as clubs[]];
 };
 export default Main;
