@@ -7,7 +7,7 @@ import { useContext, useEffect, useState } from "react";
 import redirect from "#/Modules/league";
 import { GetServerSidePropsContext } from "next";
 import { getSession } from "next-auth/react";
-import { Alert, AlertTitle, Button, Grid, TextField } from "@mui/material";
+import { Alert, AlertTitle, Grid, TextField } from "@mui/material";
 export interface predictions {
   home_team: string;
   away_team: string;
@@ -41,11 +41,13 @@ export function Game({
   const notify = useContext(NotifyContext);
   function updateHome(e: React.ChangeEvent<HTMLInputElement>) {
     setHome(parseInt(e.target.value));
+    save(parseInt(e.target.value), away);
   }
   function updateAway(e: React.ChangeEvent<HTMLInputElement>) {
     setAway(parseInt(e.target.value));
+    save(home, parseInt(e.target.value));
   }
-  function save() {
+  function save(home: number | undefined, away: number | undefined) {
     notify(t("Saving"));
     fetch("/api/predictions", {
       method: "POST",
@@ -103,9 +105,6 @@ export function Game({
             value={away ?? ""}
             onChange={updateAway}
           />
-          <Button variant="outlined" color="success" onClick={save}>
-            {t("Save")}
-          </Button>
         </>
       )}
       {countdown <= 0 && (
