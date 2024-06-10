@@ -387,7 +387,7 @@
   "You need to give a username and a password when signing up. ": "Bei der Anmeldung müssen Sie einen Benutzernamen und ein Passwort angeben. ",
   "Your account has had too many failed login attempts recently and is being temporarily locked. ": "Ihr Konto hatte in letzter Zeit zu viele fehlgeschlagene Anmeldeversuche und wird vorübergehend gesperrt. ",
   "Your favorite league is: {league}": "Deine favoriten Liga ist: {league}",
-  "Your favorited league will be available in the menu when you are not in a league. Note that the menu only updates on a page navigation or reload. ": "Ihre favoriten Liga ist im Menü verfügbar, wenn Sie in keiner Liga sind. Beachten Sie, dass das Menü nur bei einer Seitennavigation oder einem Neuladen aktualisiert wird. ",
+  "Your favorited league will be available in the menu when you are not in a league. ": "Ihre favoriten Liga ist im Menü verfügbar, wenn Sie in keiner Liga sind. ",
   "archived": "archiviert",
   "att": "st",
   "closed": "geschlossen",

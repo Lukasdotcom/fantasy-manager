@@ -228,7 +228,7 @@ interface LeaguesProps {
 function Leagues({ leagues }: LeaguesProps) {
   const notify = useContext(NotifyContext);
   const t = useContext(TranslateContext);
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const [leagueList, setLeagueList] = useState<LeagueListResult>({
     leagues: [],
     archived: [],
@@ -278,6 +278,7 @@ function Leagues({ leagues }: LeaguesProps) {
     });
     notify(t(await response.text()), response.ok ? "success" : "error");
     setFavoriteLeague(val);
+    update();
   }
   return (
     <>
@@ -287,7 +288,7 @@ function Leagues({ leagues }: LeaguesProps) {
       <h1>{t("Leagues")}</h1>
       <p>
         {t(
-          "Your favorited league will be available in the menu when you are not in a league. Note that the menu only updates on a page navigation or reload. ",
+          "Your favorited league will be available in the menu when you are not in a league. ",
         )}
         {t(
           "You can favorite a league by clicking on the star next to the league. ",
