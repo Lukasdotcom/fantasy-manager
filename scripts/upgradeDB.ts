@@ -622,6 +622,16 @@ export default async function main(oldVersion: string): Promise<string> {
     oldVersion = "1.18.1";
     console.log("Upgraded database to version 1.18.1");
   }
+  if (oldVersion === "1.18.1") {
+    console.log("Upgrading database to version 1.19.0");
+    // Adds club full names to tables
+    await connection.query(
+      "ALTER TABLE historicalClubs ADD fullName varchar(255)",
+    );
+    await connection.query("ALTER TABLE clubs ADD fullName varchar(255)");
+    oldVersion = "1.19.0";
+    console.log("Upgraded database to version 1.19.0");
+  }
   connection.end();
   return oldVersion;
 }

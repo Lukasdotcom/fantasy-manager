@@ -127,6 +127,7 @@ export interface historicalTransfers {
 }
 export interface clubs {
   club: string;
+  fullName?: string;
   gameStart: number;
   gameEnd: number;
   opponent: string;
@@ -138,6 +139,7 @@ export interface clubs {
 }
 export interface historicalClubs {
   club: string;
+  fullName?: string;
   opponent: string;
   teamScore?: number;
   opponentScore?: number;
