@@ -181,15 +181,22 @@ export async function updateData(url: string, file = "./sample/data1.json") {
         ],
       );
       if (clubData.home !== undefined) {
-        connection.query("UPDATE clubs SET home=? WHERE club=?", [
+        connection.query("UPDATE clubs SET home=? WHERE club=? AND league=?", [
           clubData.home,
           clubData.club,
+          clubData.league,
         ]);
       } else {
         // This is a way of picking some team as the home team to make sure that there is only one home team for a game
         await connection.query(
-          "UPDATE clubs SET home=EXISTS (SELECT * FROM clubs WHERE league=? AND opponent=? AND home=0 AND `exists`=1) WHERE club=?",
-          [clubData.league, clubData.club, clubData.club],
+          "UPDATE clubs SET home=EXISTS (SELECT * FROM clubs WHERE league=? AND opponent=? AND home=0 AND `exists`=1) WHERE club=? AND league=?",
+          [clubData.league, clubData.club, clubData.club, clubData.league],
+        );
+      }
+      if (clubData.fullName) {
+        connection.query(
+          "UPDATE clubs SET fullName=? WHERE club=? AND league=?",
+          [clubData.fullName, clubData.club, clubData.league],
         );
       }
       // If the game has not started yet the game start time is updated
@@ -476,7 +483,7 @@ async function endMatchday(league: string) {
   );
   console.log(`Archiving matchday data for ${league}`);
   await connection.query(
-    "INSERT INTO historicalClubs (club, opponent, teamScore, opponentScore, league, home, time, `exists`) SELECT club, opponent, teamScore, opponentScore, league, home, ? as time, `exists` FROM clubs WHERE league=?",
+    "INSERT INTO historicalClubs (club, fullName, opponent, teamScore, opponentScore, league, home, time, `exists`) SELECT club, fullName, opponent, teamScore, opponentScore, league, home, ? as time, `exists` FROM clubs WHERE league=?",
     [time, league],
   );
   // Copies all the predictions that are still

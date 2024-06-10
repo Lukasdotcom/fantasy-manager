@@ -10,7 +10,9 @@ import { getSession } from "next-auth/react";
 import { Alert, AlertTitle, Grid, TextField } from "@mui/material";
 export interface predictions {
   home_team: string;
+  home_team_name: string | undefined;
   away_team: string;
+  away_team_name: string | undefined;
   home_score?: number;
   away_score?: number;
   gameStart: number;
@@ -24,7 +26,9 @@ interface GameProps extends predictions {
 }
 export function Game({
   home_team,
+  home_team_name,
   away_team,
+  away_team_name,
   home_score,
   away_score,
   gameStart,
@@ -83,8 +87,8 @@ export function Game({
       <h2>
         {countdown > 0
           ? t("{home_team} - {away_team} in {day} D {hour} H {minute} M ", {
-              home_team,
-              away_team,
+              home_team: home_team_name || home_team,
+              away_team: away_team_name || away_team,
               day: Math.floor(countdown / 60 / 24),
               hour: Math.floor(countdown / 60) % 24,
               minute: Math.floor(countdown) % 60,
@@ -214,8 +218,10 @@ export const get_predictions = async (
       .then((e) => (e.length > 0 ? e[0].time : 0));
     return await connection.query(
       `SELECT 
-        historicalClubs.club as home_team, 
+        historicalClubs.club as home_team,
+        historicalClubs.fullName as home_team_name,
         historicalClubs.opponent as away_team, 
+        opponent.fullName as away_team_name,
         historicalClubs.teamScore AS home_score, 
         historicalClubs.opponentScore AS away_score, 
         0 as gameStart,
@@ -229,6 +235,9 @@ export const get_predictions = async (
         AND historicalPredictions.league = ?
         AND historicalPredictions.user = ?
         AND historicalPredictions.leagueID = ?
+        LEFT OUTER JOIN historicalClubs AS opponent ON opponent.club = historicalClubs.opponent
+        AND opponent.league = historicalClubs.league
+        AND opponent.time = historicalClubs.time
       WHERE 
         historicalClubs.home = 1 
         AND historicalClubs.league = ?
@@ -240,8 +249,10 @@ export const get_predictions = async (
   }
   return await connection.query(
     `SELECT 
-      clubs.club as home_team, 
+      clubs.club as home_team,
+      clubs.fullName as home_team_name,
       clubs.opponent as away_team, 
+      opponent.fullName as away_team_name,
       clubs.teamScore AS home_score, 
       clubs.opponentScore AS away_score, 
       clubs.gameStart as gameStart,
@@ -250,10 +261,12 @@ export const get_predictions = async (
       predictions.away AS away_prediction 
     FROM 
       clubs 
-      LEFT OUTER JOIN predictions ON predictions.club = clubs.club 
+      LEFT OUTER JOIN predictions ON predictions.club = clubs.club
       AND predictions.league = ? 
       AND predictions.user = ?
       AND predictions.leagueID = ?
+      LEFT OUTER JOIN clubs AS opponent ON opponent.club = clubs.opponent
+      AND opponent.league = clubs.league
     WHERE 
       clubs.home = 1 
       AND clubs.league = ?

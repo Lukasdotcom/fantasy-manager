@@ -20,6 +20,7 @@ export interface players {
 
 export interface clubs {
   club: string; // This is the name of the club
+  fullName?: string; // This is the full name of the club
   gameStart: number; // This is the start time of the game
   gameEnd: number; // This is the end time of the game
   opponent: string; // This is the name of the opponent
