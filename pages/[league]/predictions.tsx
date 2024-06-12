@@ -95,20 +95,32 @@ export function Game({
             })
           : `${home_team} - ${away_team}`}
       </h2>
-      {countdown > 0 && !readOnly && (
+      {countdown > 0 && (
         <>
-          <TextField
-            label={t("Home Prediction")}
-            type="number"
-            value={home ?? ""}
-            onChange={updateHome}
-          />
-          <TextField
-            label={t("Away Prediction")}
-            type="number"
-            value={away ?? ""}
-            onChange={updateAway}
-          />
+          {!readOnly && (
+            <>
+              <TextField
+                label={t("Home Prediction")}
+                type="number"
+                value={home ?? ""}
+                onChange={updateHome}
+              />
+              <TextField
+                label={t("Away Prediction")}
+                type="number"
+                value={away ?? ""}
+                onChange={updateAway}
+              />
+            </>
+          )}
+          {readOnly && (
+            <>
+              <h4>{t("Predictions")}</h4>
+              <p>
+                {home_prediction} - {away_prediction}
+              </p>
+            </>
+          )}
         </>
       )}
       {countdown <= 0 && (
