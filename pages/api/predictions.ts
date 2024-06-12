@@ -69,5 +69,8 @@ export default async function handler(
       );
       connection.end();
     });
+  console.log(
+    `User ${id} predicted for match ${body.home_team}-${body.away_team} the score of ${body.home}-${body.away} in league ${body.league}`,
+  );
   res.status(200).end("Saved");
 }
