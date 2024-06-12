@@ -179,6 +179,7 @@ export interface plugins {
   name: string;
   settings: string; // JSON of all the settings
   enabled: boolean;
+  installed: boolean;
   url: string;
   version: string;
 }

@@ -632,6 +632,15 @@ export default async function main(oldVersion: string): Promise<string> {
     oldVersion = "1.19.0";
     console.log("Upgraded database to version 1.19.0");
   }
+  if (oldVersion === "1.19.0") {
+    console.log("Upgrading database to version 1.20.0");
+    await connection.query("ALTER TABLE plugins ADD installed boolean");
+    await connection.query(
+      "UPDATE plugins SET installed=0 WHERE installed IS NULL",
+    );
+    oldVersion = "1.20.0";
+    console.log("Upgraded database to version 1.20.0");
+  }
   connection.end();
   return oldVersion;
 }

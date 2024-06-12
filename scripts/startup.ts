@@ -31,7 +31,7 @@ export const default_theme_light = JSON.stringify({
   },
 });
 // Used to tell the program what version the database should get to
-const currentVersion = "1.19.0";
+const currentVersion = "1.20.0";
 // Creates the default config
 async function createConfig() {
   const connection = await connect();
@@ -81,7 +81,7 @@ async function compilePlugins() {
     defaultStore.map(
       async (e) =>
         await connection.query(
-          "INSERT IGNORE INTO plugins (name, settings, enabled, url) VALUES ('', '{}', 0, ?)",
+          "INSERT IGNORE INTO plugins (name, settings, enabled, installed, url) VALUES ('', '{}', 0, 0, ?)",
           [e],
         ),
     ),
@@ -131,7 +131,8 @@ async function compilePlugins() {
           // Checks if the latest version for the plugin is installed
           if (
             e.version !== json.version ||
-            !fs.existsSync("scripts/data/" + hash)
+            !fs.existsSync("scripts/data/" + hash) ||
+            !e.installed
           ) {
             if (e.version === json.version) {
               console.log(`Updating plugin ${e.name}`);
@@ -176,17 +177,17 @@ async function compilePlugins() {
                 console.log(`Finished downloading plugin ${e.name}`);
                 mainFileTextStart += `import plugin${hash} from "./data/${hash}";\n`;
                 mainFileText += `  "${e.url}":\n    plugin${hash},\n`;
-                connection.query("UPDATE plugins SET version=? WHERE url=?", [
-                  json.version,
-                  e.url,
-                ]);
+                connection.query(
+                  "UPDATE plugins SET version=?, installed=1 WHERE url=?",
+                  [json.version, e.url],
+                );
               },
               () => {
                 console.error(
                   `Failed to download plugin ${e.name}. Restart server to try again.`,
                 );
                 connection.query(
-                  "UPDATE plugins SET version='', enabled=0  WHERE url=?",
+                  "UPDATE plugins SET version='', enabled=0, installed=0  WHERE url=?",
                   [e.url],
                 );
               },
@@ -276,7 +277,7 @@ async function startUp() {
     ),
     // Used to store plugin settings
     connection.query(
-      "CREATE TABLE IF NOT EXISTS plugins (name varchar(255), settings varchar(255), enabled boolean, url varchar(255) PRIMARY KEY, version varchar(255))",
+      "CREATE TABLE IF NOT EXISTS plugins (name varchar(255), settings varchar(255), enabled boolean, installed boolean, url varchar(255) PRIMARY KEY, version varchar(255))",
     ),
     // Used to store picture IDs
     connection.query(

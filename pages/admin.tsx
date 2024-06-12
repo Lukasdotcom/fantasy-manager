@@ -3,7 +3,6 @@ import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head.js";
 import connect from "../Modules/database";
 import { analytics, data, plugins } from "#type/database";
-import pluginList from "#scripts/data";
 import React, { useContext, useEffect, useState } from "react";
 import {
   Chart as ChartJS,
@@ -91,15 +90,9 @@ interface LeaguePluginsProps {
   plugins: plugins[];
   pluginData: (store | "error")[];
   version: string;
-  installed: string[];
 }
 
-function LeaguePlugins({
-  plugins,
-  pluginData,
-  version,
-  installed,
-}: LeaguePluginsProps) {
+function LeaguePlugins({ plugins, pluginData, version }: LeaguePluginsProps) {
   return (
     <TableContainer>
       <Table>
@@ -120,7 +113,6 @@ function LeaguePlugins({
               data={plugin}
               store={pluginData[idx]}
               version={version}
-              installed={installed.includes(plugin.url)}
             />
           ))}
         </TableBody>
@@ -132,9 +124,8 @@ interface LeaguePluginProps {
   data: plugins;
   store: store | "error";
   version: string;
-  installed: boolean;
 }
-function LeaguePlugin({ data, store, version, installed }: LeaguePluginProps) {
+function LeaguePlugin({ data, store, version }: LeaguePluginProps) {
   const [deleted, setDeleted] = useState(false);
   const notify = useContext(NotifyContext);
   const [enabled, setEnabled] = useState(data.enabled);
@@ -183,7 +174,7 @@ function LeaguePlugin({ data, store, version, installed }: LeaguePluginProps) {
   };
   let installedText = <></>;
   // Gets the text for the installed column
-  if (installed) {
+  if (data.installed) {
     if (store === "error") {
       installedText = (
         <Typography color="secondary">
@@ -776,7 +767,6 @@ interface props {
   plugins: plugins[];
   pluginData: (store | "error")[];
   version: string;
-  installed: string[]; // Note that this list is a list of hashes
   config: data[];
 }
 export default function Home({
@@ -785,7 +775,6 @@ export default function Home({
   plugins,
   pluginData,
   version,
-  installed,
   config,
 }: props) {
   const [newPlugin, setNewPlugin] = useState("");
@@ -823,7 +812,6 @@ export default function Home({
         plugins={plugins}
         pluginData={pluginData}
         version={version}
-        installed={installed}
       />
       <br />
       <TextField
@@ -956,7 +944,6 @@ export const getServerSideProps: GetServerSideProps = async (
       }),
     );
     const version = (await import("#/package.json")).default.version;
-    const installed = Object.keys(pluginList);
     const config = await connection.query(
       "SELECT * FROM data WHERE value1 LIKE 'config%'",
     );
@@ -968,7 +955,6 @@ export const getServerSideProps: GetServerSideProps = async (
         plugins,
         pluginData,
         version,
-        installed,
         config,
       },
     };
