@@ -9,6 +9,7 @@ import { useContext } from "react";
 import { FormLabel, Grid, Pagination, PaginationItem } from "@mui/material";
 import { useRouter } from "next/router";
 import { Game, get_predictions, predictions } from "../../predictions";
+import { useSession } from "next-auth/react";
 
 export default function HistoricalView({
   user,
@@ -28,6 +29,8 @@ export default function HistoricalView({
   const t = useContext(TranslateContext);
   const router = useRouter();
   const { leagueName, leagueID } = leagueSettings;
+  const session = useSession();
+  const current_userid = session.data?.user?.id;
   return (
     <>
       <Head>
@@ -56,7 +59,7 @@ export default function HistoricalView({
       <Grid container spacing={2}>
         {predictions.map((e) => (
           <Grid key={e.home_team} item lg={4} xs={6}>
-            <Game league={leagueID} readOnly={true} {...e} />
+            <Game league={leagueID} readOnly={user !== current_userid} {...e} />
           </Grid>
         ))}
       </Grid>
