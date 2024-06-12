@@ -13,6 +13,7 @@ import { UserChip } from "./Username";
 import { BoxTypeMap } from "@mui/system";
 import { useRouter } from "next/router";
 import { leagueSettings as leagueSettingsDB } from "#/types/database";
+import { useSession } from "next-auth/react";
 export interface AdminUserData {
   user: number;
   admin: boolean;
@@ -48,10 +49,16 @@ function AdminPanelAdmin({
 }: AdminPanelProps) {
   const notify = useContext(NotifyContext);
   const t = useContext(TranslateContext);
+  const data = useSession().data?.user;
+  const userid = data?.id;
+  const username = data?.username;
   const [startingMoney, setStartingMoney] = useState(
     leagueSettings.startMoney / 1000000,
   );
   const [users, setUsers] = useState<AdminUserData[]>(adminUsers);
+  // Checks if the user is removing themselves from being an admin
+  const removingSelfFromAdmin =
+    !!userid && !users.every((user) => user.user !== userid || user.admin);
   const [transfers, setTransfers] = useState(leagueSettings.transfers);
   const [duplicatePlayers, setDuplicatePlayers] = useState(
     leagueSettings.duplicatePlayers,
@@ -59,8 +66,9 @@ function AdminPanelAdmin({
   const [starredPercentage, setStarredPercentage] = useState(
     leagueSettings.starredPercentage,
   );
+  const [confirmationAdmin, setConfirmationAdmin] = useState("");
   const [archive, setArchive] = useState(false);
-  const [confirmation, setConfirmation] = useState("");
+  const [confirmationArchive, setConfirmationArchive] = useState("");
   const [matchdayTransfers, setMatchdayTransfers] = useState(
     Boolean(leagueSettings.matchdayTransfers),
   );
@@ -293,6 +301,26 @@ function AdminPanelAdmin({
           />
         )}
       />
+      {removingSelfFromAdmin && (
+        <>
+          <TextField
+            id="confirmationAdmin"
+            error={username !== confirmationAdmin}
+            helperText={t(
+              "Enter username to confirm removal of yourself from list of league admins. ",
+            )}
+            variant="outlined"
+            margin="dense"
+            size="small"
+            placeholder={username}
+            onChange={(e) => {
+              setConfirmationAdmin(e.target.value);
+            }}
+            value={confirmationAdmin}
+          />
+          <br />
+        </>
+      )}
       <FormControlLabel
         label={t("Check this to archive the league when you press save. ")}
         control={
@@ -307,23 +335,27 @@ function AdminPanelAdmin({
       <br />
       {archive && (
         <TextField
-          id="confirmation"
-          error={leagueName !== confirmation}
+          id="confirmationArchive"
+          error={leagueName !== confirmationArchive}
           helperText={t("Enter league name here to confirm archive. ")}
           variant="outlined"
           margin="dense"
           size="small"
           placeholder={leagueName}
           onChange={(e) => {
-            setConfirmation(e.target.value);
+            setConfirmationArchive(e.target.value);
           }}
-          value={confirmation}
+          value={confirmationArchive}
         />
       )}
       <br></br>
       <Button
         onClick={() => {
-          if (archive && confirmation !== leagueName) {
+          // Checks if the confirmation text was inputed for archiving or removing yourself from the list of admin users
+          if (
+            (archive && confirmationArchive !== leagueName) ||
+            (removingSelfFromAdmin && confirmationAdmin !== username)
+          ) {
             notify(t("Confirmation text is wrong"), "error");
             return;
           }
@@ -355,6 +387,7 @@ function AdminPanelAdmin({
           }).then(async (res) => {
             notify(t(await res.text()), res.ok ? "success" : "error");
             if (archive) Router.push("/leagues");
+            if (removingSelfFromAdmin) Router.push(Router.asPath);
           });
         }}
         variant="contained"
