@@ -487,7 +487,7 @@ describe("Invite User into league and change some league Settings and run throug
     cy.contains(
       "Check this to archive the league when you press save.",
     ).click();
-    cy.get("#confirmation").type("New Sample League");
+    cy.get("#confirmationArchive").type("New Sample League");
     cy.contains("Save admin settings").click();
     // Simulates an empty matchday
     cy.exec(
