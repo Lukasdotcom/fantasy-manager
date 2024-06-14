@@ -96,8 +96,8 @@ export enum Type {
 
 export enum Status {
   NotStarted = "not_started",
-  // These two are guesses and may be wrong
-  Started = "started",
+  Started = "in_progress",
+  // This is a guess and may be wrong
   Finished = "finished",
 }
 
