@@ -1,7 +1,7 @@
 {
   "id": "Euro2024",
-  "version": "0.3.0",
-  "description": "This is for the 2024 European Championship. This is right now in beta. Player forecast does not work.",
+  "version": "0.4.0",
+  "description": "This is for the 2024 European Championship. This is right now in beta.",
   "files": [
     "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Euro2024/index.ts",
     "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Euro2024/types.ts",

@@ -1,4 +1,4 @@
-import { position } from "#/types/database";
+import { forecast, position } from "#/types/database";
 import dataGetter, { clubs, players } from "#type/data";
 import { Status as GameStatus, Item as GameItem } from "./typeClubs";
 import { PStatus } from "./typePlayers";
@@ -22,6 +22,12 @@ const Main: dataGetter = async function () {
   const playerList = data.data.value.playerList;
   const positions: position[] = ["gk", "gk", "def", "mid", "att"];
   const players: players[] = playerList.map((player) => {
+    let forecast: forecast = "a";
+    if (player.pStatus === PStatus.D) {
+      forecast = "u";
+    } else if (player.pStatus === PStatus.I || player.pStatus === PStatus.S) {
+      forecast = "m";
+    }
     return {
       uid: player.id,
       name: player.pFName,
@@ -32,13 +38,13 @@ const Main: dataGetter = async function () {
       value: player.value * 1000000,
       position:
         player.skill >= positions.length ? "gk" : positions[player.skill],
+      forecast,
       total_points: player.totPts,
       average_points: player.avgPlayerPts,
       last_match: player.lastGdPoints,
       exists: player.pStatus !== PStatus.Nis,
     };
   });
-  let countdown = 0;
   let transferOpen = true;
   const game_data: ResultClubs = await fetch(
     "https://gaming.uefa.com/en/uclpredictor/api/v1/competition/3/season/current/predictor/match_days",
@@ -52,7 +58,6 @@ const Main: dataGetter = async function () {
     for (const matchday of json_data.data.items) {
       // Before the matchday
       if (matchday.start_at > nowTime) {
-        countdown = matchday.start_at - nowTime;
         return fetch(
           `https://gaming.uefa.com/en/uclpredictor/api/v1/competition/3/season/current/predictor/matches/${matchday.id}`,
           {
@@ -71,11 +76,14 @@ const Main: dataGetter = async function () {
         // Checks if any game is not finished note that the last matchday never ends
         const finished =
           matchday.id !== last_matchday_id &&
-          data.data.items.exists((game: GameItem) => {
-            return game.status !== GameStatus.Finished;
+          data.data.items.every((game: GameItem) => {
+            return game.status === GameStatus.Finished;
           });
         if (!finished) {
-          transferOpen = false;
+          // Checks if the first game has started
+          transferOpen = data.data.items.every((game: GameItem) => {
+            return game.status === GameStatus.NotStarted;
+          });
           return data;
         }
       }
@@ -83,7 +91,7 @@ const Main: dataGetter = async function () {
     // Should never get here, but just in case throws an error
     throw new Error("Failed to find the matchday for unknown reason");
   });
-
+  let countdown = 0;
   const clubs = [];
   for (const game of game_data.data.items) {
     const gameStart = Date.parse(game.start_at) / 1000;
@@ -93,6 +101,13 @@ const Main: dataGetter = async function () {
       // Makes sure the game will still take 5 minutes to end
       if (gameEnd <= nowTime + 300) {
         gameEnd = nowTime + 300;
+      }
+    }
+    // Updates the countdown if no game has started yet to be the time to the first game
+    if (game.status === GameStatus.NotStarted && transferOpen) {
+      const temp_countdown = gameStart - nowTime;
+      if (temp_countdown < countdown || countdown === 0) {
+        countdown = temp_countdown;
       }
     }
     clubs.push({
@@ -118,6 +133,9 @@ const Main: dataGetter = async function () {
       league: "Euro2024",
       home: false,
     });
+  }
+  if (countdown < 0) {
+    countdown = 0;
   }
   return [transferOpen, countdown, players, clubs as clubs[]];
 };
