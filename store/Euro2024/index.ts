@@ -1,4 +1,4 @@
-import { position } from "#/types/database";
+import { forecast, position } from "#/types/database";
 import dataGetter, { clubs, players } from "#type/data";
 import { Status as GameStatus, Item as GameItem } from "./typeClubs";
 import { PStatus } from "./typePlayers";
@@ -22,6 +22,12 @@ const Main: dataGetter = async function () {
   const playerList = data.data.value.playerList;
   const positions: position[] = ["gk", "gk", "def", "mid", "att"];
   const players: players[] = playerList.map((player) => {
+    let forecast: forecast = "a";
+    if (player.pStatus === PStatus.D) {
+      forecast = "u";
+    } else if (player.pStatus === PStatus.I || player.pStatus === PStatus.S) {
+      forecast = "m";
+    }
     return {
       uid: player.id,
       name: player.pFName,
@@ -32,6 +38,7 @@ const Main: dataGetter = async function () {
       value: player.value * 1000000,
       position:
         player.skill >= positions.length ? "gk" : positions[player.skill],
+      forecast,
       total_points: player.totPts,
       average_points: player.avgPlayerPts,
       last_match: player.lastGdPoints,
@@ -71,8 +78,8 @@ const Main: dataGetter = async function () {
         // Checks if any game is not finished note that the last matchday never ends
         const finished =
           matchday.id !== last_matchday_id &&
-          data.data.items.exists((game: GameItem) => {
-            return game.status !== GameStatus.Finished;
+          data.data.items.every((game: GameItem) => {
+            return game.status === GameStatus.Finished;
           });
         if (!finished) {
           transferOpen = false;

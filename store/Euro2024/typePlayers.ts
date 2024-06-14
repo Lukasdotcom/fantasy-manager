@@ -22,6 +22,7 @@ export interface Value {
 export interface PlayerList {
   id: string;
   pDName: string;
+  pDNameRu: string;
   pFName: string;
   latinName: string;
   tName: string;
@@ -57,7 +58,7 @@ export interface PlayerList {
   pStatus: PStatus;
   curGDPts: number;
   matchAtd: string;
-  trained: string;
+  trained: Trained;
   isPlayed: number;
   selInPer: number;
   selOutPer: number;
@@ -103,8 +104,19 @@ export enum HomeAway {
 }
 
 export enum PStatus {
+  D = "D",
   Empty = "",
+  I = "I",
   Nis = "NIS",
+  S = "S",
+}
+
+export enum Trained {
+  DidNotTrain = "Did not train",
+  Empty = "",
+  InContentionToStartNextGame = "In contention to start next game",
+  TookAFullPart = "Took a full part",
+  UnlikelyToStartNextGame = "Unlikely to start next game",
 }
 
 export interface Meta {
