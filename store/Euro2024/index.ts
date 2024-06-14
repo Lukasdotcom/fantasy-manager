@@ -110,6 +110,13 @@ const Main: dataGetter = async function () {
         countdown = temp_countdown;
       }
     }
+    // Updates the countdown for an hour after the last game ends if the transfermarket is closed
+    if (game.status !== GameStatus.Finished && !transferOpen) {
+      const temp_countdown = gameEnd - nowTime;
+      if (temp_countdown > countdown) {
+        countdown = temp_countdown;
+      }
+    }
     clubs.push({
       club: game.home_team.name_short,
       fullName: game.home_team.name,
