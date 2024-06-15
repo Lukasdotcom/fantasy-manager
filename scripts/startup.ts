@@ -119,9 +119,18 @@ async function compilePlugins() {
           ]);
           e.name = json.id;
           // Makes sure the plugin is compatible with the current version
-          if (compareSemanticVersions(json.version, currentVersion) !== 1) {
+          if (
+            compareSemanticVersions(
+              json.min_version || "0.0.1",
+              currentVersion,
+            ) !== 1
+          ) {
             console.error(
               `Plugin ${e.name} is not compatible with the current version of the program`,
+            );
+            connection.query(
+              "UPDATE plugins SET version='', enabled=0, installed=0  WHERE url=?",
+              [e.url],
             );
             res();
             return;
