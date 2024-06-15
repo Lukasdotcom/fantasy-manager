@@ -10,6 +10,7 @@ import { FormLabel, Grid, Pagination, PaginationItem } from "@mui/material";
 import { useRouter } from "next/router";
 import { Game, get_predictions, predictions } from "../../predictions";
 import { useSession } from "next-auth/react";
+import { checkUpdate } from "#/scripts/checkUpdate";
 
 export default function HistoricalView({
   user,
@@ -94,7 +95,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     number,
   ] = await Promise.all([
     // Gets the latest predictions for the user
-    get_predictions(connection, user, league),
+    get_predictions(connection, user, league, checkUpdate),
     // Gets the username of the user
     connection
       .query("SELECT username FROM users WHERE id=?", [user])

@@ -27,7 +27,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     number,
   ] = await Promise.all([
     // Gets the latest predictions for the user
-    get_predictions(connection, user, league, currentMatchday),
+    get_predictions(connection, user, league, undefined, currentMatchday),
     // Gets the username of the user
     connection
       .query("SELECT username FROM users WHERE id=?", [user])
