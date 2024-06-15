@@ -251,6 +251,7 @@ interface Props {
   host: string | undefined;
   league: number;
   leagueSettings: leagueSettings;
+  startFilter: HistoricalDataTypes;
 }
 export default function Home({
   OGannouncement,
@@ -263,6 +264,7 @@ export default function Home({
   host,
   league,
   leagueSettings,
+  startFilter,
 }: Props) {
   const t = useContext(TranslateContext);
   const notify = useContext(NotifyContext);
@@ -283,7 +285,7 @@ export default function Home({
       Math.random().toString(36).substring(2)
     );
   };
-  const [filter, setFilter] = useState<HistoricalDataTypes>("totalPoints");
+  const [filter, setFilter] = useState<HistoricalDataTypes>(startFilter);
   const [showTutorial, setShowTutorial] = useState(tutorial);
   const [announcementPriority, setAnouncementPriority] =
     useState<anouncementColor>("info");
@@ -640,7 +642,7 @@ export const getServerSideProps: GetServerSideProps = async (
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
   const user = session ? session.user.id : -1;
   // Gets the leaderboard for the league
-  const standings = new Promise<standingsData[]>(async (resolve) => {
+  const standings = await new Promise<standingsData[]>(async (resolve) => {
     const connection = await connect();
     resolve(
       await connection.query(
@@ -732,14 +734,31 @@ export const getServerSideProps: GetServerSideProps = async (
     );
     connection.end();
   });
+  let startFilter: HistoricalDataTypes = "totalPoints";
+  const standings_user = standings.filter((val) => val.user === user);
+  if (standings_user.length > 0) {
+    if (
+      standings_user[0].fantasyPoints === 0 &&
+      standings_user[0].predictionPoints !== 0
+    ) {
+      startFilter = "predictionPoints";
+    }
+    if (
+      standings_user[0].fantasyPoints !== 0 &&
+      standings_user[0].predictionPoints === 0
+    ) {
+      startFilter = "fantasyPoints";
+    }
+  }
   return redirect(ctx, {
     OGannouncement: await announcements,
     admin: (await data)[0],
     tutorial: (await data)[1],
-    standings: await standings,
+    standings: standings,
     historicalPoints: await historicalPoints,
     inviteLinks: await inviteLinks,
     adminUsers: await adminUsers,
     host: ctx.req.headers.host,
+    startFilter,
   });
 };
