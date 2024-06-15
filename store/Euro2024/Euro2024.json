@@ -1,7 +1,8 @@
 {
   "id": "Euro2024",
-  "version": "0.4.2",
-  "description": "This is for the 2024 European Championship. This is right now in beta.",
+  "version": "0.4.3",
+  "min_version": "1.20.0",
+  "description": "This is for the 2024 European Championship.",
   "files": [
     "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Euro2024/index.ts",
     "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Euro2024/types.ts",
