@@ -14,6 +14,7 @@ export default async function handler(
     league: number;
     home: number;
     away: number;
+    gameStart: number;
   } = req.body;
   if (req.method !== "POST") {
     res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -34,6 +35,7 @@ export default async function handler(
       )
     ).length === 0
   ) {
+    connection.end();
     res.status(403).end("You are not in this league. ");
     return;
   }
@@ -42,6 +44,7 @@ export default async function handler(
     [body.league],
   );
   if (data.length === 0) {
+    connection.end();
     res.status(403).end("This league does not have predictions enabled. ");
     return;
   }
@@ -54,21 +57,53 @@ export default async function handler(
       )
       .then((res) => res.length === 0)
   ) {
-    res.status(400).end("Invalid match");
+    // Check if this is a future game
+    if (
+      await connection
+        .query(
+          "SELECT * FROM futureClubs WHERE club=? AND league=? AND gameStart=? AND opponent=?",
+          [body.home_team, leagueType, body.gameStart, body.away_team],
+        )
+        .then((res) => res.length === 0)
+    ) {
+      connection.end();
+      res.status(400).end("Invalid match");
+      return;
+    }
+    await connection.query(
+      "INSERT INTO futurePredictions (leagueID, user, club, league, gameStart, home, away) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE home=?, away=?",
+      [
+        body.league,
+        id,
+        body.home_team,
+        leagueType,
+        body.gameStart,
+        body.home,
+        body.away,
+        body.home,
+        body.away,
+      ],
+    );
+    console.log(
+      `User ${id} predicted for match ${body.home_team}-${body.away_team} in future time ${body.gameStart} the score of ${body.home}-${body.away} in league ${body.league}`,
+    );
+    connection.end();
+    res.status(200).end("Saved");
     return;
   }
-  connection
-    .query(
-      "DELETE FROM predictions WHERE leagueID=? AND user=? AND club=? AND league=?",
-      [body.league, id, body.home_team, leagueType],
-    )
-    .then(() => {
-      connection.query(
-        "INSERT INTO predictions (leagueID, user, club, league, home, away) VALUES (?, ?, ?, ?, ?, ?)",
-        [body.league, id, body.home_team, leagueType, body.home, body.away],
-      );
-      connection.end();
-    });
+  connection.query(
+    "INSERT INTO predictions (leagueID, user, club, league, home, away) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE home=?, away=?",
+    [
+      body.league,
+      id,
+      body.home_team,
+      leagueType,
+      body.home,
+      body.away,
+      body.home,
+      body.away,
+    ],
+  );
   console.log(
     `User ${id} predicted for match ${body.home_team}-${body.away_team} the score of ${body.home}-${body.away} in league ${body.league}`,
   );

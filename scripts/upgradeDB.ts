@@ -638,6 +638,14 @@ export default async function main(oldVersion: string): Promise<string> {
     await connection.query(
       "UPDATE plugins SET installed=0 WHERE installed IS NULL",
     );
+    await connection.query("ALTER TABLE predictions RENAME TO predictionsTemp");
+    await connection.query(
+      "CREATE TABLE IF NOT EXISTS predictions (leagueID int, user int, club varchar(255), league varchar(255), home int, away int, PRIMARY KEY(leagueID, user, club))",
+    );
+    await connection.query(
+      "INSERT INTO predictions (leagueID, user, club, league, home, away) SELECT leagueID, user, club, league, home, away FROM predictionsTemp",
+    );
+    await connection.query("DROP TABLE predictionsTemp");
     oldVersion = "1.20.0";
     console.log("Upgraded database to version 1.20.0");
   }

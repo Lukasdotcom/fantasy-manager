@@ -166,6 +166,57 @@ export async function updateData(url: string, file = "./sample/data1.json") {
       club = val.club;
       allClubs.delete(club);
       const clubData = getClub(club);
+      // Creates all the future games
+      const future_games = clubData.future_games?.map(
+        (e) =>
+          new Promise<void>(async (res) => {
+            await connection.query(
+              "INSERT INTO futureClubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?, league=?",
+              [club, e.gameStart, e.opponent, clubData.league],
+            );
+            // Sets the home
+            if (e.home !== undefined) {
+              await connection.query(
+                "UPDATE futureClubs SET home=? WHERE club=? AND league=? AND gameStart=?",
+                [e.home, club, clubData.league, e.gameStart],
+              );
+            } else {
+              await connection.query(
+                "UPDATE futureClubs SET home=EXISTS (SELECT * FROM futureClubs WHERE league=? AND opponent=? AND home=0 AND gameStart=?) WHERE club=? AND league=? AND gameStart=?",
+                [
+                  clubData.league,
+                  e.opponent,
+                  e.gameStart,
+                  club,
+                  clubData.league,
+                  e.gameStart,
+                ],
+              );
+            }
+            // Sets the fullname if given
+            if (clubData.fullName) {
+              await connection.query(
+                "UPDATE futureClubs SET fullName=? WHERE club=? AND league=? AND gameStart=?",
+                [clubData.fullName, club, clubData.league, e.gameStart],
+              );
+            }
+            res();
+          }),
+      );
+      if (future_games) await Promise.all(future_games);
+      // Moves future games data to the current matchday if it is now current
+      await connection.query(
+        "DELETE FROM futureClubs WHERE club=? AND league=? AND gameStart=?",
+        [club, clubData.league, clubData.gameStart],
+      );
+      await connection.query(
+        "INSERT IGNORE INTO predictions (leagueID, user, club, league, home, away) SELECT leagueID, user, club, league, home, away FROM futurePredictions WHERE club=? AND league=? AND gameStart=?",
+        [club, clubData.league, clubData.gameStart],
+      );
+      await connection.query(
+        "DELETE FROM futurePredictions WHERE club=? AND league=? AND gameStart=?",
+        [club, clubData.league, clubData.gameStart],
+      );
       // Checks if the game has started
       clubDone = !(clubData.gameStart >= currentTime || newTransfer);
       gameDone = parseInt(lastUpdate[0].value2) > clubData.gameEnd;
@@ -563,6 +614,14 @@ async function endMatchday(league: string) {
       path: "/download",
     }),
   }).catch(() => {});
+  // Cleans up future predictions that have already passed
+  const nowTime = Math.floor(Date.now() / 1000);
+  await connection.query("DELETE FROM futureClubs WHERE gameStart<?", [
+    nowTime,
+  ]);
+  await connection.query("DELETE FROM futurePredictions WHERE gameStart<?", [
+    nowTime,
+  ]);
   console.log("Ended Matchday for " + league);
   connection.end();
   return;

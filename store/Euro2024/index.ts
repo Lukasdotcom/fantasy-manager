@@ -1,6 +1,7 @@
 import { forecast, position } from "#/types/database";
 import dataGetter, { clubs, players } from "#type/data";
 import { Status as GameStatus, Item as GameItem } from "./typeClubs";
+import { CurrentMatchDay } from "./typeMatchday";
 import { PStatus } from "./typePlayers";
 import { ResultClubs, ResultMatchday, ResultPlayers } from "./types";
 const headers = {
@@ -47,53 +48,57 @@ const Main: dataGetter = async function () {
   let transferOpen = true;
   let update_points_after_game_end = true;
   let countdown = 0;
-  const game_data: ResultClubs = await fetch(
-    "https://gaming.uefa.com/en/uclpredictor/api/v1/competition/3/season/current/predictor/match_days",
-    {
-      headers,
-    },
-  ).then(async (e) => {
-    const json_data: ResultMatchday = await e.json();
-    for (const matchday of json_data.data.items) {
-      // Before the matchday
-      if (matchday.start_at > nowTime) {
-        return fetch(
-          `https://gaming.uefa.com/en/uclpredictor/api/v1/competition/3/season/current/predictor/matches/${matchday.id}`,
-          {
-            headers,
-          },
-        ).then((e) => e.json());
-      }
-      // During the matchday
-      else if (matchday.end_at > nowTime) {
-        const data = await fetch(
-          `https://gaming.uefa.com/en/uclpredictor/api/v1/competition/3/season/current/predictor/matches/${matchday.id}`,
-          {
-            headers,
-          },
-        ).then((e) => e.json());
-        // Checks if the first game has started
-        transferOpen = data.data.items.every((game: GameItem) => {
-          return game.status === GameStatus.NotStarted;
-        });
-        if (!transferOpen) {
-          countdown = matchday.end_at - nowTime;
-        }
-        return data;
-      }
-    }
-    // Means all the matchdays are over and will return data for the last one
-    const data = await fetch(
-      `https://gaming.uefa.com/en/uclpredictor/api/v1/competition/3/season/current/predictor/matches/${json_data.data.items[json_data.data.items.length - 1].id}`,
+  const matchdays: { club: ResultClubs; matchday: CurrentMatchDay }[] =
+    await fetch(
+      "https://gaming.uefa.com/en/uclpredictor/api/v1/competition/3/season/current/predictor/match_days",
       {
         headers,
       },
-    ).then((e) => e.json());
+    ).then(async (e) => {
+      const json_data: ResultMatchday = await e.json();
+      return await Promise.all(
+        json_data.data.items.map(async (matchday) => {
+          return {
+            club: await fetch(
+              `https://gaming.uefa.com/en/uclpredictor/api/v1/competition/3/season/current/predictor/matches/${matchday.id}`,
+              {
+                headers,
+              },
+            ).then((e) => e.json()),
+            matchday,
+          };
+        }),
+      );
+    });
+  let game_data;
+  const future_games: { club: ResultClubs; matchday: CurrentMatchDay }[] = [];
+  for (const matchday of matchdays) {
+    // Before the matchday
+    if (matchday.matchday.start_at > nowTime) {
+      if (!game_data) {
+        game_data = matchday.club;
+      } else {
+        future_games.push(matchday);
+      }
+    }
+    // During the matchday
+    else if (matchday.matchday.end_at > nowTime) {
+      game_data = matchday.club;
+      // Checks if the first game has started
+      transferOpen = game_data.data.items.every((game: GameItem) => {
+        return game.status === GameStatus.NotStarted;
+      });
+      if (!transferOpen) {
+        countdown = matchday.matchday.end_at - nowTime;
+      }
+    }
+  }
+  // If game_data is undefined it means that all the matchdays are over
+  if (!game_data) {
+    game_data = matchdays[matchdays.length - 1].club;
     update_points_after_game_end = false; // Will set this to false to not change the points for players after this is done
-    // Checks if the first game has started
     transferOpen = false;
-    return data;
-  });
+  }
   const clubs = [];
   for (const game of game_data.data.items) {
     const gameStart = Date.parse(game.start_at) / 1000;
@@ -123,6 +128,31 @@ const Main: dataGetter = async function () {
       opponentScore: game.away_team_score,
       league: "Euro2024",
       home: true,
+      future_games: future_games
+        .map((e) => {
+          const home = e.club.data.items.filter(
+            (e) => e.home_team.name_short == game.home_team.name_short,
+          );
+          if (home.length > 0) {
+            return {
+              gameStart: Date.parse(home[0].start_at) / 1000,
+              opponent: home[0].away_team.name_short,
+              home: true,
+            };
+          }
+          const away = e.club.data.items.filter(
+            (e) => e.away_team.name_short == game.home_team.name_short,
+          );
+          if (away.length > 0) {
+            return {
+              gameStart: Date.parse(away[0].start_at) / 1000,
+              opponent: away[0].home_team.name_short,
+              home: false,
+            };
+          }
+          return {};
+        })
+        .filter((e) => Object.keys(e).length > 0),
     });
     clubs.push({
       club: game.away_team.name_short,
@@ -134,6 +164,31 @@ const Main: dataGetter = async function () {
       opponentScore: game.home_team_score,
       league: "Euro2024",
       home: false,
+      future_games: future_games
+        .map((e) => {
+          const home = e.club.data.items.filter(
+            (e) => e.home_team.name_short == game.away_team.name_short,
+          );
+          if (home.length > 0) {
+            return {
+              gameStart: Date.parse(home[0].start_at) / 1000,
+              opponent: home[0].away_team.name_short,
+              home: true,
+            };
+          }
+          const away = e.club.data.items.filter(
+            (e) => e.away_team.name_short == game.away_team.name_short,
+          );
+          if (away.length > 0) {
+            return {
+              gameStart: Date.parse(away[0].start_at) / 1000,
+              opponent: away[0].home_team.name_short,
+              home: false,
+            };
+          }
+          return {};
+        })
+        .filter((e) => Object.keys(e).length > 0),
     });
   }
   if (countdown < 0) {

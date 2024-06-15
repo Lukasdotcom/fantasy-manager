@@ -20,14 +20,13 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const connection = await connect();
   const user = parseInt(String(ctx.params?.user));
   const league = parseInt(String(ctx.params?.league));
-  const currentMatchday = parseInt(String(ctx.params?.matchday));
   const [predictions, username, latestMatchday]: [
     predictions[],
     string,
     number,
   ] = await Promise.all([
     // Gets the latest predictions for the user
-    get_predictions(connection, user, league, undefined, currentMatchday),
+    get_predictions(connection, user, league, undefined, -1),
     // Gets the username of the user
     connection
       .query("SELECT username FROM users WHERE id=?", [user])
@@ -40,14 +39,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       )
       .then((res) => (res.length > 0 ? res[0].matchday : 0)),
   ]);
-  if (currentMatchday > latestMatchday) {
-    return {
-      redirect: {
-        destination: `/${league}/${user}/predictions/`,
-        permanent: false,
-      },
-    };
-  }
   connection.end();
   // Checks if the user exists
   if (username === "") {
@@ -60,6 +51,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     predictions,
     username,
     latestMatchday,
-    currentMatchday,
+    currentMatchday: -1,
   });
 };

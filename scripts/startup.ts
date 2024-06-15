@@ -263,6 +263,10 @@ async function startUp() {
     connection.query(
       "CREATE TABLE IF NOT EXISTS historicalClubs (club varchar(25), fullName varchar(255), opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, time int, `exists` bool, PRIMARY KEY(club, league, time))",
     ),
+    // Used to store future games
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS futureClubs (club varchar(25), fullName varchar(255), gameStart int, opponent varchar(3), league varchar(25), home bool, PRIMARY KEY(club, league, gameStart))",
+    ),
     // Used to store analytics data
     connection.query(
       "CREATE TABLE IF NOT EXISTS analytics (day int PRIMARY KEY, versionActive varchar(255), versionTotal varchar(255), leagueActive varchar(255), leagueTotal varchar(255), themeActive varchar(255), themeTotal varchar(255), localeActive varchar(255), localeTotal varchar(255))",
@@ -285,11 +289,15 @@ async function startUp() {
     ),
     // Used to store predictions
     connection.query(
-      "CREATE TABLE IF NOT EXISTS predictions (leagueID int, user int, club varchar(255), league varchar(255), home int, away int)",
+      "CREATE TABLE IF NOT EXISTS predictions (leagueID int, user int, club varchar(255), league varchar(255), home int, away int, PRIMARY KEY(leagueID, user, club))",
     ),
     // Used to store historical predictions
     connection.query(
       "CREATE TABLE IF NOT EXISTS historicalPredictions (matchday int, leagueID int, user int, club varchar(255), league varchar(255), home int, away int)",
+    ),
+    // Used to store future predictions
+    connection.query(
+      "CREATE TABLE IF NOT EXISTS futurePredictions (leagueID int, user int, club varchar(255), league varchar(255), gameStart int, home int, away int, PRIMARY KEY (leagueID, user, club, gameStart))",
     ),
     // Enables the WAL
     connection.query("PRAGMA journal_mode=WAL"),
