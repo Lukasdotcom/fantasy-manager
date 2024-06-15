@@ -8,6 +8,7 @@ import redirect from "#/Modules/league";
 import { GetServerSidePropsContext } from "next";
 import { getSession } from "next-auth/react";
 import { Alert, AlertTitle, Grid, TextField } from "@mui/material";
+import { checkUpdate } from "#/scripts/checkUpdate";
 export interface predictions {
   home_team: string;
   home_team_name: string | undefined;
@@ -212,15 +213,27 @@ export default function Home({
     </>
   );
 }
+/**
+ * Retrieves predictions for a given league and matchday.
+ *
+ * @param {connection} connection - The database connection.
+ * @param {number} user - The user ID.
+ * @param {number} league - The league ID.
+ * @param {(league: string) => Promise<void>} [checkUpdate] - The optional checkUpdate function located at #/scripts/checkUpdate. Doesn't like being imported in here.
+ * @param {number} [matchday] - The optional matchday number.
+ * @return {Promise<predictions[]>} An array of all the predictions that the user had
+ */
 export const get_predictions = async (
   connection: connection,
   user: number,
   league: number,
+  checkUpdate?: (league: string) => Promise<void>,
   matchday?: number,
 ): Promise<predictions[]> => {
   const leagueType: string = await connection
     .query("SELECT league FROM leagueSettings WHERE leagueID=?", [league])
     .then((e) => (e.length > 0 ? e[0].league : ""));
+  if (checkUpdate) checkUpdate(leagueType);
   if (matchday) {
     const time = await connection
       .query("SELECT time FROM points WHERE matchday=? AND leagueID=?", [
@@ -294,6 +307,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     connection,
     user_id as number,
     parseInt(String(ctx.query.league)),
+    checkUpdate,
   );
   connection.end();
   return await redirect(ctx, { games });

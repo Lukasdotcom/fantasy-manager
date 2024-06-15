@@ -1,6 +1,12 @@
 import connect from "../Modules/database";
 import { data } from "#types/database";
 
+/**
+ * Checks if matchdays are currently happening and if it is a matchday checks if the update time has passed to request a new update.
+ *
+ * @param {string} league - The league to check for updates.
+ * @return {Promise<void>} - A Promise that resolves when the update check is complete.
+ */
 export async function checkUpdate(league: string) {
   const connection = await connect();
   // Checks if matchdays are currently happening and if it is a matchday checks if the update time has passed
