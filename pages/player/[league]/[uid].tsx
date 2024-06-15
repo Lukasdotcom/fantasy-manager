@@ -90,7 +90,9 @@ export default function Home({
       label: "Time",
       format: (value: string | number) => {
         const date = new Date(parseInt(String(value)) * 1000);
-        return value === 0 ? t("Now") : t("{date}", { date });
+        return typeof value === "number" && value > 10 ** 20
+          ? t("Now")
+          : t("{date}", { date });
       },
     },
     {
@@ -148,7 +150,7 @@ export default function Home({
     // Sets the starting value to crazy high time and sets it to the starting amount
     setRows({
       "9999999999999999": {
-        time: 0,
+        time: 10 ** 21,
         value: player.value,
         sale_price: player.sale_price,
         last_match: player.last_match,
@@ -384,7 +386,7 @@ export default function Home({
             </TableHead>
             <TableBody>
               {Object.values(rows)
-                .sort((e) => e.time)
+                .sort((e, e2) => e2.time - e.time)
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
                   if (row.loading) {
