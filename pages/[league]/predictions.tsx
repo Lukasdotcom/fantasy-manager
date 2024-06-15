@@ -83,13 +83,15 @@ export function Game({
     };
   }, []);
   const t = useContext(TranslateContext);
+  home_team = home_team_name || home_team;
+  away_team = away_team_name || away_team;
   return (
     <div>
       <h2>
         {countdown > 0
           ? t("{home_team} - {away_team} in {day} D {hour} H {minute} M ", {
-              home_team: home_team_name || home_team,
-              away_team: away_team_name || away_team,
+              home_team,
+              away_team,
               day: Math.floor(countdown / 60 / 24),
               hour: Math.floor(countdown / 60) % 24,
               minute: Math.floor(countdown) % 60,
