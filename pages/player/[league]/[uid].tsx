@@ -239,8 +239,12 @@ export default function Home({
   // Calculates the height and width for the official picture
   const mainPicture = pictures.filter((e) => e.id === player.pictureID)[0];
   const pictureExists = mainPicture.downloaded;
-  const pictureHeight = pictureExists ? mainPicture.height : 200;
-  const pictureWidth = pictureExists ? mainPicture.width : 200;
+  let pictureHeight = pictureExists ? mainPicture.height : 200;
+  let pictureWidth = pictureExists ? mainPicture.width : 200;
+  if (pictureWidth > 200) {
+    pictureHeight = (pictureHeight * 200) / pictureWidth;
+    pictureWidth = 200;
+  }
   const Row1 = (
     <div>
       <Image
@@ -320,12 +324,10 @@ export default function Home({
       <p>{t("This player was found in the leagues listed below. ")}</p>
       <Box sx={{ display: { xs: "block", md: "none" } }}>
         {otherLeagues.map((e) => (
-          <>
-            <Link key={e.league} href={`/player/${e.league}/${e.uid}`}>
-              {t(e.league)}
-            </Link>
+          <div key={e.league}>
+            <Link href={`/player/${e.league}/${e.uid}`}>{t(e.league)}</Link>
             <br />
-          </>
+          </div>
         ))}
       </Box>
       <Box sx={{ display: { xs: "none", md: "block" } }}>
