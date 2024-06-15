@@ -27,18 +27,27 @@ export interface clubs {
   teamScore?: number; // This is the score of the team
   opponentScore?: number; // This is the score of the opponent
   league: string; // This is the name of the league
-  home?: boolean; // This is if it is home or away
+  home?: boolean; // This is if it is home or away, If not set it is chosen at random so that there is only one home team in a game
 }
 
 // These are the types for the data getter functions
-export type result = [boolean, number, players[], clubs[]];
+export type result = [
+  boolean,
+  number,
+  players[],
+  clubs[],
+  {
+    update_points_after_game_end?: boolean; // Set this to true if you want the plugin to be able to change points even after the game has ended
+    [key: string]: unknown;
+  }?, // This is an optional paramater added in 1.20.0 for settings
+];
 type dataGetter = (
   settings: { [key: string]: string },
   past_data: {
     players: players[];
     clubs: clubs[];
     timestamp: number;
-    transferOpen: boolean;
+    transferOpen: boolean; // This was added in version 1.20.0. If this is required you must set 1.20.0 as the min version.
     [key: string]: unknown;
   },
 ) => Promise<result>;
