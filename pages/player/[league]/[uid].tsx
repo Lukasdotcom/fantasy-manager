@@ -320,9 +320,12 @@ export default function Home({
       <p>{t("This player was found in the leagues listed below. ")}</p>
       <Box sx={{ display: { xs: "block", md: "none" } }}>
         {otherLeagues.map((e) => (
-          <Link key={e.league} href={`/player/${e.league}/${e.uid}`}>
-            {t(e.league)}
-          </Link>
+          <>
+            <Link key={e.league} href={`/player/${e.league}/${e.uid}`}>
+              {t(e.league)}
+            </Link>
+            <br />
+          </>
         ))}
       </Box>
       <Box sx={{ display: { xs: "none", md: "block" } }}>
