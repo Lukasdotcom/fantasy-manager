@@ -38,6 +38,7 @@ type dataGetter = (
     players: players[];
     clubs: clubs[];
     timestamp: number;
+    transferOpen: boolean;
     [key: string]: unknown;
   },
 ) => Promise<result>;
