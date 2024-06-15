@@ -64,10 +64,39 @@ export default async function handler(req, res) {
       await new Promise(async (resolve) => {
         resolve(
           await connection.query(
-            `SELECT uid FROM players WHERE (name like ? OR nameAscii like ?) AND club like ? ${positionsSQL} ${hiddenSQL} ${onlySale} AND ${salePrice} >=? AND ${salePrice}<=? AND league=? ORDER BY ${order_by} DESC LIMIT ${limit}`,
+            `SELECT
+              uid
+            FROM
+              players
+            WHERE
+              (
+                name like ?
+                OR nameAscii like ?
+              )
+              AND (
+                club like ?
+                OR EXISTS (
+                  SELECT
+                    *
+                  FROM
+                    clubs
+                  WHERE
+                    clubs.club = players.club
+                    AND clubs.league = players.league
+                    AND fullName like ?
+                )
+              ) ${positionsSQL} ${hiddenSQL} ${onlySale}
+              AND ${salePrice} >= ?
+              AND ${salePrice} <= ?
+              AND league = ?
+            ORDER BY
+              ${order_by} DESC
+            LIMIT
+              ${limit}`,
             [
               searchTerm,
               searchTerm,
+              clubSearch,
               clubSearch,
               parseInt(req.query.minPrice) > 0
                 ? parseInt(req.query.minPrice)
