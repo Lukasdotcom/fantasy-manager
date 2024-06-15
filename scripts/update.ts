@@ -47,10 +47,6 @@ export async function updateData(url: string, file = "./sample/data1.json") {
       value2: "0",
     });
   }
-  connection.query(
-    "INSERT INTO data (value1, value2) VALUES(?, ?) ON DUPLICATE KEY UPDATE value2=?",
-    ["playerUpdate" + league, currentTime, currentTime],
-  );
   // Locks the database to prevent updates
   connection.query("INSERT IGNORE INTO data (value1, value2) VALUES (?, ?)", [
     "locked" + league,
@@ -100,6 +96,11 @@ export async function updateData(url: string, file = "./sample/data1.json") {
   if (newTransfer == "FAILURE") {
     return;
   }
+  // Only updates the time for lastUpdate when getting the data was successful
+  connection.query(
+    "INSERT INTO data (value1, value2) VALUES(?, ?) ON DUPLICATE KEY UPDATE value2=?",
+    ["playerUpdate" + league, currentTime, currentTime],
+  );
   players.sort((a: players, b: players) => (a.club > b.club ? 1 : -1)); // Makes sure that the players are sorted by their club
   // Updates countdown and the transfer market status
   await connection.query(
