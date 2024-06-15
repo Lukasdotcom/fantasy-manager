@@ -68,17 +68,16 @@ export async function updateData(url: string, file = "./sample/data1.json") {
     settings.file = file;
   }
   // Gets the data. Note that the last match points are ignored and calculated using total points
-  const [newTransfer, countdown, players, clubs] = await plugins[url](
-    settings,
-    {
-      players: await connection.query("SELECT * FROM players WHERE league=?", [
-        league,
-      ]),
-      clubs: await connection.query("SELECT * FROM clubs"),
-      timestamp: parseInt(lastUpdate[0].value2),
-      transferOpen: oldTransfer,
-    },
-  ).catch((e) => {
+  const [newTransfer, countdown, players, clubs, run_settings] = await plugins[
+    url
+  ](settings, {
+    players: await connection.query("SELECT * FROM players WHERE league=?", [
+      league,
+    ]),
+    clubs: await connection.query("SELECT * FROM clubs"),
+    timestamp: parseInt(lastUpdate[0].value2),
+    transferOpen: oldTransfer,
+  }).catch((e) => {
     console.error(
       `Error - Failed to get data for ${league}(if this happens to often something is wrong) with error ${e}`,
     );
@@ -302,7 +301,10 @@ export async function updateData(url: string, file = "./sample/data1.json") {
         );
       }
       // Updates player stats if the game is running and has not ended for too long yet
-      if (clubDone && !gameDone) {
+      if (
+        clubDone &&
+        (!gameDone || !!run_settings?.update_points_after_game_end)
+      ) {
         // Calculate all the values if they need to be calculated for last_match and total_points
         if (total_points === undefined) {
           await connection.query(
