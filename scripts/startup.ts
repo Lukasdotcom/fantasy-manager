@@ -297,7 +297,7 @@ async function startUp() {
     ),
     // Used to store future predictions
     connection.query(
-      "CREATE TABLE IF NOT EXISTS futurePredictions (leagueID int, user int, club varchar(255), league varchar(255), gameStart int, home int, away int)",
+      "CREATE TABLE IF NOT EXISTS futurePredictions (leagueID int, user int, club varchar(255), league varchar(255), gameStart int, home int, away int, PRIMARY KEY (leagueID, user, club, gameStart))",
     ),
     // Enables the WAL
     connection.query("PRAGMA journal_mode=WAL"),

@@ -614,6 +614,14 @@ async function endMatchday(league: string) {
       path: "/download",
     }),
   }).catch(() => {});
+  // Cleans up future predictions that have already passed
+  const nowTime = Math.floor(Date.now() / 1000);
+  await connection.query("DELETE FROM futureClubs WHERE gameStart<?", [
+    nowTime,
+  ]);
+  await connection.query("DELETE FROM futurePredictions WHERE gameStart<?", [
+    nowTime,
+  ]);
   console.log("Ended Matchday for " + league);
   connection.end();
   return;
