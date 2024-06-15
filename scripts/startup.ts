@@ -123,7 +123,7 @@ async function compilePlugins() {
             compareSemanticVersions(
               json.min_version || "0.0.1",
               currentVersion,
-            ) !== 1
+            ) === -1
           ) {
             console.error(
               `Plugin ${e.name} is not compatible with the current version of the program`,
