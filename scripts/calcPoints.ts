@@ -122,7 +122,7 @@ async function calcPredictionsPoints(user: leagueUsers): Promise<number> {
     )
   ).map(async (e: predictions) => {
     const game: clubs[] = await connection.query(
-      "SELECT * FROM clubs WHERE club=? AND league=? AND home=1",
+      "SELECT * FROM clubs WHERE club=? AND league=? AND home=1 AND teamScore IS NOT NULL AND opponentScore IS NOT NULL",
       [e.club, e.league],
     );
     if (game.length == 0) {
