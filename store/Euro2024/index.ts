@@ -41,11 +41,12 @@ const Main: dataGetter = async function () {
       forecast,
       total_points: player.totPts,
       average_points: player.avgPlayerPts,
-      last_match: player.lastGdPoints,
       exists: player.pStatus !== PStatus.Nis,
     };
   });
   let transferOpen = true;
+  let update_points_after_game_end = true;
+  let countdown = 0;
   const game_data: ResultClubs = await fetch(
     "https://gaming.uefa.com/en/uclpredictor/api/v1/competition/3/season/current/predictor/match_days",
     {
@@ -53,8 +54,6 @@ const Main: dataGetter = async function () {
     },
   ).then(async (e) => {
     const json_data: ResultMatchday = await e.json();
-    const last_matchday_id =
-      json_data.data.items[json_data.data.items.length - 1].id;
     for (const matchday of json_data.data.items) {
       // Before the matchday
       if (matchday.start_at > nowTime) {
@@ -73,25 +72,28 @@ const Main: dataGetter = async function () {
             headers,
           },
         ).then((e) => e.json());
-        // Checks if any game is not finished note that the last matchday never ends
-        const finished =
-          matchday.id !== last_matchday_id &&
-          data.data.items.every((game: GameItem) => {
-            return game.status === GameStatus.Finished;
-          });
-        if (!finished) {
-          // Checks if the first game has started
-          transferOpen = data.data.items.every((game: GameItem) => {
-            return game.status === GameStatus.NotStarted;
-          });
-          return data;
+        // Checks if the first game has started
+        transferOpen = data.data.items.every((game: GameItem) => {
+          return game.status === GameStatus.NotStarted;
+        });
+        if (!transferOpen) {
+          countdown = matchday.end_at - nowTime;
         }
+        return data;
       }
     }
-    // Should never get here, but just in case throws an error
-    throw new Error("Failed to find the matchday for unknown reason");
+    // Means all the matchdays are over and will return data for the last one
+    const data = await fetch(
+      `https://gaming.uefa.com/en/uclpredictor/api/v1/competition/3/season/current/predictor/matches/${json_data.data.items[json_data.data.items.length - 1].id}`,
+      {
+        headers,
+      },
+    ).then((e) => e.json());
+    update_points_after_game_end = false; // Will set this to false to not change the points for players after this is done
+    // Checks if the first game has started
+    transferOpen = false;
+    return data;
   });
-  let countdown = 0;
   const clubs = [];
   for (const game of game_data.data.items) {
     const gameStart = Date.parse(game.start_at) / 1000;
@@ -107,13 +109,6 @@ const Main: dataGetter = async function () {
     if (game.status === GameStatus.NotStarted && transferOpen) {
       const temp_countdown = gameStart - nowTime;
       if (temp_countdown < countdown || countdown === 0) {
-        countdown = temp_countdown;
-      }
-    }
-    // Updates the countdown for an hour after the last game ends if the transfermarket is closed
-    if (game.status !== GameStatus.Finished && !transferOpen) {
-      const temp_countdown = gameEnd - nowTime;
-      if (temp_countdown > countdown) {
         countdown = temp_countdown;
       }
     }
@@ -144,6 +139,12 @@ const Main: dataGetter = async function () {
   if (countdown < 0) {
     countdown = 0;
   }
-  return [transferOpen, countdown, players, clubs as clubs[]];
+  return [
+    transferOpen,
+    countdown,
+    players,
+    clubs as clubs[],
+    { update_points_after_game_end },
+  ];
 };
 export default Main;
