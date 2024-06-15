@@ -29,7 +29,7 @@
     "chart.js": "4.4.3",
     "csv-stringify": "6.5.0",
     "dotenv": "16.4.5",
-    "next": "14.2.3",
+    "next": "14.2.4",
     "next-auth": "4.24.7",
     "next-pwa": "5.6.0",
     "react": "18.2.0",
@@ -51,7 +51,7 @@
     "@typescript-eslint/parser": "7.13.0",
     "cypress": "13.11.0",
     "eslint": "8.57.0",
-    "eslint-config-next": "14.2.3",
+    "eslint-config-next": "14.2.4",
     "prettier": "3.3.1",
     "typescript": "5.4.5",
     "wait-on": "7.2.0"
