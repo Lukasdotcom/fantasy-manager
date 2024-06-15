@@ -76,6 +76,7 @@ export async function updateData(url: string, file = "./sample/data1.json") {
       ]),
       clubs: await connection.query("SELECT * FROM clubs"),
       timestamp: parseInt(lastUpdate[0].value2),
+      transferOpen: oldTransfer,
     },
   ).catch((e) => {
     console.error(
