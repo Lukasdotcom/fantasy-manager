@@ -148,6 +148,14 @@ export interface historicalClubs {
   time: number;
   exists: boolean;
 }
+export interface futureClubs {
+  club: string;
+  fullName?: string;
+  gameStart: number;
+  opponent: string;
+  league: string;
+  home: boolean;
+}
 // Stores every servers analytics data
 export interface detailedAnalytics {
   serverID: string;
@@ -204,6 +212,16 @@ export interface predictions {
   user: number;
   club: string;
   league: string;
+  home: number;
+  away: number;
+}
+
+export interface futurePredictions {
+  leagueID: number;
+  user: number;
+  club: string;
+  league: string;
+  gameStart: number;
   home: number;
   away: number;
 }

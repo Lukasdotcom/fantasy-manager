@@ -28,6 +28,11 @@ export interface clubs {
   opponentScore?: number; // This is the score of the opponent
   league: string; // This is the name of the league
   home?: boolean; // This is if it is home or away, If not set it is chosen at random so that there is only one home team in a game
+  future_games?: {
+    gameStart: number; // This is the start time of the game
+    opponent: string; // This is the name of the opponent
+    home?: boolean; // This is if it is home or away, If not set it is chosen at random so that there is only one home team in a game
+  }[]; // Allows specification of future games to be predicted
 }
 
 // These are the types for the data getter functions
