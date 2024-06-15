@@ -171,8 +171,8 @@ export async function updateData(url: string, file = "./sample/data1.json") {
         (e) =>
           new Promise<void>(async (res) => {
             await connection.query(
-              "INSERT INTO futureClubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?, league=?",
-              [club, e.gameStart, e.opponent, clubData.league],
+              "INSERT INTO futureClubs (club, gameStart, opponent, league) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE opponent=?",
+              [club, e.gameStart, e.opponent, clubData.league, e.opponent],
             );
             // Sets the home
             if (e.home !== undefined) {
