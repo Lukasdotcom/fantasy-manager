@@ -127,6 +127,7 @@
   "Forbidden": "Verboten",
   "Forecast": "Vorhersage",
   "Formation": "Formation",
+  "Future": "Zukunft",
   "Goalkeeper": "Torhüter",
   "Help": "Hilfe",
   "Here you can download the player data for personal use. ": "Hier können Sie die Spielerdaten für den persönlichen Gebrauch herunterladen. ",
@@ -407,6 +408,7 @@
   "{home_team} - {away_team} in {day} D {hour} H {minute} M ": "{home_team} - {away_team} in {day} T {hour} H {minute} M ",
   "{points} X Star": "{points} X Star",
   "{team} in {day} D {hour} H {minute} M ": "{team} in {day} T {hour} H {minute} M ",
+  "{username}'s future predictions for {leagueName}": "{username}'s Zukunftige Vorhersagen für {leagueName}",
   "{username}'s predictions {matchday} from {leagueName}": "{username}'s Vorhersagen {matchday} von {leagueName}",
   "{username}'s squad {matchday} from {leagueName}": "{username}'s Kader {matchday} von {leagueName}"
 }
