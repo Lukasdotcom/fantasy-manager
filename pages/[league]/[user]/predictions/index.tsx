@@ -44,14 +44,14 @@ export default function HistoricalView({
       <>
         <Head>
           <title>
-            {t("Predictions from {leagueName}", {
+            {t("Predictions for {leagueName}", {
               leagueName,
             })}
           </title>
         </Head>
         <Menu league={leagueID} />
         <h1>
-          {t("Predictions from {leagueName}", {
+          {t("Predictions for {leagueName}", {
             leagueName,
           })}
         </h1>
@@ -71,7 +71,7 @@ export default function HistoricalView({
     leagueName,
   });
   if (currentMatchday === -1) {
-    title_text = t("{username}'s future predictions from {leagueName}", {
+    title_text = t("{username}'s future predictions for {leagueName}", {
       username,
       leagueName,
     });
