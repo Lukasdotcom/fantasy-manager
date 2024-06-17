@@ -102,7 +102,7 @@ const Main: dataGetter = async function () {
   const clubs = [];
   for (const game of game_data.data.items) {
     const gameStart = Date.parse(game.start_at) / 1000;
-    let gameEnd = nowTime;
+    let gameEnd = gameStart + 60 * 60 * 2.5;
     if (game.status !== GameStatus.Finished) {
       gameEnd = gameStart + 60 * 60 * 3;
       // Makes sure the game will still take 5 minutes to end
