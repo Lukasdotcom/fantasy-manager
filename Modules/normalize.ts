@@ -1,5 +1,6 @@
 // This is very similar to https://github.com/tyxla/remove-accents/blob/master/index.js but with less characters to improve performance
 // Use the following sql query to find missing accents in the database: SELECT * FROM players WHERE nameAscii REGEXP '[^ -~]';
+import { historicalPlayers, players } from "#/types/database";
 import connect from "./database";
 
 // List of characters to change
@@ -10,23 +11,36 @@ const characterMap: Record<string, string> = {
   ą: "a",
   ã: "a",
   ä: "a",
+  â: "a",
+  ă: "a",
+  à: "a",
+  æ: "ae",
   Ç: "C",
   Č: "C",
   Ć: "C",
   ç: "c",
   ć: "c",
   č: "c",
+  Đ: "D",
+  Ď: "D",
+  đ: "d",
   É: "E",
   é: "e",
   ë: "e",
   è: "e",
   ê: "e",
   ě: "e",
+  ę: "e",
   ğ: "g",
+  İ: "i",
   í: "i",
   ï: "i",
   î: "i",
+  ı: "i",
+  Ľ: "L",
+  Ł: "L",
   ł: "l",
+  ľ: "l",
   ñ: "n",
   ń: "n",
   Ö: "O",
@@ -40,13 +54,23 @@ const characterMap: Record<string, string> = {
   ř: "r",
   ß: "ss",
   Š: "S",
+  Ş: "S",
+  Ś: "S",
+  Ș: "S",
   š: "s",
   ş: "s",
+  ś: "s",
+  ș: "s",
+  Ţ: "T",
   ț: "t",
+  ţ: "t",
+  Ü: "U",
   ü: "u",
   ú: "u",
   ý: "y",
+  Ž: "Z",
   ž: "z",
+  "’": "'",
 };
 function matcher(match: string): string {
   return characterMap[match];
@@ -81,5 +105,34 @@ export async function normalize_db() {
     ]);
   }
   console.log("Done renormalizing all player names to ascii.");
+  connection.end();
+}
+/**
+ * Finds all non ascii characters in player names and logs the details. Meant for testing the noAccents function
+ *
+ */
+export async function find_all_bad_chars() {
+  const connection = await connect();
+  const players: players[] = await connection.query("SELECT * FROM players");
+  const chars_found = new Set<string>();
+  for (const player of players) {
+    for (const char of noAccents(player.name)) {
+      if (char.charCodeAt(0) > 127 && !chars_found.has(char)) {
+        chars_found.add(char);
+        console.log(`Player ${player.name} has bad character ${char}`);
+      }
+    }
+  }
+  const players2: historicalPlayers[] = await connection.query(
+    "SELECT * FROM historicalPlayers",
+  );
+  for (const player of players2) {
+    for (const char of noAccents(player.name)) {
+      if (char.charCodeAt(0) > 127 && !chars_found.has(char)) {
+        chars_found.add(char);
+        console.log(`Player ${player.name} has bad character ${char}`);
+      }
+    }
+  }
   connection.end();
 }
