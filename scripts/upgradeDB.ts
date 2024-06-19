@@ -649,6 +649,12 @@ export default async function main(oldVersion: string): Promise<string> {
     oldVersion = "1.20.0";
     console.log("Upgraded database to version 1.20.0");
   }
+  if (oldVersion === "1.20.0") {
+    console.log("Upgrading database to version 1.20.1");
+    normalize_db();
+    oldVersion = "1.20.1";
+    console.log("Upgraded database to version 1.20.1");
+  }
   connection.end();
   return oldVersion;
 }
