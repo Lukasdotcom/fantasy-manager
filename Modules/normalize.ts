@@ -87,22 +87,26 @@ export async function normalize_db() {
   );
   const connection = await connect();
   const unique_players = await connection.query(
-    "SELECT DISTINCT name FROM players",
+    "SELECT DISTINCT name, nameAscii FROM players",
   );
   for (const player of unique_players) {
-    connection.query("UPDATE players SET nameAscii=? WHERE name=?", [
-      noAccents(player.name),
+    const no_accents = noAccents(player.name);
+    if (no_accents == player.nameAscii) continue;
+    await connection.query("UPDATE players SET nameAscii=? WHERE name=?", [
+      no_accents,
       player.name,
     ]);
   }
   const unique_historical_players = await connection.query(
-    "SELECT DISTINCT name FROM historicalPlayers",
+    "SELECT DISTINCT name, nameAscii FROM historicalPlayers",
   );
   for (const player of unique_historical_players) {
-    connection.query("UPDATE historicalPlayers SET nameAscii=? WHERE name=?", [
-      noAccents(player.name),
-      player.name,
-    ]);
+    const no_accents = noAccents(player.name);
+    if (no_accents == player.nameAscii) continue;
+    await connection.query(
+      "UPDATE historicalPlayers SET nameAscii=? WHERE name=?",
+      [no_accents, player.name],
+    );
   }
   console.log("Done renormalizing all player names to ascii.");
   connection.end();
