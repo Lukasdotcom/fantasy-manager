@@ -538,7 +538,7 @@ async function endMatchday(league: string) {
   );
   console.log(`Archiving matchday data for ${league}`);
   await connection.query(
-    "INSERT INTO historicalClubs (club, fullName, opponent, teamScore, opponentScore, league, home, time, `exists`) SELECT club, fullName, opponent, teamScore, opponentScore, league, home, ? as time, `exists` FROM clubs WHERE league=?",
+    "INSERT INTO historicalClubs (club, fullName, gameStart, opponent, teamScore, opponentScore, league, home, time, `exists`) SELECT club, fullName, gameStart, opponent, teamScore, opponentScore, league, home, ? as time, `exists` FROM clubs WHERE league=?",
     [time, league],
   );
   // Copies all the predictions that are still
