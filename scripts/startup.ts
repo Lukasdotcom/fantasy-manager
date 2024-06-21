@@ -270,7 +270,7 @@ async function startUp() {
     ),
     // Used to store club data
     connection.query(
-      "CREATE TABLE IF NOT EXISTS historicalClubs (club varchar(25), fullName varchar(255), opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, time int, `exists` bool, PRIMARY KEY(club, league, time))",
+      "CREATE TABLE IF NOT EXISTS historicalClubs (club varchar(25), fullName varchar(255), gameStart int, opponent varchar(3), teamScore int, opponentScore int, league varchar(25), home bool, time int, `exists` bool, PRIMARY KEY(club, league, time))",
     ),
     // Used to store future games
     connection.query(

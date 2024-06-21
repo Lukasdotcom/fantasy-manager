@@ -656,6 +656,14 @@ export default async function main(oldVersion: string): Promise<string> {
     await connection.query(
       "DELETE FROM invite WHERE EXISTS (SELECT * FROM leagueSettings WHERE archived!=0 AND leagueID=invite.leagueID)",
     );
+    // Adds gameStart column to historicalClubs
+    await connection.query("ALTER TABLE historicalClubs ADD gameStart int");
+    await connection.query(
+      "UPDATE historicalClubs SET gameStart=rowid WHERE home=1",
+    );
+    await connection.query(
+      "UPDATE historicalClubs as hc1 SET gameStart=(SELECT gameStart FROM historicalClubs as hc2 WHERE hc2.club=hc1.opponent AND hc1.league=hc2.league AND hc1.time=hc2.time) WHERE home=0",
+    );
     oldVersion = "1.20.1";
     console.log("Upgraded database to version 1.20.1");
   }

@@ -140,6 +140,7 @@ export interface clubs {
 export interface historicalClubs {
   club: string;
   fullName?: string;
+  gameStart: number;
   opponent: string;
   teamScore?: number;
   opponentScore?: number;
