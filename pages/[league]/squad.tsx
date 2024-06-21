@@ -255,10 +255,16 @@ export default function Home({
             checked={showSelling}
           />
         }
-        label={t("Show Players that are being sold")}
+        label={
+          transferOpen
+            ? t("Show Players that are being sold")
+            : t("Show Players that are being bought")
+        }
       />
       {squad["bench"]
-        .filter((e) => showSelling || e.status !== "sell")
+        .filter(
+          (e) => showSelling || e.status !== (transferOpen ? "sell" : "buy"),
+        )
         .map(
           (
             e, // Used to get the players for the bench
