@@ -150,7 +150,6 @@ export default function Home({
       setPosition_total(val.position_total);
     });
   }
-  console.log(squad);
   /**
    * This function checks if the formation can be changed to the new formation.
    *

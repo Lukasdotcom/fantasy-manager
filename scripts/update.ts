@@ -622,6 +622,11 @@ async function endMatchday(league: string) {
   await connection.query("DELETE FROM futurePredictions WHERE gameStart<?", [
     nowTime,
   ]);
+  // Sets all the clubs scores to empty scores
+  await connection.query(
+    "UPDATE clubs SET teamScore=NULL, opponentScore=NULL WHERE league=?",
+    [league],
+  );
   console.log("Ended Matchday for " + league);
   connection.end();
   return;

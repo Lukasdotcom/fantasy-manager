@@ -8,7 +8,7 @@ import { checkPictures } from "./pictures";
 import { timeUntilUpdate } from "./checkUpdate";
 import { leaveLeague } from "#Modules/delete";
 import { startWatcher } from "./watch";
-import { archive_league } from "#/Modules/league";
+import { archive_league } from "#Modules/archive";
 const analyticsDomain = "https://fantasy.lschaefer.xyz";
 const date = new Date();
 let day = date.getDay();
