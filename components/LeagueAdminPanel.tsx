@@ -410,8 +410,8 @@ function AdminPanelView({ leagueSettings }: AdminPanelProps) {
       </p>
       <h2>
         {leagueSettings.fantasyEnabled
-          ? t("Fantasy Enabled")
-          : t("Fantasy Disabled")}
+          ? t("Fantasy is Enabled")
+          : t("Fantasy is Disabled")}
       </h2>
       {leagueSettings.fantasyEnabled && (
         <>
@@ -451,23 +451,26 @@ function AdminPanelView({ leagueSettings }: AdminPanelProps) {
       )}
       <h2>
         {leagueSettings.predictionsEnabled
-          ? t("Predictions Enabled")
-          : t("Predictions Disabled")}
+          ? t("Predictions are Enabled")
+          : t("Predictions are Disabled")}
       </h2>
       {leagueSettings.predictionsEnabled && (
         <>
           <p>
-            {t("Points for Predicting Winner: {value}", {
+            {t("{label}: {value}", {
+              label: t("Points for Predicting Winner"),
               value: leagueSettings.predictWinner,
             })}
           </p>
           <p>
-            {t("Points for Predicting Difference: {value}", {
+            {t("{label}: {value}", {
+              label: t("Points for Predicting Goal Difference"),
               value: leagueSettings.predictDifference,
             })}
           </p>
           <p>
-            {t("Points for Predicting Exact: {value}", {
+            {t("{label}: {value}", {
+              label: t("Points for Predicting Exact Score"),
               value: leagueSettings.predictExact,
             })}
           </p>
