@@ -1,5 +1,10 @@
 import connect from "#database";
-import { clubs } from "#types/database";
+import {
+  clubs,
+  historicalPredictions,
+  leagueSettings,
+  points,
+} from "#types/database";
 import noAccents, { normalize_db } from "../Modules/normalize";
 import compileAnalytics from "./compileAnalytics";
 /*
@@ -663,6 +668,87 @@ export default async function main(oldVersion: string): Promise<string> {
     );
     await connection.query(
       "UPDATE historicalClubs as hc1 SET gameStart=(SELECT gameStart FROM historicalClubs as hc2 WHERE hc2.club=hc1.opponent AND hc1.league=hc2.league AND hc1.time=hc2.time) WHERE home=0",
+    );
+    // Due to an error in how the points were calculated for predictions a recalculation is needed (Copied from calcPoints.ts)
+    await Promise.all(
+      (
+        await connection.query("SELECT * FROM points WHERE predictionPoints>0")
+      ).map(
+        (e: points) =>
+          new Promise<void>(async (res) => {
+            const settings: leagueSettings = await connection
+              .query("SELECT * FROM leagueSettings WHERE leagueID=?", [
+                e.leagueID,
+              ])
+              .then((e) => e[0]);
+            const time = e.time;
+            const predictions = (
+              await connection.query(
+                "SELECT * FROM historicalPredictions WHERE historicalPredictions.leagueID=? AND historicalPredictions.user=? AND historicalPredictions.matchday=?",
+                [e.leagueID, e.user, e.matchday],
+              )
+            ).map(async (e: historicalPredictions) => {
+              const game: clubs[] = await connection.query(
+                "SELECT * FROM historicalClubs WHERE club=? AND league=? AND home=1 AND teamScore IS NOT NULL AND opponentScore IS NOT NULL AND time=?",
+                [e.club, e.league, time],
+              );
+              if (game.length == 0) {
+                return 0;
+              }
+              if (
+                game[0].teamScore !== undefined &&
+                game[0].opponentScore !== undefined
+              ) {
+                // Checks if the score was exactly right
+                if (
+                  e.home === game[0].teamScore &&
+                  e.away === game[0].opponentScore
+                ) {
+                  return settings.predictExact;
+                }
+                // Checks if the correct difference in points was chosen
+                if (
+                  e.home - e.away ===
+                  game[0].teamScore - game[0].opponentScore
+                ) {
+                  return settings.predictDifference;
+                }
+                // Checks if the correct winner was chosen
+                if (
+                  e.home > e.away ===
+                    game[0].teamScore > game[0].opponentScore &&
+                  (e.home === e.away) ===
+                    (game[0].teamScore === game[0].opponentScore)
+                ) {
+                  return settings.predictWinner;
+                }
+              }
+              return 0;
+            });
+            if (predictions.length == 0) {
+              return res();
+            }
+            const predictionPoints = (await Promise.all(predictions)).reduce(
+              (a, b) => a + b,
+            );
+            if (predictionPoints !== e.predictionPoints) {
+              await connection.query(
+                "UPDATE points SET predictionPoints=predictionPoints+? WHERE leagueID=? AND user=? AND matchday=?",
+                [
+                  predictionPoints - e.predictionPoints,
+                  e.leagueID,
+                  e.user,
+                  e.matchday,
+                ],
+              );
+              await connection.query(
+                "UPDATE leagueUsers SET predictionPoints=predictionPoints+?, points=points+? WHERE leagueID=?",
+                [predictionPoints - e.predictionPoints, e.leagueID],
+              );
+            }
+            res();
+          }),
+      ),
     );
     oldVersion = "1.20.1";
     console.log("Upgraded database to version 1.20.1");
