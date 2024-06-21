@@ -316,6 +316,7 @@ function MainPage({
       <Link href="/download">
         <Button>{t("Download Data")}</Button>
       </Link>
+      <p>{t("Clicking on a player's name will show more information. ")}</p>
     </Box>
   );
   return (
