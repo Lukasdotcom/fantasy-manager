@@ -355,7 +355,6 @@ export default function Home({
         points: historicalPoints[e][matchday - 1][filter],
       });
     });
-    newStandings.sort((a, b) => b.points - a.points);
   } else {
     newStandings = standings.map((e) => {
       return {
@@ -364,6 +363,7 @@ export default function Home({
       };
     });
   }
+  newStandings.sort((a, b) => b.points - a.points);
   return (
     <>
       <Head>
@@ -651,7 +651,7 @@ export const getServerSideProps: GetServerSideProps = async (
       ),
     );
     connection.end();
-  }).then((val: standingsData[]) => val.sort((a, b) => b.points - a.points));
+  });
   // Gets the historical amount of points for every matchday in the league
   const historicalPoints = new Promise<historialData>(async (resolve) => {
     const connection = await connect();
