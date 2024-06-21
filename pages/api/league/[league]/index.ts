@@ -3,7 +3,7 @@ import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import { NextApiRequest, NextApiResponse } from "next";
 import { leaveLeague } from "#/Modules/delete";
-import { archive_league } from "#/Modules/league";
+import { archive_league } from "#/Modules/archive";
 
 export default async function handler(
   req: NextApiRequest,
