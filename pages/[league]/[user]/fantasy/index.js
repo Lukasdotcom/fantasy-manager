@@ -174,6 +174,7 @@ export default function HistoricalView({
                 return (
                   <Player
                     key={e.playeruid + "bench"}
+                    starred={e.starred}
                     uid={e.playeruid}
                     leagueType={leagueType}
                   />
@@ -182,6 +183,7 @@ export default function HistoricalView({
                 <HistoricalPlayer
                   key={e.playeruid}
                   uid={e.playeruid}
+                  starred={e.starred}
                   time={time}
                   leagueType={leagueType}
                 />
