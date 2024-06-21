@@ -3,6 +3,7 @@ import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import { NextApiRequest, NextApiResponse } from "next";
 import { leaveLeague } from "#/Modules/delete";
+import { archive_league } from "#/Modules/league";
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,7 +12,7 @@ export default async function handler(
   const session = await getServerSession(req, res, authOptions);
   if (session) {
     const connection = await connect();
-    const league = req.query.league;
+    const league = parseInt(req.query.league as string);
     // Variable to check if the league is archived
     const isArchived = connection
       .query("SELECT * FROM leagueSettings WHERE leagueID=? AND archived=0", [
@@ -81,10 +82,7 @@ export default async function handler(
               // Archives the league when told to do so
               if (settings.archive === true) {
                 console.log(`League ${league} was archived`);
-                connection.query(
-                  "UPDATE leagueSettings SET archived=? WHERE leagueID=?",
-                  [Math.floor(Date.now() / 1000), league],
-                );
+                archive_league(league);
               }
               res.status(200).end("Saved settings");
             }

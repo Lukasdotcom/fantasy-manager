@@ -652,6 +652,10 @@ export default async function main(oldVersion: string): Promise<string> {
   if (oldVersion === "1.20.0") {
     console.log("Upgrading database to version 1.20.1");
     normalize_db();
+    // Removes invite links from leagues that are archived
+    await connection.query(
+      "DELETE FROM invite WHERE EXISTS (SELECT * FROM leagueSettings WHERE archived!=0 AND leagueID=invite.leagueID)",
+    );
     oldVersion = "1.20.1";
     console.log("Upgraded database to version 1.20.1");
   }
