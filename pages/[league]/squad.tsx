@@ -150,6 +150,7 @@ export default function Home({
       setPosition_total(val.position_total);
     });
   }
+  console.log(squad);
   /**
    * This function checks if the formation can be changed to the new formation.
    *
@@ -178,6 +179,7 @@ export default function Home({
             status={e.status}
             leagueType={leagueSettings.league}
             field={undefined}
+            transferOpen={transferOpen}
             hideButton={!transferOpen && leagueSettings.top11}
           />
         ),
@@ -196,6 +198,7 @@ export default function Home({
             status={e.status}
             leagueType={leagueSettings.league}
             field={undefined}
+            transferOpen={transferOpen}
             hideButton={!transferOpen && leagueSettings.top11}
           />
         ),
@@ -214,6 +217,7 @@ export default function Home({
             status={e.status}
             leagueType={leagueSettings.league}
             field={undefined}
+            transferOpen={transferOpen}
             hideButton={!transferOpen && leagueSettings.top11}
           />
         ),
@@ -232,6 +236,7 @@ export default function Home({
             leagueType={leagueSettings.league}
             field={undefined}
             starred={undefined}
+            transferOpen={transferOpen}
             hideButton={!transferOpen && leagueSettings.top11}
           />
         ),
@@ -270,6 +275,7 @@ export default function Home({
               starred={
                 !transferOpen && leagueSettings.top11 ? e.starred : undefined
               }
+              transferOpen={transferOpen}
               hideButton={!transferOpen && leagueSettings.top11}
             />
           ),

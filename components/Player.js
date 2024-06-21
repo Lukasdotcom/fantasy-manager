@@ -525,6 +525,7 @@ export function TransferPlayer({
  * @param {undefined | boolean} props.starred - If the player is starred.
  * @param {string} props.status - Special status of the player like buy/sell.
  * @param {string} props.leagueType - The league type property of the player.
+ * @param {boolean} props.transferOpen - If the transfer market is open
  * @param {boolean} [props.hideButton] - If the buttons should be shown
  */
 export function SquadPlayer({
@@ -535,6 +536,7 @@ export function SquadPlayer({
   starred,
   status,
   leagueType,
+  transferOpen,
   hideButton,
 }) {
   const t = useContext(TranslateContext);
@@ -562,11 +564,6 @@ export function SquadPlayer({
         disabled = true;
         MoveButton = t("Player has already played");
       }
-    }
-    if (status == "buy") {
-      extraText = t("Buying");
-    } else if (status == "sell") {
-      extraText = t("Selling");
     }
     Buttons = (
       <>
@@ -629,6 +626,11 @@ export function SquadPlayer({
         )}
       </>
     );
+  }
+  if (status == "buy") {
+    extraText = transferOpen ? t("Buying") : t("Buying next transfer period");
+  } else if (status == "sell") {
+    extraText = transferOpen ? t("Selling") : t("Selling next transfer period");
   }
   return (
     <InternalPlayer
