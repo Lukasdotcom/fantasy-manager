@@ -408,36 +408,71 @@ function AdminPanelView({ leagueSettings }: AdminPanelProps) {
           leagueType: t(leagueSettings.league),
         })}
       </p>
-      <p>
-        {t("Starting money : {amount} M", {
-          amount: leagueSettings.startMoney / 1000000,
-        })}
-      </p>
-      <p>
-        {t("Transfer limit : {amount}", { amount: leagueSettings?.transfers })}
-      </p>
-      <p>
-        {t("Amount of squads a player can be in : {duplicatePlayers}", {
-          duplicatePlayers: leagueSettings?.duplicatePlayers,
-        })}
-      </p>
-      <p>
-        {t("Point boost for starred players : {starBoost}%", {
-          starBoost: leagueSettings.starredPercentage,
-        })}
-      </p>
-      <p>
-        {t("Transfers on matchdays are {allowed}", {
-          allowed: leagueSettings.matchdayTransfers
-            ? t("Allowed")
-            : t("Forbidden"),
-        })}
-      </p>
-      <p>
-        {t("Top 11 is {enabled}", {
-          enabled: leagueSettings.top11 ? t("enabled") : t("disabled"),
-        })}
-      </p>
+      <h2>
+        {leagueSettings.fantasyEnabled
+          ? t("Fantasy Enabled")
+          : t("Fantasy Disabled")}
+      </h2>
+      {leagueSettings.fantasyEnabled && (
+        <>
+          <p>
+            {t("Starting money : {amount} M", {
+              amount: leagueSettings.startMoney / 1000000,
+            })}
+          </p>
+          <p>
+            {t("Transfer limit : {amount}", {
+              amount: leagueSettings?.transfers,
+            })}
+          </p>
+          <p>
+            {t("Amount of squads a player can be in : {duplicatePlayers}", {
+              duplicatePlayers: leagueSettings?.duplicatePlayers,
+            })}
+          </p>
+          <p>
+            {t("Point boost for starred players : {starBoost}%", {
+              starBoost: leagueSettings.starredPercentage,
+            })}
+          </p>
+          <p>
+            {t("Transfers on matchdays are {allowed}", {
+              allowed: leagueSettings.matchdayTransfers
+                ? t("Allowed")
+                : t("Forbidden"),
+            })}
+          </p>
+          <p>
+            {t("Top 11 is {enabled}", {
+              enabled: leagueSettings.top11 ? t("enabled") : t("disabled"),
+            })}
+          </p>
+        </>
+      )}
+      <h2>
+        {leagueSettings.predictionsEnabled
+          ? t("Predictions Enabled")
+          : t("Predictions Disabled")}
+      </h2>
+      {leagueSettings.predictionsEnabled && (
+        <>
+          <p>
+            {t("Points for Predicting Winner: {value}", {
+              value: leagueSettings.predictWinner,
+            })}
+          </p>
+          <p>
+            {t("Points for Predicting Difference: {value}", {
+              value: leagueSettings.predictDifference,
+            })}
+          </p>
+          <p>
+            {t("Points for Predicting Exact: {value}", {
+              value: leagueSettings.predictExact,
+            })}
+          </p>
+        </>
+      )}
       {Boolean(leagueSettings.archived) && (
         <p>
           {t(
