@@ -8,6 +8,7 @@ import { checkPictures } from "./pictures";
 import { timeUntilUpdate } from "./checkUpdate";
 import { leaveLeague } from "#Modules/delete";
 import { startWatcher } from "./watch";
+import { archive_league } from "#/Modules/league";
 const analyticsDomain = "https://fantasy.lschaefer.xyz";
 const date = new Date();
 let day = date.getDay();
@@ -65,10 +66,7 @@ async function archiveInactive() {
         )
       ).map(async (e: leagueSettings) => {
         console.log("Archiving league " + e.leagueID + " due to inacativity");
-        connection.query(
-          "UPDATE leagueSettings SET archived=? WHERE leagueID=?",
-          [Math.floor(Date.now() / 1000), e.leagueID],
-        );
+        archive_league(e.leagueID);
       }),
     );
   }
