@@ -192,7 +192,7 @@ export const get_predictions = async (
         opponent.fullName as away_team_name,
         historicalClubs.teamScore AS home_score, 
         historicalClubs.opponentScore AS away_score, 
-        0 as gameStart,
+        historicalClubs.gameStart as gameStart,
         0 as gameEnd,
         historicalPredictions.home AS home_prediction, 
         historicalPredictions.away AS away_prediction 

@@ -669,6 +669,9 @@ export default async function main(oldVersion: string): Promise<string> {
     await connection.query(
       "UPDATE historicalClubs as hc1 SET gameStart=(SELECT gameStart FROM historicalClubs as hc2 WHERE hc2.club=hc1.opponent AND hc1.league=hc2.league AND hc1.time=hc2.time) WHERE home=0",
     );
+    await connection.query(
+      "UPDATE historicalClubs SET gameStart=rowid WHERE gameStart IS NULL",
+    );
     // Due to an error in how the points were calculated for predictions a recalculation is needed (Copied from calcPoints.ts)
     await Promise.all(
       (
