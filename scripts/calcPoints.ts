@@ -141,7 +141,10 @@ async function calcPredictionsPoints(user: leagueUsers): Promise<number> {
         return settings.predictDifference;
       }
       // Checks if the correct winner was chosen
-      if (e.home > e.away === game[0].teamScore > game[0].opponentScore) {
+      if (
+        e.home > e.away === game[0].teamScore > game[0].opponentScore &&
+        (e.home === e.away) === (game[0].teamScore === game[0].opponentScore)
+      ) {
         return settings.predictWinner;
       }
     }
