@@ -193,13 +193,16 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [colorMode, setColorMode] = useState<"light" | "dark" | string>("dark");
   function updateColorMode(theme: "light" | "dark" | string, force = false) {
     if (force || colorMode !== theme) {
-      fetch("/api/user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ theme }),
-      });
+      // Checks if the theme is already saved like this on the server
+      if (session && session.user.theme !== theme) {
+        fetch("/api/user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ theme }),
+        });
+      }
       localStorage.theme = theme;
       setColorMode(theme);
     }
