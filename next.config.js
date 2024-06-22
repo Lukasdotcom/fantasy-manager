@@ -10,6 +10,9 @@ const nextConfig = withPWA({
     locales: ["en", "de"],
     defaultLocale: "en",
   },
+  images: {
+    minimumCacheTTL: 60 * 60 * 24 * 365, // There are no dynamic images used here.
+  },
 });
 
 module.exports = nextConfig;
