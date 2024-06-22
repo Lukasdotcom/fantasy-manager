@@ -579,7 +579,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       league,
       otherLeagues,
       pictures: pictureData,
-      t: await getData(ctx.locale),
+      t: await getData(ctx),
     },
   };
 };

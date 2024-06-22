@@ -19,6 +19,6 @@ export default function Home() {
 
 export const getStaticProps: GetStaticProps = async (context) => {
   return {
-    props: { t: await getData(context.locale) },
+    props: { t: await getData(context) },
   };
 };

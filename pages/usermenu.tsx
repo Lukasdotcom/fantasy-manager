@@ -30,6 +30,7 @@ import { useRouter } from "next/router";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { MUIThemeCodetoJSONString } from "#/components/theme";
 import Link from "#components/Link";
+import { getData } from "./api/theme";
 interface ProviderProps {
   provider: Providers;
   notify: NotifyType;
@@ -359,6 +360,7 @@ export const getServerSideProps: GetServerSideProps = async (
         user,
         providers: getProviders(),
         deleteable: !(await anyLeagues),
+        t: await getData(ctx),
       },
     };
   } else {

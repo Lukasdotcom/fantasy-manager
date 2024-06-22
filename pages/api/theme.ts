@@ -1,7 +1,12 @@
 import connect from "#/Modules/database";
 import getLocales from "#/locales/getLocales";
 import { ThemeOptions } from "@mui/material";
-import { NextApiRequest, NextApiResponse } from "next";
+import {
+  GetServerSidePropsContext,
+  GetStaticPropsContext,
+  NextApiRequest,
+  NextApiResponse,
+} from "next";
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -58,13 +63,25 @@ export const getTheme = async (): Promise<{
  * @return {Promise<{ theme: {dark: ThemeOptions, light: ThemeOptions}; t: Record<string, string> | null }>} - A promise that resolves to an object containing the theme and locales data.
  */
 export const getData = async (
-  locale: string | undefined,
+  context: GetStaticPropsContext | GetServerSidePropsContext,
 ): Promise<{
-  theme: { dark: ThemeOptions; light: ThemeOptions };
+  theme: { dark: ThemeOptions; light: ThemeOptions } | null;
   translate: Record<string, string> | null;
 }> => {
+  // Checks to see if this is a GetServerSidePropsContext
+  if (Object.keys(context).includes("req")) {
+    // Telling typescript that this is now a GetServerSidePropsContext
+    const context2 = context as GetServerSidePropsContext;
+    // Dirty way to check if this is rendered on the server
+    if (context2.resolvedUrl !== context2.req.url) {
+      return {
+        theme: null,
+        translate: null,
+      };
+    }
+  }
   return {
     theme: await getTheme(),
-    translate: await getLocales(locale),
+    translate: await getLocales(context.locale),
   };
 };

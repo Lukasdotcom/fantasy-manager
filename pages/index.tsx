@@ -236,7 +236,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
   return {
     props: {
       update,
-      t: await getData(context.locale),
+      t: await getData(context),
     },
     // Checks at max every day
     revalidate: 3600 * 24,

@@ -153,7 +153,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
       historicalTimes,
       leagues: leagueTypes,
       league_enabled,
-      t: await getData(context.locale),
+      t: await getData(context),
     },
   };
 };
