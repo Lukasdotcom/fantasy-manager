@@ -744,10 +744,11 @@ export default async function main(oldVersion: string): Promise<string> {
                   e.matchday,
                 ],
               );
-              await connection.query(
-                "UPDATE leagueUsers SET predictionPoints=predictionPoints+?, points=points+? WHERE leagueID=?",
-                [predictionPoints - e.predictionPoints, e.leagueID],
-              );
+              // Bad query is removed and is fixed in the 1.20.2 update
+              // await connection.query(
+              //   "UPDATE leagueUsers SET predictionPoints=predictionPoints+?, points=points+? WHERE leagueID=?",
+              //   [predictionPoints - e.predictionPoints, e.leagueID],
+              // );
             }
             res();
           }),
@@ -755,6 +756,21 @@ export default async function main(oldVersion: string): Promise<string> {
     );
     oldVersion = "1.20.1";
     console.log("Upgraded database to version 1.20.1");
+  }
+  if (oldVersion === "1.20.1") {
+    console.log("Upgrading database to version 1.20.2");
+    // Fixes point totals in tables
+    await connection.query(
+      "UPDATE points SET points=fantasyPoints+predictionPoints",
+    );
+    await connection.query(
+      "UPDATE leagueUsers SET predictionPoints=(SELECT SUM(predictionPoints) FROM points WHERE leagueUsers.user=points.user AND leagueUsers.leagueID=points.leagueID)",
+    );
+    await connection.query(
+      "UPDATE leagueUsers SET points=predictionPoints+fantasyPoints;",
+    );
+    oldVersion = "1.20.2";
+    console.log("Upgraded database to version 1.20.2");
   }
   connection.end();
   return oldVersion;
