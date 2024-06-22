@@ -27,6 +27,7 @@ import {
 import { getServerSession } from "next-auth";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import connect from "#/Modules/database";
+import { getData } from "./api/theme";
 interface MakeLeagueProps {
   getLeagueData: () => Promise<void>;
   leagues: string[];
@@ -387,6 +388,7 @@ export const getServerSideProps: GetServerSideProps = async (
     return {
       props: {
         leagues,
+        t: await getData(ctx),
       },
     };
   } else {

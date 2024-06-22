@@ -150,7 +150,7 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
   return {
     props: {
       ...props,
-      t: await getData(ctx.locale),
+      t: await getData(ctx),
     },
   };
 };

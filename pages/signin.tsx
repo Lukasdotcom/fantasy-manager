@@ -179,7 +179,7 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
   return {
     props: {
       enabledProviders: getProviders(),
-      t: await getData(ctx.locale),
+      t: await getData(ctx),
     },
   };
 };

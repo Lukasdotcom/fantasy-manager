@@ -3,6 +3,7 @@ import connect from "./database";
 import { leagueSettings } from "#type/database";
 import { authOptions } from "#/pages/api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
+import { getData } from "#/pages/api/theme";
 // Used to get information about the redirect for the league runs on every league page
 const redirect = async (
   ctx: GetServerSidePropsContext,
@@ -33,6 +34,7 @@ const redirect = async (
           league: league,
           leagueSettings: leagueInfo[0],
           transferOpen,
+          t: await getData(ctx),
         },
       };
     } else {
