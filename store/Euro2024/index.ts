@@ -22,29 +22,6 @@ const Main: dataGetter = async function () {
   });
   const playerList = data.data.value.playerList;
   const positions: position[] = ["gk", "gk", "def", "mid", "att"];
-  const players: players[] = playerList.map((player) => {
-    let forecast: forecast = "a";
-    if (player.pStatus === PStatus.D) {
-      forecast = "u";
-    } else if (player.pStatus === PStatus.I || player.pStatus === PStatus.S) {
-      forecast = "m";
-    }
-    return {
-      uid: player.id,
-      name: player.pFName,
-      club: player.cCode,
-      pictureUrl: `https://img.uefa.com/imgml/TP/players/3/2024/324x324/${player.id}.jpg`,
-      height: 324,
-      width: 324,
-      value: player.value * 1000000,
-      position:
-        player.skill >= positions.length ? "gk" : positions[player.skill],
-      forecast,
-      total_points: player.totPts,
-      average_points: player.avgPlayerPts,
-      exists: player.pStatus !== PStatus.Nis,
-    };
-  });
   let transferOpen = true;
   let update_points_after_game_end = true;
   let countdown = 0;
@@ -100,6 +77,7 @@ const Main: dataGetter = async function () {
     transferOpen = false;
   }
   const clubs = [];
+  const clubList: string[] = [];
   for (const game of game_data.data.items) {
     const gameStart = Date.parse(game.start_at) / 1000;
     let gameEnd = gameStart + 60 * 60 * 2.5;
@@ -117,6 +95,8 @@ const Main: dataGetter = async function () {
         countdown = temp_countdown;
       }
     }
+    clubList.push(game.home_team.name_short);
+    clubList.push(game.away_team.name_short);
     clubs.push({
       club: game.home_team.name_short,
       fullName: game.home_team.name,
@@ -194,6 +174,29 @@ const Main: dataGetter = async function () {
   if (countdown < 0) {
     countdown = 0;
   }
+  const players: players[] = playerList.map((player) => {
+    let forecast: forecast = "a";
+    if (player.pStatus === PStatus.D) {
+      forecast = "u";
+    } else if (player.pStatus === PStatus.I || player.pStatus === PStatus.S) {
+      forecast = "m";
+    }
+    return {
+      uid: player.id,
+      name: player.pFName,
+      club: player.cCode,
+      pictureUrl: `https://img.uefa.com/imgml/TP/players/3/2024/324x324/${player.id}.jpg`,
+      height: 324,
+      width: 324,
+      value: player.value * 1000000,
+      position:
+        player.skill >= positions.length ? "gk" : positions[player.skill],
+      forecast,
+      total_points: player.totPts,
+      average_points: player.avgPlayerPts,
+      exists: clubList.includes(player.cCode) && player.pStatus !== PStatus.Nis,
+    };
+  });
   return [
     transferOpen,
     countdown,
