@@ -772,6 +772,19 @@ export default async function main(oldVersion: string): Promise<string> {
     oldVersion = "1.20.2";
     console.log("Upgraded database to version 1.20.2");
   }
+  if (oldVersion === "1.20.2") {
+    console.log("Upgrading database to version 1.20.3");
+    await connection.query("ALTER TABLE transfers RENAME TO transfers_old");
+    await connection.query(
+      "CREATE TABLE IF NOT EXISTS transfers (leagueID int, seller int, buyer int, playeruid varchar(25), value int, position varchar(5) DEFAULT 'bench', starred bool DEFAULT 0, max int, PRIMARY KEY (leagueID, seller, buyer, playeruid))",
+    );
+    await connection.query(
+      "INSERT INTO transfers (leagueID, seller, buyer, playeruid, value, position, starred, max) SELECT leagueID, seller, buyer, playeruid, value, position, starred, max FROM transfers_old",
+    );
+    await connection.query("DROP TABLE transfers_old");
+    oldVersion = "1.20.3";
+    console.log("Upgraded database to version 1.20.3");
+  }
   connection.end();
   return oldVersion;
 }
