@@ -455,17 +455,24 @@ export default async function handler(
           // Stores the amount that the user actually wants for the player
           const actualAmount =
             amount * -1 > player.sale_price ? amount * -1 : player.sale_price;
-          connection.query(
-            "INSERT INTO transfers (leagueID, seller, buyer, playeruid, value, max) VALUES (?, ?, ?, ?, ?, ?)",
-            [
-              league,
-              user,
-              actualAmount > player.sale_price ? -1 : 0,
-              playeruid,
-              actualAmount,
-              actualAmount,
-            ],
-          );
+          const success = await connection
+            .query(
+              "INSERT INTO transfers (leagueID, seller, buyer, playeruid, value, max) VALUES (?, ?, ?, ?, ?, ?)",
+              [
+                league,
+                user,
+                actualAmount > player.sale_price ? -1 : 0,
+                playeruid,
+                actualAmount,
+                actualAmount,
+              ],
+            )
+            .then(() => true)
+            .catch(() => false);
+          if (!success) {
+            res.status(400).end("Failed to sell player");
+            break;
+          }
           // Checks if this transaction actually has a seller
           if (actualAmount === playerValue) {
             connection.query(

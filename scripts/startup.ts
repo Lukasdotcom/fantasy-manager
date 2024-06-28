@@ -31,7 +31,7 @@ export const default_theme_light = JSON.stringify({
   },
 });
 // Used to tell the program what version the database should get to
-const currentVersion = "1.20.2";
+const currentVersion = "1.20.3";
 // Creates the default config
 async function createConfig() {
   const connection = await connect();
@@ -242,7 +242,7 @@ async function startUp() {
     ),
     // Used to store transfers
     connection.query(
-      "CREATE TABLE IF NOT EXISTS transfers (leagueID int, seller int, buyer int, playeruid varchar(25), value int, position varchar(5) DEFAULT 'bench', starred bool DEFAULT 0, max int)",
+      "CREATE TABLE IF NOT EXISTS transfers (leagueID int, seller int, buyer int, playeruid varchar(25), value int, position varchar(5) DEFAULT 'bench', starred bool DEFAULT 0, max int, PRIMARY KEY (leagueID, seller, buyer, playeruid))",
     ),
     // Used to store invite links
     connection.query(
