@@ -45,7 +45,8 @@ function MyApp({ Component, pageProps }: AppProps) {
   }
   // Gets the username asyncronously
   async function getUser(id: number, reset = false): Promise<string> {
-    if (!userData[id] || reset) {
+    if (userData[id] === undefined || reset) {
+      userData[id] = ""; // Loading state to prevent lots of requests at the same time
       const data = await fetch(`/api/user/${id}`).then((e) => e.json());
       userData[id] = data;
     }
