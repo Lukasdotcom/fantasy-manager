@@ -1,6 +1,6 @@
 {
   "id": "Euro2024",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "min_version": "1.20.0",
   "description": "This is for the 2024 European Championship. Note that the last clubs player scores aren't always updated in time.",
   "files": [

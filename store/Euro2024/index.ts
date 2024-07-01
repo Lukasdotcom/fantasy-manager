@@ -104,8 +104,8 @@ const Main: dataGetter = async function () {
       gameStart,
       gameEnd,
       opponent: game.away_team.name_short,
-      teamScore: game.home_team_score,
-      opponentScore: game.away_team_score,
+      teamScore: game.home_team_score + game.home_team_pen_score,
+      opponentScore: game.away_team_score + game.away_team_pen_score,
       league: "Euro2024",
       home: true,
       future_games: future_games
@@ -140,8 +140,8 @@ const Main: dataGetter = async function () {
       gameStart,
       gameEnd,
       opponent: game.home_team.name_short,
-      teamScore: game.away_team_score,
-      opponentScore: game.home_team_score,
+      teamScore: game.away_team_score + game.away_team_pen_score,
+      opponentScore: game.home_team_score + game.home_team_pen_score,
       league: "Euro2024",
       home: false,
       future_games: future_games
