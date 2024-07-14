@@ -23,7 +23,6 @@ const Main: dataGetter = async function () {
   const playerList = data.data.value.playerList;
   const positions: position[] = ["gk", "gk", "def", "mid", "att"];
   let transferOpen = true;
-  let update_points_after_game_end = true;
   let countdown = 0;
   const matchdays: { club: ResultClubs; matchday: CurrentMatchDay }[] =
     await fetch(
@@ -73,7 +72,6 @@ const Main: dataGetter = async function () {
   // If game_data is undefined it means that all the matchdays are over
   if (!game_data) {
     game_data = matchdays[matchdays.length - 1].club;
-    update_points_after_game_end = false; // Will set this to false to not change the points for players after this is done
     transferOpen = false;
   }
   const clubs = [];
@@ -202,7 +200,7 @@ const Main: dataGetter = async function () {
     countdown,
     players,
     clubs as clubs[],
-    { update_points_after_game_end },
+    { update_points_after_game_end: true },
   ];
 };
 export default Main;
