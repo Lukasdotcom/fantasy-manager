@@ -27,7 +27,7 @@
     "@mui/material": "5.16.7",
     "bcrypt": "5.1.1",
     "chart.js": "4.4.3",
-    "csv-stringify": "6.5.0",
+    "csv-stringify": "6.5.1",
     "dotenv": "16.4.5",
     "next": "14.2.5",
     "next-auth": "4.24.7",
