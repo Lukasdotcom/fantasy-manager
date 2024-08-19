@@ -4,7 +4,7 @@ export default interface Bundesliga {
   agent: Agent;
   offerings: Offerings;
   transaction: Transaction;
-  squad: Squad;
+  squad: Checkups;
   checkups: Checkups;
   filter_data: FilterData;
   opening_hour: OpeningHour;
@@ -29,7 +29,7 @@ export interface CheckupsItem {
 
 export interface ItemArgs {
   position: Position;
-  current: number;
+  current: number | null;
   minimal: number;
   maximum: number;
 }
@@ -80,33 +80,25 @@ export interface OfferingsItem {
   buyable: boolean;
   active: boolean;
   interactive: boolean;
-  denials_for_buying: string[];
+  denials_for_buying: unknown[];
   transfer_value: number;
   favorite: boolean;
   player: Player;
-  attendance: PurpleAttendance;
+  attendance: Attendance;
 }
 
-export interface PurpleAttendance {
+export interface Attendance {
   forecast: Forecast;
-  details: PurpleDetail[];
+  details: Detail[];
 }
 
-export interface PurpleDetail {
+export interface Detail {
   key: Key;
-  args: PurpleArgs;
+  args: DetailArgs;
 }
 
-export interface PurpleArgs {
-  state: State;
-  description?: string;
-}
-
-export enum State {
-  Bench = "bench",
-  Definite = "definite",
-  NotInSquad = "not_in_squad",
-  Starter = "starter",
+export interface DetailArgs {
+  state: Forecast;
 }
 
 export enum Key {
@@ -136,21 +128,20 @@ export interface Player {
   total_scores: TotalScores;
   team: Team;
   next_opponent: NextOpponent;
-  on_sale?: OnSale;
+  past_attendances: unknown[];
 }
 
 export interface NextOpponent {
   team_code: string;
   match_venue: MatchVenue;
+  home_score: number;
+  away_score: number;
+  starts_at: Date;
 }
 
 export enum MatchVenue {
   Away = "away",
   Home = "home",
-}
-
-export interface OnSale {
-  suggested_transfer_value: number;
 }
 
 export interface Statistics {
@@ -181,38 +172,19 @@ export interface OpeningHour {
   countdown: number;
 }
 
-export interface Squad {
-  items: SquadItem[];
-}
-
-export interface SquadItem {
-  sellable: boolean;
-  denials_for_selling: unknown[];
-  transfer_value: number;
-  marked_to_buy: boolean;
-  marked_to_sell: boolean;
-  is_used: boolean;
-  interactive: boolean;
-  player: Player;
-  attendance: FluffyAttendance;
-}
-
-export interface FluffyAttendance {
-  forecast: Forecast;
-  details: FluffyDetail[];
-}
-
-export interface FluffyDetail {
-  key: Key;
-  args: FluffyArgs;
-}
-
-export interface FluffyArgs {
-  state: State;
-}
-
 export interface Transaction {
   pending: boolean;
   first_transaction: boolean;
-  commit_denials: unknown[];
+  commit_denials: CommitDenial[];
+}
+
+export interface CommitDenial {
+  reason: string;
+  args: CommitDenialArgs;
+}
+
+export interface CommitDenialArgs {
+  squad_size?: number;
+  missing?: number;
+  position?: Position;
 }
