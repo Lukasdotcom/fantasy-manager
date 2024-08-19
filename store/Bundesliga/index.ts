@@ -1,30 +1,30 @@
 import dataGetter, { players, clubs } from "#type/data";
 import Bundesliga from "./players";
-import { readFile } from "fs/promises";
 import Clubs from "./clubs";
 type position = "bench" | "gk" | "def" | "mid" | "att";
 type forecast = "a" | "u" | "m";
 const Main: dataGetter = async (settings, past_data) => {
   const nowTime = Math.floor(Date.now() / 1000);
   // Gets the data for the league, note that if a file is specified it will be used instead this is for testing purposes
-  const data: Bundesliga = settings.file
-    ? JSON.parse((await readFile(settings.file)).toString("utf-8"))
-    : await fetch("https://fantasy.bundesliga.com/api/player_transfers/init", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: `access_token=${settings.access_token}`,
-        },
-        body: JSON.stringify({
-          payload: {
-            offerings_query: {
-              offset: 0,
-              limit: 1000,
-              sort: { order_by: "popularity", order_direction: "desc" },
-            },
+  const data: Bundesliga = await fetch(
+    "https://api-dflfantasy.neopoly.com/api/player_transfers/reload.json",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${settings.Bearer}`,
+      },
+      body: JSON.stringify({
+        payload: {
+          offerings_query: {
+            limit: 1000,
+            offset: 0,
+            sort: { order_by: "price", order_direction: "desc" },
           },
-        }),
-      }).then((e) => e.json());
+        },
+      }),
+    },
+  ).then((e) => e.json());
   const clubList: { [Key: string]: clubs | "wait" } = {};
   const playerList = await Promise.all(
     data.offerings.items.map(async (e): Promise<players> => {
@@ -32,22 +32,18 @@ const Main: dataGetter = async (settings, past_data) => {
       // If the club data for the team does not exist it gets added
       if (!clubList[club]) {
         clubList[club] = "wait";
-        const club_data: Clubs = settings.file
-          ? JSON.parse(
-              (await readFile(settings.file + ".games.json")).toString("utf-8"),
-            )[club]
-          : await fetch(
-              `https://fantasy.bundesliga.com/api/player_statistic/init/${e.player.uid}`,
-              {
-                credentials: "include",
-                headers: {
-                  "Content-Type": "application/json",
-                  Cookie: `access_token=${settings.access_token}`,
-                },
-                body: '{"user_data":{}}',
-                method: "POST",
-              },
-            ).then((e) => e.json());
+        const club_data: Clubs = await fetch(
+          `https://api-dflfantasy.neopoly.com/api/v2/player_statistic/init/${e.player.uid}.json`,
+          {
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${settings.Bearer}`,
+            },
+            body: '{"user_data":{}}',
+            method: "POST",
+          },
+        ).then((e) => e.json());
         let gameStart = e.player.match_starts_in + nowTime;
         if (e.player.match_starts_in <= 0) {
           const past_data_club = past_data.clubs.filter((e) => e.club == club);
@@ -57,12 +53,10 @@ const Main: dataGetter = async (settings, past_data) => {
               ? past_data_club[0].gameStart
               : nowTime - 100;
         }
-        const current_match = club_data.player_statistic.stats.filter(
-          (e) => e.match_day.current,
-        )[0];
-        const home = current_match.match?.home_team.team_code === club;
-        const home_score = current_match.match?.result.home;
-        const away_score = current_match.match?.result.away;
+        const current_match = club_data.player.next_opponent;
+        const home = current_match.match_venue === "home";
+        const home_score = current_match.home_score;
+        const away_score = current_match.away_score;
         clubList[club] = {
           club,
           gameStart,
@@ -90,11 +84,6 @@ const Main: dataGetter = async (settings, past_data) => {
         average_points: e.player.statistics.average_points,
         exists: true,
       };
-      // Checks if the player has a sale price
-      if (e.player.on_sale && e.player.on_sale.suggested_transfer_value > 0) {
-        data.value = e.player.on_sale.suggested_transfer_value;
-        data.sale_price = e.transfer_value;
-      }
       return data;
     }),
   );

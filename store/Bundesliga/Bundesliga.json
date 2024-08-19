@@ -1,7 +1,7 @@
 {
   "id": "Bundesliga",
-  "version": "1.1.0",
-  "description": "This is for the German Bundesliga.",
+  "version": "2.0.0",
+  "description": "This is for the German Bundesliga. Note getting the Bearer is done by MITM network requests from the Bundesliga Fantasy App and then copying the bearer header value.",
   "files": [
     "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/index.ts",
     "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/clubs.d.ts",
@@ -10,8 +10,8 @@
   "input": [
     {
       "variant": "string",
-      "name": "access_token",
-      "description": "Make an account on the official fantasy manager fantasy.bundesliga.com and get the cookie access_token and add it here"
+      "name": "Bearer",
+      "description": "Should look like: 7d0e989e877"
     }
   ]
 }
