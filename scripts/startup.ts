@@ -74,7 +74,7 @@ async function compilePlugins() {
         })
       : // Uses a fallback store if the request fails(this is also the testing store)
         [
-          "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga/Bundesliga.json",
+          "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga_Testing/Bundesliga.json",
         ];
   // Installs all plugins that should be installed by default
   await Promise.all(
