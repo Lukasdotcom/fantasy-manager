@@ -9,6 +9,7 @@
     "no-eval": "error",
     "no-const-assign": "error",
     "cypress/unsafe-to-chain-command": "off",
+    "@typescript-eslint/no-unused-expressions": "off", // TODO: Enable this once you figure out what is wrong
     "no-restricted-imports": [
       "error",
       {

@@ -238,7 +238,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   } else {
     try {
       completeThemeData = JSON.parse(colorMode);
-    } catch (e) {
+    } catch {
       completeThemeData = {
         palette: {
           mode: "dark",

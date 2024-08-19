@@ -40,7 +40,7 @@ export const getTheme = async (): Promise<{
     theme.dark = await connection
       .query("SELECT * FROM data WHERE value1='configThemeDark'")
       .then((res) => (res.length > 0 ? JSON.parse(res[0].value2) : theme.dark));
-  } catch (e) {
+  } catch {
     console.error("Failed to parse dark theme");
   }
   try {
@@ -49,7 +49,7 @@ export const getTheme = async (): Promise<{
       .then((res) =>
         res.length > 0 ? JSON.parse(res[0].value2) : theme.light,
       );
-  } catch (e) {
+  } catch {
     console.error("Failed to parse light theme");
   }
   connection.end();

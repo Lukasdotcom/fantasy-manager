@@ -31,7 +31,7 @@ export default async function handler(
       JSON.parse(themeTotal);
       JSON.parse(localeActive);
       JSON.parse(localeTotal);
-    } catch (_) {
+    } catch {
       res.status(400).send("Invalid JSON");
       return;
     }
