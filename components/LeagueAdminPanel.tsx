@@ -282,7 +282,7 @@ function AdminPanelAdmin({
           });
         }}
         renderOption={(props, option: AdminUserData) => {
-          const newprops = props as BoxTypeMap;
+          const newprops = props as unknown as BoxTypeMap;
           return (
             <Box {...newprops} key={option.user}>
               <UserChip userid={option.user} />
