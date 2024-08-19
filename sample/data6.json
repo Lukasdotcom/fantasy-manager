@@ -34,10 +34,10 @@
           },
           "statistics_path": "https://fantasy.bundesliga.com/player_statistics/ef5112a9f971a1e40966",
           "image_urls": {
-            "default": "https://i.bundesliga.com/player/dfl-obj-00000m-dfl-clu-00000g-dfl-sea-0001k5-200x200.png",
-            "1x": "https://i.bundesliga.com/player/dfl-obj-00000m-dfl-clu-00000g-dfl-sea-0001k5-050x050.png",
-            "2x": "https://i.bundesliga.com/player/dfl-obj-00000m-dfl-clu-00000g-dfl-sea-0001k5-100x100.png",
-            "3x": "https://i.bundesliga.com/player/dfl-obj-00000m-dfl-clu-00000g-dfl-sea-0001k5-150x150.png"
+            "default": "http://0.0.0.0/player/dfl-obj-00000m-dfl-clu-00000g-dfl-sea-0001k5-200x200.png",
+            "1x": "http://0.0.0.0/player/dfl-obj-00000m-dfl-clu-00000g-dfl-sea-0001k5-050x050.png",
+            "2x": "http://0.0.0.0/player/dfl-obj-00000m-dfl-clu-00000g-dfl-sea-0001k5-100x100.png",
+            "3x": "http://0.0.0.0/player/dfl-obj-00000m-dfl-clu-00000g-dfl-sea-0001k5-150x150.png"
           },
           "nickname": "Robert Lewandowski",
           "positions": ["att"],
@@ -87,10 +87,10 @@
           },
           "statistics_path": "https://fantasy.bundesliga.com/player_statistics/496071e6bc5e9ddb848b",
           "image_urls": {
-            "default": "https://i.bundesliga.com/player/dfl-obj-0000ia-dfl-clu-00000g-dfl-sea-0001k5-200x200.png",
-            "1x": "https://i.bundesliga.com/player/dfl-obj-0000ia-dfl-clu-00000g-dfl-sea-0001k5-050x050.png",
-            "2x": "https://i.bundesliga.com/player/dfl-obj-0000ia-dfl-clu-00000g-dfl-sea-0001k5-100x100.png",
-            "3x": "https://i.bundesliga.com/player/dfl-obj-0000ia-dfl-clu-00000g-dfl-sea-0001k5-150x150.png"
+            "default": "http://0.0.0.0/player/dfl-obj-0000ia-dfl-clu-00000g-dfl-sea-0001k5-200x200.png",
+            "1x": "http://0.0.0.0/player/dfl-obj-0000ia-dfl-clu-00000g-dfl-sea-0001k5-050x050.png",
+            "2x": "http://0.0.0.0/player/dfl-obj-0000ia-dfl-clu-00000g-dfl-sea-0001k5-100x100.png",
+            "3x": "http://0.0.0.0/player/dfl-obj-0000ia-dfl-clu-00000g-dfl-sea-0001k5-150x150.png"
           },
           "nickname": "Thomas Müller",
           "positions": ["att"],
@@ -139,10 +139,10 @@
           },
           "statistics_path": "https://fantasy.bundesliga.com/player_statistics/87963521baf120631131",
           "image_urls": {
-            "default": "https://i.bundesliga.com/player/dfl-obj-002g3d-dfl-clu-000017-dfl-sea-0001k5-200x200.png",
-            "1x": "https://i.bundesliga.com/player/dfl-obj-002g3d-dfl-clu-000017-dfl-sea-0001k5-050x050.png",
-            "2x": "https://i.bundesliga.com/player/dfl-obj-002g3d-dfl-clu-000017-dfl-sea-0001k5-100x100.png",
-            "3x": "https://i.bundesliga.com/player/dfl-obj-002g3d-dfl-clu-000017-dfl-sea-0001k5-150x150.png"
+            "default": "http://0.0.0.0/player/dfl-obj-002g3d-dfl-clu-000017-dfl-sea-0001k5-200x200.png",
+            "1x": "http://0.0.0.0/player/dfl-obj-002g3d-dfl-clu-000017-dfl-sea-0001k5-050x050.png",
+            "2x": "http://0.0.0.0/player/dfl-obj-002g3d-dfl-clu-000017-dfl-sea-0001k5-100x100.png",
+            "3x": "http://0.0.0.0/player/dfl-obj-002g3d-dfl-clu-000017-dfl-sea-0001k5-150x150.png"
           },
           "nickname": "Christopher Nkunku",
           "positions": ["mid"],
@@ -191,10 +191,10 @@
           },
           "statistics_path": "https://fantasy.bundesliga.com/player_statistics/a4e3b74d3b62fbd6376b",
           "image_urls": {
-            "default": "https://i.bundesliga.com/player/dfl-obj-002g8i-dfl-clu-000007-dfl-sea-0001k5-200x200.png",
-            "1x": "https://i.bundesliga.com/player/dfl-obj-002g8i-dfl-clu-000007-dfl-sea-0001k5-050x050.png",
-            "2x": "https://i.bundesliga.com/player/dfl-obj-002g8i-dfl-clu-000007-dfl-sea-0001k5-100x100.png",
-            "3x": "https://i.bundesliga.com/player/dfl-obj-002g8i-dfl-clu-000007-dfl-sea-0001k5-150x150.png"
+            "default": "http://0.0.0.0/player/dfl-obj-002g8i-dfl-clu-000007-dfl-sea-0001k5-200x200.png",
+            "1x": "http://0.0.0.0/player/dfl-obj-002g8i-dfl-clu-000007-dfl-sea-0001k5-050x050.png",
+            "2x": "http://0.0.0.0/player/dfl-obj-002g8i-dfl-clu-000007-dfl-sea-0001k5-100x100.png",
+            "3x": "http://0.0.0.0/player/dfl-obj-002g8i-dfl-clu-000007-dfl-sea-0001k5-150x150.png"
           },
           "nickname": "Erling Haaland",
           "positions": ["att"],
@@ -243,10 +243,10 @@
           },
           "statistics_path": "https://fantasy.bundesliga.com/player_statistics/57d8c553b7ee72c871c0",
           "image_urls": {
-            "default": "https://i.bundesliga.com/player/dfl-obj-0002f5-dfl-clu-00000g-dfl-sea-0001k5-200x200.png",
-            "1x": "https://i.bundesliga.com/player/dfl-obj-0002f5-dfl-clu-00000g-dfl-sea-0001k5-050x050.png",
-            "2x": "https://i.bundesliga.com/player/dfl-obj-0002f5-dfl-clu-00000g-dfl-sea-0001k5-100x100.png",
-            "3x": "https://i.bundesliga.com/player/dfl-obj-0002f5-dfl-clu-00000g-dfl-sea-0001k5-150x150.png"
+            "default": "http://0.0.0.0/player/dfl-obj-0002f5-dfl-clu-00000g-dfl-sea-0001k5-200x200.png",
+            "1x": "http://0.0.0.0/player/dfl-obj-0002f5-dfl-clu-00000g-dfl-sea-0001k5-050x050.png",
+            "2x": "http://0.0.0.0/player/dfl-obj-0002f5-dfl-clu-00000g-dfl-sea-0001k5-100x100.png",
+            "3x": "http://0.0.0.0/player/dfl-obj-0002f5-dfl-clu-00000g-dfl-sea-0001k5-150x150.png"
           },
           "nickname": "Joshua Kimmich",
           "positions": ["mid"],
@@ -295,10 +295,10 @@
           },
           "statistics_path": "https://fantasy.bundesliga.com/player_statistics/daa441f73441494721fc",
           "image_urls": {
-            "default": "https://i.bundesliga.com/player/dfl-obj-0002jq-dfl-clu-00000f-dfl-sea-0001k5-200x200.png",
-            "1x": "https://i.bundesliga.com/player/dfl-obj-0002jq-dfl-clu-00000f-dfl-sea-0001k5-050x050.png",
-            "2x": "https://i.bundesliga.com/player/dfl-obj-0002jq-dfl-clu-00000f-dfl-sea-0001k5-100x100.png",
-            "3x": "https://i.bundesliga.com/player/dfl-obj-0002jq-dfl-clu-00000f-dfl-sea-0001k5-150x150.png"
+            "default": "http://0.0.0.0/player/dfl-obj-0002jq-dfl-clu-00000f-dfl-sea-0001k5-200x200.png",
+            "1x": "http://0.0.0.0/player/dfl-obj-0002jq-dfl-clu-00000f-dfl-sea-0001k5-050x050.png",
+            "2x": "http://0.0.0.0/player/dfl-obj-0002jq-dfl-clu-00000f-dfl-sea-0001k5-100x100.png",
+            "3x": "http://0.0.0.0/player/dfl-obj-0002jq-dfl-clu-00000f-dfl-sea-0001k5-150x150.png"
           },
           "nickname": "Filip Kostić",
           "positions": ["mid"],
