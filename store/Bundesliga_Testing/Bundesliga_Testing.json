@@ -1,0 +1,10 @@
+{
+  "id": "Bundesliga",
+  "version": "1.0.0",
+  "description": "This is for testing this program.",
+  "files": [
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga_Testing/index.ts",
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga_Testing/clubs.d.ts",
+    "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Bundesliga_Testing/players.d.ts"
+  ]
+}
