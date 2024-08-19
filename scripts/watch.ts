@@ -38,7 +38,7 @@ async function watcher() {
           rmSync("./revalidate");
         });
       }
-    } catch (_) {
+    } catch {
       // If the server takes more than 10 minutes to boot then exit
       if (Date.now() - startup > 600000) {
         console.log("Server never booted in 10 minutes exiting");
