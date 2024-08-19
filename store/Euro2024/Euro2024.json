@@ -2,7 +2,7 @@
   "id": "Euro2024",
   "version": "0.5.4",
   "min_version": "1.20.0",
-  "description": "This is for the 2024 European Championship. Note that the last clubs player scores aren't always updated in time.",
+  "description": "THIS IS NOW USELESS THIS PLUGIN ONLY EXISTS FOR HISTORICAL REASONS. DO NOT USE. This is for the 2024 European Championship. Note that the last clubs player scores aren't always updated in time.",
   "files": [
     "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Euro2024/index.ts",
     "https://raw.githubusercontent.com/Lukasdotcom/fantasy-manager/main/store/Euro2024/types.ts",

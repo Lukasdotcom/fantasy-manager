@@ -11,7 +11,6 @@ Not every league has perfect support. This is the levels of support for all the 
 | ---------- | ----------------- |
 | Bundesliga | :1st_place_medal: |
 | EPL        | :2nd_place_medal: |
-| Europe2024 | :new:             |
 
 # How to add another league
 
