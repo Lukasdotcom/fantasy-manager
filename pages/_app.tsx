@@ -25,7 +25,7 @@ interface Notification {
   message?: string;
   severity?: AlertColor;
 }
-const userData: { [key: number]: string } = {};
+const userData: { [key: number]: string | 0 } = {}; // The 0 means laoding
 function MyApp({ Component, pageProps }: AppProps) {
   const { data: session } = useSession();
   const [translationData, setTranslationData] = useState<
@@ -46,9 +46,19 @@ function MyApp({ Component, pageProps }: AppProps) {
   // Gets the username asyncronously
   async function getUser(id: number, reset = false): Promise<string> {
     if (userData[id] === undefined || reset) {
-      userData[id] = ""; // Loading state to prevent lots of requests at the same time
-      const data = await fetch(`/api/user/${id}`).then((e) => e.json());
+      userData[id] = 0; // Loading state to prevent lots of requests at the same time
+      const data = await fetch(`/api/user/${id}`).then((e) =>
+        e.json().catch(() => ""),
+      );
       userData[id] = data;
+    }
+    let i = 0;
+    while (userData[id] === 0 && i++ < 100) {
+      console.log(userData);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    if (userData[id] === 0) {
+      userData[id] = "";
     }
     return userData[id];
   }
