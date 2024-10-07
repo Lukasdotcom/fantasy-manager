@@ -54,7 +54,7 @@
     "eslint-config-next": "14.2.5",
     "prettier": "3.3.3",
     "typescript": "5.6.2",
-    "wait-on": "7.2.0"
+    "wait-on": "8.0.1"
   },
   "imports": {
     "#/*": "./*.ts",
