@@ -18,3 +18,15 @@ import "./commands";
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+// Tests only work
+beforeEach(() => {
+  cy.intercept(
+    {
+      url: /^((?!\/(_next\/data|api)).)*$/, // Exclude URLs containing "/_next/data" or "/api"
+    },
+    (req) => {
+      req.headers["cache-control"] = "no-cache";
+    },
+  ).as("allRequests");
+});
