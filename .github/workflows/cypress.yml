@@ -1,4 +1,4 @@
-name: Build
+name: Cypress
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  cypress:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: test
@@ -25,9 +25,5 @@ jobs:
           cache: "npm"
       # Installs packages
       - run: npm ci
-      # Makes sure the code is formatted correctly
-      - run: npm run pretty
-      # Runs eslint
-      - run: npm run lint
-      # Builds the project
-      - run: npm run build
+      # Tests the project
+      - run: npm test
