@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 ENV NODE_ENV production
 ENV APP_ENV production
 # Used to build the project
@@ -24,7 +24,7 @@ RUN rm /app/temp.db
 RUN rm -rf /app/scripts/data
 RUN rm /app/scripts/data.ts
 
-FROM node:20-alpine
+FROM node:22-alpine
 ENV NODE_ENV production
 ENV APP_ENV production
 # Used to run the project
