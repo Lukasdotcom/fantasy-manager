@@ -29,5 +29,5 @@ jobs:
           cache: "npm"
       # Installs packages
       - run: npm ci
-      # Tests the project
-      - run: npm test
+      # Tests the project with cypress
+      - run: npm run start:test & npm run cypress

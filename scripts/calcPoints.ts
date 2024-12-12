@@ -81,7 +81,7 @@ async function calcUnstarredPoints(user: leagueUsers): Promise<number> {
  * @param {leagueUsers} user - The user for whom to calculate the points.
  * @return {Promise<number>} The total points for the user's starred players.
  */
-async function calcStarredPoints(user: leagueUsers): Promise<number> {
+export async function calcStarredPoints(user: leagueUsers): Promise<number> {
   const connection = await connect();
   const data: {
     "SUM(last_match)": number;
