@@ -1,13 +1,27 @@
 {
   "compilerOptions": {
     "paths": {
-      "#/*": ["./*"],
-      "#components/*": ["./components/*"],
-      "#Modules/*": ["./Modules/*"],
-      "#type/*": ["./types/*"],
-      "#types/*": ["./types/*"],
-      "#scripts/*": ["./scripts/*"],
-      "#database": ["./Modules/database"]
+      "#/*": [
+        "./*"
+      ],
+      "#components/*": [
+        "./components/*"
+      ],
+      "#Modules/*": [
+        "./Modules/*"
+      ],
+      "#type/*": [
+        "./types/*"
+      ],
+      "#types/*": [
+        "./types/*"
+      ],
+      "#scripts/*": [
+        "./scripts/*"
+      ],
+      "#database": [
+        "./Modules/database"
+      ]
     },
     "noImplicitAny": true,
     "noImplicitThis": true,
@@ -27,5 +41,11 @@
   "ts-node": {
     "transpileOnly": true
   },
-  "include": ["./scripts/startup.ts"]
+  "include": [
+    "./scripts/startup.ts"
+  ],
+  "exclude": [
+    "**/*.spec.ts",
+    "vitest.config.ts"
+  ]
 }
