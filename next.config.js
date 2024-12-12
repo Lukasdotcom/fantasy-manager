@@ -14,8 +14,7 @@ const nextConfig = withPWA({
     minimumCacheTTL: 60 * 60 * 24 * 365, // There are no dynamic images used here.
   },
   ignoreDuringBuilds: true,
-  ignoreBuild: ['vitest.config.ts'],
-
+  ignoreBuild: ["vitest.config.ts"],
 });
 
 module.exports = nextConfig;
