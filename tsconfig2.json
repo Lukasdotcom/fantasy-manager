@@ -27,6 +27,5 @@
   "ts-node": {
     "transpileOnly": true
   },
-  "include": ["./scripts/startup.ts"],
-  "exclude": ["**/*.spec.ts", "vitest.config.ts"]
+  "include": ["./scripts/startup.ts"]
 }
