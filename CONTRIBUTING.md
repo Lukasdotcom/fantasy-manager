@@ -16,7 +16,8 @@ I am very slowly converting this project to typescript. I am almost done now the
 - [ ] Run `npm run format` to format everything with prettier.
 - [ ] Run `npm run lint` and fix all errors and new warnings.
 - [ ] Made sure that all database changes have update code in startup.ts.
-- [ ] Made sure to test your changes whith [cypress](#cypress) by running `npm test` and when it is done stopping the server with ctr-c. If this fails and you don't know why look in the [cypress section](#cypress), or just create the pull request anyway and leave this unchecked.
+- [ ] Make sure to run the unit tests with `npm test`. This project uses vitest for more details look at [Vitest](#Vitest).
+- [ ] Made sure to test your changes with [cypress](#cypress) by running `npm run start:test` and in another terminal `npm run cypress` and when it is done stopping the server with ctr-c. If this fails, and you don't know why look in the [cypress section](#cypress), or just create the pull request anyway and leave this unchecked.
 - [ ] If you added any features it would be great if you tested them with cypress(Not required).
 - [ ] If you added another league did you follow all the steps in the [leagues.md How to add another league](leagues.md#how-to-add-another-league).
 - [ ] Did you make sure to have all text in the correct format as mentioned in [translating.md](TRANSLATING.MD#help)
@@ -73,3 +74,7 @@ git clone https://github.com/lukasdotcom/fantasy-manager
 2. Secondly run `npm run cypress:open` to open cypress itself.
 3. The tests will be located in the cypress/e2e folder.
 4. If you want to load custom data into the db on the player values and points put the data into the sample folder and load it like shown in the invite2.js file in the cypress/e2e direcotory.
+
+# Vitest
+
+Currently there are only unit tests for the backend. Frontend tests are done through cypress. You are welcome to create some though.

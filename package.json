@@ -7,7 +7,7 @@
     "dev:part2": "ts-node --project=tsconfig2.json scripts/entrypoint.ts & next dev",
     "build": "export NODE_ENV=production APP_ENV=production && npm ci && npm run start2:part1 && next build",
     "start": "export NODE_ENV=production APP_ENV=production && npm run start2",
-    "test": "npm run start:test & npm run cypress",
+    "test": "export NODE_ENV=test APP_ENV=test && ts-node --project=tsconfig2.json scripts/jestSetup.ts && jest",
     "start:test": "export NODE_ENV=test APP_ENV=test && npm run clean && npm run start2",
     "start2": "npm run start2:part1 && npm run start2:part2",
     "start2:part1": "ts-node --project=tsconfig2.json scripts/startup.ts",
@@ -44,7 +44,9 @@
     "node": ">=18"
   },
   "devDependencies": {
+    "@jest/globals": "29.7.0",
     "@types/bcrypt": "5.0.2",
+    "@types/jest": "29.5.14",
     "@types/node": "20.16.10",
     "@types/react": "18.3.11",
     "@typescript-eslint/eslint-plugin": "8.8.0",
@@ -52,7 +54,9 @@
     "cypress": "13.15.0",
     "eslint": "8.57.1",
     "eslint-config-next": "14.2.14",
+    "jest": "29.7.0",
     "prettier": "3.3.3",
+    "ts-jest": "29.2.5",
     "typescript": "5.6.2",
     "wait-on": "8.0.1"
   },

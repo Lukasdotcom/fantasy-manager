@@ -27,6 +27,8 @@ jobs:
       - run: npm ci
       # Makes sure the code is formatted correctly
       - run: npm run pretty
+      # Runs tests
+      - run: npm run test
       # Runs eslint
       - run: npm run lint
       # Builds the project
