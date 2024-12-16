@@ -37,7 +37,7 @@ This is meant to be an open source self hosted way to play a fantasy manager for
 
 ## Roadmap
 
-The official roadmap is [on this kanban](https://drive.lschaefer.xyz/kanban/#/2/kanban/view/Tv48PjfOOBpvt59CcPmnB+NtZyPvuTScCnNWLIhRoeA/). If you would like to have a feature added you can request it in an issue or make it yourself and add a pull request.
+If you would like to have a feature added you can request it in an issue or make it yourself and add a pull request.
 
 ## Screenshots
 

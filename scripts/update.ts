@@ -217,18 +217,36 @@ export async function updateData(url: string, file = "./sample/data1.json") {
         "DELETE FROM futurePredictions WHERE club=? AND league=? AND gameStart=?",
         [club, clubData.league, clubData.gameStart],
       );
+      // Uses the previous game start time stored in the database for the club done, but only if it is smaller
+      const previousDataGameStart = await connection
+        .query("SELECT gameStart FROM clubs WHERE club=? AND league=?", [
+          club,
+          clubData.league,
+        ])
+        .then((e: clubs[]) => (e.length > 0 ? e[0].gameStart : Infinity));
       // Checks if the game has started
-      clubDone = !(clubData.gameStart >= currentTime || newTransfer);
-      gameDone = parseInt(lastUpdate[0].value2) > clubData.gameEnd;
+      clubDone = !(
+        Math.min(clubData.gameStart, previousDataGameStart) >= currentTime ||
+        newTransfer
+      );
+      // Uses the previous data's game end if it is smaller to make sure that a game is not overwritten after being done with a new game.
+      const previousDataGameEnd = await connection
+        .query("SELECT gameEnd FROM clubs WHERE club=? AND league=?", [
+          club,
+          clubData.league,
+        ])
+        .then((e: clubs[]) => (e.length > 0 ? e[0].gameEnd : Infinity));
+      gameDone =
+        parseInt(lastUpdate[0].value2) >
+        Math.min(previousDataGameEnd, clubData.gameEnd);
       await connection.query(
-        "INSERT INTO clubs (club, gameStart, gameEnd, opponent, league, `exists`) VALUES (?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE opponent=?, league=?, `exists`=1",
+        "INSERT INTO clubs (club, gameStart, gameEnd, opponent, league, `exists`) VALUES (?, ?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE league=?, `exists`=1",
         [
           clubData.club,
           clubData.gameStart,
           clubData.gameEnd,
           clubData.opponent,
           clubData.league,
-          clubData.opponent,
           clubData.league,
         ],
       );
@@ -251,11 +269,16 @@ export async function updateData(url: string, file = "./sample/data1.json") {
           [clubData.fullName, clubData.club, clubData.league],
         );
       }
-      // If the game has not started yet the game start time is updated
+      // If the game has not started yet the game start time and opponent is updated
       if (!clubDone) {
         connection.query(
-          "UPDATE clubs SET gameStart=?, gameEnd=? WHERE club=?",
-          [clubData.gameStart, clubData.gameEnd, clubData.club],
+          "UPDATE clubs SET gameStart=?, gameEnd=?, opponent=? WHERE club=?",
+          [
+            clubData.gameStart,
+            clubData.gameEnd,
+            clubData.opponent,
+            clubData.club,
+          ],
         );
       }
       // If the game has not been finished the game end time is updated
