@@ -91,7 +91,7 @@ export default async function handler(
     res.status(200).end("Saved");
     return;
   }
-  connection.query(
+  await connection.query(
     "INSERT INTO predictions (leagueID, user, club, league, home, away) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE home=?, away=?",
     [
       body.league,
@@ -104,6 +104,7 @@ export default async function handler(
       body.away,
     ],
   );
+  connection.end();
   console.log(
     `User ${id} predicted for match ${body.home_team}-${body.away_team} the score of ${body.home}-${body.away} in league ${body.league}`,
   );
