@@ -22,8 +22,8 @@
     "clean": "rm -f tsconfig2.tsbuildinfo; rm -f tsconfig3.tsbuildinfo; rm -f test.db; rm -rf ./scripts/data; rm -rf ./players; rm -rf ./.next/cache/images"
   },
   "dependencies": {
-    "@emotion/react": "11.13.3",
-    "@emotion/styled": "11.13.0",
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.0",
     "@mui/material": "6.1.2",
     "bcrypt": "5.1.1",
     "chart.js": "4.4.4",
