@@ -1,6 +1,7 @@
 import connect from "../Modules/database";
 import {
   clubs,
+  historicalClubs,
   leagueSettings,
   leagueUsers,
   points,
@@ -98,13 +99,103 @@ export async function calcStarredPoints(user: leagueUsers): Promise<number> {
   connection.end();
   return Math.ceil(points * starMultiplier);
 }
+export interface predictions_raw {
+  club: string;
+  home?: number;
+  away?: number;
+}
+/**
+ * Calculates the total prediction points based on the provided predictions and actual game results.
+ *
+ * @param {predictions_raw[]} predictions - An array of predicted scores for various clubs.
+ * @param {predictions_raw[]} games - An array of actual game results for various clubs.
+ * @param {leagueSettings} settings - The league settings that contain the scoring rules for predictions.
+ * @return {number} The total points accumulated from the predictions based on the scoring rules.
+ *
+ * The function iterates through each prediction and compares it against the actual game result for the same club.
+ * Points are awarded based on:
+ * - Exact match of predicted and actual scores.
+ * - Correct prediction of the goal difference.
+ * - Correct prediction of the match outcome (winner).
+ */
+export function calcPredicitionPointsRaw(
+  predictions: predictions_raw[],
+  games: predictions_raw[],
+  settings: leagueSettings,
+): number {
+  let points = 0;
+  for (const prediction of predictions) {
+    if (prediction.home === undefined || prediction.away === undefined) {
+      continue;
+    }
+    for (const game of games) {
+      if (game.home === undefined || game.away === undefined) {
+        continue;
+      }
+      if (prediction.club == game.club) {
+        // Checks if the score was exactly right
+        if (prediction.home === game.home && prediction.away === game.away) {
+          points += settings.predictExact;
+        }
+        // Checks if the correct difference in points was chosen
+        else if (prediction.home - prediction.away === game.home - game.away) {
+          points += settings.predictDifference;
+        }
+        // Checks if the correct winner was chosen
+        else if (
+          prediction.home > prediction.away === game.home > game.away &&
+          (prediction.home === prediction.away) === (game.home === game.away)
+        ) {
+          points += settings.predictWinner;
+        }
+      }
+    }
+  }
+  return points;
+}
+/**
+ * Calculates the total prediction points for a given user for a given matchday.
+ *
+ * @param {points} matchday - The matchday for which to calculate the prediction points.
+ * @return {Promise<number>} The total prediction points for the user for the given matchday.
+ */
+export async function calcHistoricalPredictionPoints(
+  matchday: points,
+): Promise<number> {
+  const connection = await connect();
+  const temp: leagueSettings[] = await connection.query(
+    "SELECT * FROM leagueSettings WHERE leagueID=?",
+    [matchday.leagueID],
+  );
+  if (temp.length == 0) {
+    return 0;
+  }
+  const settings: leagueSettings = temp[0];
+  const predictions: predictions[] = await connection.query(
+    "SELECT * FROM historicalPredictions WHERE user=? AND leagueID=? AND matchday=?",
+    [matchday.user, matchday.leagueID, matchday.matchday],
+  );
+  const games: predictions_raw[] = (
+    await connection.query(
+      "SELECT * FROM historicalClubs WHERE league=? AND home=1 AND time=?",
+      [settings.league, matchday.time],
+    )
+  ).map((e: historicalClubs) => {
+    return {
+      home: e.teamScore,
+      away: e.opponentScore,
+      club: e.club,
+    };
+  });
+  return calcPredicitionPointsRaw(predictions, games, settings);
+}
 /**
  * Calculates the prediction points for a given user.
  *
  * @param {leagueUsers} user - The user for whom to calculate the prediction points.
  * @return {Promise<number>} The prediction points for the user.
  */
-export async function calcPredictionsPoints(
+export async function calcPredictionsPointsNow(
   user: leagueUsers,
 ): Promise<number> {
   const connection = await connect();
@@ -116,49 +207,28 @@ export async function calcPredictionsPoints(
     return 0;
   }
   const settings: leagueSettings = temp[0];
-  // Changes all the nulls to 0's
+  // Changes all the nulls to 0's to prevent invalid predictions from existing
   await connection.query(
     "UPDATE predictions SET home=IFNULL(home, 0), away=IFNULL(away, 0) WHERE user=? AND leagueID=?",
     [user.user, user.leagueID],
   );
-  // Gets all the predictions
-  const predictions: Promise<number>[] = (
-    await connection.query(
-      "SELECT * FROM predictions WHERE user=? AND leagueID=?",
-      [user.user, user.leagueID],
-    )
-  ).map(async (e: predictions) => {
-    const game: clubs[] = await connection.query(
-      "SELECT * FROM clubs WHERE club=? AND league=? AND home=1 AND teamScore IS NOT NULL AND opponentScore IS NOT NULL",
-      [e.club, e.league],
-    );
-    if (game.length == 0) {
-      return 0;
-    }
-    if (
-      game[0].teamScore !== undefined &&
-      game[0].opponentScore !== undefined
-    ) {
-      // Checks if the score was exactly right
-      if (e.home === game[0].teamScore && e.away === game[0].opponentScore) {
-        return settings.predictExact;
-      }
-      // Checks if the correct difference in points was chosen
-      if (e.home - e.away === game[0].teamScore - game[0].opponentScore) {
-        return settings.predictDifference;
-      }
-      // Checks if the correct winner was chosen
-      if (
-        e.home > e.away === game[0].teamScore > game[0].opponentScore &&
-        (e.home === e.away) === (game[0].teamScore === game[0].opponentScore)
-      ) {
-        return settings.predictWinner;
-      }
-    }
-    return 0;
+  const predictions: predictions[] = await connection.query(
+    "SELECT * FROM predictions WHERE user=? AND leagueID=?",
+    [user.user, user.leagueID],
+  );
+  const games: predictions_raw[] = (
+    await connection.query("SELECT * FROM clubs WHERE league=? AND home=1", [
+      settings.league,
+    ])
+  ).map((e: clubs) => {
+    return {
+      club: e.club,
+      home: e.teamScore,
+      away: e.opponentScore,
+    };
   });
   connection.end();
-  return (await Promise.all(predictions)).reduce((a, b) => a + b, 0);
+  return calcPredicitionPointsRaw(predictions, games, settings);
 }
 /**
  * Calculates and updates the points for the specified league.
@@ -250,7 +320,7 @@ export async function calcPoints(league: string | number) {
         );
       }),
       // Calculates the amont of points the user should have for the matchday in predictions
-      calcPredictionsPoints(e),
+      calcPredictionsPointsNow(e),
     ]);
     // Checks if the matchday might be different
     if (e.leagueID !== currentleagueID) {
