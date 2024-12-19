@@ -487,7 +487,7 @@ export async function startMatchday(league: string) {
         .then((result) => (result.length > 0 ? result[0].matchday + 1 : 1));
     }
     // Stores the data in the historical transfers
-    connection.query(
+    await connection.query(
       "INSERT INTO historicalTransfers (matchday, leagueID, seller, buyer, playeruid, value) VALUES (?, ?, ?, ?, ?, ?)",
       [matchday, e.leagueID, e.seller, e.buyer, e.playeruid, e.value],
     );
