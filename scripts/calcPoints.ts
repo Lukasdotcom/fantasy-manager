@@ -104,7 +104,9 @@ export async function calcStarredPoints(user: leagueUsers): Promise<number> {
  * @param {leagueUsers} user - The user for whom to calculate the prediction points.
  * @return {Promise<number>} The prediction points for the user.
  */
-async function calcPredictionsPoints(user: leagueUsers): Promise<number> {
+export async function calcPredictionsPoints(
+  user: leagueUsers,
+): Promise<number> {
   const connection = await connect();
   const temp: leagueSettings[] = await connection.query(
     "SELECT * FROM leagueSettings WHERE leagueID=?",
@@ -114,6 +116,11 @@ async function calcPredictionsPoints(user: leagueUsers): Promise<number> {
     return 0;
   }
   const settings: leagueSettings = temp[0];
+  // Changes all the nulls to 0's
+  await connection.query(
+    "UPDATE predictions SET home=IFNULL(home, 0), away=IFNULL(away, 0) WHERE user=? AND leagueID=?",
+    [user.user, user.leagueID],
+  );
   // Gets all the predictions
   const predictions: Promise<number>[] = (
     await connection.query(
