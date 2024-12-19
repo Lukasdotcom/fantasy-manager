@@ -395,6 +395,30 @@ function AdminPanelAdmin({
       >
         {t("Save admin settings")}
       </Button>
+      <br />
+      <br />
+      <Button
+        variant="outlined"
+        onClick={async () => {
+          const res = await fetch(`/api/league/${league}/recalculate`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              predictions: true,
+            }),
+          });
+          if (res.ok) {
+            notify(t(await res.text()), "success");
+            Router.push(Router.asPath);
+          } else {
+            notify(t(await res.text()), "error");
+          }
+        }}
+      >
+        {t("Recalculate Prediction Points")}
+      </Button>
     </>
   );
 }
