@@ -10,7 +10,6 @@ COPY pages pages
 COPY public public
 COPY scripts scripts
 COPY styles styles
-COPY .eslintrc.json .eslintrc.json
 COPY next.config.js next.config.js
 COPY package-lock.json package-lock.json
 COPY package.json package.json
