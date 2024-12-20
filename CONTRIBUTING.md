@@ -55,16 +55,7 @@ npm run dev
 
 ## Docker
 
-1. First install docker and docker-compose or docker desktop
-2. Download this entire repository to your computer with
-
-```bash
-git clone https://github.com/lukasdotcom/fantasy-manager
-```
-
-3. Copy the docker-compose file in the development folder to the top folder of the repository.
-4. Edit the volume and replace /locationToWhereThisGithubIsDownloaded with wherever this repository got downloaded to.
-5. Then run `docker-compose up`
+1. Docker is unmaintained due to being unnecessary.
 
 # Cypress
 
